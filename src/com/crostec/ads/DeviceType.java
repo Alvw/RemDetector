@@ -9,7 +9,7 @@ public enum DeviceType {
             new ComPortParams(460800, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE)),
 
     ADS1292(2, D50, new Divider[]{D1, D2, D5, D10, D25, D50}, new Divider[]{D10, D25, D50},
-            new ComPortParams(230400, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE));
+            new ComPortParams(256000, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE));
 
     private int numberOfAdsChannels;
     private Divider[] channelsAvailableDividers;

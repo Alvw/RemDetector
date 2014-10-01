@@ -32,21 +32,13 @@ public class Controller {
         if (bdfWriter != null) {
             ads.removeAdsDataListener(bdfWriter);
         }
-        if (mathlabDataListener != null) {
-            ads.removeAdsDataListener(mathlabDataListener);
-        }
         bdfWriter = new BdfWriter(bdfHeaderData);
-        mathlabDataListener = new MathlabDataListener(bdfHeaderData.getAdsConfiguration());
-        if(mathlabDataListener.isFrequencyTheSame()){
-           ads.addAdsDataListener(mathlabDataListener);
-           log.info("Mathlab interface started successfully. ");
-        } else {
-            log.warn("Mathlab interface disabled. Frequencies for all channels should be the same");
-        }
         ads.addAdsDataListener(bdfWriter);
         try {
             ads.startRecording(bdfHeaderData.getAdsConfiguration());
-        } catch (AdsException e) {
+            Thread.sleep(1000);
+            ads.writeToPort(BlueGigaManager.setScanParameters());
+        } catch (Exception e) {
             JOptionPane.showMessageDialog(null, e.getMessage());
             System.exit(0);
         }
