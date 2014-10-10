@@ -1,6 +1,6 @@
 package com.github.dreamrec;
 
-import com.crostec.ads.AdsDataListener;
+import device.BdfDataListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -14,11 +14,11 @@ import java.util.List;
  */
 public class BdfReader {
 
-    public List<AdsDataListener> adsDataListeners = new ArrayList<AdsDataListener>();
+    public List<BdfDataListener> bdfDataListeners = new ArrayList<BdfDataListener>();
     Log log = LogFactory.getLog(BdfReader.class);
 
-    public void addDataListener(AdsDataListener adsDataListener) {
-        adsDataListeners.add(adsDataListener);
+    public void addDataListener(BdfDataListener bdfDataListener) {
+        bdfDataListeners.add(bdfDataListener);
     }
 
     public void read(File file) {

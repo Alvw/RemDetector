@@ -1,4 +1,4 @@
-package com.crostec.ads;
+package device;
 
 import java.util.List;
 

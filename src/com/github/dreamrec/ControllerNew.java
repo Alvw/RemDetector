@@ -1,10 +1,12 @@
 package com.github.dreamrec;
 
+import bdf.BdfWriter;
 import com.crostec.ads.*;
 import com.dream.ApparatModel;
 import com.dream.FileIOManager;
-import com.dream.MainView;
 import com.dream.MainViewNew;
+import device.BdfConfig;
+import device.BdfSignalConfig;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

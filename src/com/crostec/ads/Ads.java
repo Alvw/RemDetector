@@ -1,5 +1,6 @@
 package com.crostec.ads;
 
+import device.BdfDataListener;
 import gnu.io.NoSuchPortException;
 import gnu.io.PortInUseException;
 import org.apache.commons.logging.Log;
@@ -15,7 +16,7 @@ public class Ads {
 
     private static final Log log = LogFactory.getLog(Ads.class);
 
-    private List<AdsDataListener> adsDataListeners = new ArrayList<AdsDataListener>();
+    private List<BdfDataListener> bdfDataListeners = new ArrayList<BdfDataListener>();
     private ComPort comPort;
     private boolean isRecording;
 
@@ -51,8 +52,8 @@ public class Ads {
     }
 
     public void stopRecording() {
-        for (AdsDataListener adsDataListener : adsDataListeners) {
-            adsDataListener.onStopRecording();
+        for (BdfDataListener bdfDataListener : bdfDataListeners) {
+            bdfDataListener.onStopRecording();
         }
         if (!isRecording) return;
         //comPort.writeToPort(new AdsConfigurator().startPinLo());
@@ -64,17 +65,17 @@ public class Ads {
         comPort.disconnect();
     }
 
-    public void addAdsDataListener(AdsDataListener adsDataListener) {
-        adsDataListeners.add(adsDataListener);
+    public void addAdsDataListener(BdfDataListener bdfDataListener) {
+        bdfDataListeners.add(bdfDataListener);
     }
 
     private void notifyAdsDataListeners(int[] dataRecord) {
-        for (AdsDataListener adsDataListener : adsDataListeners) {
-            adsDataListener.onAdsDataReceived(dataRecord);
+        for (BdfDataListener bdfDataListener : bdfDataListeners) {
+            bdfDataListener.onAdsDataReceived(dataRecord);
         }
     }
 
-    public void removeAdsDataListener(AdsDataListener adsDataListener) {
-        adsDataListeners.remove(adsDataListener);
+    public void removeAdsDataListener(BdfDataListener bdfDataListener) {
+        bdfDataListeners.remove(bdfDataListener);
     }
 }

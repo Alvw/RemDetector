@@ -1,13 +1,13 @@
 package com.github.dreamrec;
 
-import com.crostec.ads.AdsDataListener;
+import device.BdfDataListener;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  *
  */
-public class IncomingDataBuffer implements AdsDataListener {
+public class IncomingDataBuffer implements BdfDataListener {
 
     private ConcurrentLinkedQueue<int[]> dataframesBuffer = new ConcurrentLinkedQueue<int[]>();
 

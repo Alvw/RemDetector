@@ -1,6 +1,9 @@
 package com.crostec.bdfrecorder;
 
+import bdf.BdfWriter;
 import com.crostec.ads.*;
+import device.BdfConfig;
+import device.BdfSignalConfig;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

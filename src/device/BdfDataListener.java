@@ -1,9 +1,9 @@
-package com.crostec.ads;
+package device;
 
 /**
  *
  */
-public interface AdsDataListener {
+public interface BdfDataListener {
 
     public void onAdsDataReceived(int[] dataFrame);
     public void onStopRecording();
