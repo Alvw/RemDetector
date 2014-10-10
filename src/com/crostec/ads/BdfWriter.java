@@ -15,51 +15,58 @@ import java.util.Date;
 public class BdfWriter implements AdsDataListener {
 
     private static final Log LOG = LogFactory.getLog(BdfWriter.class);
-    private BdfHeaderData bdfHeaderData;
+    private final BdfConfig bdfConfig;
     private RandomAccessFile fileToSave;
-    private JoinFramesUtility joinFramesUtility;
     private long startRecordingTime;
     private long stopRecordingTime;
     private int numberOfDataRecords;
     private boolean stopRecordingRequest;
 
-    public BdfWriter(BdfHeaderData bdfHeaderData) {
-        this.bdfHeaderData = bdfHeaderData;
+    public BdfWriter(BdfConfig bdfConfig) {
+        this.bdfConfig = bdfConfig;
         try {
-            this.fileToSave = new RandomAccessFile(bdfHeaderData.getFileNameToSave(), "rw");
+            this.fileToSave = new RandomAccessFile(bdfConfig.getFileNameToSave(), "rw");
         } catch (FileNotFoundException e) {
             LOG.error(e);
         }
-        joinFramesUtility = new JoinFramesUtility(bdfHeaderData.getAdsConfiguration()) {
-            @Override
-            public void notifyListeners(int[] joinedFrame) {
-                onBdfDataRecordReady(joinedFrame);
-            }
-
-            @Override
-            public void onStopRecording() {
-                //To change body of implemented methods use File | Settings | File Templates.
-            }
-        };
     }
 
     @Override
     public synchronized void onAdsDataReceived(int[] dataFrame) {
         if (!stopRecordingRequest) {
-            joinFramesUtility.onAdsDataReceived(dataFrame);
+            if (numberOfDataRecords == 0) {
+                startRecordingTime = System.currentTimeMillis() - (long)bdfConfig.getDurationOfADataRecord(); //1 second (1000 msec) duration of a data record
+                bdfConfig.setStartTime(startRecordingTime);
+                try {
+                    fileToSave.write(BdfHeaderWriter.createBdfHeader(bdfConfig));
+                } catch (IOException e) {
+                    LOG.error(e);
+                    throw new RuntimeException(e);
+                }
+            }
+            numberOfDataRecords++;
+            stopRecordingTime = System.currentTimeMillis();
+            for (int i = 0; i < dataFrame.length; i++) {
+                try {
+                    fileToSave.write(AdsUtils.to24BitLittleEndian(dataFrame[i]));
+                } catch (IOException e) {
+                    LOG.error(e);
+                    throw new RuntimeException(e);
+                }
+            }
         }
     }
 
     @Override
     public synchronized void onStopRecording() {
-        if(stopRecordingRequest) return;
+        if (stopRecordingRequest) return;
         stopRecordingRequest = true;
         double durationOfDataRecord = (stopRecordingTime - startRecordingTime) * 0.001 / numberOfDataRecords;
-        bdfHeaderData.setDurationOfDataRecord(durationOfDataRecord);
-        bdfHeaderData.setNumberOfDataRecords(numberOfDataRecords);
+        bdfConfig.setDurationOfADataRecord(durationOfDataRecord);
+        bdfConfig.setNumberOfDataRecords(numberOfDataRecords);
         try {
             fileToSave.seek(0);
-            fileToSave.write(BdfHeaderWriter.createBdfHeader(bdfHeaderData));
+            fileToSave.write(BdfHeaderWriter.createBdfHeader(bdfConfig));
             fileToSave.close();
         } catch (IOException e) {
             LOG.error(e);
@@ -71,29 +78,4 @@ public class BdfWriter implements AdsDataListener {
         LOG.info("Number of data records = " + numberOfDataRecords);
         LOG.info("Duration of a data record = " + durationOfDataRecord);
     }
-
-    private void onBdfDataRecordReady(int[] dataFrame) {
-        if (numberOfDataRecords == 0) {
-            startRecordingTime = System.currentTimeMillis() - 1000; //1 second (1000 msec) duration of a data record
-            bdfHeaderData.setStartRecordingTime(startRecordingTime);
-            try {
-                fileToSave.write(BdfHeaderWriter.createBdfHeader(bdfHeaderData));
-            } catch (IOException e) {
-                LOG.error(e);
-                throw new RuntimeException(e);
-            }
-        }
-        numberOfDataRecords++;
-        stopRecordingTime = System.currentTimeMillis();
-        for (int i = 0; i < dataFrame.length; i++) {
-            try {
-                fileToSave.write(AdsUtils.to24BitLittleEndian(dataFrame[i]));
-            } catch (IOException e) {
-                LOG.error(e);
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
-
 }

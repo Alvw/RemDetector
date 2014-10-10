@@ -11,19 +11,19 @@ import static com.crostec.ads.AdsUtils.*;
 
 class BdfHeaderWriter {
 
-    public static byte[] createBdfHeader(BdfHeaderData bdfHeaderData) {
+    public static byte[] createBdfHeader(BdfConfig bdfConfig) {
         Charset characterSet = Charset.forName("US-ASCII");
         StringBuilder bdfHeader = new StringBuilder();
 
         String identificationCode = "BIOSEMI";
 
-        String localPatientIdentification = "Patient: " + bdfHeaderData.getPatientIdentification();
-        String localRecordingIdentification = "Record: " + bdfHeaderData.getRecordingIdentification();
+        String localPatientIdentification = "Patient: " + bdfConfig.getLocalPatientIdentification();
+        String localRecordingIdentification = "Record: " + bdfConfig.getLocalRecordingIdentification();
 
-        String startDateOfRecording = new SimpleDateFormat("dd.MM.yy").format(new Date(bdfHeaderData.getStartRecordingTime()));
-        String startTimeOfRecording = new SimpleDateFormat("HH.mm.ss").format(new Date(bdfHeaderData.getStartRecordingTime()));
+        String startDateOfRecording = new SimpleDateFormat("dd.MM.yy").format(new Date(bdfConfig.getStartTime()));
+        String startTimeOfRecording = new SimpleDateFormat("HH.mm.ss").format(new Date(bdfConfig.getStartTime()));
 
-        int numberOfSignals = getDividersForActiveChannels(bdfHeaderData.getAdsConfiguration()).size();  // number of signals in data record = number of active channels
+        int numberOfSignals = bdfConfig.getNumberOfSignals();  // number of signals in data record = number of active channels
         int numberOfBytesInHeaderRecord = 256 * (1 + numberOfSignals);
         String versionOfDataFormat = "24BIT";
 
@@ -42,8 +42,8 @@ class BdfHeaderWriter {
         bdfHeader.append(startTimeOfRecording);
         bdfHeader.append(adjustLength(Integer.toString(numberOfBytesInHeaderRecord), 8));
         bdfHeader.append(adjustLength(versionOfDataFormat, 44));
-        bdfHeader.append(adjustLength(Integer.toString(bdfHeaderData.getNumberOfDataRecords()), 8));
-        bdfHeader.append(adjustLength(String.format("%.6f", bdfHeaderData.getDurationOfDataRecord()).replace(",", "."), 8));
+        bdfHeader.append(adjustLength(Integer.toString(bdfConfig.getNumberOfDataRecords()), 8));
+        bdfHeader.append(adjustLength(String.format("%.6f", bdfConfig.getDurationOfADataRecord()).replace(",", "."), 8));
         bdfHeader.append(adjustLength(Integer.toString(numberOfSignals), 4));
 
         StringBuilder labels = new StringBuilder();
@@ -56,37 +56,27 @@ class BdfHeaderWriter {
         StringBuilder preFilterings = new StringBuilder();
         StringBuilder samplesNumbers = new StringBuilder();
         StringBuilder reservedForChannels = new StringBuilder();
-        AdsConfiguration adsConfiguration = bdfHeaderData.getAdsConfiguration();
-        List<AdsChannelConfiguration> channelConfigurations = adsConfiguration.getAdsChannels();
-        for (int i = 0; i < channelConfigurations.size(); i++) {
-            if (channelConfigurations.get(i).isEnabled) {
-                labels.append(adjustLength(bdfHeaderData.getAdsChannelNames().get(i), 16));
+        //AdsConfiguration adsConfiguration = bdfConfig.getAdsConfiguration();
+        List<BdfSignalConfig> signalConfigList = bdfConfig.getSignalConfigList();
+        for (int i = 0; i < signalConfigList.size(); i++) {
+            BdfSignalConfig bdfSignalConfig = signalConfigList.get(i);
+            if (bdfSignalConfig.isEnabled()) {
+                labels.append(adjustLength(bdfSignalConfig.getLabel(), 16));
                 transducerTypes.append(adjustLength("Unknown", 80));
-                physicalDimensions.append(adjustLength("uV", 8));
-                int physicalMaximum = 2400000/channelConfigurations.get(i).getGain().getValue();
-                physicalMinimums.append(adjustLength("-" + physicalMaximum, 8));
-                physicalMaximums.append(adjustLength("" + physicalMaximum, 8));
-                digitalMinimums.append(adjustLength(channelsDigitalMinimum, 8));
-                digitalMaximums.append(adjustLength(channelsDigitalMaximum, 8));
+                physicalDimensions.append(adjustLength(bdfSignalConfig.getPhysicalDimension(), 8));
+               int physicalMaximum = bdfSignalConfig.getPhysicalMax();
+               int physicalMinimum = bdfSignalConfig.getPhysicalMin();
+               int digitalMax = bdfSignalConfig.getDigitalMax();
+               int digitalMin = bdfSignalConfig.getDigitalMin();
+
+                physicalMinimums.append(adjustLength(String.valueOf(physicalMinimum), 8));
+                physicalMaximums.append(adjustLength(String.valueOf(physicalMaximum), 8));
+                digitalMinimums.append(adjustLength(String.valueOf(digitalMin), 8));
+                digitalMaximums.append(adjustLength(String.valueOf(digitalMax), 8));
                 preFilterings.append(adjustLength("None", 80));
-                int nrOfSamplesInEachDataRecord = (int) Math.round(bdfHeaderData.getDurationOfDataRecord()) * adsConfiguration.getSps().getValue() /
-                        channelConfigurations.get(i).getDivider().getValue();
-                samplesNumbers.append(adjustLength(Integer.toString(nrOfSamplesInEachDataRecord), 8));
-                reservedForChannels.append(adjustLength("", 32));
-            }
-        }
-        if (adsConfiguration.isAccelerometerEnabled()) {
-            for (int i = 0; i < 3; i++) {     //3 accelerometer chanels
-                labels.append(adjustLength(bdfHeaderData.getAccelerometerChannelNames().get(i), 16));
-                transducerTypes.append(adjustLength("None", 80));
-                physicalDimensions.append(adjustLength("g", 8));
-                physicalMinimums.append(adjustLength(accelerometerPhysicalMinimum, 8));
-                physicalMaximums.append(adjustLength(accelerometerPhysicalMaximum, 8));
-                digitalMinimums.append(adjustLength(accelerometerDigitalMinimum, 8));
-                digitalMaximums.append(adjustLength(accelerometerDigitalMaximum, 8));
-                preFilterings.append(adjustLength("None", 80));
-                int nrOfSamplesInEachDataRecord = (int) Math.round(bdfHeaderData.getDurationOfDataRecord()) * adsConfiguration.getSps().getValue() /
-                        adsConfiguration.getAccelerometerDivider().getValue();
+//                int nrOfSamplesInEachDataRecord = (int) Math.round(bdfConfig.getDurationOfADataRecord()) * adsConfiguration.getSps().getValue() /
+//                        channelConfigurations.get(i).getDivider().getValue();
+                int nrOfSamplesInEachDataRecord = bdfSignalConfig.getNrOfSamplesInEachDataRecord();
                 samplesNumbers.append(adjustLength(Integer.toString(nrOfSamplesInEachDataRecord), 8));
                 reservedForChannels.append(adjustLength("", 32));
             }

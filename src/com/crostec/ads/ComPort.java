@@ -24,19 +24,18 @@ class ComPort {
     SerialWriter serialWriter;
     Thread serialWriterThread;
 
-    public void connect(AdsConfiguration adsConfiguration) throws Exception {
+    public void connect(DeviceConfig deviceConfig) throws Exception {
         if (isConnected) {
             return;
         }
-        CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(adsConfiguration.getComPortName());
+        CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(deviceConfig.getComPortName());
         if (portIdentifier.isCurrentlyOwned()) {
             log.error("Error: Port is currently in use");
         } else {
             commPort = portIdentifier.open(this.getClass().getName(), 2000);
             if (commPort instanceof SerialPort) {
                 SerialPort serialPort = (SerialPort) commPort;
-                ComPortParams comPortParams = adsConfiguration.getDeviceType().getComPortParams();
-                serialPort.setSerialPortParams(comPortParams.getSpeed(), SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
+                serialPort.setSerialPortParams(deviceConfig.getComPortSpeed(), SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
                 inputStream = serialPort.getInputStream();
                 outputStream = serialPort.getOutputStream();
                 isConnected = true;

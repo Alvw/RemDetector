@@ -6,31 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AdsUtils {
-    /**
-     * returns dividers list for all active channels including 3 accelerometer channels
-     */
-    public static List<Integer> getDividersForActiveChannels(AdsConfiguration adsConfiguration) {
-        List<Integer> dividersList = new ArrayList<Integer>();
-        for (AdsChannelConfiguration channelConfiguration : adsConfiguration.getAdsChannels()) {
-            if (channelConfiguration.isEnabled()) {
-                dividersList.add(channelConfiguration.getDivider().getValue());
-            }
-        }
-        for (int i = 0; i < 3; i++) {
-            if (adsConfiguration.isAccelerometerEnabled()) {
-                dividersList.add(adsConfiguration.getAccelerometerDivider().getValue());
-            }
-        }
-        return dividersList;
-    }
 
-     public static int getDecodedFrameSize(AdsConfiguration adsConfiguration) {
-        int frameSize = 0;
-        for (Integer divider : getDividersForActiveChannels(adsConfiguration)) {
-            frameSize += adsConfiguration.getDeviceType().getMaxDiv().getValue() / divider;
-        }
-        return frameSize + 2; // 2 values for device specific information (counter of loff status);
-    }
 
     /**
      * convert int data format to 24 bit (3 bytes) data format valid for Bdf and

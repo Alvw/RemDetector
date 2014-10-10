@@ -23,7 +23,7 @@ public class Ads {
         comPort.writeToPort(bytes);
     }
 
-    public void startRecording(AdsConfiguration adsConfiguration) {
+    public void startRecording(DeviceConfig deviceConfig) {
         String failConnectMessage = "Connection failed. Check com port settings.\nReset power on the target amplifier. Restart the application.";
         try {
             FrameDecoder frameDecoder = new FrameDecoder(this) {
@@ -33,12 +33,12 @@ public class Ads {
                 }
             };
             comPort = new ComPort();
-            comPort.connect(adsConfiguration);
+            comPort.connect(deviceConfig);
             comPort.setFrameDecoder(frameDecoder);
             //comPort.writeToPort(adsConfiguration.getDeviceType().getAdsConfigurator().writeAdsConfiguration(adsConfiguration));
             isRecording = true;
         } catch (NoSuchPortException e) {
-            String msg = "No port with the name " + adsConfiguration.getComPortName() + "\n" + failConnectMessage;
+            String msg = "No port with the name " + deviceConfig.getComPortName() + "\n" + failConnectMessage;
             log.error(msg, e);
             throw new AdsException(msg, e);
         } catch (PortInUseException e) {

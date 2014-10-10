@@ -40,7 +40,7 @@ abstract class FrameDecoder {
             case 0x03:
                 if (frame[2] > 7) {
                     rx_cntr = 0;
-                    System.out.println("Wrond command class ID");
+                    System.out.println("Wrong command class ID");
                 }
                 break;
             default:
@@ -153,6 +153,11 @@ abstract class FrameDecoder {
         decodedFrame[5] = ((frame[24] & 0x0F) << 8) + frame[23];
         decodedFrame[6] = ((frame[27] & 0xF0) << 4) + frame[25];
         decodedFrame[7] = ((frame[27] & 0x0F) << 8) + frame[26];
+
+        decodedFrame[8] = ((frame[24] & 0xF0) << 4) + frame[22];
+        decodedFrame[9] = 0;
+
+
         notifyListeners(decodedFrame);
         System.out.println("Data Received: ");
         for (int i = 0; i < decodedFrame.length; i++) {
@@ -171,11 +176,24 @@ abstract class FrameDecoder {
             case 0x00:
                 ble_msg_connection_status_evt_t();
                 break;
+            case 0x04:
+                ble_msg_connection_disconnected_evt();
+                break;
             default:
                 // on_RF_Unexpected_Event_Received();
                 break;
         }
     }
+
+    private void ble_msg_connection_disconnected_evt() {
+        try {
+            Thread.sleep(1000);
+            ads.writeToPort(BlueGigaManager.setScanParameters());
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+
 
     private void ble_msg_connection_status_evt_t() {
         connectionHandle = frame[4];
