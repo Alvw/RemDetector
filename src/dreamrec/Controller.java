@@ -1,9 +1,9 @@
 package dreamrec;
 
 import bdf.BdfWriter;
-import com.crostec.ads.*;
 import device.BdfConfig;
 import device.BdfSignalConfig;
+import device.Device;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -26,11 +26,10 @@ public class Controller {
     private ApparatModel model;
 
     private Timer repaintTimer;
-    private ApplicationProperties applicationProperties;
     private static final Log log = LogFactory.getLog(Controller.class);
 
     private boolean isRecording = false;
-    private Ads ads = new Ads();
+    private Device device;
     private BdfWriter bdfWriter;
     private IncomingDataBuffer incomingDataBuffer;
 
@@ -39,9 +38,9 @@ public class Controller {
     private int nrOfAccelerometerSamples = 1;
 
 
-    public Controller(final ApparatModel model) {
+    public Controller(final ApparatModel model, Device device) {
         this.model = model;
-
+        this.device = device;
         repaintTimer = new Timer(500, new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 updateModel();
@@ -81,26 +80,21 @@ public class Controller {
     public void startRecording() {
         isRecording = true;
         if (bdfWriter != null) {
-            ads.removeAdsDataListener(bdfWriter);
+            device.removeBdfDataListener(bdfWriter);
         }
         BdfConfig bdfConfig = getBdfConfig();
         bdfConfig.setFileNameToSave(new SimpleDateFormat("dd-MM-yyyy_HH-mm").format(new Date(System.currentTimeMillis())) + ".bdf");
         bdfWriter = new BdfWriter(bdfConfig);
-        ads.addAdsDataListener(bdfWriter);
+        device.addBdfDataListener(bdfWriter);
         model.clear();
         model.setFrequency(DRM_FREQUENCY);
         model.setStartTime(System.currentTimeMillis());  //todo remove
         mainWindow.setStart(model.getStartTime(), 1000 / model.getFrequency());
         repaintTimer.start();
         incomingDataBuffer = new IncomingDataBuffer();
-        ads.addAdsDataListener(incomingDataBuffer);
+        device.addBdfDataListener(incomingDataBuffer);
         try {
-            DeviceConfig deviceConfig = new DeviceConfig();
-            deviceConfig.setComPortName("COM14");
-            deviceConfig.setComPortSpeed(256000);
-            ads.startRecording(deviceConfig);
-            Thread.sleep(1000);
-            ads.writeToPort(BlueGigaManager.setScanParameters());
+            device.startRecord();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, e.getMessage());
             System.exit(0);
@@ -110,7 +104,7 @@ public class Controller {
     public void stopRecording() {
         if (!isRecording) return;
         isRecording = false;
-        ads.stopRecording();
+        device.stopRecording();
         repaintTimer.stop();
         saveToFile();
     }

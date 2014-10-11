@@ -1,5 +1,7 @@
 package dreamrec;
 
+import device.Device;
+
 /**
  * Created by IntelliJ IDEA.
  * User: galafit
@@ -10,7 +12,9 @@ package dreamrec;
 public class DreamRec {
     public static void main(String[] args) {
         ApparatModel model = new ApparatModel();
-        Controller controller = new Controller(model);
+        ApplicationProperties appProperties = new ApplicationProperties();
+        Device device = appProperties.getDeviceImplementation();
+        Controller controller = new Controller(model, device);
         MainViewNew mainWindow = new MainViewNew(model, controller);
         controller.setMainWindow(mainWindow);
     }

@@ -1,4 +1,4 @@
-package com.crostec.ads;
+package device.implementation.impl2ch;
 
 import device.BdfDataListener;
 import gnu.io.NoSuchPortException;
@@ -16,30 +16,27 @@ public class Ads {
 
     private static final Log log = LogFactory.getLog(Ads.class);
 
-    private List<BdfDataListener> bdfDataListeners = new ArrayList<BdfDataListener>();
+    private List<BdfDataListener> adsDataListeners = new ArrayList<BdfDataListener>();
     private ComPort comPort;
     private boolean isRecording;
 
-    public void writeToPort(List<Byte> bytes){
-        comPort.writeToPort(bytes);
-    }
 
-    public void startRecording(DeviceConfig deviceConfig) {
+    public void startRecording(AdsConfiguration adsConfiguration) {
         String failConnectMessage = "Connection failed. Check com port settings.\nReset power on the target amplifier. Restart the application.";
         try {
-            FrameDecoder frameDecoder = new FrameDecoder(this) {
+            FrameDecoder frameDecoder = new FrameDecoder(adsConfiguration) {
                 @Override
                 public void notifyListeners(int[] decodedFrame) {
                     notifyAdsDataListeners(decodedFrame);
                 }
             };
             comPort = new ComPort();
-            comPort.connect(deviceConfig);
+            comPort.connect(adsConfiguration);
             comPort.setFrameDecoder(frameDecoder);
-            //comPort.writeToPort(adsConfiguration.getDeviceType().getAdsConfigurator().writeAdsConfiguration(adsConfiguration));
+            comPort.writeToPort(adsConfiguration.getDeviceType().getAdsConfigurator().writeAdsConfiguration(adsConfiguration));
             isRecording = true;
         } catch (NoSuchPortException e) {
-            String msg = "No port with the name " + deviceConfig.getComPortName() + "\n" + failConnectMessage;
+            String msg = "No port with the name " + adsConfiguration.getComPortName() + "\n" + failConnectMessage;
             log.error(msg, e);
             throw new AdsException(msg, e);
         } catch (PortInUseException e) {
@@ -52,11 +49,11 @@ public class Ads {
     }
 
     public void stopRecording() {
-        for (BdfDataListener bdfDataListener : bdfDataListeners) {
-            bdfDataListener.onStopRecording();
+        for (BdfDataListener adsDataListener : adsDataListeners) {
+            adsDataListener.onStopRecording();
         }
         if (!isRecording) return;
-        //comPort.writeToPort(new AdsConfigurator().startPinLo());
+        comPort.writeToPort(new AdsConfigurator().startPinLo());
        try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
@@ -65,17 +62,17 @@ public class Ads {
         comPort.disconnect();
     }
 
-    public void addAdsDataListener(BdfDataListener bdfDataListener) {
-        bdfDataListeners.add(bdfDataListener);
+    public void addAdsDataListener(BdfDataListener adsDataListener) {
+        adsDataListeners.add(adsDataListener);
     }
 
     private void notifyAdsDataListeners(int[] dataRecord) {
-        for (BdfDataListener bdfDataListener : bdfDataListeners) {
-            bdfDataListener.onAdsDataReceived(dataRecord);
+        for (BdfDataListener adsDataListener : adsDataListeners) {
+            adsDataListener.onAdsDataReceived(dataRecord);
         }
     }
 
-    public void removeAdsDataListener(BdfDataListener bdfDataListener) {
-        bdfDataListeners.remove(bdfDataListener);
+    public void removeAdsDataListener(BdfDataListener adsDataListener) {
+        adsDataListeners.remove(adsDataListener);
     }
 }

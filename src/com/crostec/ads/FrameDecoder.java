@@ -6,17 +6,17 @@ import org.apache.commons.logging.LogFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-abstract class FrameDecoder {
+public abstract class FrameDecoder {
 
-    private Ads ads;
+    private DeviceBle deviceBle;
     private int rx_cntr;
     private int frameSize;
     private int[] frame = new int[42];
     private int connectionHandle;
     private static final Log log = LogFactory.getLog(FrameDecoder.class);
 
-    protected FrameDecoder(Ads ads) {
-        this.ads = ads;
+    protected FrameDecoder(DeviceBle deviceBle) {
+        this.deviceBle = deviceBle;
     }
 
     public void onByteReceived(int inByte) {
@@ -101,7 +101,7 @@ abstract class FrameDecoder {
     }
 
     private void on_RF_GAP_Set_Scan_Parameters_Responce_Received() {
-        ads.writeToPort(BlueGigaManager.ble_cmd_gap_discover());
+        deviceBle.writeToPort(BlueGigaManager.ble_cmd_gap_discover());
     }
 
 
@@ -188,7 +188,7 @@ abstract class FrameDecoder {
     private void ble_msg_connection_disconnected_evt() {
         try {
             Thread.sleep(1000);
-            ads.writeToPort(BlueGigaManager.setScanParameters());
+            deviceBle.writeToPort(BlueGigaManager.setScanParameters());
         } catch (Exception e) {
             System.out.println(e);
         }
@@ -197,7 +197,7 @@ abstract class FrameDecoder {
 
     private void ble_msg_connection_status_evt_t() {
         connectionHandle = frame[4];
-        ads.writeToPort(BlueGigaManager.ble_cmd_attclient_attribute_write());
+        deviceBle.writeToPort(BlueGigaManager.ble_cmd_attclient_attribute_write());
     }
 
 
@@ -224,7 +224,7 @@ abstract class FrameDecoder {
             for (int i = 0; i < 6; i++) {
                 btAddress.add((byte) frame[i + 6]);
             }
-            ads.writeToPort(BlueGigaManager.gap_connect_direct(btAddress));
+            deviceBle.writeToPort(BlueGigaManager.gap_connect_direct(btAddress));
         }
     }
 
