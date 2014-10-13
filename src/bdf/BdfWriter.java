@@ -26,9 +26,13 @@ public class BdfWriter implements BdfDataListener {
     private boolean stopRecordingRequest;
 
     public BdfWriter(BdfConfig bdfConfig) {
-        this.bdfConfig = bdfConfig;
+        this(bdfConfig, new SimpleDateFormat("dd-MM-yyyy_HH-mm").format(new Date(System.currentTimeMillis())) + ".bdf");
+    }
+
+    public BdfWriter(BdfConfig bdfConfig, String fileToSave) {
+       this.bdfConfig = bdfConfig;
         try {
-            this.fileToSave = new RandomAccessFile(bdfConfig.getFileNameToSave(), "rw");
+            this.fileToSave = new RandomAccessFile(fileToSave, "rw");
         } catch (FileNotFoundException e) {
             LOG.error(e);
         }
@@ -39,9 +43,8 @@ public class BdfWriter implements BdfDataListener {
         if (!stopRecordingRequest) {
             if (numberOfDataRecords == 0) {
                 startRecordingTime = System.currentTimeMillis() - (long)bdfConfig.getDurationOfADataRecord(); //1 second (1000 msec) duration of a data record
-                bdfConfig.setStartTime(startRecordingTime);
                 try {
-                    fileToSave.write(BdfHeaderWriter.createBdfHeader(bdfConfig));
+                    fileToSave.write(BdfHeaderWriter.createBdfHeader(bdfConfig, startRecordingTime, -1));
                 } catch (IOException e) {
                     LOG.error(e);
                     throw new RuntimeException(e);
@@ -66,10 +69,9 @@ public class BdfWriter implements BdfDataListener {
         stopRecordingRequest = true;
         double durationOfDataRecord = (stopRecordingTime - startRecordingTime) * 0.001 / numberOfDataRecords;
         bdfConfig.setDurationOfADataRecord(durationOfDataRecord);
-        bdfConfig.setNumberOfDataRecords(numberOfDataRecords);
         try {
             fileToSave.seek(0);
-            fileToSave.write(BdfHeaderWriter.createBdfHeader(bdfConfig));
+            fileToSave.write(BdfHeaderWriter.createBdfHeader(bdfConfig,startRecordingTime,numberOfDataRecords));
             fileToSave.close();
         } catch (IOException e) {
             LOG.error(e);

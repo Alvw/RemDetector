@@ -2,7 +2,6 @@ package dreamrec;
 
 import bdf.BdfWriter;
 import device.BdfConfig;
-import device.BdfSignalConfig;
 import device.Device;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -12,9 +11,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 /**
  *
@@ -82,8 +79,7 @@ public class Controller {
         if (bdfWriter != null) {
             device.removeBdfDataListener(bdfWriter);
         }
-        BdfConfig bdfConfig = getBdfConfig();
-        bdfConfig.setFileNameToSave(new SimpleDateFormat("dd-MM-yyyy_HH-mm").format(new Date(System.currentTimeMillis())) + ".bdf");
+        BdfConfig bdfConfig = device.getBdfConfig();
         bdfWriter = new BdfWriter(bdfConfig);
         device.addBdfDataListener(bdfWriter);
         model.clear();
@@ -104,7 +100,7 @@ public class Controller {
     public void stopRecording() {
         if (!isRecording) return;
         isRecording = false;
-        device.stopRecording();
+        device.stopRecord();
         repaintTimer.stop();
         saveToFile();
     }
@@ -161,7 +157,7 @@ public class Controller {
         mainWindow.syncView();
     }
 
-    BdfConfig getBdfConfig() {
+   /* BdfConfig getBdfConfig() {
         BdfConfig bdfConfig = new BdfConfig();
         bdfConfig.setDurationOfADataRecord(0.1);
         bdfConfig.setFileNameToSave("tralivali1.bdf");
@@ -214,5 +210,5 @@ public class Controller {
 
         bdfConfig.setSignalConfigList(bdfSignalConfigList);
         return bdfConfig;
-    }
+    }*/
 }

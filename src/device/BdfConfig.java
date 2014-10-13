@@ -8,27 +8,8 @@ public class BdfConfig {
     private double durationOfADataRecord;
     private String localPatientIdentification = "Default patient";
     private String localRecordingIdentification = "Default recording";
-    private long startTime;
     private int numberOfSignals;
     private List<BdfSignalConfig> signalConfigList;
-    private int numberOfDataRecords;
-    private String fileNameToSave;
-
-    public String getFileNameToSave() {
-        return fileNameToSave;
-    }
-
-    public void setFileNameToSave(String fileNameToSave) {
-        this.fileNameToSave = fileNameToSave;
-    }
-
-    public int getNumberOfDataRecords() {
-        return numberOfDataRecords;
-    }
-
-    public void setNumberOfDataRecords(int numberOfDataRecords) {
-        this.numberOfDataRecords = numberOfDataRecords;
-    }
 
     public double getDurationOfADataRecord() {
         return durationOfADataRecord;
@@ -52,14 +33,6 @@ public class BdfConfig {
 
     public void setLocalRecordingIdentification(String localRecordingIdentification) {
         this.localRecordingIdentification = localRecordingIdentification;
-    }
-
-    public long getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(long startTime) {
-        this.startTime = startTime;
     }
 
     public int getNumberOfSignals() {

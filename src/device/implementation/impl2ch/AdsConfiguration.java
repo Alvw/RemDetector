@@ -8,7 +8,6 @@ import java.util.List;
  *
  */
 public class AdsConfiguration {
-    
 
     private Sps sps = Sps.S500;     // samples per second (sample rate)
     private ArrayList<AdsChannelConfiguration> adsChannels = new ArrayList<AdsChannelConfiguration>();

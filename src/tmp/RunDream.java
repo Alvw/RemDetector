@@ -2,10 +2,7 @@ package tmp;
 
 
 import device.Device;
-import dreamrec.ApplicationProperties;
-import dreamrec.Controller;
-import dreamrec.ApparatModel;
-import dreamrec.MainView;
+import dreamrec.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -20,7 +17,7 @@ public class RunDream {
        ApplicationProperties appProperties = new ApplicationProperties();
         Device device = appProperties.getDeviceImplementation();
         Controller controller = new Controller(model, device);
-      MainView mainWindow = new MainView(model, controller);
-     // controller.setView(mainWindow);
+      MainViewNew mainWindow = new MainViewNew(model, controller);
+      controller.setMainWindow(mainWindow);
     }
 }
