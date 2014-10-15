@@ -21,12 +21,12 @@ abstract class JoinFramesUtility implements BdfDataListener {
     }
 
     @Override
-    public void onAdsDataReceived(int[] dataFrame) {
+    public void onDataRecordReceived(int[] bdfDataRecord) {
         int channelPosition = 0;
         for (int divider : AdsUtils.getDividersForActiveChannels(adsConfiguration)) {
             int channelSampleNumber = adsConfiguration.getDeviceType().getMaxDiv().getValue() / divider;
             for (int j = 0; j < channelSampleNumber; j++) {
-                joinedFrame[channelPosition * numberOfFramesToJoin + inputFramesCounter * channelSampleNumber + j] = dataFrame[channelPosition + j];
+                joinedFrame[channelPosition * numberOfFramesToJoin + inputFramesCounter * channelSampleNumber + j] = bdfDataRecord[channelPosition + j];
             }
             channelPosition += channelSampleNumber;
         }

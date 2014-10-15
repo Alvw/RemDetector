@@ -11,12 +11,12 @@ public class IncomingDataBuffer implements BdfDataListener {
 
     private ConcurrentLinkedQueue<int[]> dataframesBuffer = new ConcurrentLinkedQueue<int[]>();
 
-    public void onAdsDataReceived(int[] dataFrame) {
-        dataframesBuffer.offer(dataFrame);
+    public void onDataRecordReceived(int[] bdfDataRecord) {
+        dataframesBuffer.offer(bdfDataRecord);
     }
 
     @Override
-    public void onStopRecording() {
+    public void onStopReading() {
 
     }
 

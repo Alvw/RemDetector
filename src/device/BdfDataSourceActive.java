@@ -1,10 +1,8 @@
 package device;
 
-import bdf.BdfWriter;
-
-public interface Device {
-    public void startRecord();
-    public void stopRecord();
+public interface BdfDataSourceActive {
+    public void startReading();
+    public void stopReading();
     public void addBdfDataListener(BdfDataListener bdfDataListener);
     public BdfConfig getBdfConfig();
     void removeBdfDataListener(BdfDataListener bdfDataListener);

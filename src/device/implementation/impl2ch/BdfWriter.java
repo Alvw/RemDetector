@@ -38,21 +38,21 @@ public class BdfWriter implements BdfDataListener {
             }
 
             @Override
-            public void onStopRecording() {
+            public void onStopReading() {
                 //To change body of implemented methods use File | Settings | File Templates.
             }
         };
     }
 
     @Override
-    public synchronized void onAdsDataReceived(int[] dataFrame) {
+    public synchronized void onDataRecordReceived(int[] bdfDataRecord) {
         if (!stopRecordingRequest) {
-            joinFramesUtility.onAdsDataReceived(dataFrame);
+            joinFramesUtility.onDataRecordReceived(bdfDataRecord);
         }
     }
 
     @Override
-    public synchronized void onStopRecording() {
+    public synchronized void onStopReading() {
         if(stopRecordingRequest) return;
         stopRecordingRequest = true;
         double durationOfDataRecord = (stopRecordingTime - startRecordingTime) * 0.001 / numberOfDataRecords;

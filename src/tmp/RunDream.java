@@ -1,7 +1,7 @@
 package tmp;
 
 
-import device.Device;
+import device.BdfDataSourceActive;
 import dreamrec.*;
 
 /**
@@ -15,7 +15,7 @@ public class RunDream {
     public static void main(String[] args) {
       ApparatModel model = new ApparatModel();
        ApplicationProperties appProperties = new ApplicationProperties();
-        Device device = appProperties.getDeviceImplementation();
+        BdfDataSourceActive device = appProperties.getDeviceImplementation();
         Controller controller = new Controller(model, device);
       MainViewNew mainWindow = new MainViewNew(model, controller);
       controller.setMainWindow(mainWindow);

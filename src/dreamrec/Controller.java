@@ -2,7 +2,7 @@ package dreamrec;
 
 import bdf.BdfWriter;
 import device.BdfConfig;
-import device.Device;
+import device.BdfDataSourceActive;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -26,7 +26,7 @@ public class Controller {
     private static final Log log = LogFactory.getLog(Controller.class);
 
     private boolean isRecording = false;
-    private Device device;
+    private BdfDataSourceActive device;
     private BdfWriter bdfWriter;
     private IncomingDataBuffer incomingDataBuffer;
 
@@ -35,7 +35,7 @@ public class Controller {
     private int nrOfAccelerometerSamples = 1;
 
 
-    public Controller(final ApparatModel model, Device device) {
+    public Controller(final ApparatModel model, BdfDataSourceActive device) {
         this.model = model;
         this.device = device;
         repaintTimer = new Timer(500, new ActionListener() {
@@ -90,7 +90,7 @@ public class Controller {
         incomingDataBuffer = new IncomingDataBuffer();
         device.addBdfDataListener(incomingDataBuffer);
         try {
-            device.startRecord();
+            device.startReading();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, e.getMessage());
             System.exit(0);
@@ -100,7 +100,7 @@ public class Controller {
     public void stopRecording() {
         if (!isRecording) return;
         isRecording = false;
-        device.stopRecord();
+        device.stopReading();
         repaintTimer.stop();
         saveToFile();
     }

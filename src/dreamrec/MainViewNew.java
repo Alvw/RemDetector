@@ -124,7 +124,7 @@ public class MainViewNew extends JFrame {
         stop.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                controller.stopRecording();
+                controller     .stopRecording();
             }
         });
 

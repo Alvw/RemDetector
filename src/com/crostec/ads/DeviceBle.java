@@ -54,7 +54,7 @@ public class DeviceBle {
 
     public void stopRecording() {
         for (BdfDataListener bdfDataListener : bdfDataListeners) {
-            bdfDataListener.onStopRecording();
+            bdfDataListener.onStopReading();
         }
         if (!isRecording) return;
         //comPort.writeToPort(new AdsConfigurator().startPinLo());
@@ -72,7 +72,7 @@ public class DeviceBle {
 
     private void notifyAdsDataListeners(int[] dataRecord) {
         for (BdfDataListener bdfDataListener : bdfDataListeners) {
-            bdfDataListener.onAdsDataReceived(dataRecord);
+            bdfDataListener.onDataRecordReceived(dataRecord);
         }
     }
 

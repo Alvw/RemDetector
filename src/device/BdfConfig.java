@@ -5,10 +5,9 @@ import java.util.List;
 /**
  */
 public class BdfConfig {
-    private double durationOfADataRecord;
+    private double durationOfADataRecord;    // in seconds
     private String localPatientIdentification = "Default patient";
     private String localRecordingIdentification = "Default recording";
-    private int numberOfSignals;
     private List<BdfSignalConfig> signalConfigList;
 
     public double getDurationOfADataRecord() {
@@ -36,11 +35,16 @@ public class BdfConfig {
     }
 
     public int getNumberOfSignals() {
-        return numberOfSignals;
+        return signalConfigList.size();
     }
 
-    public void setNumberOfSignals(int numberOfSignals) {
-        this.numberOfSignals = numberOfSignals;
+    public double[] getSignalsFrequencies() {
+        double[] signalsFrequencies = new double[getNumberOfSignals()];
+        for(int i = 0; i < getNumberOfSignals(); i++) {
+            BdfSignalConfig signalConfig = signalConfigList.get(i);
+            signalsFrequencies[i]  = signalConfig.getNrOfSamplesInEachDataRecord()/durationOfADataRecord;
+        }
+        return  signalsFrequencies;
     }
 
     public List<BdfSignalConfig> getSignalConfigList() {

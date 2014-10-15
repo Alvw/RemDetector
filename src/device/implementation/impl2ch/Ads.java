@@ -2,8 +2,8 @@ package device.implementation.impl2ch;
 
 import device.BdfConfig;
 import device.BdfDataListener;
+import device.BdfDataSourceActive;
 import device.BdfSignalConfig;
-import device.Device;
 import gnu.io.NoSuchPortException;
 import gnu.io.PortInUseException;
 import org.apache.commons.logging.Log;
@@ -15,7 +15,7 @@ import java.util.List;
 /**
  *
  */
-public class Ads implements Device{
+public class Ads implements BdfDataSourceActive {
 
     private static final Log log = LogFactory.getLog(Ads.class);
 
@@ -28,7 +28,7 @@ public class Ads implements Device{
     }
 
     @Override
-    public void startRecord() {
+    public void startReading() {
         String failConnectMessage = "Connection failed. Check com port settings.\nReset power on the target amplifier. Restart the application.";
         try {
             FrameDecoder frameDecoder = new FrameDecoder(adsConfiguration) {
@@ -55,9 +55,9 @@ public class Ads implements Device{
         }
     }
 
-    public void stopRecord() {
+    public void stopReading() {
         for (BdfDataListener adsDataListener : bdfDataListeners) {
-            adsDataListener.onStopRecording();
+            adsDataListener.onStopReading();
         }
         if (!isRecording) return;
         comPort.writeToPort(new AdsConfigurator().startPinLo());
@@ -78,7 +78,7 @@ public class Ads implements Device{
     public BdfConfig getBdfConfig() {
         BdfConfig bdfConfig = new BdfConfig();
         bdfConfig.setDurationOfADataRecord(adsConfiguration.getDeviceType().getMaxDiv().getValue()/adsConfiguration.getSps().getValue());
-        bdfConfig.setNumberOfSignals(AdsUtils.getDividersForActiveChannels(adsConfiguration).size()+2);
+       // bdfConfig.setNumberOfSignals(AdsUtils.getDividersForActiveChannels(adsConfiguration).size()+2);
         List<BdfSignalConfig> signalConfigList = new ArrayList<BdfSignalConfig>();
         int n = 0;
         for (AdsChannelConfiguration channelConfiguration : adsConfiguration.getAdsChannels()) {
@@ -131,7 +131,7 @@ public class Ads implements Device{
 
     private void notifyAdsDataListeners(int[] dataRecord) {
         for (BdfDataListener bdfDataListener : bdfDataListeners) {
-            bdfDataListener.onAdsDataReceived(dataRecord);
+            bdfDataListener.onDataRecordReceived(dataRecord);
         }
     }
 }

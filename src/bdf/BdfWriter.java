@@ -39,7 +39,7 @@ public class BdfWriter implements BdfDataListener {
     }
 
     @Override
-    public synchronized void onAdsDataReceived(int[] dataFrame) {
+    public synchronized void onDataRecordReceived(int[] bdfDataRecord) {
         if (!stopRecordingRequest) {
             if (numberOfDataRecords == 0) {
                 startRecordingTime = System.currentTimeMillis() - (long)bdfConfig.getDurationOfADataRecord(); //1 second (1000 msec) duration of a data record
@@ -52,9 +52,9 @@ public class BdfWriter implements BdfDataListener {
             }
             numberOfDataRecords++;
             stopRecordingTime = System.currentTimeMillis();
-            for (int i = 0; i < dataFrame.length; i++) {
+            for (int i = 0; i < bdfDataRecord.length; i++) {
                 try {
-                    fileToSave.write(AdsUtils.to24BitLittleEndian(dataFrame[i]));
+                    fileToSave.write(AdsUtils.to24BitLittleEndian(bdfDataRecord[i]));
                 } catch (IOException e) {
                     LOG.error(e);
                     throw new RuntimeException(e);
@@ -64,7 +64,7 @@ public class BdfWriter implements BdfDataListener {
     }
 
     @Override
-    public synchronized void onStopRecording() {
+    public synchronized void onStopReading() {
         if (stopRecordingRequest) return;
         stopRecordingRequest = true;
         double durationOfDataRecord = (stopRecordingTime - startRecordingTime) * 0.001 / numberOfDataRecords;
