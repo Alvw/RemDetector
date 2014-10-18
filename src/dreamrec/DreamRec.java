@@ -14,7 +14,7 @@ public class DreamRec {
         ApparatModel model = new ApparatModel();
         ApplicationProperties appProperties = new ApplicationProperties();
         BdfDataSourceActive device = appProperties.getDeviceImplementation();
-        Controller controller = new Controller(model, device);
+        ControllerNew controller = new ControllerNew(model, device);
         MainViewNew mainWindow = new MainViewNew(model, controller);
         controller.setMainWindow(mainWindow);
     }

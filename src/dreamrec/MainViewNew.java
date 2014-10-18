@@ -17,9 +17,9 @@ public class MainViewNew extends JFrame {
     private GraphsViewer graphsViewer;
     private  JMenuBar menu = new JMenuBar();
     private ApparatModel model;
-    private Controller controller;
+    private ControllerNew controller;
 
-    public MainViewNew(ApparatModel apparatModel, Controller controller) {
+    public MainViewNew(ApparatModel apparatModel, ControllerNew controller) {
         model = apparatModel;
         this.controller = controller;
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
