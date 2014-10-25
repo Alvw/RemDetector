@@ -9,6 +9,15 @@ public class BdfConfig {
     private String localPatientIdentification = "Default patient";
     private String localRecordingIdentification = "Default recording";
     private List<BdfSignalConfig> signalConfigList;
+    private long startTime;
+
+    public long getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
+    }
 
     public double getDurationOfADataRecord() {
         return durationOfADataRecord;

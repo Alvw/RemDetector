@@ -2,7 +2,7 @@ package device.implementation.impl2ch;
 
 import device.BdfConfig;
 import device.BdfDataListener;
-import device.BdfDataSourceActive;
+import device.BdfDataSource;
 import device.BdfSignalConfig;
 import gnu.io.NoSuchPortException;
 import gnu.io.PortInUseException;
@@ -15,7 +15,7 @@ import java.util.List;
 /**
  *
  */
-public class Ads implements BdfDataSourceActive {
+public class Ads implements BdfDataSource {
 
     private static final Log log = LogFactory.getLog(Ads.class);
 

@@ -1,6 +1,6 @@
 package dreamrec;
 
-import device.BdfDataSourceActive;
+import device.BdfDataSource;
 
 /**
  * Created by IntelliJ IDEA.
@@ -11,11 +11,8 @@ import device.BdfDataSourceActive;
  */
 public class DreamRec {
     public static void main(String[] args) {
-        ApparatModel model = new ApparatModel();
         ApplicationProperties appProperties = new ApplicationProperties();
-        BdfDataSourceActive device = appProperties.getDeviceImplementation();
-        ControllerNew controller = new ControllerNew(model, device);
-        MainViewNew mainWindow = new MainViewNew(model, controller);
-        controller.setMainWindow(mainWindow);
+        BdfDataSource device = appProperties.getDeviceImplementation();
+        Controller controller = new Controller();
     }
 }

@@ -49,8 +49,8 @@ nr of samples[ns] * integer : last signal
 public class BdfHeaderReader {
     private BdfConfig bdfConfig = new BdfConfig();
     private static final Log log = LogFactory.getLog(BdfHeaderReader.class);
-    private long startTime;
     private int numberOfDataRecords;
+    private int numberOfBytesInHeader;
 
     public BdfHeaderReader(File file) throws ApplicationException {
         BufferedReader reader = null;
@@ -103,7 +103,8 @@ public class BdfHeaderReader {
 
             try{
                 Date date = new SimpleDateFormat(dateFormat).parse(startDateTimeStr);
-                startTime = date.getTime();
+                long startTime = date.getTime();
+                bdfConfig.setStartTime(startTime);
             } catch (Exception e) {
                 throw new ApplicationException("Error while parsing startDateTimeStr " + startDateTimeStr);
             }
@@ -187,6 +188,7 @@ public class BdfHeaderReader {
             }
 
             bdfConfig.setSignalConfigList(bdfSignalConfigList);
+            reader.close();
 
         } catch (Exception e) {
             log.error(e);
@@ -203,25 +205,27 @@ public class BdfHeaderReader {
     public BdfConfig getBdfConfig() {
         return bdfConfig;
     }
-      
-    public long getStartTime() {
-        return startTime;
+
+
+    private Integer stringToInt(String str) throws  ApplicationException {
+        try {
+            str = str.trim();
+            return Integer.valueOf(str);
+        } catch (Exception e) {
+            log.error(e);
+            throw new ApplicationException("Error while parsing Int " + str);
+        }
     }
 
-    private Integer stringToInt(String str) {
-        if(str == null || str.length()==0){
-            return 0;
+    private Double stringToDouble(String str) throws  ApplicationException {
+        try {
+            str = str.trim();
+            return Double.valueOf(str);
+        } catch (Exception e) {
+            log.error(e);
+            throw new ApplicationException("Error while parsing Double " + str);
         }
-        str = str.trim();
-        return Integer.valueOf(str);
-    }
 
-    private Double stringToDouble(String str) {
-        if(str == null || str.length()==0){
-            return 0.0;
-        }
-        str = str.trim();
-        return Double.valueOf(str);
     }
 }
 

@@ -68,7 +68,8 @@ public class GraphsViewer extends JPanel {
         return graphPanels.get(0).getStartIndex();
     }
 
-    public void setStart(long startTime, int point_distance_msec) {
+    public void setStart(long startTime, double frequency ) {
+        int point_distance_msec = (int) (1000/frequency);
         compression =  COMPRESSED_POINT_DISTANCE_MSEC / point_distance_msec;
         for (GraphPanel panel : graphPanels) {
             panel.setStart(startTime, point_distance_msec);

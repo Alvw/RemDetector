@@ -21,7 +21,7 @@ class BdfHeaderWriter {
         String identificationCode = "BIOSEMI";
 
         String localPatientIdentification =  bdfConfig.getLocalPatientIdentification();
-        String localRecordingIdentification =  bdfConfig.getLocalRecordingIdentification();
+        String localRecordingIdentification =   bdfConfig.getLocalRecordingIdentification();
 
         String startDateOfRecording = new SimpleDateFormat("dd.MM.yy").format(new Date(startTime));
         String startTimeOfRecording = new SimpleDateFormat("HH.mm.ss").format(new Date(startTime));
