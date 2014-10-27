@@ -15,10 +15,11 @@ import java.util.List;
 
 public class BdfReader implements BdfDataSource {
     private static final Log log = LogFactory.getLog(BdfDataSource.class);
-    private BdfConfig bdfConfig;
     private BufferedInputStream fileInputStream;
-    private int bdfDataRecordLength = 0;
+    private BdfConfig bdfConfig;
     private int numberOfBytesInDataFormat = 3;
+    private int[] signalsConfig;
+    private int bdfDataRecordLength;
 
     private ArrayList<BdfDataListener> bdfDataListenersList = new ArrayList<BdfDataListener>();
 
@@ -31,8 +32,12 @@ public class BdfReader implements BdfDataSource {
             fileInputStream.skip(numberOfBytesInHeader);
 
             List<BdfSignalConfig> bdfSignalConfigList = bdfConfig.getSignalConfigList();
-            for (BdfSignalConfig bdfSignalConfig : bdfSignalConfigList) {
+            int numberOfSignals = bdfSignalConfigList.size();
+            signalsConfig = new int[numberOfSignals];
+            for (int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
+                BdfSignalConfig bdfSignalConfig = bdfSignalConfigList.get(signalNumber);
                 bdfDataRecordLength += bdfSignalConfig.getNrOfSamplesInEachDataRecord();
+                signalsConfig[signalNumber] = bdfSignalConfig.getNrOfSamplesInEachDataRecord();
             }
 
         } catch (IOException e) {
@@ -53,12 +58,17 @@ public class BdfReader implements BdfDataSource {
         }
     }
 
-    private int[] readBdfDataRecord() throws ApplicationException {
-        int[] bdfDataRecord = new int[bdfDataRecordLength];
-        for (int i = 0; i < bdfDataRecordLength; i++) {
-            bdfDataRecord[i] = readInt();
+    private int[][] readBdfDataRecord() throws ApplicationException {
+         int numberOfSignals =  signalsConfig.length;
+         int[][] dataRecord = new int[numberOfSignals][];
+        for (int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
+            int numberOfSamplesInSignal = signalsConfig[signalNumber];
+            dataRecord[signalNumber] = new int[numberOfSamplesInSignal];
+            for(int sampleNumber = 0; sampleNumber < numberOfSamplesInSignal; sampleNumber++) {
+                dataRecord[signalNumber][sampleNumber] = readInt();
+            }
         }
-        return bdfDataRecord;
+        return dataRecord;
     }
 
     /**
@@ -87,9 +97,9 @@ public class BdfReader implements BdfDataSource {
     @Override
     public void startReading() throws ApplicationException {
         while (isBdfDataRecordAvailable()) {
-            int[] bdfDataRecord = readBdfDataRecord();
+            int[][] dataRecord = readBdfDataRecord();
             for (BdfDataListener bdfDataListener : bdfDataListenersList) {
-                bdfDataListener.onDataRecordReceived(bdfDataRecord);
+                bdfDataListener.onDataRecordReceived(dataRecord);
             }
         }
 
