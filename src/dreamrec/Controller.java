@@ -97,7 +97,8 @@ public class Controller {
             if (fileChooserState == JFileChooser.APPROVE_OPTION) {
                 File selectedFile = fileChooser.getSelectedFile();
                 BdfReader bdfReader = new BdfReader(selectedFile);
-                BdfDataSource bdfDataSource = new FrequencyDivider(bdfReader, 50);
+                int maxFrequency = 50; //hz
+                BdfDataSource bdfDataSource = new FrequencyDivider(bdfReader, maxFrequency);
                 BdfConfig bdfConfig = bdfDataSource.getBdfConfig();
                 DataStore dataStore = new DataStore(bdfDataSource);
                 mainWindow.setDataStore(dataStore);
