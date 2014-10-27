@@ -22,7 +22,7 @@ HEADER RECORD
 8 ascii : startdate of recording (dd.mm.yy) (mind item 2 of the additional EDF+ specs)
 8 ascii : starttime of recording (hh.mm.ss)
 8 ascii : number of bytes in header record
-44 ascii : reserved
+44 ascii : reserved (version of data format - "24BIT" for bdf, "BIOSEMI" for edf)
 8 ascii : number of data records (-1 if unknown, obey item 10 of the additional EDF+ specs)
 8 ascii : duration of a data record, in seconds
 4 ascii : number of signals (ns) in data record
@@ -62,7 +62,7 @@ public class BdfHeaderReader {
             int STARTDATE_LENGTH = 8;
             int STARTTIME_LENGTH = 8;
             int NUMBER_OF_BYTES_LENGTH = 8;
-            int RESERVED_LENGTH = 44;
+            int VERSION_OF_DATA_FORMAT_LENGTH = 44;
             int NUMBER_Of_DATARECORDS_LENGTH = 8;
             int DURATION_OF_DATARECORD_LENGTH = 8;
             int NUMBER_OF_SIGNALS_LENGTH = 4;
@@ -112,8 +112,14 @@ public class BdfHeaderReader {
             buffer = new char[NUMBER_OF_BYTES_LENGTH];
             reader.read(buffer, 0, NUMBER_OF_BYTES_LENGTH);
 
-            buffer = new char[RESERVED_LENGTH];
-            reader.read(buffer, 0, RESERVED_LENGTH);
+            buffer = new char[VERSION_OF_DATA_FORMAT_LENGTH];
+            reader.read(buffer, 0, VERSION_OF_DATA_FORMAT_LENGTH);
+            String dataFormat= new String(buffer).trim();
+            int numberOfBytesInSamples = 2; // edf
+            if(dataFormat.equals("24BIT")) {
+                numberOfBytesInSamples = 3;  // bdf
+            }
+            bdfConfig.setNumberOfBytesInSamples(numberOfBytesInSamples);
 
             buffer = new char[NUMBER_Of_DATARECORDS_LENGTH];
             reader.read(buffer, 0, NUMBER_Of_DATARECORDS_LENGTH);

@@ -11,6 +11,15 @@ public class BdfConfig implements Cloneable{
     private String localRecordingIdentification = "Default recording";
     private List<BdfSignalConfig> signalsConfigList;
     private long startTime;
+    private int numberOfBytesInSamples;
+
+    public int getNumberOfBytesInSamples() {
+        return numberOfBytesInSamples;
+    }
+
+    public void setNumberOfBytesInSamples(int numberOfBytesInSamples) {
+        this.numberOfBytesInSamples = numberOfBytesInSamples;
+    }
 
     public long getStartTime() {
         return startTime;

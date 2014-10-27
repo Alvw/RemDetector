@@ -17,7 +17,7 @@ public class BdfReader implements BdfDataSource {
     private static final Log log = LogFactory.getLog(BdfDataSource.class);
     private BufferedInputStream fileInputStream;
     private BdfConfig bdfConfig;
-    private int numberOfBytesInDataFormat = 3;
+    private int numberOfBytesInSamples;
     private int[] signalsConfig;
     private int bdfDataRecordLength;
 
@@ -27,6 +27,7 @@ public class BdfReader implements BdfDataSource {
         try {
             BdfHeaderReader bdfHeaderReader = new BdfHeaderReader(file);
             bdfConfig = bdfHeaderReader.getBdfConfig();
+            numberOfBytesInSamples = bdfConfig.getNumberOfBytesInSamples();
             fileInputStream = new BufferedInputStream(new FileInputStream(file));
             int numberOfBytesInHeader = 256 + 256 * bdfConfig.getNumberOfSignals();
             fileInputStream.skip(numberOfBytesInHeader);
@@ -48,7 +49,7 @@ public class BdfReader implements BdfDataSource {
 
     public boolean isBdfDataRecordAvailable() throws ApplicationException {
         try {
-            if (fileInputStream.available() > bdfDataRecordLength * numberOfBytesInDataFormat) {
+            if (fileInputStream.available() > bdfDataRecordLength * numberOfBytesInSamples) {
                 return true;
             }
             return false;
@@ -77,12 +78,12 @@ public class BdfReader implements BdfDataSource {
      */
     private int readInt() throws ApplicationException {
         try {
-            byte[] dataUnitBytes = new byte[numberOfBytesInDataFormat];
+            byte[] dataUnitBytes = new byte[numberOfBytesInSamples];
             fileInputStream.read(dataUnitBytes);
             int sizeOfInt = 4;
             ByteBuffer byteBufferForInt = ByteBuffer.allocate(sizeOfInt);
             // change the bytes order on the opposite
-            for (int i = 0; i < numberOfBytesInDataFormat; i++) {
+            for (int i = 0; i < numberOfBytesInSamples; i++) {
                 int byteBufferForIntIndex = sizeOfInt - 1 - i;
                 byteBufferForInt.put(byteBufferForIntIndex, dataUnitBytes[i]);
             }
