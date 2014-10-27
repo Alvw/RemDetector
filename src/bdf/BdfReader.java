@@ -31,7 +31,7 @@ public class BdfReader implements BdfDataSource {
             int numberOfBytesInHeader = 256 + 256 * bdfConfig.getNumberOfSignals();
             fileInputStream.skip(numberOfBytesInHeader);
 
-            List<BdfSignalConfig> bdfSignalConfigList = bdfConfig.getSignalConfigList();
+            List<BdfSignalConfig> bdfSignalConfigList = bdfConfig.getSignalsConfigList();
             int numberOfSignals = bdfSignalConfigList.size();
             signalsConfig = new int[numberOfSignals];
             for (int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {

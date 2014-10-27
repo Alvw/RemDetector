@@ -3,7 +3,7 @@ package device;
 /**
  *
  */
-public class BdfSignalConfig {
+public class BdfSignalConfig implements Cloneable{
     private String label;
     private int digitalMin;
     private int digitalMax;
@@ -11,6 +11,11 @@ public class BdfSignalConfig {
     private int physicalMax;
     private String physicalDimension;
     private int nrOfSamplesInEachDataRecord;
+
+    @Override
+    public BdfSignalConfig clone() throws CloneNotSupportedException {
+        return (BdfSignalConfig) super.clone();
+    }
 
     public String getLabel() {
         return label;

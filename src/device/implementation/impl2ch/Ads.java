@@ -34,7 +34,7 @@ public class Ads implements BdfDataSource {
             FrameDecoder frameDecoder = new FrameDecoder(adsConfiguration) {
                 @Override
                 public void notifyListeners(int[] decodedFrame) {
-                    notifyAdsDataListeners(decodedFrame);
+                   // notifyAdsDataListeners(decodedFrame);
                 }
             };
             comPort = new ComPort();
@@ -120,7 +120,7 @@ public class Ads implements BdfDataSource {
                 signalConfigList.add(bdfSignalConfig);
         }
 
-        bdfConfig.setSignalConfigList(signalConfigList);
+        bdfConfig.setSignalsConfigList(signalConfigList);
         return bdfConfig;
     }
 
@@ -129,7 +129,7 @@ public class Ads implements BdfDataSource {
         bdfDataListeners.remove(bdfDataListener);
     }
 
-    private void notifyAdsDataListeners(int[] dataRecord) {
+    private void notifyAdsDataListeners(int[][] dataRecord) {
         for (BdfDataListener bdfDataListener : bdfDataListeners) {
             bdfDataListener.onDataRecordReceived(dataRecord);
         }

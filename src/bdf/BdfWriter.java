@@ -39,7 +39,7 @@ public class BdfWriter implements BdfDataListener {
     }
 
     @Override
-    public synchronized void onDataRecordReceived(int[] bdfDataRecord) {
+    public synchronized void onDataRecordReceived(int[][] bdfDataRecord) {
         if (!stopRecordingRequest) {
             if (numberOfDataRecords == 0) {
                 startRecordingTime = System.currentTimeMillis() - (long)bdfConfig.getDurationOfADataRecord(); //1 second (1000 msec) duration of a data record
@@ -53,12 +53,15 @@ public class BdfWriter implements BdfDataListener {
             numberOfDataRecords++;
             stopRecordingTime = System.currentTimeMillis();
             for (int i = 0; i < bdfDataRecord.length; i++) {
-                try {
-                    fileToSave.write(AdsUtils.to24BitLittleEndian(bdfDataRecord[i]));
-                } catch (IOException e) {
-                    LOG.error(e);
-                    throw new RuntimeException(e);
+                for(int j = 0; j < bdfDataRecord[i].length; j++)  {
+                    try {
+                        fileToSave.write(AdsUtils.to24BitLittleEndian(bdfDataRecord[i][j]));
+                    } catch (IOException e) {
+                        LOG.error(e);
+                        throw new RuntimeException(e);
+                    }
                 }
+
             }
         }
     }

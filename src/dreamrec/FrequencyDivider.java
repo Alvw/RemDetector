@@ -1,30 +1,98 @@
 package dreamrec;
 
+import device.BdfConfig;
 import device.BdfDataListener;
 import device.BdfDataSource;
+import device.BdfSignalConfig;
 
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.ArrayList;
+import java.util.List;
 
-public abstract class FrequencyDivider implements BdfDataSource, BdfDataListener {
-    private Queue<int[]> dataRecordsBuffer = new LinkedList<int[]>();
-    private int divider;
+public class FrequencyDivider implements BdfDataSource, BdfDataListener {
+    private ArrayList<BdfDataListener> bdfDataListenersList = new ArrayList<BdfDataListener>();
     private int counter;
+    private BdfConfig bdfConfigNew;
+    private int[] dividers;
+    private int numberOfSignals;
+    private BdfDataSource bdfDataSource;
 
-    public FrequencyDivider(int divider) {
-        this.divider = divider;
+
+    public FrequencyDivider(BdfDataSource bdfDataSource, double maxFrequency) {
+        bdfDataSource.addBdfDataListener(this);
+        this.bdfDataSource = bdfDataSource;
+        BdfConfig bdfConfig = bdfDataSource.getBdfConfig();
+        int maxNumberOfSamples = (int) (maxFrequency * bdfConfig.getDurationOfADataRecord());
+        bdfConfigNew = bdfDataSource.getBdfConfig().clone();
+        List<BdfSignalConfig> signalsConfigListNew = bdfConfigNew.getSignalsConfigList();
+        numberOfSignals = signalsConfigListNew.size();
+        dividers = new int[numberOfSignals];
+        for (int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
+            BdfSignalConfig signalConfig = signalsConfigListNew.get(signalNumber);
+            int numberOfSamples = signalConfig.getNrOfSamplesInEachDataRecord();
+            if (numberOfSamples > maxNumberOfSamples) {
+                dividers[signalNumber] =  numberOfSamples/maxNumberOfSamples;
+                signalConfig.setNrOfSamplesInEachDataRecord(maxNumberOfSamples);
+            } else {
+                dividers[signalNumber] = 1;
+            }
+        }
     }
 
-    public void add(Integer value) {
-        counter++;
-     //   filteredData.offer(value);
-        if (counter == divider) {
-            int sum = 0;
-            for (int i = 0; i < divider; i++) {
-          //      sum += filteredData.poll();
+    @Override
+    public void onDataRecordReceived(int[][] dataRecord) {
+        int[][] dataRecordNew = new int[numberOfSignals][];
+        for (int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
+            if(dividers[signalNumber] == 1) {
+                dataRecordNew[signalNumber] = dataRecord[signalNumber];
             }
-          //  notifyListeners(sum / divider);
-            counter = 0;
+            else{
+                int numberOfSamplesInSignal = dataRecord[signalNumber].length;
+                dataRecordNew[signalNumber] = new int[numberOfSamplesInSignal/dividers[signalNumber]];
+                int sum = 0;
+                for(int sampleNumber = 0; sampleNumber < numberOfSamplesInSignal; sampleNumber++){
+                    sum += dataRecord[signalNumber][sampleNumber];
+                    if((sampleNumber +1)%dividers[signalNumber] == 0) {
+                        int sampleNumberNew = (sampleNumber +1)/dividers[signalNumber] -1;
+                        dataRecordNew[signalNumber][sampleNumberNew] = sum/dividers[signalNumber];
+                        sum = 0;
+                    }
+                }
+            }
         }
+        for(BdfDataListener bdfDataListener : bdfDataListenersList){
+            bdfDataListener.onDataRecordReceived(dataRecordNew);
+        }
+    }
+
+    @Override
+    public void onStopReading() {
+        for (BdfDataListener bdfDataListener : bdfDataListenersList) {
+            bdfDataListener.onStopReading();
+        }
+    }
+
+    @Override
+    public void startReading() throws ApplicationException {
+         bdfDataSource.startReading();
+    }
+
+    @Override
+    public void stopReading() throws ApplicationException {
+        bdfDataSource.stopReading();
+    }
+
+    @Override
+    public void addBdfDataListener(BdfDataListener bdfDataListener) {
+        bdfDataListenersList.add(bdfDataListener);
+    }
+
+    @Override
+    public BdfConfig getBdfConfig() {
+        return bdfConfigNew;
+    }
+
+    @Override
+    public void removeBdfDataListener(BdfDataListener bdfDataListener) {
+
     }
 }

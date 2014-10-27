@@ -1,14 +1,15 @@
 package device;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  */
-public class BdfConfig {
+public class BdfConfig implements Cloneable{
     private double durationOfADataRecord;    // in seconds
     private String localPatientIdentification = "Default patient";
     private String localRecordingIdentification = "Default recording";
-    private List<BdfSignalConfig> signalConfigList;
+    private List<BdfSignalConfig> signalsConfigList;
     private long startTime;
 
     public long getStartTime() {
@@ -44,23 +45,38 @@ public class BdfConfig {
     }
 
     public int getNumberOfSignals() {
-        return signalConfigList.size();
+        return signalsConfigList.size();
     }
 
     public double[] getSignalsFrequencies() {
         double[] signalsFrequencies = new double[getNumberOfSignals()];
         for(int i = 0; i < getNumberOfSignals(); i++) {
-            BdfSignalConfig signalConfig = signalConfigList.get(i);
+            BdfSignalConfig signalConfig = signalsConfigList.get(i);
             signalsFrequencies[i]  = signalConfig.getNrOfSamplesInEachDataRecord()/durationOfADataRecord;
         }
         return  signalsFrequencies;
     }
 
-    public List<BdfSignalConfig> getSignalConfigList() {
-        return signalConfigList;
+    public List<BdfSignalConfig> getSignalsConfigList() {
+        return signalsConfigList;
     }
 
-    public void setSignalConfigList(List<BdfSignalConfig> signalConfigList) {
-        this.signalConfigList = signalConfigList;
+    public void setSignalsConfigList(List<BdfSignalConfig> signalsConfigList) {
+        this.signalsConfigList = signalsConfigList;
+    }
+
+    @Override
+    public BdfConfig clone()  {
+        try{
+            BdfConfig configCopy = (BdfConfig) super.clone();
+            List<BdfSignalConfig> signalsConfigListNew = new ArrayList<BdfSignalConfig>(signalsConfigList.size());
+            for(BdfSignalConfig signalConfig : signalsConfigList) {
+                signalsConfigListNew.add(signalConfig.clone());
+            }
+            configCopy.setSignalsConfigList(signalsConfigListNew);
+            return configCopy;
+        } catch (CloneNotSupportedException e) {
+            return null;
+        }
     }
 }

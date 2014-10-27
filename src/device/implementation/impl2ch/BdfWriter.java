@@ -34,7 +34,7 @@ public class BdfWriter implements BdfDataListener {
         joinFramesUtility = new JoinFramesUtility(bdfHeaderData.getAdsConfiguration()) {
             @Override
             public void notifyListeners(int[] joinedFrame) {
-                onBdfDataRecordReady(joinedFrame);
+              // onBdfDataRecordReady(joinedFrame);
             }
 
             @Override
@@ -45,7 +45,7 @@ public class BdfWriter implements BdfDataListener {
     }
 
     @Override
-    public synchronized void onDataRecordReceived(int[] bdfDataRecord) {
+    public synchronized void onDataRecordReceived(int[][] bdfDataRecord) {
         if (!stopRecordingRequest) {
             joinFramesUtility.onDataRecordReceived(bdfDataRecord);
         }

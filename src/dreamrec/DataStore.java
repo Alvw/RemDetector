@@ -80,15 +80,8 @@ public class DataStore implements BdfDataListener {
         while (dataRecordsBuffer.size() > 0) {
             int[][] dataRecord = dataRecordsBuffer.poll();
             for (int signalNumber = 0; signalNumber < dataRecord.length; signalNumber++) {
-                int avg = 0;
                 for (int sampleNumber = 0; sampleNumber < dataRecord[signalNumber].length; sampleNumber++) {
-                    if (activeSignals[signalNumber]) {
-                        avg += dataRecord[signalNumber][sampleNumber];
-                        if ((sampleNumber + 1) % 10 == 0) {
-                            signalList[signalNumber].add(avg / 10);
-                            avg = 0;
-                        }
-                    }
+                    signalList[signalNumber].add(dataRecord[signalNumber][sampleNumber]);
                 }
             }
         }

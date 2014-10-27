@@ -187,7 +187,7 @@ public class BdfHeaderReader {
                 reader.read(buffer, 0, SIGNAL_RESERVED_LENGTH);
             }
 
-            bdfConfig.setSignalConfigList(bdfSignalConfigList);
+            bdfConfig.setSignalsConfigList(bdfSignalConfigList);
             reader.close();
 
         } catch (Exception e) {

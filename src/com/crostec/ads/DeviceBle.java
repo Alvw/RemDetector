@@ -72,7 +72,7 @@ public class DeviceBle {
 
     private void notifyAdsDataListeners(int[] dataRecord) {
         for (BdfDataListener bdfDataListener : bdfDataListeners) {
-            bdfDataListener.onDataRecordReceived(dataRecord);
+           // bdfDataListener.onDataRecordReceived(dataRecord);
         }
     }
 
