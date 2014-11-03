@@ -1,8 +1,8 @@
 package bdf;
 
-import device.BdfDataListener;
-import com.crostec.ads.AdsUtils;
 import device.BdfConfig;
+import device.DataListener;
+import com.crostec.ads.AdsUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -15,7 +15,7 @@ import java.util.Date;
 /**
  *
  */
-public class BdfWriter implements BdfDataListener {
+public class BdfWriter implements DataListener {
 
     private static final Log LOG = LogFactory.getLog(BdfWriter.class);
     private final BdfConfig bdfConfig;

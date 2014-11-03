@@ -1,11 +1,11 @@
 package device.implementation.impl2ch;
 
 
-import device.BdfDataListener;
+import device.DataListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-abstract class JoinFramesUtility implements BdfDataListener {
+abstract class JoinFramesUtility implements DataListener {
 
     private AdsConfiguration adsConfiguration;
     private int numberOfFramesToJoin;

@@ -119,7 +119,7 @@ public class BdfHeaderReader {
             if(dataFormat.equals("24BIT")) {
                 numberOfBytesInSamples = 3;  // bdf
             }
-            bdfConfig.setNumberOfBytesInSamples(numberOfBytesInSamples);
+            bdfConfig.setNumberOfBytesInDataFormat(numberOfBytesInSamples);
 
             buffer = new char[NUMBER_Of_DATARECORDS_LENGTH];
             reader.read(buffer, 0, NUMBER_Of_DATARECORDS_LENGTH);

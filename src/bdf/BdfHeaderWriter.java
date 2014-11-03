@@ -61,21 +61,21 @@ class BdfHeaderWriter {
         StringBuilder reservedForChannels = new StringBuilder();
         List<BdfSignalConfig> signalConfigList = bdfConfig.getSignalsConfigList();
         for (int i = 0; i < signalConfigList.size(); i++) {
-            BdfSignalConfig bdfSignalConfig = signalConfigList.get(i);
-                labels.append(adjustLength(bdfSignalConfig.getLabel(), 16));
+            BdfSignalConfig signalConfig = signalConfigList.get(i);
+                labels.append(adjustLength(signalConfig.getLabel(), 16));
                 transducerTypes.append(adjustLength("Unknown", 80));
-                physicalDimensions.append(adjustLength(bdfSignalConfig.getPhysicalDimension(), 8));
-               int physicalMaximum = bdfSignalConfig.getPhysicalMax();
-               int physicalMinimum = bdfSignalConfig.getPhysicalMin();
-               int digitalMax = bdfSignalConfig.getDigitalMax();
-               int digitalMin = bdfSignalConfig.getDigitalMin();
+                physicalDimensions.append(adjustLength(signalConfig.getPhysicalDimension(), 8));
+               int physicalMaximum = signalConfig.getPhysicalMax();
+               int physicalMinimum = signalConfig.getPhysicalMin();
+               int digitalMax = signalConfig.getDigitalMax();
+               int digitalMin = signalConfig.getDigitalMin();
 
                 physicalMinimums.append(adjustLength(String.valueOf(physicalMinimum), 8));
                 physicalMaximums.append(adjustLength(String.valueOf(physicalMaximum), 8));
                 digitalMinimums.append(adjustLength(String.valueOf(digitalMin), 8));
                 digitalMaximums.append(adjustLength(String.valueOf(digitalMax), 8));
                 preFilterings.append(adjustLength("None", 80));
-                int nrOfSamplesInEachDataRecord = bdfSignalConfig.getNrOfSamplesInEachDataRecord();
+                int nrOfSamplesInEachDataRecord = signalConfig.getNrOfSamplesInEachDataRecord();
                 samplesNumbers.append(adjustLength(Integer.toString(nrOfSamplesInEachDataRecord), 8));
                 reservedForChannels.append(adjustLength("", 32));
         }

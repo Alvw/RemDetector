@@ -1,6 +1,7 @@
 package dreamrec;
 
-import device.BdfDataSource;
+import device.DataSource;
+import gui.SettingsWindow;
 
 /**
  * Created by IntelliJ IDEA.
@@ -12,7 +13,8 @@ import device.BdfDataSource;
 public class DreamRec {
     public static void main(String[] args) {
         ApplicationProperties appProperties = new ApplicationProperties();
-        BdfDataSource device = appProperties.getDeviceImplementation();
+        DataSource device = appProperties.getDeviceImplementation();
         Controller controller = new Controller();
+       // SettingsWindow settingsWindow = new SettingsWindow();
     }
 }

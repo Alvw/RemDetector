@@ -3,7 +3,7 @@ package device;
 /**
  *
  */
-public interface BdfDataListener {
+public interface DataListener {
     public void onDataRecordReceived(int[][] dataRecord);
     public void onStopReading();
 }

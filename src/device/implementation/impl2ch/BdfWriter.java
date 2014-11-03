@@ -1,6 +1,7 @@
 package device.implementation.impl2ch;
 
-import device.BdfDataListener;
+
+import device.DataListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -13,7 +14,7 @@ import java.util.Date;
 /**
  *
  */
-public class BdfWriter implements BdfDataListener {
+public class BdfWriter implements DataListener {
 
     private static final Log LOG = LogFactory.getLog(BdfWriter.class);
     private BdfHeaderData bdfHeaderData;

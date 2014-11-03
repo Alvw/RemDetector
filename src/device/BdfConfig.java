@@ -4,21 +4,45 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Created by Al on 03.11.14.
  */
-public class BdfConfig implements Cloneable{
+public class BdfConfig implements Cloneable {
+    private String localPatientIdentification;
+    private String localRecordingIdentification;
     private double durationOfADataRecord;    // in seconds
-    private String localPatientIdentification = "Default patient";
-    private String localRecordingIdentification = "Default recording";
     private List<BdfSignalConfig> signalsConfigList;
     private long startTime;
-    private int numberOfBytesInSamples;
+    private int numberOfBytesInDataFormat; // edf - 2 bytes, bdf - 3 bytes
 
-    public int getNumberOfBytesInSamples() {
-        return numberOfBytesInSamples;
+
+    public BdfConfig() {
+         localPatientIdentification = "Default patient";
+         localRecordingIdentification = "Default recording";
+        // to do: read from property file
     }
 
-    public void setNumberOfBytesInSamples(int numberOfBytesInSamples) {
-        this.numberOfBytesInSamples = numberOfBytesInSamples;
+    public void setLocalPatientIdentification(String localPatientIdentification) {
+        this.localPatientIdentification = localPatientIdentification;
+    }
+
+    public String getLocalPatientIdentification() {
+        return localPatientIdentification;
+    }
+
+    public String getLocalRecordingIdentification() {
+        return localRecordingIdentification;
+    }
+
+    public void setLocalRecordingIdentification(String localRecordingIdentification) {
+        this.localRecordingIdentification = localRecordingIdentification;
+    }
+
+    public int getNumberOfBytesInDataFormat() {
+        return numberOfBytesInDataFormat;
+    }
+
+    public void setNumberOfBytesInDataFormat(int numberOfBytesInDataFormat) {
+        this.numberOfBytesInDataFormat = numberOfBytesInDataFormat;
     }
 
     public long getStartTime() {
@@ -35,22 +59,6 @@ public class BdfConfig implements Cloneable{
 
     public void setDurationOfADataRecord(double durationOfADataRecord) {
         this.durationOfADataRecord = durationOfADataRecord;
-    }
-
-    public String getLocalPatientIdentification() {
-        return localPatientIdentification;
-    }
-
-    public void setLocalPatientIdentification(String localPatientIdentification) {
-        this.localPatientIdentification = localPatientIdentification;
-    }
-
-    public String getLocalRecordingIdentification() {
-        return localRecordingIdentification;
-    }
-
-    public void setLocalRecordingIdentification(String localRecordingIdentification) {
-        this.localRecordingIdentification = localRecordingIdentification;
     }
 
     public int getNumberOfSignals() {

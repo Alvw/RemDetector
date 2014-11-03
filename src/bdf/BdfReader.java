@@ -13,32 +13,32 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BdfReader implements BdfDataSource {
-    private static final Log log = LogFactory.getLog(BdfDataSource.class);
+public class BdfReader implements DataSource {
+    private static final Log log = LogFactory.getLog(DataSource.class);
     private BufferedInputStream fileInputStream;
     private BdfConfig bdfConfig;
     private int numberOfBytesInSamples;
     private int[] signalsConfig;
     private int bdfDataRecordLength;
 
-    private ArrayList<BdfDataListener> bdfDataListenersList = new ArrayList<BdfDataListener>();
+    private ArrayList<DataListener> bdfDataListenersList = new ArrayList<DataListener>();
 
     public BdfReader(File file) throws ApplicationException {
         try {
             BdfHeaderReader bdfHeaderReader = new BdfHeaderReader(file);
             bdfConfig = bdfHeaderReader.getBdfConfig();
-            numberOfBytesInSamples = bdfConfig.getNumberOfBytesInSamples();
+            numberOfBytesInSamples = bdfConfig.getNumberOfBytesInDataFormat();
             fileInputStream = new BufferedInputStream(new FileInputStream(file));
             int numberOfBytesInHeader = 256 + 256 * bdfConfig.getNumberOfSignals();
             fileInputStream.skip(numberOfBytesInHeader);
 
-            List<BdfSignalConfig> bdfSignalConfigList = bdfConfig.getSignalsConfigList();
-            int numberOfSignals = bdfSignalConfigList.size();
+            List<BdfSignalConfig> signalConfigList = bdfConfig.getSignalsConfigList();
+            int numberOfSignals = signalConfigList.size();
             signalsConfig = new int[numberOfSignals];
             for (int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
-                BdfSignalConfig bdfSignalConfig = bdfSignalConfigList.get(signalNumber);
-                bdfDataRecordLength += bdfSignalConfig.getNrOfSamplesInEachDataRecord();
-                signalsConfig[signalNumber] = bdfSignalConfig.getNrOfSamplesInEachDataRecord();
+                BdfSignalConfig signalConfig = signalConfigList.get(signalNumber);
+                bdfDataRecordLength += signalConfig.getNrOfSamplesInEachDataRecord();
+                signalsConfig[signalNumber] = signalConfig.getNrOfSamplesInEachDataRecord();
             }
 
         } catch (IOException e) {
@@ -99,7 +99,7 @@ public class BdfReader implements BdfDataSource {
     public void startReading() throws ApplicationException {
         while (isBdfDataRecordAvailable()) {
             int[][] dataRecord = readBdfDataRecord();
-            for (BdfDataListener bdfDataListener : bdfDataListenersList) {
+            for (DataListener bdfDataListener : bdfDataListenersList) {
                 bdfDataListener.onDataRecordReceived(dataRecord);
             }
         }
@@ -117,20 +117,16 @@ public class BdfReader implements BdfDataSource {
             throw new ApplicationException("Error while closing file" + e);
         }
 
-        for (BdfDataListener bdfDataListener : bdfDataListenersList) {
+        for (DataListener bdfDataListener : bdfDataListenersList) {
             bdfDataListener.onStopReading();
         }
     }
 
     @Override
-    public void addBdfDataListener(BdfDataListener bdfDataListener) {
+    public void addDataListener(DataListener bdfDataListener) {
         bdfDataListenersList.add(bdfDataListener);
     }
 
-    @Override
-    public void removeBdfDataListener(BdfDataListener bdfDataListener) {
-
-    }
 
     @Override
     public BdfConfig getBdfConfig() {

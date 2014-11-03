@@ -2,8 +2,8 @@ package dreamrec;
 
 import data.DataList;
 import device.BdfConfig;
-import device.BdfDataListener;
-import device.BdfDataSource;
+import device.DataListener;
+import device.DataSource;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -11,7 +11,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class DataStore implements BdfDataListener {
+public class DataStore implements DataListener {
     private ConcurrentLinkedQueue<int[][]> dataRecordsBuffer = new ConcurrentLinkedQueue<int[][]>();
 
     private DataList[] signalList;
@@ -23,8 +23,8 @@ public class DataStore implements BdfDataListener {
     private long startTime;
     private BdfConfig bdfConfig;
 
-    public DataStore(BdfDataSource bdfDataSource) {
-        bdfDataSource.addBdfDataListener(this);
+    public DataStore(DataSource bdfDataSource) {
+        bdfDataSource.addDataListener(this);
         bdfConfig = bdfDataSource.getBdfConfig();
         int numberOfSignals = bdfConfig.getNumberOfSignals();
         activeSignals = new boolean[numberOfSignals];
@@ -50,7 +50,7 @@ public class DataStore implements BdfDataListener {
         updateTimer.start();
     }
 
-    public DataStore(BdfDataSource bdfDataSource, boolean[] activeSignals) {
+    public DataStore(DataSource bdfDataSource, boolean[] activeSignals) {
         this(bdfDataSource);
         int number = Math.min(this.activeSignals.length, activeSignals.length);
         for (int i = 0; i < number; i++) {

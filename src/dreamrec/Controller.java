@@ -3,7 +3,7 @@ package dreamrec;
 import bdf.BdfReader;
 import bdf.BdfWriter;
 import device.BdfConfig;
-import device.BdfDataSource;
+import device.DataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import tmp.ApparatModel;
@@ -22,7 +22,7 @@ public class Controller {
     private static final Log log = LogFactory.getLog(Controller.class);
 
     private boolean isRecording = false;
-    private BdfDataSource device;
+    private DataSource device;
     private BdfWriter bdfWriter;
 
     private int nrOfChannelSamples = 5; //number of channel samples in data frame
@@ -40,17 +40,17 @@ public class Controller {
     public void startRecording() {
         isRecording = true;
         if (bdfWriter != null) {
-            device.removeBdfDataListener(bdfWriter);
+           // device.removeDataListener(bdfWriter);
         }
-        BdfConfig bdfConfig = device.getBdfConfig();
-        bdfWriter = new BdfWriter(bdfConfig);
-        device.addBdfDataListener(bdfWriter);
+       // BdfConfig bdfConfig = device.getBdfConfig();
+     //   bdfWriter = new BdfWriter(bdfConfig);
+        device.addDataListener(bdfWriter);
         model.clear();
         model.setFrequency(DRM_FREQUENCY);
         model.setStartTime(System.currentTimeMillis());  //todo remove
         // mainWindow.setStart(model.getStartTime(), 1000 / model.getFrequency());
        // incomingDataBuffer = new IncomingDataBuffer();
-       // device.addBdfDataListener(incomingDataBuffer);
+       // device.addDataListener(incomingDataBuffer);
         try {
             device.startReading();
         } catch (ApplicationException e) {
@@ -98,7 +98,7 @@ public class Controller {
                 File selectedFile = fileChooser.getSelectedFile();
                 BdfReader bdfReader = new BdfReader(selectedFile);
                 int maxFrequency = 50; //hz
-                BdfDataSource bdfDataSource = new FrequencyDivider(bdfReader, maxFrequency);
+                DataSource bdfDataSource = new FrequencyDivider(bdfReader, maxFrequency);
                 BdfConfig bdfConfig = bdfDataSource.getBdfConfig();
                 DataStore dataStore = new DataStore(bdfDataSource);
                 mainWindow.setDataStore(dataStore);

@@ -1,28 +1,28 @@
 package dreamrec;
 
 import device.BdfConfig;
-import device.BdfDataListener;
-import device.BdfDataSource;
 import device.BdfSignalConfig;
+import device.DataListener;
+import device.DataSource;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class FrequencyDivider implements BdfDataSource, BdfDataListener {
-    private ArrayList<BdfDataListener> bdfDataListenersList = new ArrayList<BdfDataListener>();
+public class FrequencyDivider implements DataSource, DataListener {
+    private ArrayList<DataListener> bdfDataListenersList = new ArrayList<DataListener>();
     private int counter;
     private BdfConfig bdfConfigNew;
     private int[] dividers;
     private int numberOfSignals;
-    private BdfDataSource bdfDataSource;
+    private DataSource bdfDataSource;
 
 
-    public FrequencyDivider(BdfDataSource bdfDataSource, double maxFrequency) {
-        bdfDataSource.addBdfDataListener(this);
+    public FrequencyDivider(DataSource dataSource, double maxFrequency) {
+        bdfDataSource.addDataListener(this);
         this.bdfDataSource = bdfDataSource;
-        BdfConfig bdfConfig = bdfDataSource.getBdfConfig();
+        BdfConfig bdfConfig = dataSource.getBdfConfig();
         int maxNumberOfSamples = (int) (maxFrequency * bdfConfig.getDurationOfADataRecord());
-        bdfConfigNew = bdfDataSource.getBdfConfig().clone();
+        bdfConfigNew = dataSource.getBdfConfig().clone();
         List<BdfSignalConfig> signalsConfigListNew = bdfConfigNew.getSignalsConfigList();
         numberOfSignals = signalsConfigListNew.size();
         dividers = new int[numberOfSignals];
@@ -59,14 +59,14 @@ public class FrequencyDivider implements BdfDataSource, BdfDataListener {
                 }
             }
         }
-        for(BdfDataListener bdfDataListener : bdfDataListenersList){
+        for(DataListener bdfDataListener : bdfDataListenersList){
             bdfDataListener.onDataRecordReceived(dataRecordNew);
         }
     }
 
     @Override
     public void onStopReading() {
-        for (BdfDataListener bdfDataListener : bdfDataListenersList) {
+        for (DataListener bdfDataListener : bdfDataListenersList) {
             bdfDataListener.onStopReading();
         }
     }
@@ -82,17 +82,12 @@ public class FrequencyDivider implements BdfDataSource, BdfDataListener {
     }
 
     @Override
-    public void addBdfDataListener(BdfDataListener bdfDataListener) {
+    public void addDataListener(DataListener bdfDataListener) {
         bdfDataListenersList.add(bdfDataListener);
     }
 
     @Override
     public BdfConfig getBdfConfig() {
         return bdfConfigNew;
-    }
-
-    @Override
-    public void removeBdfDataListener(BdfDataListener bdfDataListener) {
-
     }
 }

@@ -1,9 +1,9 @@
 package device.implementation.impl2ch;
 
 import device.BdfConfig;
-import device.BdfDataListener;
-import device.BdfDataSource;
 import device.BdfSignalConfig;
+import device.DataListener;
+import device.DataSource;
 import gnu.io.NoSuchPortException;
 import gnu.io.PortInUseException;
 import org.apache.commons.logging.Log;
@@ -15,11 +15,11 @@ import java.util.List;
 /**
  *
  */
-public class Ads implements BdfDataSource {
+public class Ads implements DataSource {
 
     private static final Log log = LogFactory.getLog(Ads.class);
 
-    private List<BdfDataListener> bdfDataListeners = new ArrayList<BdfDataListener>();
+    private List<DataListener> dataListeners = new ArrayList<DataListener>();
     private ComPort comPort;
     private boolean isRecording;
     AdsConfiguration adsConfiguration;
@@ -56,7 +56,7 @@ public class Ads implements BdfDataSource {
     }
 
     public void stopReading() {
-        for (BdfDataListener adsDataListener : bdfDataListeners) {
+        for (DataListener adsDataListener : dataListeners) {
             adsDataListener.onStopReading();
         }
         if (!isRecording) return;
@@ -70,8 +70,8 @@ public class Ads implements BdfDataSource {
     }
 
     @Override
-    public void addBdfDataListener(BdfDataListener bdfDataListener) {
-        bdfDataListeners.add(bdfDataListener);
+    public void addDataListener(DataListener bdfDataListener) {
+        dataListeners.add(bdfDataListener);
     }
 
     @Override
@@ -124,13 +124,8 @@ public class Ads implements BdfDataSource {
         return bdfConfig;
     }
 
-    @Override
-    public void removeBdfDataListener(BdfDataListener bdfDataListener) {
-        bdfDataListeners.remove(bdfDataListener);
-    }
-
     private void notifyAdsDataListeners(int[][] dataRecord) {
-        for (BdfDataListener bdfDataListener : bdfDataListeners) {
+        for (DataListener bdfDataListener : dataListeners) {
             bdfDataListener.onDataRecordReceived(dataRecord);
         }
     }
