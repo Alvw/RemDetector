@@ -1,6 +1,5 @@
-package device.implementation.impl2ch;
+package device.impl2ch;
 
-import javax.naming.ConfigurationException;
 import java.util.ArrayList;
 import java.util.List;
 

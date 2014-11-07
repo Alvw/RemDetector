@@ -1,4 +1,4 @@
-package device.implementation.impl2ch;
+package device.impl2ch;
 /**
  *
  */

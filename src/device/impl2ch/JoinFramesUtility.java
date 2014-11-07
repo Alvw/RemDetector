@@ -1,11 +1,11 @@
-package device.implementation.impl2ch;
+package device.impl2ch;
 
 
-import device.DataListener;
+import bdf.BdfListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-abstract class JoinFramesUtility implements DataListener {
+abstract class JoinFramesUtility implements BdfListener {
 
     private AdsConfiguration adsConfiguration;
     private int numberOfFramesToJoin;
@@ -21,7 +21,7 @@ abstract class JoinFramesUtility implements DataListener {
     }
 
     @Override
-    public void onDataRecordReceived(int[][] bdfDataRecord) {
+    public void onDataRecordReceived(byte[] bdfDataRecord) {
         int channelPosition = 0;
         for (int divider : AdsUtils.getDividersForActiveChannels(adsConfiguration)) {
             int channelSampleNumber = adsConfiguration.getDeviceType().getMaxDiv().getValue() / divider;

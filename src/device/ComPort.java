@@ -1,4 +1,4 @@
-package device.implementation;
+package device;
 
 import com.crostec.ads.DeviceConfig;
 import com.crostec.ads.FrameDecoder;

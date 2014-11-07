@@ -1,4 +1,4 @@
-package device;
+package bdf;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +9,7 @@ import java.util.List;
 public class BdfConfig implements Cloneable {
     private String localPatientIdentification;
     private String localRecordingIdentification;
-    private double durationOfADataRecord;    // in seconds
+    private double durationOfDataRecord;    // in seconds
     private List<BdfSignalConfig> signalsConfigList;
     private long startTime;
     private int numberOfBytesInDataFormat; // edf - 2 bytes, bdf - 3 bytes
@@ -53,12 +53,20 @@ public class BdfConfig implements Cloneable {
         this.startTime = startTime;
     }
 
-    public double getDurationOfADataRecord() {
-        return durationOfADataRecord;
+    public double getDurationOfDataRecord() {
+        return durationOfDataRecord;
     }
 
-    public void setDurationOfADataRecord(double durationOfADataRecord) {
-        this.durationOfADataRecord = durationOfADataRecord;
+    public void setDurationOfDataRecord(double durationOfDataRecord) {
+        this.durationOfDataRecord = durationOfDataRecord;
+    }
+
+    public int getTotalNumberOfSamplesInEachDataRecord() {
+        int result = 0;
+        for (int signalNumber = 0; signalNumber < signalsConfigList.size(); signalNumber++) {
+            result += signalsConfigList.get(signalNumber).getNumberOfSamplesInEachDataRecord();
+        }
+        return result;
     }
 
     public int getNumberOfSignals() {
@@ -68,8 +76,7 @@ public class BdfConfig implements Cloneable {
     public double[] getSignalsFrequencies() {
         double[] signalsFrequencies = new double[getNumberOfSignals()];
         for(int i = 0; i < getNumberOfSignals(); i++) {
-            BdfSignalConfig signalConfig = signalsConfigList.get(i);
-            signalsFrequencies[i]  = signalConfig.getNrOfSamplesInEachDataRecord()/durationOfADataRecord;
+            signalsFrequencies[i]  = signalsConfigList.get(i).getNumberOfSamplesInEachDataRecord()/ durationOfDataRecord;
         }
         return  signalsFrequencies;
     }

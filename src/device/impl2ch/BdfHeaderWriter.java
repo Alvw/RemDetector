@@ -1,4 +1,4 @@
-package device.implementation.impl2ch;
+package device.impl2ch;
 
 
 import java.nio.ByteBuffer;
@@ -7,7 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import static device.implementation.impl2ch.AdsUtils.*;
+import static device.impl2ch.AdsUtils.*;
 
 class BdfHeaderWriter {
 

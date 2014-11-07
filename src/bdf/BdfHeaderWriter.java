@@ -1,9 +1,6 @@
 package bdf;
 
 
-import device.BdfConfig;
-import device.BdfSignalConfig;
-
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
@@ -46,7 +43,7 @@ class BdfHeaderWriter {
         bdfHeader.append(adjustLength(Integer.toString(numberOfBytesInHeaderRecord), 8));
         bdfHeader.append(adjustLength(versionOfDataFormat, 44));
         bdfHeader.append(adjustLength(Integer.toString(numberOfDataRecords), 8));
-        bdfHeader.append(adjustLength(String.format("%.6f", bdfConfig.getDurationOfADataRecord()).replace(",", "."), 8));
+        bdfHeader.append(adjustLength(String.format("%.6f", bdfConfig.getDurationOfDataRecord()).replace(",", "."), 8));
         bdfHeader.append(adjustLength(Integer.toString(numberOfSignals), 4));
 
         StringBuilder labels = new StringBuilder();
@@ -75,7 +72,7 @@ class BdfHeaderWriter {
                 digitalMinimums.append(adjustLength(String.valueOf(digitalMin), 8));
                 digitalMaximums.append(adjustLength(String.valueOf(digitalMax), 8));
                 preFilterings.append(adjustLength("None", 80));
-                int nrOfSamplesInEachDataRecord = signalConfig.getNrOfSamplesInEachDataRecord();
+                int nrOfSamplesInEachDataRecord = signalConfig.getNumberOfSamplesInEachDataRecord();
                 samplesNumbers.append(adjustLength(Integer.toString(nrOfSamplesInEachDataRecord), 8));
                 reservedForChannels.append(adjustLength("", 32));
         }

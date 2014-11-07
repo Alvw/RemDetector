@@ -1,7 +1,7 @@
-package device.implementation.impl2ch;
+package device.impl2ch;
 
 import gnu.io.SerialPort;
-import static device.implementation.impl2ch.Divider.*;
+import static device.impl2ch.Divider.*;
 
 public enum DeviceType {
     ADS1298(8, D10, new Divider[]{D1, D2, D5, D10}, new Divider[]{D1, D2, D5, D10},

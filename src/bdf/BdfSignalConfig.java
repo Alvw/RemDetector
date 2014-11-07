@@ -1,4 +1,4 @@
-package device;
+package bdf;
 
 /**
  *
@@ -10,7 +10,7 @@ public class BdfSignalConfig implements Cloneable{
     private int physicalMin;
     private int physicalMax;
     private String physicalDimension;
-    private int nrOfSamplesInEachDataRecord;
+    private int numberOfSamplesInEachDataRecord;
 
     @Override
     public BdfSignalConfig clone() throws CloneNotSupportedException {
@@ -65,11 +65,11 @@ public class BdfSignalConfig implements Cloneable{
         this.physicalDimension = physicalDimension;
     }
 
-    public int getNrOfSamplesInEachDataRecord() {
-        return nrOfSamplesInEachDataRecord;
+    public int getNumberOfSamplesInEachDataRecord() {
+        return numberOfSamplesInEachDataRecord;
     }
 
-    public void setNrOfSamplesInEachDataRecord(int nrOfSamplesInEachDataRecord) {
-        this.nrOfSamplesInEachDataRecord = nrOfSamplesInEachDataRecord;
+    public void setNumberOfSamplesInEachDataRecord(int numberOfSamplesInEachDataRecord) {
+        this.numberOfSamplesInEachDataRecord = numberOfSamplesInEachDataRecord;
     }
 }

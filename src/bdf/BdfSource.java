@@ -1,11 +1,11 @@
-package device;
+package bdf;
 
 
 import dreamrec.ApplicationException;
 
-public interface     DataSource {
+public interface BdfSource {
     public void startReading() throws ApplicationException;
     public void stopReading() throws ApplicationException;
-    public void addDataListener(DataListener dataListener);
+    public void addBdfDataListener(BdfListener bdfListener);
     public BdfConfig getBdfConfig();
 }

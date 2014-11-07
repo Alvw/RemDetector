@@ -1,7 +1,5 @@
 package bdf;
 
-import device.BdfConfig;
-import device.DataListener;
 import com.crostec.ads.AdsUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -15,7 +13,7 @@ import java.util.Date;
 /**
  *
  */
-public class BdfWriter implements DataListener {
+public class BdfWriter implements BdfListener {
 
     private static final Log LOG = LogFactory.getLog(BdfWriter.class);
     private final BdfConfig bdfConfig;
@@ -39,10 +37,10 @@ public class BdfWriter implements DataListener {
     }
 
     @Override
-    public synchronized void onDataRecordReceived(int[][] bdfDataRecord) {
+    public synchronized void onDataRecordReceived(byte[] bdfDataRecord) {
         if (!stopRecordingRequest) {
             if (numberOfDataRecords == 0) {
-                startRecordingTime = System.currentTimeMillis() - (long)bdfConfig.getDurationOfADataRecord(); //1 second (1000 msec) duration of a data record
+                startRecordingTime = System.currentTimeMillis() - (long)bdfConfig.getDurationOfDataRecord(); //1 second (1000 msec) duration of a data record
                 try {
                     fileToSave.write(BdfHeaderWriter.createBdfHeader(bdfConfig, startRecordingTime, -1));
                 } catch (IOException e) {
@@ -52,7 +50,7 @@ public class BdfWriter implements DataListener {
             }
             numberOfDataRecords++;
             stopRecordingTime = System.currentTimeMillis();
-            for (int i = 0; i < bdfDataRecord.length; i++) {
+/*            for (int i = 0; i < bdfDataRecord.length; i++) {
                 for(int j = 0; j < bdfDataRecord[i].length; j++)  {
                     try {
                         fileToSave.write(AdsUtils.to24BitLittleEndian(bdfDataRecord[i][j]));
@@ -62,7 +60,7 @@ public class BdfWriter implements DataListener {
                     }
                 }
 
-            }
+            }*/
         }
     }
 
@@ -71,7 +69,7 @@ public class BdfWriter implements DataListener {
         if (stopRecordingRequest) return;
         stopRecordingRequest = true;
         double durationOfDataRecord = (stopRecordingTime - startRecordingTime) * 0.001 / numberOfDataRecords;
-        bdfConfig.setDurationOfADataRecord(durationOfDataRecord);
+        bdfConfig.setDurationOfDataRecord(durationOfDataRecord);
         try {
             fileToSave.seek(0);
             fileToSave.write(BdfHeaderWriter.createBdfHeader(bdfConfig,startRecordingTime,numberOfDataRecords));

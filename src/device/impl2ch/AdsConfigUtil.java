@@ -1,4 +1,4 @@
-package device.implementation.impl2ch;
+package device.impl2ch;
 
 /**
  * Utility class to save AdsConfiguration to properties file and read saved data

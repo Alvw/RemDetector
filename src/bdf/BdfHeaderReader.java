@@ -1,7 +1,5 @@
 package bdf;
 
-import device.BdfConfig;
-import device.BdfSignalConfig;
 import dreamrec.ApplicationException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -128,7 +126,7 @@ public class BdfHeaderReader {
             buffer = new char[DURATION_OF_DATARECORD_LENGTH];
             reader.read(buffer, 0, DURATION_OF_DATARECORD_LENGTH);
             Double durationOfDataRecord = stringToDouble(new String(buffer));
-            bdfConfig.setDurationOfADataRecord(durationOfDataRecord);
+            bdfConfig.setDurationOfDataRecord(durationOfDataRecord);
 
             buffer = new char[NUMBER_OF_SIGNALS_LENGTH];
             reader.read(buffer, 0, NUMBER_OF_SIGNALS_LENGTH);
@@ -186,7 +184,7 @@ public class BdfHeaderReader {
                 buffer = new char[SIGNAL_NUMBER_OF_SAMPLES_LENGTH];
                 reader.read(buffer, 0, SIGNAL_NUMBER_OF_SAMPLES_LENGTH);
                 int numberOfSamplesInDataRecord =  stringToInt(new String(buffer));
-                bdfSignalConfigList.get(signalNumber).setNrOfSamplesInEachDataRecord(numberOfSamplesInDataRecord);
+                bdfSignalConfigList.get(signalNumber).setNumberOfSamplesInEachDataRecord(numberOfSamplesInDataRecord);
             }
             for(int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
                 buffer = new char[SIGNAL_RESERVED_LENGTH];

@@ -1,9 +1,9 @@
-package device.implementation.impl2ch;
+package device.impl2ch;
 
-import device.BdfConfig;
-import device.BdfSignalConfig;
-import device.DataListener;
-import device.DataSource;
+import bdf.BdfConfig;
+import bdf.BdfListener;
+import bdf.BdfSignalConfig;
+import bdf.BdfSource;
 import gnu.io.NoSuchPortException;
 import gnu.io.PortInUseException;
 import org.apache.commons.logging.Log;
@@ -15,11 +15,11 @@ import java.util.List;
 /**
  *
  */
-public class Ads implements DataSource {
+public class Ads implements BdfSource {
 
     private static final Log log = LogFactory.getLog(Ads.class);
 
-    private List<DataListener> dataListeners = new ArrayList<DataListener>();
+    private List<BdfListener> bdfListeners = new ArrayList<BdfListener>();
     private ComPort comPort;
     private boolean isRecording;
     AdsConfiguration adsConfiguration;
@@ -56,8 +56,8 @@ public class Ads implements DataSource {
     }
 
     public void stopReading() {
-        for (DataListener adsDataListener : dataListeners) {
-            adsDataListener.onStopReading();
+        for (BdfListener adsBdfListener : bdfListeners) {
+            adsBdfListener.onStopReading();
         }
         if (!isRecording) return;
         comPort.writeToPort(new AdsConfigurator().startPinLo());
@@ -70,14 +70,14 @@ public class Ads implements DataSource {
     }
 
     @Override
-    public void addDataListener(DataListener bdfDataListener) {
-        dataListeners.add(bdfDataListener);
+    public void addBdfDataListener(BdfListener bdfBdfListener) {
+        bdfListeners.add(bdfBdfListener);
     }
 
     @Override
     public BdfConfig getBdfConfig() {
         BdfConfig bdfConfig = new BdfConfig();
-        bdfConfig.setDurationOfADataRecord(adsConfiguration.getDeviceType().getMaxDiv().getValue()/adsConfiguration.getSps().getValue());
+        bdfConfig.setDurationOfDataRecord(adsConfiguration.getDeviceType().getMaxDiv().getValue() / adsConfiguration.getSps().getValue());
        // bdfConfig.setNumberOfSignals(AdsUtils.getDividersForActiveChannels(adsConfiguration).size()+2);
         List<BdfSignalConfig> signalConfigList = new ArrayList<BdfSignalConfig>();
         int n = 0;
@@ -90,7 +90,7 @@ public class Ads implements DataSource {
                 int physicalMax = 2400000/channelConfiguration.getGain().getValue();
                 bdfSignalConfig.setPhysicalMax(physicalMax);
                 bdfSignalConfig.setPhysicalMin(-physicalMax);
-                bdfSignalConfig.setNrOfSamplesInEachDataRecord(adsConfiguration.getDeviceType().getMaxDiv().getValue()/channelConfiguration.getDivider().getValue());
+                bdfSignalConfig.setNumberOfSamplesInEachDataRecord(adsConfiguration.getDeviceType().getMaxDiv().getValue() / channelConfiguration.getDivider().getValue());
                 bdfSignalConfig.setPhysicalDimension("uV");
                 signalConfigList.add(bdfSignalConfig);
             }
@@ -103,7 +103,7 @@ public class Ads implements DataSource {
                 bdfSignalConfig.setDigitalMin(-30800);
                 bdfSignalConfig.setPhysicalMax(2);
                 bdfSignalConfig.setPhysicalMin(-2);
-                bdfSignalConfig.setNrOfSamplesInEachDataRecord(adsConfiguration.getDeviceType().getMaxDiv().getValue()/adsConfiguration.getAccelerometerDivider().getValue());
+                bdfSignalConfig.setNumberOfSamplesInEachDataRecord(adsConfiguration.getDeviceType().getMaxDiv().getValue() / adsConfiguration.getAccelerometerDivider().getValue());
                 bdfSignalConfig.setPhysicalDimension("g");
                 signalConfigList.add(bdfSignalConfig);
             }
@@ -115,7 +115,7 @@ public class Ads implements DataSource {
                 bdfSignalConfig.setDigitalMin(-8388608);
                 bdfSignalConfig.setPhysicalMax(8388607);
                 bdfSignalConfig.setPhysicalMin(-8388608);
-                bdfSignalConfig.setNrOfSamplesInEachDataRecord(1);
+                bdfSignalConfig.setNumberOfSamplesInEachDataRecord(1);
                 bdfSignalConfig.setPhysicalDimension("n/a");
                 signalConfigList.add(bdfSignalConfig);
         }
@@ -124,9 +124,9 @@ public class Ads implements DataSource {
         return bdfConfig;
     }
 
-    private void notifyAdsDataListeners(int[][] dataRecord) {
-        for (DataListener bdfDataListener : dataListeners) {
-            bdfDataListener.onDataRecordReceived(dataRecord);
+    private void notifyAdsDataListeners(byte[] bdfDataRecord) {
+        for (BdfListener bdfListener : bdfListeners) {
+            bdfListener.onDataRecordReceived(bdfDataRecord);
         }
     }
 }

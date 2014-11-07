@@ -1,9 +1,7 @@
-package device.implementation.impl2ch;
+package device.impl2ch;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import java.util.List;
 
 abstract class FrameDecoder {
 

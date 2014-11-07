@@ -1,9 +1,9 @@
 package dreamrec;
 
+import bdf.BdfConfig;
 import bdf.BdfReader;
 import bdf.BdfWriter;
-import device.BdfConfig;
-import device.DataSource;
+import bdf.BdfSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import tmp.ApparatModel;
@@ -22,7 +22,7 @@ public class Controller {
     private static final Log log = LogFactory.getLog(Controller.class);
 
     private boolean isRecording = false;
-    private DataSource device;
+    private BdfSource device;
     private BdfWriter bdfWriter;
 
     private int nrOfChannelSamples = 5; //number of channel samples in data frame
@@ -44,13 +44,13 @@ public class Controller {
         }
        // BdfConfig bdfConfig = device.getBdfConfig();
      //   bdfWriter = new BdfWriter(bdfConfig);
-        device.addDataListener(bdfWriter);
+        device.addBdfDataListener(bdfWriter);
         model.clear();
         model.setFrequency(DRM_FREQUENCY);
         model.setStartTime(System.currentTimeMillis());  //todo remove
         // mainWindow.setStart(model.getStartTime(), 1000 / model.getFrequency());
        // incomingDataBuffer = new IncomingDataBuffer();
-       // device.addDataListener(incomingDataBuffer);
+       // device.addBdfDataListener(incomingDataBuffer);
         try {
             device.startReading();
         } catch (ApplicationException e) {
@@ -96,13 +96,13 @@ public class Controller {
             int fileChooserState = fileChooser.showOpenDialog(mainWindow);
             if (fileChooserState == JFileChooser.APPROVE_OPTION) {
                 File selectedFile = fileChooser.getSelectedFile();
-                BdfReader bdfReader = new BdfReader(selectedFile);
-                int maxFrequency = 50; //hz
-                DataSource bdfDataSource = new FrequencyDivider(bdfReader, maxFrequency);
-                BdfConfig bdfConfig = bdfDataSource.getBdfConfig();
-                DataStore dataStore = new DataStore(bdfDataSource);
+                BdfSource bdfSource = new BdfReader(selectedFile);
+                DataStore dataStore = new DataStore(bdfSource);
                 mainWindow.setDataStore(dataStore);
-                bdfReader.startReading();
+                long startTime = System.currentTimeMillis();
+                bdfSource.startReading();
+                long endTime = System.currentTimeMillis();
+                System.out.println("reading finished "+(endTime-startTime));
 
             }
         } catch (ApplicationException e) {

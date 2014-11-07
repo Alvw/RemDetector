@@ -1,7 +1,7 @@
-package device.implementation.impl2ch;
+package device.impl2ch;
 
 
-import device.DataListener;
+import bdf.BdfListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -14,7 +14,7 @@ import java.util.Date;
 /**
  *
  */
-public class BdfWriter implements DataListener {
+public class BdfWriter implements BdfListener {
 
     private static final Log LOG = LogFactory.getLog(BdfWriter.class);
     private BdfHeaderData bdfHeaderData;
@@ -46,7 +46,7 @@ public class BdfWriter implements DataListener {
     }
 
     @Override
-    public synchronized void onDataRecordReceived(int[][] bdfDataRecord) {
+    public synchronized void onDataRecordReceived(byte[] bdfDataRecord) {
         if (!stopRecordingRequest) {
             joinFramesUtility.onDataRecordReceived(bdfDataRecord);
         }
