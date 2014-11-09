@@ -1,6 +1,6 @@
 package dreamrec;
 
-import bdf.BdfSource;
+import bdf.BdfProvider;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.logging.Log;
@@ -26,12 +26,12 @@ public class ApplicationProperties {
         }
     }
 
-    public BdfSource getDeviceImplementation() {
+    public BdfProvider getDeviceImplementation() {
         Class deviceClass = null;
-        BdfSource device = null;
+        BdfProvider device = null;
         try {
             deviceClass = Class.forName(config.getString(DEVICE_IMPL));
-            device = (BdfSource)deviceClass.newInstance();
+            device = (BdfProvider)deviceClass.newInstance();
         } catch (ClassNotFoundException e) {
            log.error(e);
         } catch (InstantiationException e) {

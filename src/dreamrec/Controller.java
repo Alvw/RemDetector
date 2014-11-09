@@ -1,9 +1,8 @@
 package dreamrec;
 
-import bdf.BdfConfig;
+import bdf.BdfProvider;
 import bdf.BdfReader;
 import bdf.BdfWriter;
-import bdf.BdfSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import tmp.ApparatModel;
@@ -22,7 +21,7 @@ public class Controller {
     private static final Log log = LogFactory.getLog(Controller.class);
 
     private boolean isRecording = false;
-    private BdfSource device;
+    private BdfProvider device;
     private BdfWriter bdfWriter;
 
     private int nrOfChannelSamples = 5; //number of channel samples in data frame
@@ -39,28 +38,39 @@ public class Controller {
 
     public void startRecording() {
         isRecording = true;
-        if (bdfWriter != null) {
-           // device.removeDataListener(bdfWriter);
+        System.out.println("controller startRecord " + SwingUtilities.isEventDispatchThread());
+        while(isRecording) {
+            try{
+                Thread.sleep(500);
+                System.out.println("device run ");
+            } catch(InterruptedException e) {
+                System.out.println(e);
+            }
         }
+     //   if (bdfWriter != null) {
+           // device.removeDataListener(bdfWriter);
+       // }
        // BdfConfig bdfConfig = device.getBdfConfig();
      //   bdfWriter = new BdfWriter(bdfConfig);
-        device.addBdfDataListener(bdfWriter);
-        model.clear();
-        model.setFrequency(DRM_FREQUENCY);
-        model.setStartTime(System.currentTimeMillis());  //todo remove
-        // mainWindow.setStart(model.getStartTime(), 1000 / model.getFrequency());
+     //   device.addBdfDataListener(bdfWriter);
+     //   model.clear();
+    //    model.setFrequency(DRM_FREQUENCY);
+      //  model.setStartTime(System.currentTimeMillis());  //todo remove
+    //    // mainWindow.setStart(model.getStartTime(), 1000 / model.getFrequency());
        // incomingDataBuffer = new IncomingDataBuffer();
        // device.addBdfDataListener(incomingDataBuffer);
-        try {
+      /*  try {
             device.startReading();
         } catch (ApplicationException e) {
             JOptionPane.showMessageDialog(null, e.getMessage());
             System.exit(0);
-        }
+        }*/
     }
 
     public void stopRecording() {
-        if (!isRecording) return;
+        System.out.println("controller stopRecord " + SwingUtilities.isEventDispatchThread());
+        isRecording = false;
+    /*    if (!isRecording) return;
         isRecording = false;
         try {
             device.stopReading();
@@ -68,7 +78,7 @@ public class Controller {
             JOptionPane.showMessageDialog(null, e.getMessage());
         }
 
-        saveToFile();
+        saveToFile();*/
     }
 
     private void saveToFile() {
@@ -96,14 +106,10 @@ public class Controller {
             int fileChooserState = fileChooser.showOpenDialog(mainWindow);
             if (fileChooserState == JFileChooser.APPROVE_OPTION) {
                 File selectedFile = fileChooser.getSelectedFile();
-                BdfSource bdfSource = new BdfReader(selectedFile);
-                DataStore dataStore = new DataStore(bdfSource);
+                BdfProvider bdfProvider = new BdfReader(selectedFile);
+                DataStore dataStore = new DataStore(bdfProvider);
                 mainWindow.setDataStore(dataStore);
-                long startTime = System.currentTimeMillis();
-                bdfSource.startReading();
-                long endTime = System.currentTimeMillis();
-                System.out.println("reading finished "+(endTime-startTime));
-
+                bdfProvider.startReading();
             }
         } catch (ApplicationException e) {
             mainWindow.showMessage("Bdf file reading is failed!");

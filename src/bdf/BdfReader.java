@@ -10,8 +10,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class BdfReader implements BdfSource {
-    private static final Log log = LogFactory.getLog(BdfSource.class);
+public class BdfReader implements BdfProvider {
+    private static final Log log = LogFactory.getLog(BdfReader.class);
     private BufferedInputStream fileInputStream;
     private BdfConfig bdfConfig;
     private int dataRecordBytesSize;

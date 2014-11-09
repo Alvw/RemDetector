@@ -2,19 +2,24 @@ package dreamrec;
 
 import bdf.*;
 import data.DataList;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class DataStore implements BdfListener {
-    private ConcurrentLinkedQueue<byte[]> dataRecordsBuffer = new ConcurrentLinkedQueue<byte[]>();
-    //private LinkedList<byte[]> dataRecordsBuffer = new LinkedList<byte[]>();
+    private static final Log log = LogFactory.getLog(DataStore.class);
 
+    //private ConcurrentLinkedQueue<byte[]> dataRecordsBuffer = new ConcurrentLinkedQueue<byte[]>();
+    private LinkedBlockingQueue<byte[]> dataRecordsBuffer;
+
+    private int BUFFER_CAPACITY_SECONDS = 30*60; // half an hour, to protect from OutOfMemoryError
+    private int bufferSize;
     private DataList[] signalList;
     private ArrayList<DataStoreListener> updateListeners = new ArrayList<DataStoreListener>();
 
@@ -28,16 +33,18 @@ public class DataStore implements BdfListener {
     private BdfParser bdfParser;
 
 
-    public DataStore(BdfSource bdfSource) {
-        bdfSource.addBdfDataListener(this);
-        BdfConfig bdfConfig = bdfSource.getBdfConfig();
+    public DataStore(BdfProvider bdfProvider) {
+        bdfProvider.addBdfDataListener(this);
+        BdfConfig bdfConfig = bdfProvider.getBdfConfig();
+        bufferSize = (int)(BUFFER_CAPACITY_SECONDS/bdfConfig.getDurationOfDataRecord());
+        dataRecordsBuffer = new LinkedBlockingQueue<byte[]>(bufferSize);
         bdfParser = new BdfParser(bdfConfig);
         frequencies = bdfConfig.getSignalsFrequencies();
         int numberOfSignals = bdfConfig.getNumberOfSignals();
         dividers = new int[numberOfSignals];
         for (int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
             if (frequencies[signalNumber] > MAX_FREQUENCY) {
-                dividers[signalNumber] = (int)(frequencies[signalNumber] / MAX_FREQUENCY);
+                dividers[signalNumber] = (int) (frequencies[signalNumber] / MAX_FREQUENCY);
                 frequencies[signalNumber] = MAX_FREQUENCY;
             } else {
                 dividers[signalNumber] = 1;
@@ -52,13 +59,9 @@ public class DataStore implements BdfListener {
 
         updateTimer = new Timer(UPDATE_DELAY, new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
-                try {
-                    update();
-                    notifyListeners();
-                } catch (ApplicationException e) {
-                    System.out.println(e);
-                }
-
+                System.out.println("timer");
+                storeBufferedData();
+                notifyListeners();
             }
         });
 
@@ -66,8 +69,8 @@ public class DataStore implements BdfListener {
         updateTimer.start();
     }
 
-    public DataStore(BdfSource bdfSource, boolean[] activeSignals) {
-        this(bdfSource);
+    public DataStore(BdfProvider bdfProvider, boolean[] activeSignals) {
+        this(bdfProvider);
         int number = Math.min(this.activeSignals.length, activeSignals.length);
         for (int i = 0; i < number; i++) {
             this.activeSignals[i] = activeSignals[i];
@@ -77,42 +80,48 @@ public class DataStore implements BdfListener {
 
     @Override
     public void onDataRecordReceived(byte[] dataRecord) {
-        dataRecordsBuffer.offer(dataRecord);
+        if (SwingUtilities.isEventDispatchThread()){ // if data comes from gui thread we handle it at once
+            storeDataRecord(dataRecord);
+        }else{
+            try{
+                dataRecordsBuffer.put(dataRecord); // if data comes from non-gui thread we just buffer it
+            } catch(InterruptedException e) {
+                log.error(e);
+            }
+        }
     }
 
     @Override
     public void onStopReading() {
         updateTimer.stop();
-        try {
-            update();
-            notifyListeners();
-        } catch (ApplicationException e) {
-            System.out.println(e);
-        }
-
+        storeBufferedData();
+        notifyListeners();
     }
 
-    private void update() throws ApplicationException {
+    private void storeBufferedData() {
         while (dataRecordsBuffer.size() > 0) {
             byte[] dataRecord = dataRecordsBuffer.poll();
-            for(int channelNumber = 0; channelNumber < signalList.length; channelNumber++){
-                int[] channelData = bdfParser.parseDataRecordSignal(dataRecord, channelNumber);
-                adjustChannelFrequency(channelData, channelNumber);
-            }
+            storeDataRecord(dataRecord);
         }
     }
 
-    private void adjustChannelFrequency (int[] channelDataRecord, int channelNumber) {
+    private void storeDataRecord(byte[] bdfDataRecord) {
+        for (int channelNumber = 0; channelNumber < signalList.length; channelNumber++) {
+            int[] channelData = bdfParser.parseDataRecordSignal(bdfDataRecord, channelNumber);
+            adjustChannelFrequency(channelData, channelNumber);
+        }
+    }
+
+    private void adjustChannelFrequency(int[] channelDataRecord, int channelNumber) {
         int sum = 0;
         int divider = dividers[channelNumber];
-        if(divider == 1) {
+        if (divider == 1) {
             signalList[channelNumber].add(channelDataRecord);
-        }
-        else {
-            for(int i = 0; i < channelDataRecord.length; i++){
+        } else {
+            for (int i = 0; i < channelDataRecord.length; i++) {
                 sum += channelDataRecord[i];
-                if((i + 1)%divider == 0) {
-                    signalList[channelNumber].add(sum/divider);
+                if ((i + 1) % divider == 0) {
+                    signalList[channelNumber].add(sum / divider);
                     sum = 0;
                 }
             }

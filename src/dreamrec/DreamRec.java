@@ -1,6 +1,13 @@
 package dreamrec;
 
-import bdf.BdfSource;
+import bdf.BdfProvider;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Date;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Created by IntelliJ IDEA.
@@ -11,9 +18,28 @@ import bdf.BdfSource;
  */
 public class DreamRec {
     public static void main(String[] args) {
+        final LinkedBlockingQueue<Integer> buffer = new LinkedBlockingQueue<Integer>(4);
         ApplicationProperties appProperties = new ApplicationProperties();
-        BdfSource device = appProperties.getDeviceImplementation();
+        BdfProvider device = appProperties.getDeviceImplementation();
         Controller controller = new Controller();
        // SettingsWindow settingsWindow = new SettingsWindow();
+      /*  Timer timer = new Timer(1000, new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                System.out.println("gui thread: ");
+                buffer.poll();
+            }
+        });
+        timer.start();
+        int i = 0;
+        while(true) {
+            try{
+                Thread.sleep(500);
+                buffer.put(1);
+                i++;
+                System.out.println("main thread "+i);
+            } catch(InterruptedException e) {
+                System.out.println(e);
+            }
+        }*/
     }
 }
