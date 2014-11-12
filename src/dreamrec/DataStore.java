@@ -9,7 +9,6 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class DataStore implements BdfListener {
@@ -18,14 +17,14 @@ public class DataStore implements BdfListener {
     //private ConcurrentLinkedQueue<byte[]> dataRecordsBuffer = new ConcurrentLinkedQueue<byte[]>();
     private LinkedBlockingQueue<byte[]> dataRecordsBuffer;
 
-    private int BUFFER_CAPACITY_SECONDS = 30*60; // half an hour, to protect from OutOfMemoryError
+    private int BUFFER_CAPACITY_SECONDS = 60*20; // to protect from OutOfMemoryError
     private int bufferSize;
     private DataList[] signalList;
     private ArrayList<DataStoreListener> updateListeners = new ArrayList<DataStoreListener>();
 
     private boolean[] activeSignals;
     private Timer updateTimer;
-    private int UPDATE_DELAY = 500;
+    private int UPDATE_DELAY = 250;
     private int MAX_FREQUENCY = 50; //hz;
     private long startTime;
     private double[] frequencies;
@@ -59,12 +58,10 @@ public class DataStore implements BdfListener {
 
         updateTimer = new Timer(UPDATE_DELAY, new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
-                System.out.println("timer");
-                storeBufferedData();
+                processBufferedData();
                 notifyListeners();
             }
         });
-
         startTime = bdfConfig.getStartTime();
         updateTimer.start();
     }
@@ -80,8 +77,8 @@ public class DataStore implements BdfListener {
 
     @Override
     public void onDataRecordReceived(byte[] dataRecord) {
-        if (SwingUtilities.isEventDispatchThread()){ // if data comes from gui thread we handle it at once
-            storeDataRecord(dataRecord);
+        if (SwingUtilities.isEventDispatchThread()){ // if data comes from gui thread we process it at once
+            processDataRecord(dataRecord);
         }else{
             try{
                 dataRecordsBuffer.put(dataRecord); // if data comes from non-gui thread we just buffer it
@@ -94,18 +91,18 @@ public class DataStore implements BdfListener {
     @Override
     public void onStopReading() {
         updateTimer.stop();
-        storeBufferedData();
+        processBufferedData();
         notifyListeners();
     }
 
-    private void storeBufferedData() {
+    private void processBufferedData() {
         while (dataRecordsBuffer.size() > 0) {
             byte[] dataRecord = dataRecordsBuffer.poll();
-            storeDataRecord(dataRecord);
+            processDataRecord(dataRecord);
         }
     }
 
-    private void storeDataRecord(byte[] bdfDataRecord) {
+    private void processDataRecord(byte[] bdfDataRecord) {
         for (int channelNumber = 0; channelNumber < signalList.length; channelNumber++) {
             int[] channelData = bdfParser.parseDataRecordSignal(bdfDataRecord, channelNumber);
             adjustChannelFrequency(channelData, channelNumber);
