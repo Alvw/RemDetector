@@ -116,16 +116,9 @@ public class GraphsViewer extends JPanel {
         }
     }
 
-    public void addGraphs(int panelNumber, DataSet... graphs) {
-        if (panelNumber < graphPanelList.size()) {
-            addGraphs(graphPanelList.get(panelNumber), graphs);
-        }
-    }
-
     public void addPreviews(PreviewPanel previewPanel, DataSet... previews) {
         for(DataSet previewSet : previews) {
             previewPanel.addGraph(previewSet);
-            timeFrequency = Math.max(timeFrequency, previewSet.getFrequency());
         }
     }
 
