@@ -56,9 +56,9 @@ class BdfHeaderWriter {
         StringBuilder preFilterings = new StringBuilder();
         StringBuilder samplesNumbers = new StringBuilder();
         StringBuilder reservedForChannels = new StringBuilder();
-        List<BdfSignalConfig> signalConfigList = bdfConfig.getSignalsConfigList();
-        for (int i = 0; i < signalConfigList.size(); i++) {
-            BdfSignalConfig signalConfig = signalConfigList.get(i);
+        BdfSignalConfig[] signalConfigList = bdfConfig.getSignalsConfigList();
+        for (int i = 0; i < signalConfigList.length; i++) {
+            BdfSignalConfig signalConfig = signalConfigList[i];
                 labels.append(adjustLength(signalConfig.getLabel(), 16));
                 transducerTypes.append(adjustLength("Unknown", 80));
                 physicalDimensions.append(adjustLength(signalConfig.getPhysicalDimension(), 8));

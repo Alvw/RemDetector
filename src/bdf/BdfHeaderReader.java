@@ -132,16 +132,16 @@ public class BdfHeaderReader {
             reader.read(buffer, 0, NUMBER_OF_SIGNALS_LENGTH);
             int numberOfSignals =  stringToInt(new String(buffer));
 
-            ArrayList<BdfSignalConfig> bdfSignalConfigList = new ArrayList<BdfSignalConfig>();
+            BdfSignalConfig[] bdfSignalConfigList = new BdfSignalConfig[numberOfSignals];
 
             for(int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
                 BdfSignalConfig bdfSignalConfig = new BdfSignalConfig();
-                bdfSignalConfigList.add(bdfSignalConfig);
+                bdfSignalConfigList[signalNumber] = bdfSignalConfig;
             }
             for(int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
                 buffer = new char[SIGNAL_LABEL_LENGTH];
                 reader.read(buffer, 0, SIGNAL_LABEL_LENGTH);
-                bdfSignalConfigList.get(signalNumber).setLabel(new String(buffer).trim());
+                bdfSignalConfigList[signalNumber].setLabel(new String(buffer).trim());
             }
             for(int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
                 buffer = new char[SIGNAL_TRANSDUCER_TYPE_LENGTH];
@@ -150,31 +150,31 @@ public class BdfHeaderReader {
             for(int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
                 buffer = new char[SIGNAL_PHYSICAL_DIMENSION_LENGTH];
                 reader.read(buffer, 0, SIGNAL_PHYSICAL_DIMENSION_LENGTH);
-                bdfSignalConfigList.get(signalNumber).setPhysicalDimension(new String(buffer).trim());
+                bdfSignalConfigList[signalNumber].setPhysicalDimension(new String(buffer).trim());
             }
             for(int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
                 buffer = new char[SIGNAL_PHYSICAL_MIN_LENGTH];
                 reader.read(buffer, 0, SIGNAL_PHYSICAL_MIN_LENGTH);
                 int physicalMin =  stringToInt(new String(buffer));
-                bdfSignalConfigList.get(signalNumber).setPhysicalMin(physicalMin);
+                bdfSignalConfigList[signalNumber].setPhysicalMin(physicalMin);
             }
             for(int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
                 buffer = new char[SIGNAL_PHYSICAL_MAX_LENGTH];
                 reader.read(buffer, 0, SIGNAL_PHYSICAL_MAX_LENGTH);
                 int physicalMax =  stringToInt(new String(buffer));
-                bdfSignalConfigList.get(signalNumber).setPhysicalMax(physicalMax);
+                bdfSignalConfigList[signalNumber].setPhysicalMax(physicalMax);
             }
             for(int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
                 buffer = new char[SIGNAL_DIGITAL_MIN_LENGTH];
                 reader.read(buffer, 0, SIGNAL_DIGITAL_MIN_LENGTH);
                 int digitalMin =  stringToInt(new String(buffer));
-                bdfSignalConfigList.get(signalNumber).setDigitalMin(digitalMin);
+                bdfSignalConfigList[signalNumber].setDigitalMin(digitalMin);
             }
             for(int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
                 buffer = new char[SIGNAL_DIGITAL_MAX_LENGTH];
                 reader.read(buffer, 0, SIGNAL_DIGITAL_MAX_LENGTH);
                 int digitalMax =  stringToInt(new String(buffer));
-                bdfSignalConfigList.get(signalNumber).setDigitalMax(digitalMax);
+                bdfSignalConfigList[signalNumber].setDigitalMax(digitalMax);
             }
             for(int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
                 buffer = new char[SIGNAL_PREFILTERING_LENGTH];
@@ -184,7 +184,7 @@ public class BdfHeaderReader {
                 buffer = new char[SIGNAL_NUMBER_OF_SAMPLES_LENGTH];
                 reader.read(buffer, 0, SIGNAL_NUMBER_OF_SAMPLES_LENGTH);
                 int numberOfSamplesInDataRecord =  stringToInt(new String(buffer));
-                bdfSignalConfigList.get(signalNumber).setNumberOfSamplesInEachDataRecord(numberOfSamplesInDataRecord);
+                bdfSignalConfigList[signalNumber].setNumberOfSamplesInEachDataRecord(numberOfSamplesInDataRecord);
             }
             for(int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
                 buffer = new char[SIGNAL_RESERVED_LENGTH];

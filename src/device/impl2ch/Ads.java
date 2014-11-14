@@ -120,7 +120,7 @@ public class Ads implements BdfProvider {
                 signalConfigList.add(bdfSignalConfig);
         }
 
-        bdfConfig.setSignalsConfigList(signalConfigList);
+        bdfConfig.setSignalsConfigList(signalConfigList.toArray(new BdfSignalConfig[signalConfigList.size()]));
         return bdfConfig;
     }
 
