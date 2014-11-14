@@ -1,6 +1,6 @@
 package filters;
 
-import data.DataStream;
+import data.DataSet;
 
 /**
  *
@@ -11,7 +11,7 @@ public class FilterLowPass extends FilterBuffered {
     private int indexBefore = -10;
     private int sumBefore = 0;
 
-    public FilterLowPass(DataStream inputData, int bufferSize) {
+    public FilterLowPass(DataSet inputData, int bufferSize) {
         super(inputData);
         this.bufferSize = bufferSize;
     }

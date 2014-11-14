@@ -1,6 +1,6 @@
 package filters;
 
-import data.DataStream;
+import data.DataSet;
 
 /**
  * Created with IntelliJ IDEA.
@@ -12,7 +12,7 @@ import data.DataStream;
 public abstract class Compressor extends FilterBuffered {
     protected int compression;
 
-    public Compressor(DataStream inputData, int compression) {
+    public Compressor(DataSet inputData, int compression) {
         super(inputData);
         this.compression = compression;
     }
@@ -20,5 +20,10 @@ public abstract class Compressor extends FilterBuffered {
     @Override
     public int size() {
         return inputData.size()/compression;
+    }
+
+    @Override
+    public double getFrequency() {
+        return super.getFrequency()/compression;
     }
 }

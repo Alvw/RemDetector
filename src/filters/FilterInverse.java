@@ -1,6 +1,6 @@
 package filters;
 
-import data.DataStream;
+import data.DataSet;
 
 /**
  *
@@ -10,7 +10,7 @@ public class FilterInverse extends Filter {
 
     private int derivative = 0;
 
-    public FilterInverse(DataStream inputData) {
+    public FilterInverse(DataSet inputData) {
         super(inputData);
     }
 

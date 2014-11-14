@@ -1,14 +1,14 @@
 package filters;
 
-import data.DataStream;
+import data.DataSet;
 
 /**
  *
  */
 public class Multiplexer extends Filter {
-    protected final DataStream selectorData;
+    protected final DataSet selectorData;
 
-    public Multiplexer(DataStream inputData, DataStream selectorData) {
+    public Multiplexer(DataSet inputData, DataSet selectorData) {
         super(inputData);
         this.selectorData = selectorData;
     }

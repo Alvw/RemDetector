@@ -1,6 +1,6 @@
 package tmp;
 
-import data.DataStream;
+import data.DataSet;
 import filters.*;
 import graph.GraphsViewer;
 
@@ -31,12 +31,12 @@ public class TestView extends JFrame {
         graphsViewer.setCompression(COMPRESSION);
 
         TestData data = new TestData();
-        DataStream testData = data.getCosStream();
+        DataSet testData = data.getCosStream();
 
-        DataStream filteredData = new FilterBandPass_Alfa(testData);
+        DataSet filteredData = new FilterBandPass_Alfa(testData);
 //        DataStream filteredData = new FilterBandPass_Delta_1(testData);
 
-        DataStream compressedFilteredData = new CompressorMaximizing(filteredData, graphsViewer.getCompression());
+        DataSet compressedFilteredData = new CompressorMaximizing(filteredData, graphsViewer.getCompression());
 
         graphsViewer.addGraph(0, testData);
         graphsViewer.addGraph(0, data.getPeriodStream());
@@ -60,9 +60,9 @@ public class TestView extends JFrame {
         JOptionPane.showMessageDialog(this, s);
     }
 
-    public void setStart(long starTime, int period_msec) {
+  /*  public void setStart(long starTime, int period_msec) {
         graphsViewer.setStart(starTime, period_msec);
-    }
+    }*/
 
     private Dimension getWorkspaceDimention() {
         Toolkit toolkit = Toolkit.getDefaultToolkit();

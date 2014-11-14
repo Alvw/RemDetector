@@ -1,6 +1,6 @@
 package filters;
 
-import data.DataStream;
+import data.DataSet;
 
 /**
  *
@@ -14,7 +14,7 @@ public class FilterRem extends Filter {
 
     int stopPoints =  (stopTimeMscec * frequency) / 1000;
 
-    public FilterRem (DataStream inputData) {
+    public FilterRem (DataSet inputData) {
         super(inputData);
     }
 

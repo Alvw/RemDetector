@@ -1,6 +1,6 @@
 package filters;
 
-import data.DataStream;
+import data.DataSet;
 
 /**
  *
@@ -9,7 +9,7 @@ public class FilterHiPass extends FilterBuffered {
     private int indexBefore = -10;
     private int sumBefore = 0;
 
-    public FilterHiPass(DataStream inputData, int bufferSize) {
+    public FilterHiPass(DataSet inputData, int bufferSize) {
         super(inputData);
         this.bufferSize = bufferSize;
     }

@@ -1,6 +1,6 @@
 package filters;
 
-import data.DataStream;
+import data.DataSet;
 import graph.GraphsViewer;
 
 /**
@@ -12,7 +12,7 @@ public class FilterFirst extends FilterBuffered {
      private int offset = 640;
      int bufferSize = 100;
 
-     public FilterFirst(DataStream inputData, GraphsViewer graphsViewer) {
+     public FilterFirst(DataSet inputData, GraphsViewer graphsViewer) {
          super(inputData);
          this.graphsViewer = graphsViewer;
      }

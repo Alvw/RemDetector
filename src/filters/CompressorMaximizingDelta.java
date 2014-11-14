@@ -1,7 +1,7 @@
 // CompressorMaximizingDelta
 package filters;
 
-import data.DataStream;
+import data.DataSet;
 
 /**
  *
@@ -9,7 +9,7 @@ import data.DataStream;
 
 public class CompressorMaximizingDelta extends Compressor {
     private int deltaNoiceLevel = 35;
-    public CompressorMaximizingDelta(DataStream inputData, int compression) {
+    public CompressorMaximizingDelta(DataSet inputData, int compression) {
         super(inputData, compression);
     }
 

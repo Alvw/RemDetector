@@ -1,6 +1,6 @@
 package filters;
 
-import data.DataStream;
+import data.DataSet;
 
 public class FilterOffset_2 extends Filter {
     private static int offsetLevel = 0;
@@ -9,7 +9,7 @@ public class FilterOffset_2 extends Filter {
     private int noiseLevelMin = 100;
 
 
-    public FilterOffset_2(DataStream inputData) {
+    public FilterOffset_2(DataSet inputData) {
         super(inputData);
     }
 

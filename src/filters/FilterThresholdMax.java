@@ -1,13 +1,13 @@
 package filters;
 
-import data.DataStream;
+import data.DataSet;
 
 /**
  *
  */
 public class FilterThresholdMax extends Filter {
  
-    public FilterThresholdMax(DataStream inputData) {
+    public FilterThresholdMax(DataSet inputData) {
         super(inputData);
         bufferSize = 10;
     }

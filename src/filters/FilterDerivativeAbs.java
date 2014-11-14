@@ -1,6 +1,6 @@
 package filters;
 
-import data.DataStream;
+import data.DataSet;
 
 /**
  *
@@ -8,7 +8,7 @@ import data.DataStream;
 
 public class FilterDerivativeAbs extends Filter {
 
-    public FilterDerivativeAbs(DataStream inputData) {
+    public FilterDerivativeAbs(DataSet inputData) {
         super(inputData);
     }
 

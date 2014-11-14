@@ -1,7 +1,7 @@
 package filters;
 
+import data.DataSet;
 import tmp.Functions;
-import data.DataStream;
 
 /**
  *
@@ -10,7 +10,7 @@ public class FilterResonance extends Filter {
     private int period = 5;
     private int bufferHalf = period * 2;
 
-    public FilterResonance(DataStream inputData) {
+    public FilterResonance(DataSet inputData) {
         super(inputData);
     }
 

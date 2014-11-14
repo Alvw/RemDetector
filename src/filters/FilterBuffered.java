@@ -1,7 +1,7 @@
 package filters;
 
 import data.DataList;
-import data.DataStream;
+import data.DataSet;
 
 /**
  *
@@ -10,14 +10,14 @@ public abstract class FilterBuffered extends Filter {
     DataList filteredList = new DataList();
 
 
-    public FilterBuffered(DataStream inputData) {
+    public FilterBuffered(DataSet inputData) {
         super(inputData);
     }
 
     public int get(int index) {
         checkIndexBounds(index);
         if(filteredList.size() > size()) {
-            filteredList.clear();
+           // filteredList.clear();
         }
         if (filteredList.size() <= index) {
             for (int i = filteredList.size(); i <= index; i++) {

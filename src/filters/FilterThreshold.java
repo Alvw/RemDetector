@@ -1,6 +1,6 @@
 package filters;
 
-import data.DataStream;
+import data.DataSet;
 
 /**
  *
@@ -12,18 +12,18 @@ public class FilterThreshold extends Filter {
     private int sumBefore = 0;
 
 
-    public FilterThreshold(DataStream inputData, int bufferSize, int shift) {
+    public FilterThreshold(DataSet inputData, int bufferSize, int shift) {
         super(inputData);
         this.bufferSize = bufferSize;
         this.shift = shift;
     }
 
-    public FilterThreshold(DataStream inputData, int bufferSize) {
+    public FilterThreshold(DataSet inputData, int bufferSize) {
         super(inputData);
         this.bufferSize = bufferSize;
     }
 
-    public FilterThreshold(DataStream inputData) {
+    public FilterThreshold(DataSet inputData) {
         super(inputData);
     }
 

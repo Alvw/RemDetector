@@ -52,7 +52,7 @@ public abstract class View extends JFrame implements DataStoreListener {
     @Override
     public void onDataStoreUpdate() {
         if(!isStartUpdating) {
-            graphsViewer.setStart(model.getStartTime(), model.getSignalFrequency(0));
+            graphsViewer.setStart(model.getStartTime());
             isStartUpdating = true;
         }
 

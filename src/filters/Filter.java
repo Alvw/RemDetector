@@ -1,20 +1,24 @@
 package filters;
 
-import data.DataStream;
+import data.DataSet;
 
 /**
  *
  */
-public abstract class Filter implements DataStream {
-    protected final DataStream inputData;
+public abstract class Filter implements DataSet {
+    protected final DataSet inputData;
     protected  int bufferSize = 0;
 
-    public Filter(DataStream inputData) {
+    public Filter(DataSet inputData) {
         this.inputData = inputData;
     }
 
     protected abstract int getData(int index);
 
+    @Override
+    public double getFrequency() {
+        return inputData.getFrequency();
+    }
 
     public int size() {
         return inputData.size();

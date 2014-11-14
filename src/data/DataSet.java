@@ -8,7 +8,7 @@ package data;
  * To change this template use File | Settings | File Templates.
  */
 
-public interface   DataStream {
+public interface DataSet {
 
     public static final int UNDEFINED = Integer.MIN_VALUE;
     public static final int REM = Integer.MAX_VALUE - 400;
@@ -19,4 +19,5 @@ public interface   DataStream {
     
     public int size();
     public int get(int index);
+    public double getFrequency();
 }

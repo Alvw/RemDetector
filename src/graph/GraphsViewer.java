@@ -1,6 +1,6 @@
 package graph;
 
-import data.DataStream;
+import data.DataSet;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,11 +18,12 @@ import java.util.ArrayList;
  * To change this template use File | Settings | File Templates.
  */
 public class GraphsViewer extends JPanel {
-    public static final int COMPRESSED_POINT_DISTANCE_MSEC = 15000;
-    public  int compression = COMPRESSED_POINT_DISTANCE_MSEC / 20;
+    public  int compression = 750;
+    private double timeFrequency = 0;
+    private double previewTimeFrequency = 1.0/15;
 
-    private ArrayList<GraphPanel> graphPanels = new ArrayList<GraphPanel>();
-    private ArrayList<CompressedGraphPanel> compressedGraphPanels = new ArrayList<CompressedGraphPanel>();
+    private ArrayList<GraphPanel> graphPanelList = new ArrayList<GraphPanel>();
+    private ArrayList<PreviewPanel> previewPanelList = new ArrayList<PreviewPanel>();
 
     private JPanel PaintingPanel = new JPanel();
     private JPanel scrollablePanel = new JPanel();
@@ -65,24 +66,24 @@ public class GraphsViewer extends JPanel {
     }
 
     public int getStartIndex() {
-        return graphPanels.get(0).getStartIndex();
+        return graphPanelList.get(0).getStartPoint();
     }
 
-    public void setStart(long startTime, double frequency ) {
-        int point_distance_msec = (int) (1000/frequency);
-        compression =  COMPRESSED_POINT_DISTANCE_MSEC / point_distance_msec;
-        for (GraphPanel panel : graphPanels) {
-            panel.setStart(startTime, point_distance_msec);
+
+    public void setStart(long startTime) {
+        for (GraphPanel panel : graphPanelList) {
+            panel.setStart(startTime, timeFrequency);
         }
-        for (CompressedGraphPanel panel : compressedGraphPanels) {
-            panel.setStart(startTime, point_distance_msec);
+        compression =  (int)(timeFrequency / previewTimeFrequency);
+        for (PreviewPanel panel : previewPanelList) {
+            panel.setStart(startTime, previewTimeFrequency);
             panel.setCompression(compression);
         }
     }
 
     public void setCompression(int compression) {
         this.compression = compression;
-        for (CompressedGraphPanel panel : compressedGraphPanels) {
+        for (PreviewPanel panel : previewPanelList) {
             panel.setCompression(compression);
         }
     }
@@ -93,28 +94,29 @@ public class GraphsViewer extends JPanel {
 
     public void addGraphPanel(int weight, boolean isXCentered) {
         GraphPanel panel = new GraphPanel(weight, isXCentered);
-        graphPanels.add(panel);
+        graphPanelList.add(panel);
         PaintingPanel.add(panel);
         setPanelsPreferredSizes();
     }
 
     public void addCompressedGraphPanel(int weight, boolean isXCentered) {
-        CompressedGraphPanel panel = new CompressedGraphPanel(weight, isXCentered);
+        PreviewPanel panel = new PreviewPanel(weight, isXCentered);
         panel.addSlotListener(viewController);
-        compressedGraphPanels.add(panel);
+        previewPanelList.add(panel);
         PaintingPanel.add(panel);
         setPanelsPreferredSizes();
     }
 
-    public void addGraph(int panelNumber, DataStream graphData) {
-        if (panelNumber < graphPanels.size()) {
-            graphPanels.get(panelNumber).addGraph(graphData);
+    public void addGraph(int panelNumber, DataSet graphData) {
+        if (panelNumber < graphPanelList.size()) {
+            graphPanelList.get(panelNumber).addGraph(graphData);
+            timeFrequency = Math.max(timeFrequency, graphData.getFrequency());
         }
     }
 
-    public void addCompressedGraph(int panelNumber, DataStream graphData) {
-        if (panelNumber < compressedGraphPanels.size()) {
-            compressedGraphPanels.get(panelNumber).addGraph(graphData);
+    public void addCompressedGraph(int panelNumber, DataSet graphData) {
+        if (panelNumber < previewPanelList.size()) {
+            previewPanelList.get(panelNumber).addGraph(graphData);
         }
     }
 
@@ -126,7 +128,7 @@ public class GraphsViewer extends JPanel {
 
     public void syncView() {
         viewController.autoScroll();
-        for(GraphPanel panel : graphPanels ) {
+        for(GraphPanel panel : graphPanelList) {
             panel.repaint();
         }
     }
@@ -136,17 +138,17 @@ public class GraphsViewer extends JPanel {
         int width = d.width;
         int height = d.height - scrollPanel.getPreferredSize().height;
         int sumWeight = 0;
-        for (GraphPanel panel : graphPanels) {
+        for (GraphPanel panel : graphPanelList) {
             sumWeight += panel.getWeight();
         }
-        for (CompressedGraphPanel panel : compressedGraphPanels) {
+        for (PreviewPanel panel : previewPanelList) {
             sumWeight += panel.getWeight();
         }
 
-        for (GraphPanel panel : graphPanels) {
+        for (GraphPanel panel : graphPanelList) {
             panel.setPreferredSize(new Dimension(width, height * panel.getWeight() / sumWeight));
         }
-        for (CompressedGraphPanel panel : compressedGraphPanels) {
+        for (PreviewPanel panel : previewPanelList) {
             panel.setPreferredSize(new Dimension(width, height * panel.getWeight() / sumWeight));
         }
     }
@@ -174,15 +176,15 @@ public class GraphsViewer extends JPanel {
                 compressedGraphsNewStartIndex = newSlotIndex + getSlotWidth() - getWorkspaceWidth();
             }
 
-            for (CompressedGraphPanel panel : compressedGraphPanels) {
+            for (PreviewPanel panel : previewPanelList) {
                 panel.setSlotIndex(newSlotIndex);
-                panel.setStartIndex(compressedGraphsNewStartIndex);
+                panel.setStartPoint(compressedGraphsNewStartIndex);
                 panel.repaint();
             }
 
             int GraphsNewStartIndex = newSlotIndex * compression;
-            for (GraphPanel panel : graphPanels) {
-                panel.setStartIndex(GraphsNewStartIndex);
+            for (GraphPanel panel : graphPanelList) {
+                panel.setStartPoint(GraphsNewStartIndex);
                 panel.repaint();
             }
 
@@ -236,17 +238,17 @@ public class GraphsViewer extends JPanel {
             int slotIndex = getSlotIndex();
 
             if (isAutoScroll(slotMaxIndex, slotIndex)) {
-                for (GraphPanel panel : graphPanels) {
-                    panel.setStartIndex(graphsMaxStartIndex);
+                for (GraphPanel panel : graphPanelList) {
+                    panel.setStartPoint(graphsMaxStartIndex);
                 }
                 if (slotMaxIndex > slotIndex) {
                     int compressedGraphsMaxStartIndex = slotMaxIndex + getSlotWidth() - getWorkspaceWidth();
                     if (compressedGraphsMaxStartIndex < 0) {
                         compressedGraphsMaxStartIndex = 0;
                     }
-                    for (CompressedGraphPanel panel : compressedGraphPanels) {
+                    for (PreviewPanel panel : previewPanelList) {
                         panel.setSlotIndex(slotMaxIndex);
-                        panel.setStartIndex(compressedGraphsMaxStartIndex);
+                        panel.setStartPoint(compressedGraphsMaxStartIndex);
                     }
                 }
             }
@@ -256,11 +258,11 @@ public class GraphsViewer extends JPanel {
 
 
         private void syncScroll() {
-            if (compressedGraphPanels != null) {
-                if (compressedGraphPanels.size() > 0) {
-                    CompressedGraphPanel panel = compressedGraphPanels.get(0);
+            if (previewPanelList != null) {
+                if (previewPanelList.size() > 0) {
+                    PreviewPanel panel = previewPanelList.get(0);
                     scrollablePanel.setPreferredSize(new Dimension(panel.getFullWidth(), 0));
-                    scrollPanel.getViewport().setViewPosition(new Point(panel.getStartIndex(), 0));
+                    scrollPanel.getViewport().setViewPosition(new Point(panel.getStartPoint(), 0));
                     scrollablePanel.revalidate(); // we always have to call component.revalidate() after changing it "directly"(outside the GUI)
                     scrollPanel.repaint();
                 }
@@ -276,15 +278,15 @@ public class GraphsViewer extends JPanel {
                 newSlotIndex = newStartIndex + getWorkspaceWidth() - getSlotWidth();
             }
 
-            for (CompressedGraphPanel panel : compressedGraphPanels) {
+            for (PreviewPanel panel : previewPanelList) {
                 panel.setSlotIndex(newSlotIndex);
-                panel.setStartIndex(newStartIndex);
+                panel.setStartPoint(newStartIndex);
                 panel.repaint();
             }
 
             int GraphsNewStartIndex = newSlotIndex * compression;
-            for (GraphPanel panel : graphPanels) {
-                panel.setStartIndex(GraphsNewStartIndex);
+            for (GraphPanel panel : graphPanelList) {
+                panel.setStartPoint(GraphsNewStartIndex);
                 panel.repaint();
             }
         }
@@ -295,65 +297,65 @@ public class GraphsViewer extends JPanel {
 
 
         private int getSlotWidth() {
-            if (compressedGraphPanels == null) {
+            if (previewPanelList == null) {
                 return 0;
             }
-            if (compressedGraphPanels.size() == 0) {
+            if (previewPanelList.size() == 0) {
                 return 0;
             }
-            return compressedGraphPanels.get(0).getSlotWidth();
+            return previewPanelList.get(0).getSlotWidth();
         }
 
 
         private int getSlotIndex() {
-            if (compressedGraphPanels == null) {
+            if (previewPanelList == null) {
                 return 0;
             }
-            if (compressedGraphPanels.size() == 0) {
+            if (previewPanelList.size() == 0) {
                 return 0;
             }
-            return compressedGraphPanels.get(0).getSlotIndex();
+            return previewPanelList.get(0).getSlotIndex();
         }
 
         private int getGraphsSize() {
-            if (graphPanels == null) {
+            if (graphPanelList == null) {
                 return 0;
             }
-            if (graphPanels.size() == 0) {
+            if (graphPanelList.size() == 0) {
                 return 0;
             }
-            return graphPanels.get(0).getGraphsSize();
+            return graphPanelList.get(0).getGraphsSize();
         }
 
         private int getGraphsStartIndex() {
-            if (graphPanels == null) {
+            if (graphPanelList == null) {
                 return 0;
             }
-            if (graphPanels.size() == 0) {
+            if (graphPanelList.size() == 0) {
                 return 0;
             }
-            return graphPanels.get(0).getStartIndex();
+            return graphPanelList.get(0).getStartPoint();
         }
 
         private int getCompressedGraphsSize() {
-            if (compressedGraphPanels == null) {
+            if (previewPanelList == null) {
                 return 0;
             }
-            if (compressedGraphPanels.size() == 0) {
+            if (previewPanelList.size() == 0) {
                 return 0;
             }
-            return compressedGraphPanels.get(0).getGraphsSize();
+            return previewPanelList.get(0).getGraphsSize();
         }
 
 
         private int getCompressedGraphsStartIndex() {
-            if (compressedGraphPanels == null) {
+            if (previewPanelList == null) {
                 return 0;
             }
-            if (compressedGraphPanels.size() == 0) {
+            if (previewPanelList.size() == 0) {
                 return 0;
             }
-            return compressedGraphPanels.get(0).getStartIndex();
+            return previewPanelList.get(0).getStartPoint();
         }
 
 

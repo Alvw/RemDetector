@@ -1,6 +1,6 @@
 package filters;
 
-import data.DataStream;
+import data.DataSet;
 
 /**
  *
@@ -10,7 +10,7 @@ public class FilterDerivativeRem extends Filter {
 
     private int distance = 4;
     
-    public FilterDerivativeRem(DataStream inputData) {
+    public FilterDerivativeRem(DataSet inputData) {
         super(inputData);
         bufferSize=4;
     }

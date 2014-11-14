@@ -1,6 +1,6 @@
 package filters;
 
-import data.DataStream;
+import data.DataSet;
 
 /**
  *
@@ -10,7 +10,7 @@ public class FilterPower extends Filter {
 
     private int  distance = 1;
 
-    public FilterPower(DataStream inputData, int distance) {
+    public FilterPower(DataSet inputData, int distance) {
         super(inputData);
         this.distance = distance;
     }

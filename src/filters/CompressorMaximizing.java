@@ -1,13 +1,13 @@
 package filters;
 
-import data.DataStream;
+import data.DataSet;
 
 /**
  *
  */
 
 public class CompressorMaximizing extends Compressor {
-    public CompressorMaximizing(DataStream inputData, int compression) {
+    public CompressorMaximizing(DataSet inputData, int compression) {
         super(inputData, compression);
     }
 

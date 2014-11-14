@@ -2,7 +2,7 @@ package tmp;
 
 
 import data.DataList;
-import data.DataStream;
+import data.DataSet;
 
 public class TestData {
     int MIN = 2;
@@ -26,9 +26,9 @@ public class TestData {
                 triangleList.add(Functions.getTriangle(i, pointNumber_int));
                 constantList.add(1000);
                 if(i==0) {
-                    periodList.add(DataStream.WORKSPACE + pointNumber_int);
+                    periodList.add(DataSet.WORKSPACE + pointNumber_int);
                 } else {
-                    periodList.add(DataStream.UNDEFINED);
+                    periodList.add(DataSet.UNDEFINED);
                 }
             }
             pointNumber = pointNumber *0.99;
@@ -36,23 +36,23 @@ public class TestData {
         }
     }
 
-    public DataStream getCosStream(){
+    public DataSet getCosStream(){
         return cosList;
     }
 
-    public DataStream getTriangleStream(){
+    public DataSet getTriangleStream(){
         return triangleList;
     }
 
-    public DataStream getRectangleStream(){
+    public DataSet getRectangleStream(){
         return rectangleList;
     }
 
-    public DataStream getConstantStream(){
+    public DataSet getConstantStream(){
         return constantList;
     }
 
-    public DataStream getPeriodStream(){
+    public DataSet getPeriodStream(){
         return periodList;
     }
 }

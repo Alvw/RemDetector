@@ -29,8 +29,12 @@ public class BdfReader implements BdfProvider {
             numberOfBytesInDataRecord = bdfConfig.getTotalNumberOfSamplesInEachDataRecord() * bdfConfig.getNumberOfBytesInDataFormat();
             fileInputStream = new BufferedInputStream(new FileInputStream(file), BUFFER_SIZE);
             int numberOfBytesInHeader = 256 + 256 * bdfConfig.getNumberOfSignals();
-            fileInputStream.skip(numberOfBytesInHeader);
-            isFileOpen = true;
+            if(fileInputStream.skip(numberOfBytesInHeader) == numberOfBytesInHeader) {
+                isFileOpen = true;
+            } else {
+                throw new ApplicationException("Error while opening file " + file.getName());
+            }
+
         } catch (IOException e) {
             log.error(e);
             throw new ApplicationException("Error while opening file " + file.getName());
@@ -41,7 +45,7 @@ public class BdfReader implements BdfProvider {
     public void readData() {
         byte[] dataRecord = new byte[numberOfBytesInDataRecord];
         try {
-            while (isFileOpen && fileInputStream.read(dataRecord) != -1) {
+            while (isFileOpen &&  fileInputStream.read(dataRecord) == numberOfBytesInDataRecord) {
                 for (BdfListener bdfListener : bdfListenersList) {
                     bdfListener.onDataRecordReceived(dataRecord);
                 }

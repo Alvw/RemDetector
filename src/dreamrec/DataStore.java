@@ -2,6 +2,7 @@ package dreamrec;
 
 import bdf.*;
 import data.DataList;
+import data.DataSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -9,6 +10,7 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class DataStore implements BdfListener {
@@ -27,10 +29,9 @@ public class DataStore implements BdfListener {
     private int UPDATE_DELAY = 250;
     private int MAX_FREQUENCY = 50; //hz;
     private long startTime;
-    private double[] frequencies;
     private int[] dividers;
     private BdfParser bdfParser;
-
+    private volatile boolean isReadingStopped = false;
 
     public DataStore(BdfProvider bdfProvider) {
         bdfProvider.addBdfDataListener(this);
@@ -38,17 +39,9 @@ public class DataStore implements BdfListener {
         bufferSize = (int)(BUFFER_CAPACITY_SECONDS/bdfConfig.getDurationOfDataRecord());
         dataRecordsBuffer = new LinkedBlockingQueue<byte[]>(bufferSize);
         bdfParser = new BdfParser(bdfConfig);
-        frequencies = bdfConfig.getSignalsFrequencies();
+        double[] frequencies = bdfConfig.getSignalsFrequencies();
         int numberOfSignals = bdfConfig.getNumberOfSignals();
-        dividers = new int[numberOfSignals];
-        for (int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
-            if (frequencies[signalNumber] > MAX_FREQUENCY) {
-                dividers[signalNumber] = (int) (frequencies[signalNumber] / MAX_FREQUENCY);
-                frequencies[signalNumber] = MAX_FREQUENCY;
-            } else {
-                dividers[signalNumber] = 1;
-            }
-        }
+
         activeSignals = new boolean[numberOfSignals];
         signalList = new DataList[numberOfSignals];
         for (int i = 0; i < numberOfSignals; i++) {
@@ -56,10 +49,23 @@ public class DataStore implements BdfListener {
             activeSignals[i] = true;
         }
 
+        dividers = new int[numberOfSignals];
+        for (int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
+            if (frequencies[signalNumber] > MAX_FREQUENCY) {
+                dividers[signalNumber] = (int) (frequencies[signalNumber] / MAX_FREQUENCY);
+                signalList[signalNumber].setFrequency(MAX_FREQUENCY);
+            } else {
+                dividers[signalNumber] = 1;
+                signalList[signalNumber].setFrequency(frequencies[signalNumber]);
+            }
+        }
         updateTimer = new Timer(UPDATE_DELAY, new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 processBufferedData();
                 notifyListeners();
+                if(isReadingStopped) {
+                    updateTimer.stop();
+                }
             }
         });
         startTime = bdfConfig.getStartTime();
@@ -90,9 +96,7 @@ public class DataStore implements BdfListener {
 
     @Override
     public void onStopReading() {
-        updateTimer.stop();
-        processBufferedData();
-        notifyListeners();
+        isReadingStopped = true;
     }
 
     private void processBufferedData() {
@@ -115,10 +119,12 @@ public class DataStore implements BdfListener {
         if (divider == 1) {
             signalList[channelNumber].add(channelDataRecord);
         } else {
+            int counter=0;
             for (int i = 0; i < channelDataRecord.length; i++) {
                 sum += channelDataRecord[i];
                 if ((i + 1) % divider == 0) {
                     signalList[channelNumber].add(sum / divider);
+                    counter++;
                     sum = 0;
                 }
             }
@@ -138,10 +144,6 @@ public class DataStore implements BdfListener {
 
     public DataList getSignalData(int signalNumber) {
         return signalList[signalNumber];
-    }
-
-    public double getSignalFrequency(int signalNumber) {
-        return frequencies[signalNumber];
     }
 
     public int getNumberOfDataSignals() {

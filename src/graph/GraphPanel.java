@@ -1,6 +1,6 @@
 package graph;
 
-import data.DataStream;
+import data.DataSet;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,7 +19,7 @@ import java.util.Date;
  * To change this template use File | Settings | File Templates.
  */
 class GraphPanel extends JPanel {
-    protected DataStream[] graphs = new DataStream[3];//panel can have a several graphs. Max 3 for simplicity
+    protected DataSet[] graphs = new DataSet[3];//panel can have a several graphs. Max 3 for simplicity
 
     protected static final int X_INDENT = 50;
     protected static final int Y_INDENT = 20;
@@ -29,14 +29,13 @@ class GraphPanel extends JPanel {
     protected static final Color axisColor = Color.GREEN;
     protected static final Color graphColors[] = {Color.YELLOW, Color.RED, Color.CYAN};
 
-    protected int startIndex = 0;
+    protected int startPoint = 0;
     protected double zoom = 0.5;
     protected boolean isAutoZoom;
     protected boolean isXCentered = true;
     protected long startTime = 0;
     protected int weight = 1;
-    protected int point_distance_msec = 0;
-
+    protected double timeFrequency = 0;
 
     GraphPanel(int weight, boolean isXCentered) {
         this.weight = weight;
@@ -52,18 +51,18 @@ class GraphPanel extends JPanel {
     
 
 
-    protected void setStart(long startTime, int point_distance_msec) {
+    protected void setStart(long startTime, double timeFrequency) {
             this.startTime = startTime;
-            this.point_distance_msec = point_distance_msec;
+            this.timeFrequency = timeFrequency;
     }
 
 
-    public int getStartIndex() {
-        return startIndex;
+    public int getStartPoint() {
+        return startPoint;
     }
 
-    protected void setStartIndex(int startIndex) {
-        this.startIndex = startIndex;
+    protected void setStartPoint(int startPoint) {
+        this.startPoint = startPoint;
     }
 
     protected int getWeight() {
@@ -88,7 +87,7 @@ class GraphPanel extends JPanel {
         repaint();
     }
 
-    protected void addGraph(DataStream graphData) {
+    protected void addGraph(DataSet graphData) {
         int count = 0;
         while (graphs[count] != null) {
             count++;
@@ -151,7 +150,7 @@ class GraphPanel extends JPanel {
         int SECOND = 1000; //milliseconds
         int SECONDS_10 = 10 * SECOND; //milliseconds
         int MINUTE = 60*SECOND;//milliseconds
-
+        int point_distance_msec = (int) (1000/timeFrequency);
 
         g.setColor(axisColor);
         Graphics2D g2d = (Graphics2D) g;
@@ -161,7 +160,7 @@ class GraphPanel extends JPanel {
         DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
         long newStartTime = (startTime/ point_distance_msec)* point_distance_msec + point_distance_msec;
         for (int i = 0; i  < getWorkspaceWidth(); i++) {
-            long iTime = newStartTime + (long)((startIndex + i) * point_distance_msec);
+            long iTime = newStartTime + (long)((startPoint + i) * point_distance_msec);
             if((iTime % SECONDS_10) == 0){
                 // Paint Rectangle
                 g.fillRect(i - 1, -4, 3, 9);
@@ -213,23 +212,71 @@ class GraphPanel extends JPanel {
         g2d.transform(AffineTransform.getScaleInstance(1, -1)); // flip Y-axis and zoom it
     }
 
-    protected void paintGraphs(Graphics g) {
-        for(int i=0; i < getWidth(); i++) {
-           if(i%8 == 0) {
-               g.setColor(Color.darkGray);
-               g.fillRect(i-4, 0, 4, getMaxY());
-           }
+    protected int getValue(int x, DataSet graph) {
+        double frequency = graph.getFrequency();
+        int value = 0;
+        // points x corresponds to frequencyBase
+        if(timeFrequency == 0 || frequency == timeFrequency) {
+            value = graph.get(x);
         }
+        else if(frequency < timeFrequency) {
+            int index = (int)(frequency * x / timeFrequency);
+            value = graph.get(index);
+        }
+        else if(frequency > timeFrequency) {
+            if(x == 0) {
+                value = graph.get(x);
+            }
+            else {
+                int indexStart = (int)(frequency * (x-1) / timeFrequency);
+                int indexEnd = (int)(frequency * x / timeFrequency);
+                for(int index = indexStart; index < indexEnd; index++) {
+                    value += graph.get(index);
+                }
+                value = value/(indexEnd - indexStart);
+            }
+        }
+        return value;
+    }
+
+    protected void paintGraphs(Graphics g) {
         int graph_number = 0;
-        for (DataStream graph : graphs) {
+        for (DataSet graph : graphs) {
             Color graphColor = graphColors[graph_number];
             graph_number++;
             if (graph != null) {
-                int endIndex = Math.min(getWorkspaceWidth(), (graph.size() - startIndex));
+                int size = (int)(graph.size() * timeFrequency / graph.getFrequency());
+                System.out.println("frequency "+graph.getFrequency()+"      size "+size);
+                int endPoint = Math.min(getWorkspaceWidth(), (size - startPoint));
+                VerticalLine vLine = new VerticalLine();
+                for (int x = 0; x < endPoint; x++) {
+                    //int value = graph.get(x + startPoint);
+                    int value = getValue(x + startPoint, graph);
+                    if(value == DataSet.UNDEFINED) {
+                        vLine.clear();
+                    }
+                    else {
+                        g.setColor(graphColor);
+                        int y = (int) Math.round(zoom * value);
+                        drawVerticalLine(g, x, y, vLine);
+                    }
+                }
+            }
+        }
+    }
+
+
+    protected void paintGraphs_old(Graphics g) {
+        int graph_number = 0;
+        for (DataSet graph : graphs) {
+            Color graphColor = graphColors[graph_number];
+            graph_number++;
+            if (graph != null) {
+                int endIndex = Math.min(getWorkspaceWidth(), (graph.size() - startPoint));
                 VerticalLine vLine = new VerticalLine();
                 for (int x = 0; x < endIndex; x++) {
-                    int value = graph.get(x + startIndex);
-                    if(value == DataStream.UNDEFINED) {
+                    int value = graph.get(x + startPoint);
+                    if(value == DataSet.UNDEFINED) {
                         vLine.clear();
                     }
                     else {
@@ -275,7 +322,7 @@ class GraphPanel extends JPanel {
 
         paintAxisY(g);
 
-        if(point_distance_msec != 0) {
+        if(timeFrequency != 0) {
             paintAxisX(g);
         }
 

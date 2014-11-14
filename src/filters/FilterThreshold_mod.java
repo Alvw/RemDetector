@@ -1,6 +1,6 @@
 package filters;
 
-import data.DataStream;
+import data.DataSet;
 
 /**
  *
@@ -9,7 +9,7 @@ public class FilterThreshold_mod extends Filter {
     private int bufferSize = 4;
     private int shift = 0; // points
   
-    public FilterThreshold_mod(DataStream inputData) {
+    public FilterThreshold_mod(DataSet inputData) {
         super(inputData);
     }
 

@@ -16,7 +16,7 @@ import java.util.Date;
  * Time: 21:32
  * To change this template use File | Settings | File Templates.
  */
-class CompressedGraphPanel extends GraphPanel {
+class PreviewPanel extends GraphPanel {
 
     private ArrayList<SlotListener> slotListeners = new ArrayList<SlotListener>();
     private int slotIndex = 0;  // according to the beginning of Data arrays
@@ -24,14 +24,14 @@ class CompressedGraphPanel extends GraphPanel {
     private int compression = 1;
 
 
-    CompressedGraphPanel(int weight, boolean isXCentered ) {
+    PreviewPanel(int weight, boolean isXCentered) {
         super(weight, isXCentered);
         //MouseListener to move Slot
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
-                int newSlotIndex = e.getX() - X_INDENT + startIndex ;
+                int newSlotIndex = e.getX() - X_INDENT + startPoint;
                 notifySlotListeners(newSlotIndex);
             }
         });
@@ -44,13 +44,6 @@ class CompressedGraphPanel extends GraphPanel {
 
     void setSlotIndex(int slotIndex) {
         this.slotIndex = slotIndex;
-    }
-
-    @Override
-    protected void setStart(long startTime, int period_msec) {
-        compression =  GraphsViewer.COMPRESSED_POINT_DISTANCE_MSEC / period_msec;
-        super.setStart(startTime, GraphsViewer.COMPRESSED_POINT_DISTANCE_MSEC);
-
     }
 
     protected void setCompression(int compression) {
@@ -78,7 +71,7 @@ class CompressedGraphPanel extends GraphPanel {
     private void paintSlot(Graphics g) {
         if(getSlotWidth() > 0) {
             g.setColor(slotColor);
-            g.drawRect(slotIndex - startIndex, 0, getSlotWidth(), getMaxY());
+            g.drawRect(slotIndex - startPoint, 0, getSlotWidth(), getMaxY());
         }
     }
 
@@ -88,7 +81,7 @@ class CompressedGraphPanel extends GraphPanel {
         int MINUTES_2 = 2 * MINUTE;
         int MINUTES_10 = 10 * MINUTE;
         int MINUTES_30 = 30 * MINUTE;//milliseconds
-
+        int point_distance_msec = (int) (1000/timeFrequency);
 
         g.setColor(axisColor);
         Graphics2D g2d = (Graphics2D) g;
@@ -102,7 +95,7 @@ class CompressedGraphPanel extends GraphPanel {
         long newStartTime = (startTime/ point_distance_msec)* point_distance_msec + point_distance_msec;
         for (int i = 0; i  < getWorkspaceWidth(); i++) {
 
-            long iTime = newStartTime + (long)((startIndex + i) * point_distance_msec);
+            long iTime = newStartTime + (long)((startPoint + i) * point_distance_msec);
             if((iTime % MINUTES_10) == 0){
                 // Paint Triangle
                 g.fillPolygon(new int[]{i - 3, i + 3, i}, new int[]{0, 0, 6}, 3);

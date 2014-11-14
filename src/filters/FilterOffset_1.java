@@ -1,6 +1,6 @@
 package filters;
 
-import data.DataStream;
+import data.DataSet;
 import graph.GraphsViewer;
 
 /**
@@ -14,7 +14,7 @@ public class FilterOffset_1 extends Filter {
     private GraphsViewer graphsViewer;
     private int offset = 640;
 
-    public FilterOffset_1(DataStream inputData, GraphsViewer graphsViewer) {
+    public FilterOffset_1(DataSet inputData, GraphsViewer graphsViewer) {
         super(inputData);
         this.graphsViewer = graphsViewer;
     }

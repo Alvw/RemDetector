@@ -1,12 +1,12 @@
 package filters;
 
-import data.DataStream;
+import data.DataSet;
 
 /**
  *
  */
 public class CompressorAveraging extends Compressor {
-    public CompressorAveraging(DataStream inputData, int compression) {
+    public CompressorAveraging(DataSet inputData, int compression) {
         super(inputData, compression);
     }
 

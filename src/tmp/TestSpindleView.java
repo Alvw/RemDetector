@@ -1,7 +1,7 @@
 package tmp;
 
 
-import data.DataStream;
+import data.DataSet;
 import filters.*;
 import graph.GraphsViewer;
 
@@ -26,8 +26,8 @@ public class TestSpindleView extends JFrame {
         graphsViewer.addCompressedGraphPanel(1, true);
 
 
-        DataStream testData = new TestSpindle().getDataStream();
-        DataStream filteredData = new FilterBandPass_Alfa(testData);
+        DataSet testData = new TestSpindle().getDataStream();
+        DataSet filteredData = new FilterBandPass_Alfa(testData);
         graphsViewer.addGraph(0, testData);
         graphsViewer.addGraph(1, filteredData);
 
@@ -47,9 +47,9 @@ public class TestSpindleView extends JFrame {
         JOptionPane.showMessageDialog(this, s);
     }
 
-    public void setStart(long starTime, int period_msec) {
+   /* public void setStart(long starTime, int period_msec) {
         graphsViewer.setStart(starTime, period_msec);
-    }
+    }*/
 
     private Dimension getWorkspaceDimention() {
         Toolkit toolkit = Toolkit.getDefaultToolkit();

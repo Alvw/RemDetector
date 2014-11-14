@@ -1,7 +1,7 @@
 // public class FilterTest {
 package filters;
 
-import data.DataStream;
+import data.DataSet;
 
 /**
  *
@@ -11,7 +11,7 @@ public class FilterTest_2 extends Filter {
     private int period = 4;
     private int bufferHalf = period * 4;
 
-    public FilterTest_2(DataStream inputData) {
+    public FilterTest_2(DataSet inputData) {
         super(inputData);
     }
 

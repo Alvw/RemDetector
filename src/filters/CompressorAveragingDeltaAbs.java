@@ -1,7 +1,7 @@
 // CompressorAveragingDeltaAbs
 package filters;
 
-import data.DataStream;
+import data.DataSet;
 
 /**
  *
@@ -9,7 +9,7 @@ import data.DataStream;
 public class CompressorAveragingDeltaAbs extends Compressor {
     private int deltaNoiceLevel = 0;
 
-    public CompressorAveragingDeltaAbs(DataStream inputData, int compression, int deltaNoiceLevel) {
+    public CompressorAveragingDeltaAbs(DataSet inputData, int compression, int deltaNoiceLevel) {
         super(inputData, compression);
         this.deltaNoiceLevel = deltaNoiceLevel;
     }

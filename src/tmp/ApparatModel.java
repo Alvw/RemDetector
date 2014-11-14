@@ -1,7 +1,7 @@
 package tmp;
 
 import data.DataList;
-import data.DataStream;
+import data.DataSet;
 import filters.*;
 
 /**
@@ -66,7 +66,7 @@ public class ApparatModel {
     }
 
     private boolean isStand(int index) {
-        if (getAccPosition(index) == DataStream.STAND) {
+        if (getAccPosition(index) == DataSet.STAND) {
             return true;
         }
         return false;
@@ -134,16 +134,16 @@ public class ApparatModel {
     }
 
 
-    public DataStream getSleepStream() {
+    public DataSet getSleepStream() {
         return sleep_patterns;
     }
 
-    public DataStream getSpindleStream() {
+    public DataSet getSpindleStream() {
         return spindle_data;
     }
 
-    public DataStream getAccMovementStream() {
-        return new DataStreamAdapter() {
+    public DataSet getAccMovementStream() {
+        return new DataSetAdapter() {
             @Override
             protected int getData(int index) {
                 return getAccMovement(index);
@@ -152,8 +152,8 @@ public class ApparatModel {
     }
 
 
-    public DataStream getAccPositionStream() {
-        return new DataStreamAdapter() {
+    public DataSet getAccPositionStream() {
+        return new DataSetAdapter() {
             @Override
             protected int getData(int index) {
                 return getAccPosition(index);
@@ -161,8 +161,8 @@ public class ApparatModel {
         };
     }
 
-    public DataStream getNotSleepEventsStream() {
-        return new DataStreamAdapter() {
+    public DataSet getNotSleepEventsStream() {
+        return new DataSetAdapter() {
             @Override
             protected int getData(int index) {
                 return sleep_patterns.get(index);
@@ -186,7 +186,7 @@ public class ApparatModel {
         int data_Z = getNormalizedDataAcc3(index);
 
         if (data_Z > DATA_SIN_45) {   // Если человек не лежит
-            return DataStream.STAND;
+            return DataSet.STAND;
         }
 
         double Z = (double) data_Z / Z_data_mod;
@@ -275,22 +275,11 @@ public class ApparatModel {
         this.startTime = startTime;
     }
 
-    public void clear() {
-        startTime = 0;
-        if(getDataSize() > 0) {
-            chanel_1_data.clear();
-            chanel_2_data.clear();
-            acc_1_data.clear();
-            acc_2_data.clear();
-            acc_3_data.clear();
-
-            sleep_patterns.clear();
-        }
-    }
 
 
-    public DataStream getCh1DataStream_() {
-        return new DataStreamAdapter() {
+
+    public DataSet getCh1DataStream_() {
+        return new DataSetAdapter() {
             int thresholdIndex = -10000;
             int latency = 50;
             @Override
@@ -312,16 +301,16 @@ public class ApparatModel {
     }
 
 
-    public DataStream getCh1DataStream() {
+    public DataSet getCh1DataStream() {
         return chanel_1_data;
     }
 
-    public DataStream getCh2DataStream() {
+    public DataSet getCh2DataStream() {
         return chanel_2_data;
     }
 
-    public DataStream getAcc1DataStream() {
-       return new DataStreamAdapter() {
+    public DataSet getAcc1DataStream() {
+       return new DataSetAdapter() {
             @Override
             protected int getData(int index) {
                  int accIndex = index / getAccDivider();
@@ -330,8 +319,8 @@ public class ApparatModel {
         };
     }
 
-    public DataStream getAcc2DataStream() {
-       return new DataStreamAdapter() {
+    public DataSet getAcc2DataStream() {
+       return new DataSetAdapter() {
             @Override
             protected int getData(int index) {
                  int accIndex = index / getAccDivider();
@@ -340,8 +329,8 @@ public class ApparatModel {
         };
     }
 
-    public DataStream getAcc3DataStream() {
-            return new DataStreamAdapter() {
+    public DataSet getAcc3DataStream() {
+            return new DataSetAdapter() {
             @Override
             protected int getData(int index) {
                  int accIndex = index / getAccDivider();
@@ -410,7 +399,7 @@ public class ApparatModel {
     }
 
 
-    abstract class DataStreamAdapter implements DataStream {
+    abstract class DataSetAdapter implements DataSet {
         protected abstract int getData(int index);
 
         public final int get(int index) {
@@ -429,6 +418,11 @@ public class ApparatModel {
         public int size() {
             return getDataSize();
         }
+
+        @Override
+        public double getFrequency() {
+            return 0;
+        }
     }
 
 
@@ -446,10 +440,10 @@ public class ApparatModel {
 
         private int lastThresholdIndex = - 2*THRESHOLD_PERIOD_POINTS;
 
-        private DataStream inputData;
-        private DataStream alfaData;
-        private DataStream thresholdData;
-        private DataStream thresholdData1;
+        private DataSet inputData;
+        private DataSet alfaData;
+        private DataSet thresholdData;
+        private DataSet thresholdData1;
 
         private int spindleBeginIndex = 0;
         private int spindleEndIndex = 0;
@@ -458,7 +452,7 @@ public class ApparatModel {
 
         private boolean isUnderDetection = false;
 
-        SpindleDetector(DataStream inputData) {
+        SpindleDetector(DataSet inputData) {
             this.inputData = inputData;
             alfaData = new FilterAlfa(inputData);
             thresholdData = new FilterThreshold(alfaData, THRESHOLD_PERIOD_POINTS, THRESHOLD_SHIFT_POINTS);
@@ -554,11 +548,11 @@ public class ApparatModel {
 
         private int lastThresholdIndex = - 2*THRESHOLD_PERIOD_POINTS;
 
-        private DataStream inputData;
-        private DataStream velocityData;
-        private DataStream accelerationData;
-        private DataStream velocityThresholdData;
-        private DataStream accelerationThresholdData;
+        private DataSet inputData;
+        private DataSet velocityData;
+        private DataSet accelerationData;
+        private DataSet velocityThresholdData;
+        private DataSet accelerationThresholdData;
 
         private int saccadeBeginIndex = 0;
         private int saccadePeakIndex = 0;
@@ -570,7 +564,7 @@ public class ApparatModel {
 
         private boolean isUnderDetection = false;
 
-        SaccadeDetector(DataStream inputData) {
+        SaccadeDetector(DataSet inputData) {
             this.inputData = inputData;
             velocityData = new FilterDerivative(inputData);
             accelerationData =  new FilterDerivative_N(inputData, 1);
