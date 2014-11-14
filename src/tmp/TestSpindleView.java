@@ -23,15 +23,15 @@ public class TestSpindleView extends JFrame {
 
         graphsViewer.addGraphPanel(8, true);
         graphsViewer.addGraphPanel(8, true);
-        graphsViewer.addCompressedGraphPanel(1, true);
+        graphsViewer.addPreviewPanel(1, true);
 
 
         DataSet testData = new TestSpindle().getDataStream();
         DataSet filteredData = new FilterBandPass_Alfa(testData);
-        graphsViewer.addGraph(0, testData);
-        graphsViewer.addGraph(1, filteredData);
+        graphsViewer.addGraphs(0, testData);
+        graphsViewer.addGraphs(1, filteredData);
 
-        graphsViewer.addCompressedGraph(0, new CompressorMaximizing(filteredData, graphsViewer.getCompression()));
+        graphsViewer.addPreviews(0, new CompressorMaximizing(filteredData, graphsViewer.getCompression()));
 
         add(graphsViewer, BorderLayout.CENTER);
 

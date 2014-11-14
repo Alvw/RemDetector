@@ -246,7 +246,6 @@ class GraphPanel extends JPanel {
             graph_number++;
             if (graph != null) {
                 int size = (int)(graph.size() * timeFrequency / graph.getFrequency());
-                System.out.println("frequency "+graph.getFrequency()+"      size "+size);
                 int endPoint = Math.min(getWorkspaceWidth(), (size - startPoint));
                 VerticalLine vLine = new VerticalLine();
                 for (int x = 0; x < endPoint; x++) {

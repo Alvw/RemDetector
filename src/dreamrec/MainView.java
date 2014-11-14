@@ -17,7 +17,7 @@ public class MainView extends View {
         graphsViewer.addGraphPanel(1, true);
         graphsViewer.addGraphPanel(1, true);
         graphsViewer.addGraphPanel(1, true);
-        graphsViewer.addCompressedGraphPanel(1, false);
+        graphsViewer.addPreviewPanel(1, false);
     }
 
     @Override
@@ -26,12 +26,12 @@ public class MainView extends View {
         DataSet channel_2 = model.getSignalData(2);
 
         //  graphsViewer.addGraph(0, new FilterHiPass(channel_1, 100));
-        graphsViewer.addGraph(0, new FilterOffset_1(channel_1, graphsViewer));
-        graphsViewer.addGraph(1, new FilterDerivative(channel_1));
-        graphsViewer.addGraph(2, new FilterDerivative(channel_2));
+        graphsViewer.addGraphs(0, new FilterOffset_1(channel_1, graphsViewer));
+        graphsViewer.addGraphs(1, new FilterDerivative(channel_1));
+        graphsViewer.addGraphs(2, new FilterDerivative(channel_2));
 
         DataSet velocityRem =  new FilterAbs(new FilterDerivativeRem(channel_1));
         DataSet compressedVelocityRem =  new CompressorMaximizing(velocityRem, graphsViewer.getCompression());
-        graphsViewer.addCompressedGraph(0, compressedVelocityRem);
+        graphsViewer.addPreviews(0, compressedVelocityRem);
     }
 }

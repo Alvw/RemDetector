@@ -92,33 +92,49 @@ public class GraphsViewer extends JPanel {
          return compression;
     }
 
-    public void addGraphPanel(int weight, boolean isXCentered) {
+    public GraphPanel addGraphPanel(int weight, boolean isXCentered) {
         GraphPanel panel = new GraphPanel(weight, isXCentered);
         graphPanelList.add(panel);
         PaintingPanel.add(panel);
         setPanelsPreferredSizes();
+        return panel;
     }
 
-    public void addCompressedGraphPanel(int weight, boolean isXCentered) {
+    public PreviewPanel addPreviewPanel(int weight, boolean isXCentered) {
         PreviewPanel panel = new PreviewPanel(weight, isXCentered);
         panel.addSlotListener(viewController);
         previewPanelList.add(panel);
         PaintingPanel.add(panel);
         setPanelsPreferredSizes();
+        return panel;
     }
 
-    public void addGraph(int panelNumber, DataSet graphData) {
+    public void addGraphs(GraphPanel graphPanel, DataSet... graphs) {
+        for(DataSet graphSet : graphs) {
+            graphPanel.addGraph(graphSet);
+            timeFrequency = Math.max(timeFrequency, graphSet.getFrequency());
+        }
+    }
+
+    public void addGraphs(int panelNumber, DataSet... graphs) {
         if (panelNumber < graphPanelList.size()) {
-            graphPanelList.get(panelNumber).addGraph(graphData);
-            timeFrequency = Math.max(timeFrequency, graphData.getFrequency());
+            addGraphs(graphPanelList.get(panelNumber), graphs);
         }
     }
 
-    public void addCompressedGraph(int panelNumber, DataSet graphData) {
-        if (panelNumber < previewPanelList.size()) {
-            previewPanelList.get(panelNumber).addGraph(graphData);
+    public void addPreviews(PreviewPanel previewPanel, DataSet... previews) {
+        for(DataSet previewSet : previews) {
+            previewPanel.addGraph(previewSet);
+            timeFrequency = Math.max(timeFrequency, previewSet.getFrequency());
         }
     }
+
+    public void addPreviews(int panelNumber, DataSet... previews) {
+        if (panelNumber < previewPanelList.size()) {
+            addPreviews(previewPanelList.get(panelNumber), previews);
+        }
+    }
+
 
     @Override
     public void setPreferredSize(Dimension d) {

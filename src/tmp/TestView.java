@@ -27,7 +27,7 @@ public class TestView extends JFrame {
         graphsViewer.addGraphPanel(1, true);
 //        graphsViewer.addGraphPanel(1, true);
 
-        graphsViewer.addCompressedGraphPanel(1, false);
+        graphsViewer.addPreviewPanel(1, false);
         graphsViewer.setCompression(COMPRESSION);
 
         TestData data = new TestData();
@@ -38,12 +38,12 @@ public class TestView extends JFrame {
 
         DataSet compressedFilteredData = new CompressorMaximizing(filteredData, graphsViewer.getCompression());
 
-        graphsViewer.addGraph(0, testData);
-        graphsViewer.addGraph(0, data.getPeriodStream());
+        graphsViewer.addGraphs(0, testData);
+        graphsViewer.addGraphs(0, data.getPeriodStream());
 
-        graphsViewer.addGraph(1, filteredData);
+        graphsViewer.addGraphs(1, filteredData);
 
-        graphsViewer.addCompressedGraph(0, compressedFilteredData);
+        graphsViewer.addPreviews(0, compressedFilteredData);
 
         add(graphsViewer, BorderLayout.CENTER);
 
