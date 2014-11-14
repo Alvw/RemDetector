@@ -18,7 +18,7 @@ import java.util.Date;
  * Time: 14:25
  * To change this template use File | Settings | File Templates.
  */
-class GraphPanel extends JPanel {
+public class GraphPanel extends JPanel {
     protected DataSet[] graphs = new DataSet[3];//panel can have a several graphs. Max 3 for simplicity
 
     protected static final int X_INDENT = 50;

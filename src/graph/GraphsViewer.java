@@ -18,9 +18,14 @@ import java.util.ArrayList;
  * To change this template use File | Settings | File Templates.
  */
 public class GraphsViewer extends JPanel {
-    public  int compression = 750;
+    public  int compression = 1;
     private double timeFrequency = 0;
-    private double previewTimeFrequency = 1.0/15;
+
+    private int DEFAULT_GRAPH_PANEL_WEIGHT  = 4;
+    private int DEFAULT_PREVIEW_PANEL_WEIGHT = 2;
+
+    private boolean IS_GRAPH_X_CENTERED_DEFAULT = true;
+    private boolean IS_PREVIEW_X_CENTERED_DEFAULT = false;
 
     private ArrayList<GraphPanel> graphPanelList = new ArrayList<GraphPanel>();
     private ArrayList<PreviewPanel> previewPanelList = new ArrayList<PreviewPanel>();
@@ -74,11 +79,15 @@ public class GraphsViewer extends JPanel {
         for (GraphPanel panel : graphPanelList) {
             panel.setStart(startTime, timeFrequency);
         }
-        compression =  (int)(timeFrequency / previewTimeFrequency);
+        double previewTimeFrequency = timeFrequency/compression;
         for (PreviewPanel panel : previewPanelList) {
             panel.setStart(startTime, previewTimeFrequency);
             panel.setCompression(compression);
         }
+    }
+
+    public void setTimeFrequency(double timeFrequency) {
+        this.timeFrequency = timeFrequency;
     }
 
     public void setCompression(int compression) {
@@ -92,42 +101,46 @@ public class GraphsViewer extends JPanel {
          return compression;
     }
 
-    public GraphPanel addGraphPanel(int weight, boolean isXCentered) {
+    public void addGraphPanel(int weight, boolean isXCentered) {
         GraphPanel panel = new GraphPanel(weight, isXCentered);
         graphPanelList.add(panel);
         PaintingPanel.add(panel);
         setPanelsPreferredSizes();
-        return panel;
     }
 
-    public PreviewPanel addPreviewPanel(int weight, boolean isXCentered) {
+    public void addPreviewPanel(int weight, boolean isXCentered) {
         PreviewPanel panel = new PreviewPanel(weight, isXCentered);
         panel.addSlotListener(viewController);
         previewPanelList.add(panel);
         PaintingPanel.add(panel);
         setPanelsPreferredSizes();
-        return panel;
     }
 
-    public void addGraphs(GraphPanel graphPanel, DataSet... graphs) {
+    /*
+     * Add Graphs to the last graph panel. If there is no graph panel create one
+     */
+    public void addGraphs(DataSet... graphs) {
+        if(graphPanelList.size() == 0) {
+            addGraphPanel(DEFAULT_GRAPH_PANEL_WEIGHT, IS_GRAPH_X_CENTERED_DEFAULT);
+        }
+        GraphPanel panel = graphPanelList.get(graphPanelList.size()-1);  // the last panel
         for(DataSet graphSet : graphs) {
-            graphPanel.addGraph(graphSet);
-            timeFrequency = Math.max(timeFrequency, graphSet.getFrequency());
+          addGraph(panel, graphSet);
         }
     }
 
-    public void addPreviews(PreviewPanel previewPanel, DataSet... previews) {
+    /*
+     * Add Previews to the last preview panel. If there is no preview panel create one
+     */
+    public void addPreviews(DataSet... previews) {
+        if(previewPanelList.size() == 0) {
+            addGraphPanel(DEFAULT_PREVIEW_PANEL_WEIGHT, IS_PREVIEW_X_CENTERED_DEFAULT);
+        }
+        PreviewPanel panel = previewPanelList.get(previewPanelList.size()-1);  // the last panel
         for(DataSet previewSet : previews) {
-            previewPanel.addGraph(previewSet);
+            addPreview(panel, previewSet);
         }
     }
-
-    public void addPreviews(int panelNumber, DataSet... previews) {
-        if (panelNumber < previewPanelList.size()) {
-            addPreviews(previewPanelList.get(panelNumber), previews);
-        }
-    }
-
 
     @Override
     public void setPreferredSize(Dimension d) {
@@ -140,6 +153,15 @@ public class GraphsViewer extends JPanel {
         for(GraphPanel panel : graphPanelList) {
             panel.repaint();
         }
+    }
+
+    private void addGraph(GraphPanel graphPanel, DataSet graphSet) {
+        graphPanel.addGraph(graphSet);
+        setTimeFrequency(Math.max(timeFrequency, graphSet.getFrequency()));
+    }
+
+    private void addPreview(PreviewPanel previewPanel, DataSet previewSet) {
+        previewPanel.addGraph(previewSet);
     }
 
     private void setPanelsPreferredSizes() {

@@ -53,14 +53,14 @@ public class GenaView extends JFrame {
         graphsViewer.setPreferredSize(getWorkspaceDimention());
         add(graphsViewer, BorderLayout.CENTER);
 
-        formGenaViewer();
+      // formGenaViewer();
 
         pack();
        // setFocusable(true);
         setVisible(true);
     }
 
-    private void formGenaViewer() {
+ /*   private void formGenaViewer() {
         graphsViewer.addGraphPanel(4, true);
         graphsViewer.addGraphPanel(4, true);
         graphsViewer.addGraphPanel(4, true);

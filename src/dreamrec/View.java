@@ -28,8 +28,6 @@ public abstract class View extends JFrame implements DataStoreListener {
         graphsViewer.setPreferredSize(getWorkspaceDimension());
         add(graphsViewer, BorderLayout.CENTER);
 
-        addPanels();
-
         pack();
         setVisible(true);
     }
@@ -43,9 +41,8 @@ public abstract class View extends JFrame implements DataStoreListener {
         model = dataStore;
         dataStore.addListener(this);
         addGraphs();
+        pack();
     }
-
-    protected abstract void addPanels();
 
     protected abstract void addGraphs();
 
@@ -59,6 +56,9 @@ public abstract class View extends JFrame implements DataStoreListener {
         graphsViewer.syncView();
     }
 
+    public void setCompression(int compression) {
+        graphsViewer.setCompression(compression);
+    }
 
     private Dimension getWorkspaceDimension() {
         Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
