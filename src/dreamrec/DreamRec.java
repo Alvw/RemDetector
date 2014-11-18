@@ -1,6 +1,7 @@
 package dreamrec;
 
 import bdf.BdfProvider;
+import gui.SettingsWindow;
 
 import javax.swing.*;
 import java.awt.*;
@@ -22,24 +23,6 @@ public class DreamRec {
         ApplicationProperties appProperties = new ApplicationProperties();
         BdfProvider device = appProperties.getDeviceImplementation();
         Controller controller = new Controller();
-       // SettingsWindow settingsWindow = new SettingsWindow();
-      /*  Timer timer = new Timer(1000, new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                System.out.println("gui thread: ");
-                buffer.poll();
-            }
-        });
-        timer.start();
-        int i = 0;
-        while(true) {
-            try{
-                Thread.sleep(500);
-                buffer.put(1);
-                i++;
-                System.out.println("main thread "+i);
-            } catch(InterruptedException e) {
-                System.out.println(e);
-            }
-        }*/
+        //SettingsWindow settingsWindow = new SettingsWindow();
     }
 }

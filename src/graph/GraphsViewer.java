@@ -11,11 +11,7 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 
 /**
- * Created by IntelliJ IDEA.
- * User: galafit
- * Date: 07/05/14
- * Time: 15:04
- * To change this template use File | Settings | File Templates.
+ *
  */
 public class GraphsViewer extends JPanel {
     public  int compression = 1;
@@ -27,19 +23,21 @@ public class GraphsViewer extends JPanel {
     private boolean IS_GRAPH_X_CENTERED_DEFAULT = true;
     private boolean IS_PREVIEW_X_CENTERED_DEFAULT = false;
 
+    private final Color BG_COLOR = Color.BLACK;
+
     private ArrayList<GraphPanel> graphPanelList = new ArrayList<GraphPanel>();
     private ArrayList<PreviewPanel> previewPanelList = new ArrayList<PreviewPanel>();
 
-    private JPanel PaintingPanel = new JPanel();
+    private JPanel paintingPanel = new JPanel();
     private JPanel scrollablePanel = new JPanel();
     private JScrollPane scrollPanel = new JScrollPane(scrollablePanel, JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
     private ViewController viewController = new ViewController();
 
     public GraphsViewer() {
         setLayout(new BorderLayout());
-
-        PaintingPanel.setLayout(new BoxLayout(PaintingPanel, BoxLayout.Y_AXIS));
-        add(PaintingPanel, BorderLayout.CENTER);
+        paintingPanel.setBackground(BG_COLOR);
+        paintingPanel.setLayout(new BoxLayout(paintingPanel, BoxLayout.Y_AXIS));
+        add(paintingPanel, BorderLayout.CENTER);
 
         scrollPanel.getHorizontalScrollBar().addAdjustmentListener(new AdjustmentListener() {
             @Override
@@ -104,7 +102,7 @@ public class GraphsViewer extends JPanel {
     public void addGraphPanel(int weight, boolean isXCentered) {
         GraphPanel panel = new GraphPanel(weight, isXCentered);
         graphPanelList.add(panel);
-        PaintingPanel.add(panel);
+        paintingPanel.add(panel);
         setPanelsPreferredSizes();
     }
 
@@ -112,7 +110,7 @@ public class GraphsViewer extends JPanel {
         PreviewPanel panel = new PreviewPanel(weight, isXCentered);
         panel.addSlotListener(viewController);
         previewPanelList.add(panel);
-        PaintingPanel.add(panel);
+        paintingPanel.add(panel);
         setPanelsPreferredSizes();
     }
 

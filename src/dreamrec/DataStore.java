@@ -2,7 +2,6 @@ package dreamrec;
 
 import bdf.*;
 import data.DataList;
-import data.DataSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -10,7 +9,6 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class DataStore implements BdfListener {
@@ -21,44 +19,64 @@ public class DataStore implements BdfListener {
 
     private int BUFFER_CAPACITY_SECONDS = 60*20; // to protect from OutOfMemoryError
     private int bufferSize;
-    private DataList[] signalList;
     private ArrayList<DataStoreListener> updateListeners = new ArrayList<DataStoreListener>();
-
-    private boolean[] activeSignals;
+    
+    private DataList[] channelsList;
+    private int[] channelsMask; // 0 - if signal is disabled, and frequency divider value if signal is enable
     private Timer updateTimer;
     private int UPDATE_DELAY = 250;
     private int MAX_FREQUENCY = 50; //hz;
     private long startTime;
-    private int[] dividers;
     private BdfParser bdfParser;
     private volatile boolean isReadingStopped = false;
 
-    public DataStore(BdfProvider bdfProvider) {
+    public DataStore(BdfProvider bdfProvider, int[] channelsMask) {
         bdfProvider.addBdfDataListener(this);
         BdfConfig bdfConfig = bdfProvider.getBdfConfig();
+        startTime = bdfConfig.getStartTime();
         bufferSize = (int)(BUFFER_CAPACITY_SECONDS/bdfConfig.getDurationOfDataRecord());
         dataRecordsBuffer = new LinkedBlockingQueue<byte[]>(bufferSize);
         bdfParser = new BdfParser(bdfConfig);
+        this.channelsMask = channelsMask;
+
         double[] frequencies = bdfConfig.getSignalsFrequencies();
         int numberOfSignals = bdfConfig.getNumberOfSignals();
 
-        activeSignals = new boolean[numberOfSignals];
-        signalList = new DataList[numberOfSignals];
+        channelsList = new DataList[numberOfSignals];
         for (int i = 0; i < numberOfSignals; i++) {
-            signalList[i] = new DataList();
-            activeSignals[i] = true;
-        }
-
-        dividers = new int[numberOfSignals];
-        for (int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
-            if (frequencies[signalNumber] > MAX_FREQUENCY) {
-                dividers[signalNumber] = (int) (frequencies[signalNumber] / MAX_FREQUENCY);
-                signalList[signalNumber].setFrequency(MAX_FREQUENCY);
-            } else {
-                dividers[signalNumber] = 1;
-                signalList[signalNumber].setFrequency(frequencies[signalNumber]);
+            if(channelsMask[i] != 0) {
+                channelsList[i] = new DataList();
+                channelsList[i].setFrequency(frequencies[i]/channelsMask[i]);
             }
         }
+    }
+
+    public DataStore(BdfProvider bdfProvider) {
+        BdfConfig bdfConfig = bdfProvider.getBdfConfig();
+        int numberOfSignals = bdfConfig.getNumberOfSignals();
+        int[] channelsMask = new int[numberOfSignals];
+        for (int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
+            channelsMask[signalNumber] = 1;
+        }
+ // temporal frequency adjustment
+        double[] frequencies = bdfConfig.getSignalsFrequencies();
+        for (int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
+            if (frequencies[signalNumber] > MAX_FREQUENCY) {
+                channelsMask[signalNumber] = (int) (frequencies[signalNumber] / MAX_FREQUENCY);
+                channelsList[signalNumber].setFrequency(MAX_FREQUENCY);
+            } else {
+                channelsMask[signalNumber] = 1;
+                channelsList[signalNumber].setFrequency(frequencies[signalNumber]);
+            }
+        }
+        this(bdfProvider, channelsMask);
+    }
+
+    public int getNumberOfChannels() {
+        return signalToChannel(getNumberOfSignals() - 1) + 1;
+    }
+
+    public void start() {
         updateTimer = new Timer(UPDATE_DELAY, new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 processBufferedData();
@@ -68,17 +86,7 @@ public class DataStore implements BdfListener {
                 }
             }
         });
-        startTime = bdfConfig.getStartTime();
         updateTimer.start();
-    }
-
-    public DataStore(BdfProvider bdfProvider, boolean[] activeSignals) {
-        this(bdfProvider);
-        int number = Math.min(this.activeSignals.length, activeSignals.length);
-        for (int i = 0; i < number; i++) {
-            this.activeSignals[i] = activeSignals[i];
-        }
-
     }
 
     @Override
@@ -99,42 +107,19 @@ public class DataStore implements BdfListener {
         isReadingStopped = true;
     }
 
-    private void processBufferedData() {
-        while (dataRecordsBuffer.size() > 0) {
-            byte[] dataRecord = dataRecordsBuffer.poll();
-            processDataRecord(dataRecord);
-        }
-    }
-
-    private void processDataRecord(byte[] bdfDataRecord) {
-        for (int channelNumber = 0; channelNumber < signalList.length; channelNumber++) {
-            int[] channelData = bdfParser.parseDataRecordSignal(bdfDataRecord, channelNumber);
-            adjustChannelFrequency(channelData, channelNumber);
-        }
-    }
-
-    private void adjustChannelFrequency(int[] channelDataRecord, int channelNumber) {
-        int sum = 0;
-        int divider = dividers[channelNumber];
-        if (divider == 1) {
-            signalList[channelNumber].add(channelDataRecord);
-        } else {
-            int counter=0;
-            for (int i = 0; i < channelDataRecord.length; i++) {
-                sum += channelDataRecord[i];
-                if ((i + 1) % divider == 0) {
-                    signalList[channelNumber].add(sum / divider);
-                    counter++;
-                    sum = 0;
-                }
-            }
-        }
-
-    }
-
     public void addListener(DataStoreListener dataStoreListener) {
         updateListeners.add(dataStoreListener);
     }
+
+    public DataList getChannelData(int channelNumber) {
+        int signalNumber = channelToSignal(channelNumber);
+        return channelsList[signalNumber];
+    }
+
+    public long getStartTime() {
+        return startTime;
+    }
+
 
     private void notifyListeners() {
         for (DataStoreListener listener : updateListeners) {
@@ -142,15 +127,57 @@ public class DataStore implements BdfListener {
         }
     }
 
-    public DataList getSignalData(int signalNumber) {
-        return signalList[signalNumber];
+    private void processBufferedData() {
+        while (dataRecordsBuffer.size() > 0) {
+            byte[] dataRecord = dataRecordsBuffer.poll();
+            processDataRecord(dataRecord);
+        }
     }
 
-    public int getNumberOfDataSignals() {
-        return signalList.length;
+    private int getNumberOfSignals() {
+        return channelsList.length;
     }
 
-    public long getStartTime() {
-        return startTime;
+    private int signalToChannel(int signalNumber) {
+        int channelNumber = -1;
+        for(int i = 0; i < signalNumber; i++) {
+            if(signalNumber != 0) {
+                channelNumber++;
+            }
+        }
+        return channelNumber;
     }
+
+    private int channelToSignal(int channelNumber) {
+        int number = -1;
+        for(int i = 0; i < getNumberOfSignals(); i++) {
+            if(channelsMask[i] != 0) {
+                number++;
+                if(number == channelNumber) {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+
+    private void processDataRecord(byte[] bdfDataRecord) {
+        for (int signalNumber = 0; signalNumber < getNumberOfSignals(); signalNumber++) {
+            int[] signalData = bdfParser.parseDataRecordSignal(bdfDataRecord, signalNumber);
+            int divider = channelsMask[signalNumber];
+            if (divider == 1) {
+                channelsList[signalNumber].add(signalData);
+            } else { // adjust frequency
+                int sum = 0;
+                for (int i = 0; i < signalData.length; i++) {
+                    sum += signalData[i];
+                    if ((i + 1) % divider == 0) {
+                        channelsList[signalNumber].add(sum / divider);
+                        sum = 0;
+                    }
+                }
+            }
+        }
+    }
+
 }
