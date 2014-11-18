@@ -1,6 +1,9 @@
 package dreamrec;
 
-import bdf.*;
+import bdf.BdfConfig;
+import bdf.BdfListener;
+import bdf.BdfParser;
+import bdf.BdfProvider;
 import data.DataList;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,14 +34,17 @@ public class DataStore implements BdfListener {
     private volatile boolean isReadingStopped = false;
 
     public DataStore(BdfProvider bdfProvider, int[] channelsMask) {
+        if (channelsMask == null) {
+            channelsMask = createDefaultMask(bdfProvider);
+
+        }
+        this.channelsMask = channelsMask;
         bdfProvider.addBdfDataListener(this);
         BdfConfig bdfConfig = bdfProvider.getBdfConfig();
         startTime = bdfConfig.getStartTime();
         bufferSize = (int)(BUFFER_CAPACITY_SECONDS/bdfConfig.getDurationOfDataRecord());
         dataRecordsBuffer = new LinkedBlockingQueue<byte[]>(bufferSize);
         bdfParser = new BdfParser(bdfConfig);
-        this.channelsMask = channelsMask;
-
         double[] frequencies = bdfConfig.getSignalsFrequencies();
         int numberOfSignals = bdfConfig.getNumberOfSignals();
 
@@ -49,34 +55,7 @@ public class DataStore implements BdfListener {
                 channelsList[i].setFrequency(frequencies[i]/channelsMask[i]);
             }
         }
-    }
 
-    public DataStore(BdfProvider bdfProvider) {
-        BdfConfig bdfConfig = bdfProvider.getBdfConfig();
-        int numberOfSignals = bdfConfig.getNumberOfSignals();
-        int[] channelsMask = new int[numberOfSignals];
-        for (int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
-            channelsMask[signalNumber] = 1;
-        }
- // temporal frequency adjustment
-        double[] frequencies = bdfConfig.getSignalsFrequencies();
-        for (int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
-            if (frequencies[signalNumber] > MAX_FREQUENCY) {
-                channelsMask[signalNumber] = (int) (frequencies[signalNumber] / MAX_FREQUENCY);
-                channelsList[signalNumber].setFrequency(MAX_FREQUENCY);
-            } else {
-                channelsMask[signalNumber] = 1;
-                channelsList[signalNumber].setFrequency(frequencies[signalNumber]);
-            }
-        }
-        this(bdfProvider, channelsMask);
-    }
-
-    public int getNumberOfChannels() {
-        return signalToChannel(getNumberOfSignals() - 1) + 1;
-    }
-
-    public void start() {
         updateTimer = new Timer(UPDATE_DELAY, new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 processBufferedData();
@@ -88,6 +67,35 @@ public class DataStore implements BdfListener {
         });
         updateTimer.start();
     }
+
+    public DataStore(BdfProvider bdfProvider) {
+        this(bdfProvider, null);
+    }
+
+
+    private int[] createDefaultMask(BdfProvider bdfProvider) {
+        BdfConfig bdfConfig = bdfProvider.getBdfConfig();
+        int numberOfSignals = bdfConfig.getNumberOfSignals();
+        int[] channelsMask = new int[numberOfSignals];
+        for (int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
+            channelsMask[signalNumber] = 1;
+        }
+ // temporal frequency adjustment
+        double[] frequencies = bdfConfig.getSignalsFrequencies();
+        for (int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
+            if (frequencies[signalNumber] > MAX_FREQUENCY) {
+                channelsMask[signalNumber] = (int) (frequencies[signalNumber] / MAX_FREQUENCY);
+            } else {
+                channelsMask[signalNumber] = 1;
+            }
+        }
+        return channelsMask;
+    }
+
+    public int getNumberOfChannels() {
+        return signalToChannel(getNumberOfSignals() - 1) + 1;
+    }
+
 
     @Override
     public void onDataRecordReceived(byte[] dataRecord) {

@@ -12,7 +12,8 @@ public abstract class View extends JFrame implements DataStoreListener {
     private  JMenuBar menu = new JMenuBar();
     private Controller controller;
     private boolean isStartUpdating = false;
-    private Color MENU_COLOR = Color.DARK_GRAY;
+    private Color MENU_BG_COLOR = Color.GRAY;
+    private Color MENU_TEXT_COLOR = Color.WHITE;
 
     protected DataStore model;
     protected GraphsViewer graphsViewer;
@@ -22,7 +23,8 @@ public abstract class View extends JFrame implements DataStoreListener {
         this.controller = controller;
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setTitle(title);
-        menu.setBackground(MENU_COLOR);
+        menu.setBackground(MENU_BG_COLOR);
+        menu.setForeground(MENU_TEXT_COLOR);
         menu.setBorder(BorderFactory.createEmptyBorder());
         formMenu();
 
@@ -72,7 +74,8 @@ public abstract class View extends JFrame implements DataStoreListener {
 
     private void formMenu() {
         JMenu fileMenu = new JMenu("File");
-        fileMenu.setBackground(MENU_COLOR);
+        fileMenu.setBackground(MENU_BG_COLOR);
+        fileMenu.setForeground(MENU_TEXT_COLOR);
         menu.add(fileMenu);
         JMenuItem open = new JMenuItem("Open");
         fileMenu.add(open);
@@ -85,7 +88,8 @@ public abstract class View extends JFrame implements DataStoreListener {
         });
 
         JMenu recordMenu = new JMenu("Record");
-        recordMenu.setBackground(MENU_COLOR);
+        recordMenu.setBackground(MENU_BG_COLOR);
+        recordMenu.setForeground(MENU_TEXT_COLOR);
         menu.add(recordMenu);
         JMenuItem start = new JMenuItem("Start");
         JMenuItem stop = new JMenuItem("Stop");

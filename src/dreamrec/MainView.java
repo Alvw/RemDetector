@@ -16,8 +16,8 @@ public class MainView extends View {
 
     @Override
     protected void addGraphs() {
-        DataSet channel_1 = model.getSignalData(0);
-        DataSet channel_2 = model.getSignalData(2);
+        DataSet channel_1 = model.getChannelData(0);
+        DataSet channel_2 = model.getChannelData(2);
 
         //  graphsViewer.addGraph(0, new FilterHiPass(channel_1, 100));
         graphsViewer.addGraphPanel(1, true);
