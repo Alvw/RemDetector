@@ -3,6 +3,9 @@ package dreamrec;
 import bdf.BdfProvider;
 import bdf.BdfReader;
 import bdf.BdfWriter;
+import gui.MainView;
+import gui.SettingsWindow;
+import gui.View;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import tmp.ApparatModel;
@@ -97,20 +100,13 @@ public class Controller {
         System.exit(0);
     }
 
-
-    public void readFromFile() {
+    public void readFromFile(File file) {
         try {
-            JFileChooser fileChooser = new JFileChooser();
-            fileChooser.setCurrentDirectory(new File("./"));
-            fileChooser.setFileFilter(new ExtFileFilter("bdf", "*.bdf"));
-            int fileChooserState = fileChooser.showOpenDialog(mainWindow);
-            if (fileChooserState == JFileChooser.APPROVE_OPTION) {
-                File selectedFile = fileChooser.getSelectedFile();
-                BdfProvider bdfProvider = new BdfReader(selectedFile);
-                DataStore dataStore = new DataStore(bdfProvider);
-                mainWindow.setDataStore(dataStore);
-                bdfProvider.startReading();
-            }
+            BdfProvider bdfProvider = new BdfReader(file);
+             new SettingsWindow(mainWindow, bdfProvider.getBdfConfig(), this);
+             //DataStore dataStore = new DataStore(bdfProvider);
+             //mainWindow.setDataStore(dataStore);
+             //bdfProvider.startReading();
         } catch (ApplicationException e) {
             mainWindow.showMessage("Bdf file reading is failed!");
         }

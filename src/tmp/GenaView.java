@@ -1,8 +1,6 @@
 package tmp;
 
-import data.DataSet;
 import dreamrec.Controller;
-import filters.*;
 import graph.GraphsViewer;
 
 import javax.swing.*;
@@ -252,7 +250,7 @@ public class GenaView extends JFrame {
         open.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                controller.readFromFile();
+               // controller.readFromFile();
             }
         });
 

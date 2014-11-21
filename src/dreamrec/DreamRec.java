@@ -1,13 +1,7 @@
 package dreamrec;
 
 import bdf.BdfProvider;
-import gui.SettingsWindow;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.Date;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
@@ -23,6 +17,5 @@ public class DreamRec {
         ApplicationProperties appProperties = new ApplicationProperties();
         BdfProvider device = appProperties.getDeviceImplementation();
         Controller controller = new Controller();
-        //SettingsWindow settingsWindow = new SettingsWindow();
     }
 }

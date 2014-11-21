@@ -1,6 +1,7 @@
-package dreamrec;
+package gui;
 
 import data.DataSet;
+import dreamrec.Controller;
 import filters.*;
 
 /**

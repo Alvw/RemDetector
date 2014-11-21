@@ -1,131 +1,227 @@
 package gui;
 
-import com.crostec.ads.*;
+import bdf.BdfConfig;
+import bdf.BdfSignalConfig;
+import dreamrec.ApplicationException;
+import dreamrec.Controller;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-
+import java.io.File;
 
 
 /**
  *
  */
-public class SettingsWindow extends JFrame  {
+public class SettingsWindow extends JDialog  {
 
-
-    private int adsDataFrameSize;
-    private int adsDataFrameCounter;
-    private int adsDataFrameFrequency;
     private String patientIdentificationLabel = "Patient";
     private String recordingIdentificationLabel = "Record";
-    private String spsLabel = "Sampling Frequency (Hz)";
-    private String comPortLabel = "Com Port";
-    private JComboBox spsField;
-    private JTextField comPortName;
-    private JComboBox[] channelFrequency;
-    private JComboBox[] channelGain;
-    private JComboBox[] channelCommutatorState;
-    private JCheckBox[] channelEnable;
-    private JTextField[] channelName;
-
-    private JComboBox accelerometerFrequency;
-    private JTextField accelerometerName;
-    private JCheckBox accelerometerEnable;
-    private JTextField patientIdentification;
-    private JTextField recordingIdentification;
-
-    private JTextField fileToSave;
-
+    private String title = "EDF Recorder";
     private String start = "Start";
     private String stop = "Stop";
+    private String cancel = "Cancel";
+    private String changeDir = "Directory";
+
+    private int IDENTIFICATION_LENGTH = 40;
+    private int FILENAME_LENGTH = 40;
+    private int DIRNAME_LENGTH = 40;
+    private int CHANNEL_NAME_LENGTH = 16;
+    private int DIVIDER_LENGTH = 2;
+
+    private String DEFAULT_FILENAME = "date-time.bdf";
+
     private JButton startButton = new JButton(start);
+    private JButton cancelButton = new JButton(cancel);
+    private JButton changeDirButton = new JButton(changeDir);
 
-    private Color colorProcess = Color.GREEN;
-    private Color colorProblem = Color.RED;
-    private Color colorInfo = Color.GRAY;
-    private MarkerLabel markerLabel = new MarkerLabel();
-    private JLabel reportLabel = new JLabel(" ");
+    private JLabel[] channelFrequency;
+    private JCheckBox[] channelEnable;
+    private JTextField[] channelName;
+    private JTextField[] channelDivider;
 
-    Icon iconShow = new ImageIcon("img/arrow-open.png");
-    Icon iconHide = new ImageIcon("img/arrow-close.png");
-    Icon iconConnected = new ImageIcon("img/greenBall.png");
-    Icon iconDisconnected = new ImageIcon("img/redBall.png");
-    Icon iconDisabled = new ImageIcon("img/grayBall.png");
-    private MarkerLabel[] channelLoffStatPositive;
-    private MarkerLabel[] channelLoffStatNegative;
-    private JCheckBox[] channelLoffEnable;
-    private String title = "EDF Recorder";
-    private JComponent[] channelsHeaders = {new JLabel("Number"), new JLabel("Enable"), new JLabel("Name"), new JLabel("Frequency (Hz)"),
-            new JLabel("Gain"), new JLabel("Commutator State"), new JLabel("Lead Off Detection"), new JLabel(" ")};
-    
-    private int numberOfChannels = 5;
+    private JTextField patientIdentification;
+    private JTextArea recordIdentification;
+
+    private JTextField fileToSave;
+    private JTextField dirToSave;
+
+    private JComponent[] channelsHeaders = {new JLabel("Number"), new JLabel("Name"),
+            new JLabel("Frequency (Hz)"), new JLabel("Divider"), new JLabel("Enable")};
+
+    private BdfConfig bdfConfig;
+    private Controller controller;
+    private int[] frequencyDividers;
+    private int numberOfChannels;
 
 
-    public SettingsWindow() {
+    public SettingsWindow(Frame owner, BdfConfig bdfConfig,  Controller controller) {
+        super(owner, ModalityType.APPLICATION_MODAL);
+        this.bdfConfig = bdfConfig;
+        this.controller = controller;
+        numberOfChannels = bdfConfig.getNumberOfSignals();
+        frequencyDividers = createDefaultDividers(bdfConfig);
         init();
         arrangeForm();
         setActions();
         setVisible(true);
     }
 
-    private void init() {
-    
-        int textFieldLength = 5;
-        comPortName = new JTextField(textFieldLength);
-
-        textFieldLength = 25;
-        patientIdentification = new JTextField(textFieldLength);
-        recordingIdentification = new JTextField(textFieldLength);
-
-        textFieldLength = 55;
-        fileToSave = new JTextField(textFieldLength);
-        int adsChannelsNumber =3;
-        channelFrequency = new JComboBox[adsChannelsNumber];
-        channelGain = new JComboBox[adsChannelsNumber];
-        channelCommutatorState = new JComboBox[adsChannelsNumber];
-        channelEnable = new JCheckBox[adsChannelsNumber];
-        channelName = new JTextField[adsChannelsNumber];
-        channelLoffStatPositive = new MarkerLabel[adsChannelsNumber];
-        channelLoffStatNegative = new MarkerLabel[adsChannelsNumber];
-        channelLoffEnable = new JCheckBox[adsChannelsNumber];
-        textFieldLength = 16;
-        for (int i = 0; i < adsChannelsNumber; i++) {
-            channelFrequency[i] = new JComboBox();
-            channelGain[i] = new JComboBox();
-            channelCommutatorState[i] = new JComboBox();
-            channelEnable[i] = new JCheckBox();
-            channelName[i] = new JTextField(textFieldLength);
-            channelLoffStatPositive[i] = new MarkerLabel(iconDisabled);
-            channelLoffStatNegative[i] = new MarkerLabel(iconDisabled);
-            channelLoffEnable[i] = new JCheckBox();
+    private int[] createDefaultDividers(BdfConfig bdfConfig) {
+        int[] dividers = new int[bdfConfig.getNumberOfSignals()];
+        for(int i = 0; i < dividers.length; i++) {
+            dividers[i] = 1;
         }
-        accelerometerEnable = new JCheckBox();
-        accelerometerName = new JTextField(textFieldLength);
-        accelerometerFrequency = new JComboBox();
+        return dividers;
+    }
+
+
+    private void init() {
+        patientIdentification = new JTextField(IDENTIFICATION_LENGTH);
+        recordIdentification = new JTextArea(2,IDENTIFICATION_LENGTH);
+        fileToSave = new JTextField(FILENAME_LENGTH);
+        dirToSave = new JTextField(DIRNAME_LENGTH);
+
+        channelFrequency = new JLabel[numberOfChannels];
+        channelEnable = new JCheckBox[numberOfChannels];
+        channelName = new JTextField[numberOfChannels];
+        channelDivider = new JTextField[numberOfChannels];
+
+        for (int i = 0; i < numberOfChannels; i++) {
+            channelFrequency[i] = new JLabel();
+            channelEnable[i] = new JCheckBox();
+            channelName[i] = new JTextField(CHANNEL_NAME_LENGTH);
+            channelDivider[i] = new JTextField();
+            channelDivider[i].setDocument(new NumberDocument(DIVIDER_LENGTH));
+            channelDivider[i].setColumns(DIVIDER_LENGTH);
+        }
+
+        loadData();
+    }
+
+    private void loadData() {
+        patientIdentification.setText(bdfConfig.getLocalPatientIdentification());
+        recordIdentification.setText(bdfConfig.getLocalRecordingIdentification());
+        BdfSignalConfig[] signalsConfigList = bdfConfig.getSignalsConfigList();
+        double[] frequencies = bdfConfig.getSignalsFrequencies();
+        for (int i = 0; i < numberOfChannels; i++) {
+            channelFrequency[i].setText(String.valueOf(frequencies[i]));
+            channelName[i].setText(signalsConfigList[i].getLabel());
+            channelDivider[i].setText(String.valueOf(frequencyDividers[i]));
+        }
+    }
+
+    private void saveData() {
+        bdfConfig.setLocalPatientIdentification(getPatientIdentification());
+        bdfConfig.setLocalRecordingIdentification(getRecordIdentification());
+        BdfSignalConfig[] signalsConfigList = bdfConfig.getSignalsConfigList();
+        try {
+            for (int i = 0; i < numberOfChannels; i++) {
+                signalsConfigList[i].setLabel(getChannelName(i));
+                if(isChannelEnable(i)) {
+                    frequencyDividers[i] = getChannelDivider(i);
+                }
+                else {
+                    frequencyDividers[i] = 0;
+                }
+            }
+        } catch (ApplicationException e) {
+            showMessage(e.getMessage());
+        }
+    }
+
+    private void arrangeForm() {
+        setTitle(title);
+
+        int hgap = 5;
+        int vgap = 0;
+        JPanel patientPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, hgap, vgap));
+        patientPanel.add(new JLabel(patientIdentificationLabel));
+        patientPanel.add(patientIdentification);
+
+        JPanel recordingPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, hgap, vgap));
+        recordingPanel.add(new JLabel(recordingIdentificationLabel));
+        recordingPanel.add(recordIdentification);
+
+
+        hgap = 5;
+        vgap = 5;
+        JPanel identificationPanel = new JPanel(new BorderLayout(hgap, vgap));
+        identificationPanel.add(patientPanel, BorderLayout.NORTH);
+        identificationPanel.add(recordingPanel, BorderLayout.CENTER);
+        hgap = 20;
+        vgap = 20;
+        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, hgap, vgap));
+        topPanel.add(identificationPanel);
+
+
+        hgap = 20;
+        vgap = 5;
+        JPanel channelsPanel = new JPanel(new TableLayout(channelsHeaders.length, new TableOption(TableOption.CENTRE, TableOption.CENTRE), hgap, vgap));
+        for (JComponent component : channelsHeaders) {
+            channelsPanel.add(component);
+        }
+        for (int i = 0; i < numberOfChannels; i++) {
+            channelsPanel.add(new JLabel(" " + (i + 1) + " "));
+            channelsPanel.add(channelName[i]);
+            channelsPanel.add(channelFrequency[i]);
+            channelsPanel.add(channelDivider[i]);
+            channelsPanel.add(channelEnable[i]);
+        }
+
+        hgap = 0;
+        vgap = 10;
+        JPanel channelsBorderPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, hgap, vgap));
+        channelsBorderPanel.setBorder(BorderFactory.createTitledBorder("Channels"));
+        channelsBorderPanel.add(channelsPanel);
+
+
+        hgap = 5;
+        vgap = 0;
+        JPanel filePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, hgap, vgap));
+        filePanel.add(new JLabel("File Name"));
+        filePanel.add(fileToSave);
+
+        JPanel dirPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, hgap, vgap));
+        dirPanel.add(changeDirButton);
+        dirPanel.add(dirToSave);
+
+        hgap = 15;
+        vgap = 5;
+        JPanel saveAsPanel = new JPanel(new BorderLayout(hgap, vgap));
+        saveAsPanel.add(filePanel, BorderLayout.NORTH);
+        saveAsPanel.add(dirPanel, BorderLayout.CENTER);
+
+        hgap = 5;
+        vgap = 10;
+        JPanel saveAsBorderPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, hgap, vgap));
+        saveAsBorderPanel.setBorder(BorderFactory.createTitledBorder("Save As"));
+        saveAsBorderPanel.add(saveAsPanel);
+
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(cancelButton);
+        buttonPanel.add(startButton);
+
+        hgap = 0;
+        vgap = 5;
+        JPanel bottomPanel = new JPanel(new BorderLayout(hgap, vgap));
+        bottomPanel.add(saveAsBorderPanel, BorderLayout.NORTH);
+        bottomPanel.add(buttonPanel, BorderLayout.CENTER);
+
+
+        // Root Panel of the SettingsWindow
+        add(topPanel, BorderLayout.NORTH);
+        add(channelsBorderPanel, BorderLayout.CENTER);
+        add(bottomPanel, BorderLayout.SOUTH);
+
+
+        pack();
+        // place the window to the screen center
+        setLocationRelativeTo(null);
     }
 
     private void setActions() {
-
- 
-        accelerometerEnable.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                JCheckBox checkBox = (JCheckBox) actionEvent.getSource();
-                if (checkBox.isSelected()) {
-                    enableAccelerometer(true);
-                } else {
-                    enableAccelerometer(false);
-                }
-            }
-        });
-
-
-
-
         patientIdentification.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent focusEvent) {
@@ -134,165 +230,82 @@ public class SettingsWindow extends JFrame  {
         });
 
 
-        recordingIdentification.addFocusListener(new FocusAdapter() {
+        recordIdentification.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent focusEvent) {
-                recordingIdentification.selectAll();
+                recordIdentification.selectAll();
             }
         });
 
+        changeDirButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String dir = chooseDirToSave();
+                if (dir != null) {
+                    fileToSave.setText(dir);
+                }
+            }
+        });
 
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent windowEvent) {
-              
-              
             }
         });
     }
 
-
-    private void arrangeForm() {
-        setTitle(title);
-
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.add(startButton);
-
-        int hgap = 5;
-        int vgap = 0;
-        JPanel spsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, hgap, vgap));
-        spsPanel.add(new JLabel(spsLabel));
-   //     spsPanel.add(spsField);
-
-        JPanel comPortPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, hgap, vgap));
-        comPortPanel.add(new Label(comPortLabel));
-        comPortPanel.add(comPortName);
-
-        hgap = 60;
-        vgap = 15;
-        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, hgap, vgap));
-        topPanel.add(comPortPanel);
-        topPanel.add(spsPanel);
-        topPanel.add(buttonPanel);
-
-
-        hgap = 20;
-        vgap = 5;
-        JPanel channelsPanel = new JPanel(new TableLayout(channelsHeaders.length, new TableOption(TableOption.CENTRE, TableOption.CENTRE), hgap, vgap));
-
-        for (JComponent component : channelsHeaders) {
-            channelsPanel.add(component);
+    public String chooseDirToSave() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Specify a file to save");
+        String currentDir = GuiProperties.getCurrentDir();
+        if(currentDir == null || !(new File(currentDir).exists())) {
+            currentDir = System.getProperty("user.dir"); // current working directory ("./")
         }
-
-        for (int i = 0; i < 2; i++) {
-            channelsPanel.add(new JLabel(" " + (i + 1) + " "));
-            channelsPanel.add(channelEnable[i]);
-            channelsPanel.add(channelName[i]);
-            channelsPanel.add(channelFrequency[i]);
-            channelsPanel.add(channelGain[i]);
-            channelsPanel.add(channelCommutatorState[i]);
-            JPanel loffPanel = new JPanel();
-            loffPanel.add(channelLoffEnable[i]);
-            loffPanel.add(channelLoffStatPositive[i]);
-            loffPanel.add(channelLoffStatNegative[i]);
-            channelsPanel.add(loffPanel);
-            channelsPanel.add(new JLabel(" "));
+        fileChooser.setCurrentDirectory(new File(currentDir));
+        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        int fileChooserState = fileChooser.showOpenDialog(this);
+        if (fileChooserState == JFileChooser.APPROVE_OPTION) {
+            String dir = fileChooser.getSelectedFile().getAbsolutePath();
+            GuiProperties.setCurrentDir(dir);
+            return dir;
         }
+        return null;
+    }
 
-        // Add line of accelerometer
-        channelsPanel.add(new JLabel(" " + (1 + 2 + " ")));
-        channelsPanel.add(accelerometerEnable);
-        channelsPanel.add(accelerometerName);
-        channelsPanel.add(accelerometerFrequency);
-
-        hgap = 0;
-        vgap = 10;
-        JPanel channelsBorderPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, hgap, vgap));
-        channelsBorderPanel.setBorder(BorderFactory.createTitledBorder("Channels"));
-        channelsBorderPanel.add(channelsPanel);
-
-        hgap = 5;
-        vgap = 0;
-        JPanel patientPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, hgap, vgap));
-        patientPanel.add(new JLabel(patientIdentificationLabel));
-        patientPanel.add(patientIdentification);
-
-        JPanel recordingPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, hgap, vgap));
-        recordingPanel.add(new JLabel(recordingIdentificationLabel));
-        recordingPanel.add(recordingIdentification);
-
-        hgap = 0;
-        vgap = 0;
-        JPanel identificationPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, hgap, vgap));
-        identificationPanel.add(patientPanel);
-//        identificationPanel.add(new Label("    "));
-        identificationPanel.add(recordingPanel);
-
-        hgap = 15;
-        vgap = 5;
-        JPanel identificationBorderPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, hgap, vgap));
-        identificationBorderPanel.setBorder(BorderFactory.createTitledBorder("Identification"));
-        identificationBorderPanel.add(identificationPanel);
-
-
-        hgap = 5;
-        vgap = 0;
-        JPanel saveAsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, hgap, vgap));
-        saveAsPanel.add(fileToSave);
-
-        hgap = 15;
-        vgap = 5;
-        JPanel saveAsBorderPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, hgap, vgap));
-        saveAsBorderPanel.setBorder(BorderFactory.createTitledBorder("Save As"));
-        saveAsBorderPanel.add(saveAsPanel);
-
-        hgap = 10;
-        vgap = 5;
-        JPanel reportPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, hgap, vgap));
-        reportPanel.add(markerLabel);
-        reportPanel.add(reportLabel);
-
-        hgap = 0;
-        vgap = 5;
-        JPanel adsPanel = new JPanel(new BorderLayout(hgap, vgap));
-        adsPanel.add(channelsBorderPanel, BorderLayout.NORTH);
-        adsPanel.add(identificationBorderPanel, BorderLayout.CENTER);
-        adsPanel.add(saveAsBorderPanel, BorderLayout.SOUTH);
-
-        // Root Panel of the SettingsWindow
-        add(topPanel, BorderLayout.NORTH);
-        add(adsPanel, BorderLayout.CENTER);
-        add(reportPanel, BorderLayout.SOUTH);
-
-        // set the same size for identificationPanel and  saveAsPanel
-        int height = Math.max(identificationPanel.getPreferredSize().height, saveAsPanel.getPreferredSize().height);
-        int width = Math.max(identificationPanel.getPreferredSize().width, saveAsPanel.getPreferredSize().width);
-        saveAsPanel.setPreferredSize(new Dimension(width, height));
-        identificationPanel.setPreferredSize(new Dimension(width, height));
-
-
-        pack();
-        // place the window to the screen center
-        setLocationRelativeTo(null);
+    public String getFileToSave() {
+        String[] extensionList = {"bdf", "edf"};
+        String filename = fileToSave.getText();
+        // if filename is default filename
+        if(filename.equals(DEFAULT_FILENAME)) {
+            return null;
+        }
+        // if filename has no extension
+        if(filename.lastIndexOf('.') == -1) {
+            filename = filename.concat(".").concat(extensionList[0]);
+            return filename;
+        }
+        // if  extension  match with one from given extensionList
+        // (?i) makes it case insensitive (catch BDF as well as bdf)
+        for(String ext : extensionList) {
+            if(filename.matches("(?i).*\\."+ext)) {
+                return filename;
+            }
+        }
+        // If the extension match with NONE from given extensionList. We need to replace it
+        filename = filename.substring(0, filename.lastIndexOf(".") + 1).concat(extensionList[0]);
+        return filename;
     }
 
     private void disableEnableFields(boolean isEnable) {
-        spsField.setEnabled(isEnable);
         patientIdentification.setEnabled(isEnable);
-        recordingIdentification.setEnabled(isEnable);
+        recordIdentification.setEnabled(isEnable);
         fileToSave.setEnabled(isEnable);
 
-        accelerometerName.setEnabled(isEnable);
-        accelerometerEnable.setEnabled(isEnable);
-        accelerometerFrequency.setEnabled(isEnable);
 
         for (int i = 0; i < numberOfChannels; i++) {
             channelEnable[i].setEnabled(isEnable);
             channelName[i].setEnabled(isEnable);
             channelFrequency[i].setEnabled(isEnable);
-            channelGain[i].setEnabled(isEnable);
-            channelCommutatorState[i].setEnabled(isEnable);
-            channelLoffEnable[i].setEnabled(isEnable);
         }
     }
 
@@ -310,7 +323,7 @@ public class SettingsWindow extends JFrame  {
         disableEnableFields(isEnable);
         for (int i = 0; i < numberOfChannels; i++) {
             if (!isChannelEnable(i)) {
-                enableAdsChannel(i, false);
+                enableChannel(i, false);
             }
         }
    /*     if (!bdfHeaderData.getAdsConfiguration().isAccelerometerEnabled()) {
@@ -318,57 +331,12 @@ public class SettingsWindow extends JFrame  {
         }*/
     }
 
-    private void setReport(String report, Color markerColor) {
-        int rowLength = 100;
-        String htmlReport = convertToHtml(report, rowLength);
-        reportLabel.setText(htmlReport);
-        markerLabel.setColor(markerColor);
-    }
 
-    public void setProcessReport(String report) {
-        setReport(report, colorProcess);
-    }
-
-
-    private void enableAdsChannel(int channelNumber, boolean isEnable) {
+    private void enableChannel(int channelNumber, boolean isEnable) {
         channelFrequency[channelNumber].setEnabled(isEnable);
-        channelGain[channelNumber].setEnabled(isEnable);
-        channelCommutatorState[channelNumber].setEnabled(isEnable);
         channelName[channelNumber].setEnabled(isEnable);
-        channelLoffEnable[channelNumber].setEnabled(isEnable);
-        channelLoffStatPositive[channelNumber].setIcon(iconDisabled);
-        channelLoffStatNegative[channelNumber].setIcon(iconDisabled);
     }
 
-
-    private void enableAccelerometer(boolean isEnable) {
-        accelerometerName.setEnabled(isEnable);
-        accelerometerFrequency.setEnabled(isEnable);
-
-    }
-
- /*   private Divider getChannelDivider(int channelNumber) {
-        int divider = bdfHeaderData.getAdsConfiguration().getSps().getValue() / getChannelFrequency(channelNumber);
-        return Divider.valueOf(divider);
-    }
-
-    private Divider getAccelerometerDivider() {
-        int divider = bdfHeaderData.getAdsConfiguration().getSps().getValue() / getAccelerometerFrequency();
-        return Divider.valueOf(divider);
-    }
-
-
-    private int getChannelFrequency(int channelNumber) {
-        return (Integer) channelFrequency[channelNumber].getSelectedItem();
-    }
-
-    private Gain getChannelGain(int channelNumber) {
-        return Gain.valueOf(((Integer)channelGain[channelNumber].getSelectedItem()));
-    }
-
-    private CommutatorState getChannelCommutatorState(int channelNumber) {
-        return CommutatorState.valueOf(((String)channelCommutatorState[channelNumber].getSelectedItem()));
-    }*/
 
     private boolean isChannelEnable(int channelNumber) {
         return channelEnable[channelNumber].isSelected();
@@ -378,61 +346,28 @@ public class SettingsWindow extends JFrame  {
         return channelName[channelNumber].getText();
     }
 
-    private String getComPortName() {
-        return comPortName.getText();
+    private int getChannelDivider (int channelNumber) throws ApplicationException {
+        String divString = channelDivider[channelNumber].getText();
+        try {
+            Integer div = Integer.parseInt(divString);
+            return div;
+        } catch (NumberFormatException e) {
+             throw new ApplicationException("Channels Dividers should be Integer");
+        }
     }
+
 
     private String getPatientIdentification() {
         return patientIdentification.getText();
     }
 
-    private String getRecordingIdentification() {
-        return recordingIdentification.getText();
+    private String getRecordIdentification() {
+        return recordIdentification.getText();
     }
 
-    private boolean isAccelerometerEnable() {
-        return accelerometerEnable.isSelected();
+    public void showMessage(String s) {
+        JOptionPane.showMessageDialog(this, s);
     }
 
-    private int getAccelerometerFrequency() {
-        return (Integer) accelerometerFrequency.getSelectedItem();
-    }
-
-
-
-
-    private String convertToHtml(String text, int rowLength) {
-        StringBuilder html = new StringBuilder("<html>");
-        String[] givenRows = text.split("\n");
-        for (String givenRow : givenRows) {
-            String[] splitRows = split(givenRow, rowLength);
-            for (String row : splitRows) {
-                html.append(row);
-                html.append("<br>");
-            }
-        }
-        html.append("</html>");
-        return html.toString();
-    }
-
-    // split input string to the  array of strings with length() <= rowLength
-    private String[] split(String text, int rowLength) {
-        ArrayList<String> resultRows = new ArrayList<String>();
-        StringBuilder row = new StringBuilder();
-        String[] words = text.split(" ");
-        for (String word : words) {
-            if ((row.length() + word.length()) < rowLength) {
-                row.append(word);
-                row.append(" ");
-            } else {
-                resultRows.add(row.toString());
-                row = new StringBuilder(word);
-                row.append(" ");
-            }
-        }
-        resultRows.add(row.toString());
-        String[] resultArray = new String[resultRows.size()];
-        return resultRows.toArray(resultArray);
-    }
 
 }
