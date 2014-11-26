@@ -1,54 +1,108 @@
 package dreamrec;
 
-import bdf.BdfProvider;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import javax.swing.*;
-
-/**
- *
- */
-public class ApplicationProperties {
+public class ApplicationProperties implements ApplicationConfig {
     private static final Log log = LogFactory.getLog(ApplicationProperties.class);
     private static final String APPLICATION_PROPERTIES = "application.properties";
-    private static final String DEVICE_IMPL = "device_impl";
-    private PropertiesConfiguration config;
+    private static final String DEVICE_TYPE = "device_type";
+    private static final String DIRECTORY_TO_READ = "directory_to_read";
+    private static final String DIRECTORY_TO_SAVE = "directory_to_save";
+    private static final String DEVICE_CLASS_NAME = "class_name";
+    private static final String DEVICE_EOG = "EOG_channel_number";
+    private static final String DEVICE_ACCELEROMETER_X = "accelerometerX_channel_number";
+    private static final String DEVICE_ACCELEROMETER_Y = "accelerometerY_channel_number";
+    private static final String DEVICE_ACCELEROMETER_Z = "accelerometerZ_channel_number";
+    private static final String ACCELEROMETER_REM_FREQUENCY = "accelerometer_rem_frequency";
+    private static final String EOG_REM_FREQUENCY = "eog_rem_frequency";
+    private static final String IS_FREQUENCY_AUTO_ADJUSTMENT = "is_frequency_auto_adjustment";
 
-    public ApplicationProperties() {
+    private static PropertiesConfiguration config;
+
+    public ApplicationProperties() throws ApplicationException {
         try {
             config = new PropertiesConfiguration(APPLICATION_PROPERTIES);
         } catch (ConfigurationException e) {
             log.error(e);
-            JOptionPane.showMessageDialog(null, "Error reading from properties file: " + APPLICATION_PROPERTIES);
+            throw new ApplicationException("Error reading from properties file: " + APPLICATION_PROPERTIES);
         }
     }
 
-    public BdfProvider getDeviceImplementation() {
-        Class deviceClass = null;
-        BdfProvider device = null;
-        try {
-            deviceClass = Class.forName(config.getString(DEVICE_IMPL));
-            device = (BdfProvider)deviceClass.newInstance();
-        } catch (ClassNotFoundException e) {
-           log.error(e);
-        } catch (InstantiationException e) {
-            log.error(e);
-        } catch (IllegalAccessException e) {
-            log.error(e);
-        }
-        return device;
+    @Override
+    public String getDirectoryToSave() {
+        return config.getString(DIRECTORY_TO_SAVE);
     }
 
-    public void save() {
-        try {
-            config.save(APPLICATION_PROPERTIES);
+    @Override
+    public String getDirectoryToRead() {
+        return config.getString(DIRECTORY_TO_READ);
+    }
 
-        } catch (ConfigurationException e) {
-            log.error(e);
-            JOptionPane.showMessageDialog(null, "Error saving to properties file: " + APPLICATION_PROPERTIES);
-        }
+    @Override
+    public void setDirectoryToSave(String directory) {
+        config.setProperty(DIRECTORY_TO_SAVE, directory);
+    }
+
+    @Override
+    public void setDirectoryToRead(String directory) {
+        config.setProperty(DIRECTORY_TO_READ, directory);
+    }
+
+    @Override
+    public String getDeviceClassName() {
+        String deviceImplKey = getDeviceType().concat("_").concat(DEVICE_CLASS_NAME);
+        return config.getString(deviceImplKey);
+    }
+
+    @Override
+    public int getEogChannelNumber() {
+        String key = getDeviceType().concat("_").concat(DEVICE_EOG);
+        int defaultValue = -1;
+        return config.getInt(key, defaultValue);
+    }
+
+    @Override
+    public int getAccelerometerXChannelNumber() {
+        String key = getDeviceType().concat("_").concat(DEVICE_ACCELEROMETER_X);
+        int defaultValue = -1;
+        return config.getInt(key, defaultValue);
+    }
+
+    @Override
+    public int getAccelerometerYChannelNumber() {
+        String key = getDeviceType().concat("_").concat(DEVICE_ACCELEROMETER_Y);
+        int defaultValue = -1;
+        return config.getInt(key, defaultValue);
+    }
+
+    @Override
+    public int getAccelerometerZChannelNumber() {
+        String key = getDeviceType().concat("_").concat(DEVICE_ACCELEROMETER_Z);
+        int defaultValue = -1;
+        return config.getInt(key, defaultValue);
+    }
+
+    @Override
+    public double getAccelerometerRemFrequency() {
+        int defaultValue = -1;
+        return config.getDouble(ACCELEROMETER_REM_FREQUENCY, defaultValue);
+    }
+
+    @Override
+    public double getEogRemFrequency() {
+        int defaultValue = -1;
+        return config.getDouble(EOG_REM_FREQUENCY, defaultValue);
+    }
+
+    @Override
+    public boolean isFrequencyAutoAdjustment() {
+        return config.getBoolean(IS_FREQUENCY_AUTO_ADJUSTMENT);
+    }
+
+    private String getDeviceType() {
+        return config.getString(DEVICE_TYPE);
     }
 }

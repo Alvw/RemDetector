@@ -1,6 +1,6 @@
 package bdf;
 
-import com.crostec.ads.AdsUtils;
+import dreamrec.ExperimentInfo;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -17,18 +17,20 @@ public class BdfWriter implements BdfListener {
 
     private static final Log LOG = LogFactory.getLog(BdfWriter.class);
     private final BdfConfig bdfConfig;
+    private final ExperimentInfo experimentInfo;
     private RandomAccessFile fileToSave;
     private long startRecordingTime;
     private long stopRecordingTime;
     private int numberOfDataRecords;
     private boolean stopRecordingRequest;
 
-    public BdfWriter(BdfConfig bdfConfig) {
-        this(bdfConfig, new SimpleDateFormat("dd-MM-yyyy_HH-mm").format(new Date(System.currentTimeMillis())) + ".bdf");
+    public BdfWriter(BdfConfig bdfConfig, ExperimentInfo experimentInfo) {
+        this(bdfConfig, experimentInfo, new SimpleDateFormat("dd-MM-yyyy_HH-mm").format(new Date(System.currentTimeMillis())) + ".bdf");
     }
 
-    public BdfWriter(BdfConfig bdfConfig, String fileToSave) {
+    public BdfWriter(BdfConfig bdfConfig, ExperimentInfo experimentInfo, String fileToSave) {
        this.bdfConfig = bdfConfig;
+        this.experimentInfo = experimentInfo;
         try {
             this.fileToSave = new RandomAccessFile(fileToSave, "rw");
         } catch (FileNotFoundException e) {
@@ -41,8 +43,10 @@ public class BdfWriter implements BdfListener {
         if (!stopRecordingRequest) {
             if (numberOfDataRecords == 0) {
                 startRecordingTime = System.currentTimeMillis() - (long)bdfConfig.getDurationOfDataRecord(); //1 second (1000 msec) duration of a data record
+                experimentInfo.setStartTime(startRecordingTime);
+                experimentInfo.setNumberOfDataRecords(-1);
                 try {
-                    fileToSave.write(BdfHeaderWriter.createBdfHeader(bdfConfig, startRecordingTime, -1));
+                    fileToSave.write(BdfHeaderWriter.createBdfHeader(bdfConfig, experimentInfo));
                 } catch (IOException e) {
                     LOG.error(e);
                     throw new RuntimeException(e);
@@ -69,10 +73,12 @@ public class BdfWriter implements BdfListener {
         if (stopRecordingRequest) return;
         stopRecordingRequest = true;
         double durationOfDataRecord = (stopRecordingTime - startRecordingTime) * 0.001 / numberOfDataRecords;
-        bdfConfig.setDurationOfDataRecord(durationOfDataRecord);
+        experimentInfo.setDurationOfDataRecord(durationOfDataRecord);
+        experimentInfo.setStartTime(startRecordingTime);
+        experimentInfo.setNumberOfDataRecords(numberOfDataRecords);
         try {
             fileToSave.seek(0);
-            fileToSave.write(BdfHeaderWriter.createBdfHeader(bdfConfig,startRecordingTime,numberOfDataRecords));
+            fileToSave.write(BdfHeaderWriter.createBdfHeader(bdfConfig,experimentInfo));
             fileToSave.close();
         } catch (IOException e) {
             LOG.error(e);

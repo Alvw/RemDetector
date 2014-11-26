@@ -1,24 +1,27 @@
 package bdf;
 
 
+import dreamrec.ExperimentInfo;
+
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 
-import static com.crostec.ads.AdsUtils.*;
+import static com.crostec.ads.AdsUtils.adjustLength;
 
 class BdfHeaderWriter {
 
-    public static byte[] createBdfHeader(BdfConfig bdfConfig, long startTime, int numberOfDataRecords) {
+    public static byte[] createBdfHeader(BdfConfig bdfConfig, ExperimentInfo experimentInfo) {
         Charset characterSet = Charset.forName("US-ASCII");
         StringBuilder bdfHeader = new StringBuilder();
 
         String identificationCode = "BIOSEMI";
 
-        String localPatientIdentification =  bdfConfig.getLocalPatientIdentification();
-        String localRecordingIdentification =   bdfConfig.getLocalRecordingIdentification();
+        String localPatientIdentification =  experimentInfo.getLocalPatientIdentification();
+        String localRecordingIdentification =   experimentInfo.getLocalRecordIdentification();
+        long startTime = experimentInfo.getStartTime();
+        int numberOfDataRecords = experimentInfo.getNumberOfDataRecords();
 
         String startDateOfRecording = new SimpleDateFormat("dd.MM.yy").format(new Date(startTime));
         String startTimeOfRecording = new SimpleDateFormat("HH.mm.ss").format(new Date(startTime));

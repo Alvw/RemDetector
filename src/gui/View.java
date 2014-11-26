@@ -22,10 +22,12 @@ public abstract class View extends JFrame implements DataStoreListener {
 
     protected DataStore model;
     protected GraphsViewer graphsViewer;
+    protected GuiConfig guiConfig;
 
 
-    public View(Controller controller) {
+    public View(Controller controller, GuiConfig guiConfig) {
         this.controller = controller;
+        this.guiConfig = guiConfig;
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setTitle(title);
         menu.setBackground(MENU_BG_COLOR);
@@ -90,7 +92,7 @@ public abstract class View extends JFrame implements DataStoreListener {
             public void actionPerformed(ActionEvent e) {
                 File file = chooseFileToRead();
                 if(file != null) {
-                    controller.readFromFile(file);
+                    controller.openPreview(file);
                 }
             }
         });
@@ -107,7 +109,7 @@ public abstract class View extends JFrame implements DataStoreListener {
         start.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                controller.startRecording();
+                controller.openPreview();
             }
         });
 
@@ -128,7 +130,7 @@ public abstract class View extends JFrame implements DataStoreListener {
             extensionDescription = extensionDescription.concat(", ").concat(extensionList[i]);
         }
         JFileChooser fileChooser = new JFileChooser();
-        String currentDir = GuiProperties.getCurrentDir();
+        String currentDir = guiConfig.getDirectoryToRead();
         if(currentDir == null || !(new File(currentDir).exists())) {
             currentDir = System.getProperty("user.dir"); // current working directory ("./")
         }
@@ -137,7 +139,7 @@ public abstract class View extends JFrame implements DataStoreListener {
         int fileChooserState = fileChooser.showOpenDialog(this);
         if (fileChooserState == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
-            GuiProperties.setCurrentDir(file.getParent());
+            guiConfig.setDirectoryToRead(file.getParent());
             return file;
         }
         return null;

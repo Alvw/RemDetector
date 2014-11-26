@@ -1,7 +1,5 @@
 package dreamrec;
 
-import bdf.BdfProvider;
-
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
@@ -14,8 +12,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class DreamRec {
     public static void main(String[] args) {
         final LinkedBlockingQueue<Integer> buffer = new LinkedBlockingQueue<Integer>(4);
-        ApplicationProperties appProperties = new ApplicationProperties();
-        BdfProvider device = appProperties.getDeviceImplementation();
         Controller controller = new Controller();
     }
 }

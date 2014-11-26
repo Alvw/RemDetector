@@ -23,6 +23,8 @@ public class Ads implements BdfProvider {
     private ComPort comPort;
     private boolean isRecording;
     AdsConfiguration adsConfiguration;
+    private BdfConfig bdfConfig;
+
     public Ads() {
         adsConfiguration = new AdsConfigUtil().readConfiguration();
     }
@@ -55,13 +57,19 @@ public class Ads implements BdfProvider {
         }
     }
 
+    private void notifyAdsDataListeners(byte[] bdfDataRecord) {
+        for (BdfListener bdfListener : bdfListeners) {
+            bdfListener.onDataRecordReceived(bdfDataRecord);
+        }
+    }
+
     public void stopReading() {
         for (BdfListener adsBdfListener : bdfListeners) {
             adsBdfListener.onStopReading();
         }
         if (!isRecording) return;
         comPort.writeToPort(new AdsConfigurator().startPinLo());
-       try {
+        try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
             log.warn(e);
@@ -76,57 +84,66 @@ public class Ads implements BdfProvider {
 
     @Override
     public BdfConfig getBdfConfig() {
-        BdfConfig bdfConfig = new BdfConfig();
-        bdfConfig.setDurationOfDataRecord(adsConfiguration.getDeviceType().getMaxDiv().getValue() / adsConfiguration.getSps().getValue());
-       // bdfConfig.setNumberOfSignals(AdsUtils.getDividersForActiveChannels(adsConfiguration).size()+2);
+        if(bdfConfig == null) {
+            bdfConfig = createBdfConfig();
+        }
+        return bdfConfig;
+    }
+
+
+    private BdfConfig createBdfConfig() {
         List<BdfSignalConfig> signalConfigList = new ArrayList<BdfSignalConfig>();
         int n = 0;
         for (AdsChannelConfiguration channelConfiguration : adsConfiguration.getAdsChannels()) {
             if (channelConfiguration.isEnabled()) {
-                BdfSignalConfig bdfSignalConfig = new BdfSignalConfig();
-                bdfSignalConfig.setLabel("Channel " + n++);
-                bdfSignalConfig.setDigitalMax(8388607);
-                bdfSignalConfig.setDigitalMin(-8388608);
-                int physicalMax = 2400000/channelConfiguration.getGain().getValue();
-                bdfSignalConfig.setPhysicalMax(physicalMax);
-                bdfSignalConfig.setPhysicalMin(-physicalMax);
-                bdfSignalConfig.setNumberOfSamplesInEachDataRecord(adsConfiguration.getDeviceType().getMaxDiv().getValue() / channelConfiguration.getDivider().getValue());
-                bdfSignalConfig.setPhysicalDimension("uV");
+                int physicalMax = 2400000 / channelConfiguration.getGain().getValue();
+                int numberOfSamplesInEachDataRecord = adsConfiguration.getDeviceType().getMaxDiv().getValue() / channelConfiguration.getDivider().getValue();
+                BdfSignalConfig bdfSignalConfig = new BdfSignalConfig.Builder()
+                        .setLabel("Channel " + n++)
+                        .setDigitalMax(8388607)
+                        .setDigitalMin(-8388608)
+                        .setPhysicalMax(physicalMax)
+                        .setPhysicalMin(-physicalMax)
+                        .setNumberOfSamplesInEachDataRecord(numberOfSamplesInEachDataRecord)
+                        .setPhysicalDimension("uV").build();
+
                 signalConfigList.add(bdfSignalConfig);
             }
         }
         for (int i = 0; i < 3; i++) {
+            int numberOfSamplesInEachDataRecord = adsConfiguration.getDeviceType().getMaxDiv().getValue() / adsConfiguration.getAccelerometerDivider().getValue();
             if (adsConfiguration.isAccelerometerEnabled()) {
-                BdfSignalConfig bdfSignalConfig = new BdfSignalConfig();
-                bdfSignalConfig.setLabel("Accelerometer " + i + 1);
-                bdfSignalConfig.setDigitalMax(30800);
-                bdfSignalConfig.setDigitalMin(-30800);
-                bdfSignalConfig.setPhysicalMax(2);
-                bdfSignalConfig.setPhysicalMin(-2);
-                bdfSignalConfig.setNumberOfSamplesInEachDataRecord(adsConfiguration.getDeviceType().getMaxDiv().getValue() / adsConfiguration.getAccelerometerDivider().getValue());
-                bdfSignalConfig.setPhysicalDimension("g");
+                BdfSignalConfig bdfSignalConfig = new BdfSignalConfig.Builder()
+                        .setLabel("Accelerometer " + i + 1)
+                        .setDigitalMax(30800)
+                        .setDigitalMin(-30800)
+                        .setPhysicalMax(2)
+                        .setPhysicalMin(-2)
+                        .setNumberOfSamplesInEachDataRecord(numberOfSamplesInEachDataRecord)
+                        .setPhysicalDimension("g")
+                        .build();
+
                 signalConfigList.add(bdfSignalConfig);
             }
         }
         for (int i = 0; i < 2; i++) {
-                BdfSignalConfig bdfSignalConfig = new BdfSignalConfig();
-                bdfSignalConfig.setLabel("Loff stat " + i + 1);
-                bdfSignalConfig.setDigitalMax(8388607);
-                bdfSignalConfig.setDigitalMin(-8388608);
-                bdfSignalConfig.setPhysicalMax(8388607);
-                bdfSignalConfig.setPhysicalMin(-8388608);
-                bdfSignalConfig.setNumberOfSamplesInEachDataRecord(1);
-                bdfSignalConfig.setPhysicalDimension("n/a");
-                signalConfigList.add(bdfSignalConfig);
+            BdfSignalConfig bdfSignalConfig = new BdfSignalConfig.Builder()
+                    .setLabel("Loff stat " + i + 1)
+                    .setDigitalMax(8388607)
+                    .setDigitalMin(-8388608)
+                    .setPhysicalMax(8388607)
+                    .setPhysicalMin(-8388608)
+                    .setNumberOfSamplesInEachDataRecord(1)
+                    .setPhysicalDimension("n/a")
+                    .build();
+
+            signalConfigList.add(bdfSignalConfig);
         }
 
-        bdfConfig.setSignalsConfigList(signalConfigList.toArray(new BdfSignalConfig[signalConfigList.size()]));
+        int DurationOfDataRecord = adsConfiguration.getDeviceType().getMaxDiv().getValue() / adsConfiguration.getSps().getValue();
+        int numberOfBytesInDataFormat = 3;
+        BdfSignalConfig[] signalConfigArray = signalConfigList.toArray(new BdfSignalConfig[signalConfigList.size()]);
+        BdfConfig bdfConfig = new BdfConfig(DurationOfDataRecord, numberOfBytesInDataFormat, signalConfigArray);
         return bdfConfig;
-    }
-
-    private void notifyAdsDataListeners(byte[] bdfDataRecord) {
-        for (BdfListener bdfListener : bdfListeners) {
-            bdfListener.onDataRecordReceived(bdfDataRecord);
-        }
     }
 }

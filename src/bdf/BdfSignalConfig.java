@@ -3,19 +3,74 @@ package bdf;
 /**
  *
  */
-public class BdfSignalConfig implements Cloneable{
+public class BdfSignalConfig {
+    private final int digitalMin;
+    private final int digitalMax;
+    private final int physicalMin;
+    private final int physicalMax;
+    private final String physicalDimension;
+    private final int numberOfSamplesInEachDataRecord;
     private String label;
-    private int digitalMin;
-    private int digitalMax;
-    private int physicalMin;
-    private int physicalMax;
-    private String physicalDimension;
-    private int numberOfSamplesInEachDataRecord;
 
-    @Override
-    public BdfSignalConfig clone() throws CloneNotSupportedException {
-        return (BdfSignalConfig) super.clone();
+    private BdfSignalConfig(Builder builder) {
+        digitalMin = builder.digitalMin;
+        digitalMax = builder.digitalMax;
+        physicalMin = builder.physicalMin;
+        physicalMax = builder.physicalMax;
+        physicalDimension = builder.physicalDimension;
+        numberOfSamplesInEachDataRecord = builder.numberOfSamplesInEachDataRecord;
+        label = builder.label;
     }
+
+    public static class Builder {
+        private int digitalMin;
+        private int digitalMax;
+        private int physicalMin;
+        private int physicalMax;
+        private String physicalDimension;
+        private int numberOfSamplesInEachDataRecord;
+        private String label;
+
+        public Builder setDigitalMin(int digitalMin) {
+            this.digitalMin  =  digitalMin;
+            return this;
+        }
+
+        public Builder setDigitalMax(int digitalMax) {
+            this.digitalMax  =  digitalMax;
+            return this;
+        }
+
+        public Builder setPhysicalMin(int physicalMin) {
+            this.physicalMin  =  physicalMin;
+            return this;
+        }
+
+        public Builder setPhysicalMax(int physicalMax) {
+            this.physicalMax  =  physicalMax;
+            return this;
+        }
+
+        public Builder setNumberOfSamplesInEachDataRecord(int numberOfSamplesInEachDataRecord) {
+            this.numberOfSamplesInEachDataRecord  =  numberOfSamplesInEachDataRecord;
+            return this;
+        }
+
+        public Builder setPhysicalDimension(String physicalDimension) {
+            this.physicalDimension  =  physicalDimension;
+            return this;
+        }
+
+        public Builder setLabel(String label) {
+            this.label  =  label;
+            return this;
+        }
+
+        public BdfSignalConfig build() {
+            return new BdfSignalConfig(this);
+        }
+    }
+
 
     public String getLabel() {
         return label;
@@ -29,47 +84,23 @@ public class BdfSignalConfig implements Cloneable{
         return digitalMin;
     }
 
-    public void setDigitalMin(int digitalMin) {
-        this.digitalMin = digitalMin;
-    }
-
     public int getDigitalMax() {
         return digitalMax;
-    }
-
-    public void setDigitalMax(int digitalMax) {
-        this.digitalMax = digitalMax;
     }
 
     public int getPhysicalMin() {
         return physicalMin;
     }
 
-    public void setPhysicalMin(int physicalMin) {
-        this.physicalMin = physicalMin;
-    }
-
     public int getPhysicalMax() {
         return physicalMax;
-    }
-
-    public void setPhysicalMax(int physicalMax) {
-        this.physicalMax = physicalMax;
     }
 
     public String getPhysicalDimension() {
         return physicalDimension;
     }
 
-    public void setPhysicalDimension(String physicalDimension) {
-        this.physicalDimension = physicalDimension;
-    }
-
     public int getNumberOfSamplesInEachDataRecord() {
         return numberOfSamplesInEachDataRecord;
-    }
-
-    public void setNumberOfSamplesInEachDataRecord(int numberOfSamplesInEachDataRecord) {
-        this.numberOfSamplesInEachDataRecord = numberOfSamplesInEachDataRecord;
     }
 }

@@ -54,6 +54,7 @@ public class SettingsWindow extends JDialog  {
     private Controller controller;
     private int[] frequencyDividers;
     private int numberOfChannels;
+    private File fileToRead;
 
 
     public SettingsWindow(Frame owner, BdfConfig bdfConfig,  Controller controller) {
@@ -101,8 +102,8 @@ public class SettingsWindow extends JDialog  {
     }
 
     private void loadData() {
-        patientIdentification.setText(bdfConfig.getLocalPatientIdentification());
-        recordIdentification.setText(bdfConfig.getLocalRecordingIdentification());
+       // patientIdentification.setText(bdfConfig.getLocalPatientIdentification());
+       // recordIdentification.setText(bdfConfig.getLocalRecordingIdentification());
         BdfSignalConfig[] signalsConfigList = bdfConfig.getSignalsConfigList();
         double[] frequencies = bdfConfig.getSignalsFrequencies();
         for (int i = 0; i < numberOfChannels; i++) {
@@ -113,8 +114,8 @@ public class SettingsWindow extends JDialog  {
     }
 
     private void saveData() {
-        bdfConfig.setLocalPatientIdentification(getPatientIdentification());
-        bdfConfig.setLocalRecordingIdentification(getRecordIdentification());
+       // bdfConfig.setLocalPatientIdentification(getPatientIdentification());
+       // bdfConfig.setLocalRecordingIdentification(getRecordIdentification());
         BdfSignalConfig[] signalsConfigList = bdfConfig.getSignalsConfigList();
         try {
             for (int i = 0; i < numberOfChannels; i++) {
@@ -242,7 +243,7 @@ public class SettingsWindow extends JDialog  {
             public void actionPerformed(ActionEvent e) {
                 String dir = chooseDirToSave();
                 if (dir != null) {
-                    fileToSave.setText(dir);
+                    dirToSave.setText(dir);
                 }
             }
         });
@@ -256,17 +257,17 @@ public class SettingsWindow extends JDialog  {
 
     public String chooseDirToSave() {
         JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Specify a file to save");
-        String currentDir = GuiProperties.getCurrentDir();
+        fileChooser.setDialogTitle("Specify a directory to save");
+     /*   String currentDir = GuiConfig.getCurrentDir();
         if(currentDir == null || !(new File(currentDir).exists())) {
             currentDir = System.getProperty("user.dir"); // current working directory ("./")
-        }
-        fileChooser.setCurrentDirectory(new File(currentDir));
+        } */
+       // fileChooser.setCurrentDirectory(new File(currentDir));
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         int fileChooserState = fileChooser.showOpenDialog(this);
         if (fileChooserState == JFileChooser.APPROVE_OPTION) {
             String dir = fileChooser.getSelectedFile().getAbsolutePath();
-            GuiProperties.setCurrentDir(dir);
+          //  GuiConfig.setCurrentDir(dir);
             return dir;
         }
         return null;

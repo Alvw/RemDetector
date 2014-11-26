@@ -25,11 +25,6 @@ class NumberDocument extends PlainDocument
 
         try {
             int number = Integer.parseInt(str);
-            if(number == 0) {
-                // inserted number is 0
-                Toolkit.getDefaultToolkit().beep();
-                return;
-            }
         } catch (NumberFormatException e) {
             // inserted text is not a number
             Toolkit.getDefaultToolkit().beep();

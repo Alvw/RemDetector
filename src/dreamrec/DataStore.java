@@ -41,7 +41,7 @@ public class DataStore implements BdfListener {
         this.channelsMask = channelsMask;
         bdfProvider.addBdfDataListener(this);
         BdfConfig bdfConfig = bdfProvider.getBdfConfig();
-        startTime = bdfConfig.getStartTime();
+       // startTime = bdfConfig.getStartTime();
         bufferSize = (int)(BUFFER_CAPACITY_SECONDS/bdfConfig.getDurationOfDataRecord());
         dataRecordsBuffer = new LinkedBlockingQueue<byte[]>(bufferSize);
         bdfParser = new BdfParser(bdfConfig);

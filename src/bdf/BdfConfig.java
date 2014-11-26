@@ -1,64 +1,26 @@
 package bdf;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Created by Al on 03.11.14.
  */
 public class BdfConfig  {
-    private String localPatientIdentification;
-    private String localRecordingIdentification;
-    private double durationOfDataRecord;    // in seconds
-    private BdfSignalConfig[] signalsConfigList;
-    private long startTime;
-    private int numberOfBytesInDataFormat; // edf - 2 bytes, bdf - 3 bytes
 
+    private final double durationOfDataRecord;    // in seconds
+    private final int numberOfBytesInDataFormat; // edf - 2 bytes, bdf - 3 bytes
+    private final BdfSignalConfig[] signalsConfigList;
 
-    public BdfConfig() {
-         localPatientIdentification = "Default patient";
-         localRecordingIdentification = "Default recording";
-        // to do: read from property file
-    }
-
-    public void setLocalPatientIdentification(String localPatientIdentification) {
-        this.localPatientIdentification = localPatientIdentification;
-    }
-
-    public String getLocalPatientIdentification() {
-        return localPatientIdentification;
-    }
-
-    public String getLocalRecordingIdentification() {
-        return localRecordingIdentification;
-    }
-
-    public void setLocalRecordingIdentification(String localRecordingIdentification) {
-        this.localRecordingIdentification = localRecordingIdentification;
+    public BdfConfig(double durationOfDataRecord, int numberOfBytesInDataFormat, BdfSignalConfig... signalsConfigList) {
+        this.durationOfDataRecord = durationOfDataRecord;
+        this.signalsConfigList = signalsConfigList;
+        this.numberOfBytesInDataFormat = numberOfBytesInDataFormat;
     }
 
     public int getNumberOfBytesInDataFormat() {
         return numberOfBytesInDataFormat;
     }
 
-    public void setNumberOfBytesInDataFormat(int numberOfBytesInDataFormat) {
-        this.numberOfBytesInDataFormat = numberOfBytesInDataFormat;
-    }
-
-    public long getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(long startTime) {
-        this.startTime = startTime;
-    }
-
     public double getDurationOfDataRecord() {
         return durationOfDataRecord;
-    }
-
-    public void setDurationOfDataRecord(double durationOfDataRecord) {
-        this.durationOfDataRecord = durationOfDataRecord;
     }
 
     public int getTotalNumberOfSamplesInEachDataRecord() {
@@ -85,7 +47,4 @@ public class BdfConfig  {
         return signalsConfigList;
     }
 
-    public void setSignalsConfigList(BdfSignalConfig[] signalsConfigList) {
-        this.signalsConfigList = signalsConfigList;
-    }
 }

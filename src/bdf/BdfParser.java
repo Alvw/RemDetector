@@ -1,19 +1,16 @@
 package bdf;
 
-import java.io.DataInputStream;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-
 /**
  * Created by mac on 06/11/14.
  */
 public class BdfParser {
     private BdfConfig bdfConfig;
-    private DataInputStream ds;
 
     public BdfParser(BdfConfig bdfConfig) {
         this.bdfConfig = bdfConfig;
     }
+
+
 
     public int parseDataRecordSample(byte[] bdfDataRecord, int sampleNumber) {
       /*  byte[] buffer = new byte[4];

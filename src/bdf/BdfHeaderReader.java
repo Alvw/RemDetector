@@ -1,6 +1,7 @@
 package bdf;
 
 import dreamrec.ApplicationException;
+import dreamrec.ExperimentInfo;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -9,7 +10,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 
 /*
@@ -45,10 +45,9 @@ nr of samples[ns] * integer : last signal
  */
 
 public class BdfHeaderReader {
-    private BdfConfig bdfConfig = new BdfConfig();
     private static final Log log = LogFactory.getLog(BdfHeaderReader.class);
-    private int numberOfDataRecords;
-    private int numberOfBytesInHeader;
+    BdfConfig bdfConfig;
+    ExperimentInfo experimentInfo = new ExperimentInfo();
 
     public BdfHeaderReader(File file) throws ApplicationException {
         BufferedReader reader = null;
@@ -82,11 +81,11 @@ public class BdfHeaderReader {
 
             buffer = new char[PATIENT_LENGTH];
             reader.read(buffer, 0, PATIENT_LENGTH);
-            bdfConfig.setLocalPatientIdentification(new String(buffer).trim());
+            experimentInfo.setLocalPatientIdentification(new String(buffer).trim());
 
             buffer = new char[RECORD_LENGTH];
             reader.read(buffer, 0, RECORD_LENGTH);
-            bdfConfig.setLocalRecordingIdentification(new String(buffer).trim());
+            experimentInfo.setLocalRecordIdentification(new String(buffer).trim());
 
             buffer = new char[STARTDATE_LENGTH];
             reader.read(buffer, 0, STARTDATE_LENGTH);
@@ -102,7 +101,7 @@ public class BdfHeaderReader {
             try{
                 Date date = new SimpleDateFormat(dateFormat).parse(startDateTimeStr);
                 long startTime = date.getTime();
-                bdfConfig.setStartTime(startTime);
+                experimentInfo.setStartTime(startTime);
             } catch (Exception e) {
                 throw new ApplicationException("Error while parsing startDateTimeStr " + startDateTimeStr);
             }
@@ -113,35 +112,33 @@ public class BdfHeaderReader {
             buffer = new char[VERSION_OF_DATA_FORMAT_LENGTH];
             reader.read(buffer, 0, VERSION_OF_DATA_FORMAT_LENGTH);
             String dataFormat= new String(buffer).trim();
-            int numberOfBytesInSamples = 2; // edf
+            int numberOfBytesInDataFormat = 2; // edf
             if(dataFormat.equals("24BIT")) {
-                numberOfBytesInSamples = 3;  // bdf
+                numberOfBytesInDataFormat = 3;  // bdf
             }
-            bdfConfig.setNumberOfBytesInDataFormat(numberOfBytesInSamples);
 
             buffer = new char[NUMBER_Of_DATARECORDS_LENGTH];
             reader.read(buffer, 0, NUMBER_Of_DATARECORDS_LENGTH);
-            numberOfDataRecords = stringToInt(new String(buffer));
+            experimentInfo.setNumberOfDataRecords(stringToInt(new String(buffer)));
 
             buffer = new char[DURATION_OF_DATARECORD_LENGTH];
             reader.read(buffer, 0, DURATION_OF_DATARECORD_LENGTH);
             Double durationOfDataRecord = stringToDouble(new String(buffer));
-            bdfConfig.setDurationOfDataRecord(durationOfDataRecord);
 
             buffer = new char[NUMBER_OF_SIGNALS_LENGTH];
             reader.read(buffer, 0, NUMBER_OF_SIGNALS_LENGTH);
             int numberOfSignals =  stringToInt(new String(buffer));
 
-            BdfSignalConfig[] bdfSignalConfigList = new BdfSignalConfig[numberOfSignals];
+            BdfSignalConfig[] bdfSignalConfigArray = new BdfSignalConfig[numberOfSignals];
+            BdfSignalConfig.Builder[] signalBuildersArray = new BdfSignalConfig.Builder[numberOfSignals];
 
             for(int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
-                BdfSignalConfig bdfSignalConfig = new BdfSignalConfig();
-                bdfSignalConfigList[signalNumber] = bdfSignalConfig;
+                signalBuildersArray[signalNumber] = new BdfSignalConfig.Builder();
             }
             for(int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
                 buffer = new char[SIGNAL_LABEL_LENGTH];
                 reader.read(buffer, 0, SIGNAL_LABEL_LENGTH);
-                bdfSignalConfigList[signalNumber].setLabel(new String(buffer).trim());
+                signalBuildersArray[signalNumber].setLabel(new String(buffer).trim());
             }
             for(int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
                 buffer = new char[SIGNAL_TRANSDUCER_TYPE_LENGTH];
@@ -150,31 +147,31 @@ public class BdfHeaderReader {
             for(int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
                 buffer = new char[SIGNAL_PHYSICAL_DIMENSION_LENGTH];
                 reader.read(buffer, 0, SIGNAL_PHYSICAL_DIMENSION_LENGTH);
-                bdfSignalConfigList[signalNumber].setPhysicalDimension(new String(buffer).trim());
+                signalBuildersArray[signalNumber].setPhysicalDimension(new String(buffer).trim());
             }
             for(int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
                 buffer = new char[SIGNAL_PHYSICAL_MIN_LENGTH];
                 reader.read(buffer, 0, SIGNAL_PHYSICAL_MIN_LENGTH);
                 int physicalMin =  stringToInt(new String(buffer));
-                bdfSignalConfigList[signalNumber].setPhysicalMin(physicalMin);
+                signalBuildersArray[signalNumber].setPhysicalMin(physicalMin);
             }
             for(int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
                 buffer = new char[SIGNAL_PHYSICAL_MAX_LENGTH];
                 reader.read(buffer, 0, SIGNAL_PHYSICAL_MAX_LENGTH);
                 int physicalMax =  stringToInt(new String(buffer));
-                bdfSignalConfigList[signalNumber].setPhysicalMax(physicalMax);
+                signalBuildersArray[signalNumber].setPhysicalMax(physicalMax);
             }
             for(int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
                 buffer = new char[SIGNAL_DIGITAL_MIN_LENGTH];
                 reader.read(buffer, 0, SIGNAL_DIGITAL_MIN_LENGTH);
                 int digitalMin =  stringToInt(new String(buffer));
-                bdfSignalConfigList[signalNumber].setDigitalMin(digitalMin);
+                signalBuildersArray[signalNumber].setDigitalMin(digitalMin);
             }
             for(int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
                 buffer = new char[SIGNAL_DIGITAL_MAX_LENGTH];
                 reader.read(buffer, 0, SIGNAL_DIGITAL_MAX_LENGTH);
                 int digitalMax =  stringToInt(new String(buffer));
-                bdfSignalConfigList[signalNumber].setDigitalMax(digitalMax);
+                signalBuildersArray[signalNumber].setDigitalMax(digitalMax);
             }
             for(int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
                 buffer = new char[SIGNAL_PREFILTERING_LENGTH];
@@ -184,14 +181,17 @@ public class BdfHeaderReader {
                 buffer = new char[SIGNAL_NUMBER_OF_SAMPLES_LENGTH];
                 reader.read(buffer, 0, SIGNAL_NUMBER_OF_SAMPLES_LENGTH);
                 int numberOfSamplesInDataRecord =  stringToInt(new String(buffer));
-                bdfSignalConfigList[signalNumber].setNumberOfSamplesInEachDataRecord(numberOfSamplesInDataRecord);
+                signalBuildersArray[signalNumber].setNumberOfSamplesInEachDataRecord(numberOfSamplesInDataRecord);
             }
             for(int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
                 buffer = new char[SIGNAL_RESERVED_LENGTH];
                 reader.read(buffer, 0, SIGNAL_RESERVED_LENGTH);
             }
+            for(int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
+                bdfSignalConfigArray[signalNumber] = signalBuildersArray[signalNumber].build();
+            }
 
-            bdfConfig.setSignalsConfigList(bdfSignalConfigList);
+            bdfConfig = new BdfConfig(durationOfDataRecord, numberOfBytesInDataFormat, bdfSignalConfigArray);
             reader.close();
 
         } catch (Exception e) {
@@ -229,7 +229,6 @@ public class BdfHeaderReader {
             log.error(e);
             throw new ApplicationException("Error while parsing Double " + str);
         }
-
     }
 }
 
