@@ -1,7 +1,6 @@
 package bdf;
 
 import dreamrec.ApplicationException;
-import dreamrec.ExperimentInfo;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -46,8 +45,7 @@ nr of samples[ns] * integer : last signal
 
 public class BdfHeaderReader {
     private static final Log log = LogFactory.getLog(BdfHeaderReader.class);
-    BdfConfig bdfConfig;
-    ExperimentInfo experimentInfo = new ExperimentInfo();
+    RecordingBdfConfig recordingBdfConfig;
 
     public BdfHeaderReader(File file) throws ApplicationException {
         BufferedReader reader = null;
@@ -58,7 +56,7 @@ public class BdfHeaderReader {
             int RECORD_LENGTH = 80;
             int STARTDATE_LENGTH = 8;
             int STARTTIME_LENGTH = 8;
-            int NUMBER_OF_BYTES_LENGTH = 8;
+            int NUMBER_OF_BYTES_IN_HEADER_LENGTH = 8;
             int VERSION_OF_DATA_FORMAT_LENGTH = 44;
             int NUMBER_Of_DATARECORDS_LENGTH = 8;
             int DURATION_OF_DATARECORD_LENGTH = 8;
@@ -81,11 +79,11 @@ public class BdfHeaderReader {
 
             buffer = new char[PATIENT_LENGTH];
             reader.read(buffer, 0, PATIENT_LENGTH);
-            experimentInfo.setLocalPatientIdentification(new String(buffer).trim());
+            String patientIdentification = new String(buffer).trim();
 
             buffer = new char[RECORD_LENGTH];
             reader.read(buffer, 0, RECORD_LENGTH);
-            experimentInfo.setLocalRecordIdentification(new String(buffer).trim());
+            String recordIdentification = new String(buffer).trim();
 
             buffer = new char[STARTDATE_LENGTH];
             reader.read(buffer, 0, STARTDATE_LENGTH);
@@ -94,20 +92,18 @@ public class BdfHeaderReader {
             buffer = new char[STARTTIME_LENGTH];
             reader.read(buffer, 0, STARTTIME_LENGTH);
             String startTimeStr = new String(buffer);
-
             String dateFormat = "dd.MM.yy HH.mm.ss";
             String startDateTimeStr = startDateStr + " " + startTimeStr;
-
+            long startTime;
             try{
                 Date date = new SimpleDateFormat(dateFormat).parse(startDateTimeStr);
-                long startTime = date.getTime();
-                experimentInfo.setStartTime(startTime);
+                startTime = date.getTime();
             } catch (Exception e) {
                 throw new ApplicationException("Error while parsing startDateTimeStr " + startDateTimeStr);
             }
 
-            buffer = new char[NUMBER_OF_BYTES_LENGTH];
-            reader.read(buffer, 0, NUMBER_OF_BYTES_LENGTH);
+            buffer = new char[NUMBER_OF_BYTES_IN_HEADER_LENGTH];
+            reader.read(buffer, 0, NUMBER_OF_BYTES_IN_HEADER_LENGTH);
 
             buffer = new char[VERSION_OF_DATA_FORMAT_LENGTH];
             reader.read(buffer, 0, VERSION_OF_DATA_FORMAT_LENGTH);
@@ -119,7 +115,7 @@ public class BdfHeaderReader {
 
             buffer = new char[NUMBER_Of_DATARECORDS_LENGTH];
             reader.read(buffer, 0, NUMBER_Of_DATARECORDS_LENGTH);
-            experimentInfo.setNumberOfDataRecords(stringToInt(new String(buffer)));
+            int numberOfDataRecords = stringToInt(new String(buffer));
 
             buffer = new char[DURATION_OF_DATARECORD_LENGTH];
             reader.read(buffer, 0, DURATION_OF_DATARECORD_LENGTH);
@@ -129,11 +125,11 @@ public class BdfHeaderReader {
             reader.read(buffer, 0, NUMBER_OF_SIGNALS_LENGTH);
             int numberOfSignals =  stringToInt(new String(buffer));
 
-            BdfSignalConfig[] bdfSignalConfigArray = new BdfSignalConfig[numberOfSignals];
-            BdfSignalConfig.Builder[] signalBuildersArray = new BdfSignalConfig.Builder[numberOfSignals];
+            SignalConfig[] signalConfigArray = new SignalConfig[numberOfSignals];
+            SignalConfig.Builder[] signalBuildersArray = new SignalConfig.Builder[numberOfSignals];
 
             for(int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
-                signalBuildersArray[signalNumber] = new BdfSignalConfig.Builder();
+                signalBuildersArray[signalNumber] = new SignalConfig.Builder();
             }
             for(int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
                 buffer = new char[SIGNAL_LABEL_LENGTH];
@@ -188,10 +184,14 @@ public class BdfHeaderReader {
                 reader.read(buffer, 0, SIGNAL_RESERVED_LENGTH);
             }
             for(int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
-                bdfSignalConfigArray[signalNumber] = signalBuildersArray[signalNumber].build();
+                signalConfigArray[signalNumber] = signalBuildersArray[signalNumber].build();
             }
 
-            bdfConfig = new BdfConfig(durationOfDataRecord, numberOfBytesInDataFormat, bdfSignalConfigArray);
+            recordingBdfConfig = new RecordingBdfConfig(durationOfDataRecord, numberOfBytesInDataFormat, signalConfigArray);
+            recordingBdfConfig.setPatientIdentification(patientIdentification);
+            recordingBdfConfig.setRecordingIdentification(recordIdentification);
+            recordingBdfConfig.setStartTime(startTime);
+            recordingBdfConfig.setNumberOfDataRecords(numberOfDataRecords);
             reader.close();
 
         } catch (Exception e) {
@@ -206,10 +206,9 @@ public class BdfHeaderReader {
         }
     }
 
-    public BdfConfig getBdfConfig() {
-        return bdfConfig;
+    public RecordingBdfConfig getRecordingBdfConfig() {
+        return recordingBdfConfig;
     }
-
 
     private Integer stringToInt(String str) throws  ApplicationException {
         try {

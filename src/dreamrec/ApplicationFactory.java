@@ -20,7 +20,7 @@ public class ApplicationFactory {
         if(device == null) {
             String deviceClassName = config.getDeviceClassName();
             if(deviceClassName == null) {
-                throw new ApplicationException("Device type or Implementing Class \n is not specified");
+                throw new ApplicationException("Device type or Implementing Class is not specified");
             }
             try {
                 Class deviceClass = Class.forName(deviceClassName);
@@ -39,45 +39,4 @@ public class ApplicationFactory {
         }
         return device;
     }
-
-    public RemConfig getDeviceRemConfig() throws ApplicationException {
-        int accelerometerX = config.getAccelerometerXChannelNumber();
-        int accelerometerY = config.getAccelerometerYChannelNumber();
-        int accelerometerZ = config.getAccelerometerZChannelNumber();
-        int eog = config.getEogChannelNumber();
-        double  eogRemFrequency = config.getEogRemFrequency();
-        double  accelerometerRemFrequency = config.getAccelerometerRemFrequency();
-        if(accelerometerX < 0) {
-            throw new ApplicationException("Device channel number that correspond accelerometerX \n" +
-                    " is not specified");
-        }
-        if(accelerometerY < 0) {
-            throw new ApplicationException("Device channel number that correspond accelerometerY \n" +
-                    " is not specified");
-        }
-        if(accelerometerZ < 0) {
-            throw new ApplicationException("Device channel number that correspond accelerometerz \n" +
-                    " is not specified");
-        }
-        if(eog < 0) {
-            throw new ApplicationException("Device channel number that correspond EOG \n" +
-                    " is not specified");
-        }
-        if(eog < 0) {
-            throw new ApplicationException("Device channel number that correspond EOG \n" +
-                    " is not specified");
-        }
-        if(eogRemFrequency < 0) {
-            throw new ApplicationException("EOG REM Frequency is not specified");
-        }
-        if(eogRemFrequency < 0) {
-            throw new ApplicationException("Accelerometer REM Frequency is not specified");
-        }
-
-        RemConfig remConfig = new RemConfig(eogRemFrequency, accelerometerRemFrequency, eog,
-                accelerometerX, accelerometerY, accelerometerZ);
-
-        return remConfig;
-    }
-
 }

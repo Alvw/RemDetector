@@ -1,8 +1,6 @@
 package bdf;
 
 
-import dreamrec.ExperimentInfo;
-
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
@@ -12,21 +10,21 @@ import static com.crostec.ads.AdsUtils.adjustLength;
 
 class BdfHeaderWriter {
 
-    public static byte[] createBdfHeader(BdfConfig bdfConfig, ExperimentInfo experimentInfo) {
+    public static byte[] createBdfHeader(RecordingBdfConfig recordingBdfConfig) {
         Charset characterSet = Charset.forName("US-ASCII");
         StringBuilder bdfHeader = new StringBuilder();
 
         String identificationCode = "BIOSEMI";
 
-        String localPatientIdentification =  experimentInfo.getLocalPatientIdentification();
-        String localRecordingIdentification =   experimentInfo.getLocalRecordIdentification();
-        long startTime = experimentInfo.getStartTime();
-        int numberOfDataRecords = experimentInfo.getNumberOfDataRecords();
+        String localPatientIdentification =  recordingBdfConfig.getPatientIdentification();
+        String localRecordingIdentification =   recordingBdfConfig.getRecordingIdentification();
+        long startTime = recordingBdfConfig.getStartTime();
+        int numberOfDataRecords = recordingBdfConfig.getNumberOfDataRecords();
 
         String startDateOfRecording = new SimpleDateFormat("dd.MM.yy").format(new Date(startTime));
         String startTimeOfRecording = new SimpleDateFormat("HH.mm.ss").format(new Date(startTime));
 
-        int numberOfSignals = bdfConfig.getNumberOfSignals();  // number of signals in data record = number of active channels
+        int numberOfSignals = recordingBdfConfig.getNumberOfSignals();  // number of signals in data record = number of active channels
         int numberOfBytesInHeaderRecord = 256 * (1 + numberOfSignals);
         String versionOfDataFormat = "24BIT";
 
@@ -46,7 +44,7 @@ class BdfHeaderWriter {
         bdfHeader.append(adjustLength(Integer.toString(numberOfBytesInHeaderRecord), 8));
         bdfHeader.append(adjustLength(versionOfDataFormat, 44));
         bdfHeader.append(adjustLength(Integer.toString(numberOfDataRecords), 8));
-        bdfHeader.append(adjustLength(String.format("%.6f", bdfConfig.getDurationOfDataRecord()).replace(",", "."), 8));
+        bdfHeader.append(adjustLength(String.format("%.6f", recordingBdfConfig.getDurationOfDataRecord()).replace(",", "."), 8));
         bdfHeader.append(adjustLength(Integer.toString(numberOfSignals), 4));
 
         StringBuilder labels = new StringBuilder();
@@ -59,9 +57,9 @@ class BdfHeaderWriter {
         StringBuilder preFilterings = new StringBuilder();
         StringBuilder samplesNumbers = new StringBuilder();
         StringBuilder reservedForChannels = new StringBuilder();
-        BdfSignalConfig[] signalConfigList = bdfConfig.getSignalsConfigList();
+        SignalConfig[] signalConfigList = recordingBdfConfig.getSignalsConfigList();
         for (int i = 0; i < signalConfigList.length; i++) {
-            BdfSignalConfig signalConfig = signalConfigList[i];
+            SignalConfig signalConfig = signalConfigList[i];
                 labels.append(adjustLength(signalConfig.getLabel(), 16));
                 transducerTypes.append(adjustLength("Unknown", 80));
                 physicalDimensions.append(adjustLength(signalConfig.getPhysicalDimension(), 8));

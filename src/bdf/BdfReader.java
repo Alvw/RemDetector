@@ -14,10 +14,10 @@ import java.util.ArrayList;
 public class BdfReader implements BdfProvider {
     private static final Log log = LogFactory.getLog(BdfReader.class);
     private BufferedInputStream fileInputStream;
-    private BdfConfig bdfConfig;
-    private int numberOfBytesInDataRecord;
+    private RecordingBdfConfig recordingBdfConfig;
     private int BUFFER_SIZE = 64 * 1028; // It is best to use buffer sizes that are multiples of 1024 bytes
     private boolean isFileOpen = false;
+    private int totalNumberOfSamplesInEachDataRecord;
 
 
     private ArrayList<BdfListener> bdfListenersList = new ArrayList<BdfListener>();
@@ -25,10 +25,10 @@ public class BdfReader implements BdfProvider {
     public BdfReader(File file) throws ApplicationException {
         try {
             BdfHeaderReader bdfHeaderReader = new BdfHeaderReader(file);
-            bdfConfig = bdfHeaderReader.getBdfConfig();
-            numberOfBytesInDataRecord = bdfConfig.getTotalNumberOfSamplesInEachDataRecord() * bdfConfig.getNumberOfBytesInDataFormat();
-            fileInputStream = new BufferedInputStream(new FileInputStream(file), BUFFER_SIZE);
-            int numberOfBytesInHeader = 256 + 256 * bdfConfig.getNumberOfSignals();
+            recordingBdfConfig = bdfHeaderReader.getRecordingBdfConfig();
+            totalNumberOfSamplesInEachDataRecord = getTotalNumberOfBytesInDataRecord();
+             fileInputStream = new BufferedInputStream(new FileInputStream(file), BUFFER_SIZE);
+            int numberOfBytesInHeader = 256 + 256 * recordingBdfConfig.getNumberOfSignals();
             if(fileInputStream.skip(numberOfBytesInHeader) == numberOfBytesInHeader) {
                 isFileOpen = true;
             } else {
@@ -41,15 +41,25 @@ public class BdfReader implements BdfProvider {
         }
     }
 
+    private int getTotalNumberOfBytesInDataRecord() {
+        int totalNumberOfSamplesInEachDataRecord = 0;
+        int[] numbersOfSamplesInEachDataRecord = recordingBdfConfig.getNumbersOfSamplesInEachDataRecord();
+        for (int signalNumber = 0; signalNumber < recordingBdfConfig.getNumberOfSignals(); signalNumber++) {
+            totalNumberOfSamplesInEachDataRecord += numbersOfSamplesInEachDataRecord[signalNumber];
+        }
+        return totalNumberOfSamplesInEachDataRecord * recordingBdfConfig.getNumberOfBytesInDataFormat();
+
+    }
+
 
     public void readData() {
-        byte[] dataRecord = new byte[numberOfBytesInDataRecord];
+        byte[] dataRecord = new byte[totalNumberOfSamplesInEachDataRecord];
         try {
-            while (isFileOpen &&  fileInputStream.read(dataRecord) == numberOfBytesInDataRecord) {
+            while (isFileOpen &&  fileInputStream.read(dataRecord) == totalNumberOfSamplesInEachDataRecord) {
                 for (BdfListener bdfListener : bdfListenersList) {
                     bdfListener.onDataRecordReceived(dataRecord);
                 }
-                dataRecord = new byte[numberOfBytesInDataRecord];
+                dataRecord = new byte[totalNumberOfSamplesInEachDataRecord];
             }
             stopReading();
         } catch (IOException e) {
@@ -93,8 +103,8 @@ public class BdfReader implements BdfProvider {
 
 
     @Override
-    public BdfConfig getBdfConfig() {
-        return bdfConfig;
+    public RecordingBdfConfig getBdfConfig() {
+        return recordingBdfConfig;
     }
 
 }

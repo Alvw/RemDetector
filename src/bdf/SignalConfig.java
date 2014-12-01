@@ -3,7 +3,7 @@ package bdf;
 /**
  *
  */
-public class BdfSignalConfig {
+public class SignalConfig {
     private final int digitalMin;
     private final int digitalMax;
     private final int physicalMin;
@@ -12,7 +12,7 @@ public class BdfSignalConfig {
     private final int numberOfSamplesInEachDataRecord;
     private String label;
 
-    private BdfSignalConfig(Builder builder) {
+    private SignalConfig(Builder builder) {
         digitalMin = builder.digitalMin;
         digitalMax = builder.digitalMax;
         physicalMin = builder.physicalMin;
@@ -66,8 +66,8 @@ public class BdfSignalConfig {
             return this;
         }
 
-        public BdfSignalConfig build() {
-            return new BdfSignalConfig(this);
+        public SignalConfig build() {
+            return new SignalConfig(this);
         }
     }
 

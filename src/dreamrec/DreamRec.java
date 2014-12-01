@@ -1,5 +1,8 @@
 package dreamrec;
 
+import gui.GuiConfig;
+import gui.MainView;
+
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
@@ -11,7 +14,16 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public class DreamRec {
     public static void main(String[] args) {
-        final LinkedBlockingQueue<Integer> buffer = new LinkedBlockingQueue<Integer>(4);
-        Controller controller = new Controller();
+        try {
+            ApplicationConfig applicationConfig = new ApplicationProperties();
+            ApplicationFactory applicationFactory = new ApplicationFactory(applicationConfig);
+            Controller controller = new Controller(applicationConfig.getEogRemFrequency(), applicationConfig.getAccelerometerRemFrequency());
+            MainView mainView= new MainView(controller);
+            controller.setView(mainView);
+
+        } catch (ApplicationException e) {
+
+        }
+
     }
 }

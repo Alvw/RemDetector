@@ -1,9 +1,6 @@
 package device.impl2ch;
 
-import bdf.BdfConfig;
-import bdf.BdfListener;
-import bdf.BdfProvider;
-import bdf.BdfSignalConfig;
+import bdf.*;
 import gnu.io.NoSuchPortException;
 import gnu.io.PortInUseException;
 import org.apache.commons.logging.Log;
@@ -23,7 +20,7 @@ public class Ads implements BdfProvider {
     private ComPort comPort;
     private boolean isRecording;
     AdsConfiguration adsConfiguration;
-    private BdfConfig bdfConfig;
+    private RecordingBdfConfig recordingConfig;
 
     public Ads() {
         adsConfiguration = new AdsConfigUtil().readConfiguration();
@@ -84,21 +81,21 @@ public class Ads implements BdfProvider {
 
     @Override
     public BdfConfig getBdfConfig() {
-        if(bdfConfig == null) {
-            bdfConfig = createBdfConfig();
+        if(recordingConfig == null) {
+            recordingConfig = createBdfConfig();
         }
-        return bdfConfig;
+        return recordingConfig;
     }
 
 
-    private BdfConfig createBdfConfig() {
-        List<BdfSignalConfig> signalConfigList = new ArrayList<BdfSignalConfig>();
+    private RecordingBdfConfig createBdfConfig() {
+        List<SignalConfig> signalConfigList = new ArrayList<SignalConfig>();
         int n = 0;
         for (AdsChannelConfiguration channelConfiguration : adsConfiguration.getAdsChannels()) {
             if (channelConfiguration.isEnabled()) {
                 int physicalMax = 2400000 / channelConfiguration.getGain().getValue();
                 int numberOfSamplesInEachDataRecord = adsConfiguration.getDeviceType().getMaxDiv().getValue() / channelConfiguration.getDivider().getValue();
-                BdfSignalConfig bdfSignalConfig = new BdfSignalConfig.Builder()
+                SignalConfig signalConfig = new SignalConfig.Builder()
                         .setLabel("Channel " + n++)
                         .setDigitalMax(8388607)
                         .setDigitalMin(-8388608)
@@ -107,13 +104,13 @@ public class Ads implements BdfProvider {
                         .setNumberOfSamplesInEachDataRecord(numberOfSamplesInEachDataRecord)
                         .setPhysicalDimension("uV").build();
 
-                signalConfigList.add(bdfSignalConfig);
+                signalConfigList.add(signalConfig);
             }
         }
         for (int i = 0; i < 3; i++) {
             int numberOfSamplesInEachDataRecord = adsConfiguration.getDeviceType().getMaxDiv().getValue() / adsConfiguration.getAccelerometerDivider().getValue();
             if (adsConfiguration.isAccelerometerEnabled()) {
-                BdfSignalConfig bdfSignalConfig = new BdfSignalConfig.Builder()
+                SignalConfig signalConfig = new SignalConfig.Builder()
                         .setLabel("Accelerometer " + i + 1)
                         .setDigitalMax(30800)
                         .setDigitalMin(-30800)
@@ -123,11 +120,11 @@ public class Ads implements BdfProvider {
                         .setPhysicalDimension("g")
                         .build();
 
-                signalConfigList.add(bdfSignalConfig);
+                signalConfigList.add(signalConfig);
             }
         }
         for (int i = 0; i < 2; i++) {
-            BdfSignalConfig bdfSignalConfig = new BdfSignalConfig.Builder()
+            SignalConfig signalConfig = new SignalConfig.Builder()
                     .setLabel("Loff stat " + i + 1)
                     .setDigitalMax(8388607)
                     .setDigitalMin(-8388608)
@@ -137,13 +134,13 @@ public class Ads implements BdfProvider {
                     .setPhysicalDimension("n/a")
                     .build();
 
-            signalConfigList.add(bdfSignalConfig);
+            signalConfigList.add(signalConfig);
         }
 
         int DurationOfDataRecord = adsConfiguration.getDeviceType().getMaxDiv().getValue() / adsConfiguration.getSps().getValue();
         int numberOfBytesInDataFormat = 3;
-        BdfSignalConfig[] signalConfigArray = signalConfigList.toArray(new BdfSignalConfig[signalConfigList.size()]);
-        BdfConfig bdfConfig = new BdfConfig(DurationOfDataRecord, numberOfBytesInDataFormat, signalConfigArray);
-        return bdfConfig;
+        SignalConfig[] signalConfigArray = signalConfigList.toArray(new SignalConfig[signalConfigList.size()]);
+        RecordingBdfConfig recordingConfig = new RecordingBdfConfig(DurationOfDataRecord, numberOfBytesInDataFormat, signalConfigArray);
+        return recordingConfig;
     }
 }

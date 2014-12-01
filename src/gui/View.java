@@ -1,8 +1,10 @@
 package gui;
 
+import bdf.RecordingBdfConfig;
 import dreamrec.Controller;
 import dreamrec.DataStore;
 import dreamrec.DataStoreListener;
+import dreamrec.RecordingSettings;
 import graph.GraphsViewer;
 
 import javax.swing.*;
@@ -18,16 +20,14 @@ public abstract class View extends JFrame implements DataStoreListener {
     private Controller controller;
     private boolean isStartUpdating = false;
     private Color MENU_BG_COLOR = Color.GRAY;
-    private Color MENU_TEXT_COLOR = Color.WHITE;
+    private Color MENU_TEXT_COLOR = Color.BLACK;
 
     protected DataStore model;
     protected GraphsViewer graphsViewer;
-    protected GuiConfig guiConfig;
 
 
-    public View(Controller controller, GuiConfig guiConfig) {
+    public View(Controller controller) {
         this.controller = controller;
-        this.guiConfig = guiConfig;
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setTitle(title);
         menu.setBackground(MENU_BG_COLOR);
@@ -92,7 +92,7 @@ public abstract class View extends JFrame implements DataStoreListener {
             public void actionPerformed(ActionEvent e) {
                 File file = chooseFileToRead();
                 if(file != null) {
-                    controller.openPreview(file);
+                    controller.setBdfProvider(file);
                 }
             }
         });
@@ -109,7 +109,7 @@ public abstract class View extends JFrame implements DataStoreListener {
         start.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                controller.openPreview();
+               // controller.setBdfProvider();
             }
         });
 
@@ -130,7 +130,7 @@ public abstract class View extends JFrame implements DataStoreListener {
             extensionDescription = extensionDescription.concat(", ").concat(extensionList[i]);
         }
         JFileChooser fileChooser = new JFileChooser();
-        String currentDir = guiConfig.getDirectoryToRead();
+        String currentDir = getCurrentDirToRead();
         if(currentDir == null || !(new File(currentDir).exists())) {
             currentDir = System.getProperty("user.dir"); // current working directory ("./")
         }
@@ -139,9 +139,30 @@ public abstract class View extends JFrame implements DataStoreListener {
         int fileChooserState = fileChooser.showOpenDialog(this);
         if (fileChooserState == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
-            guiConfig.setDirectoryToRead(file.getParent());
+            setCurrentDirToRead(file.getParent());
             return file;
         }
         return null;
+    }
+
+    public void openRecordingSettingsPreview(RecordingSettings recordingSettings) {
+        new SettingsWindow(this, controller, recordingSettings);
+    }
+
+
+    public String getCurrentDirToRead() {
+        return null;
+    }
+
+    public String getCurrentDirToSave() {
+        return controller.getCurrentDirToSave();
+    }
+
+    public void setCurrentDirToRead(String dir) {
+        //controller.setCurrentDirToRead(dir);
+    }
+
+    public void setCurrentDirToSave(String dir) {
+        controller.setCurrentDirToSave(dir);
     }
 }

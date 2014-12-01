@@ -8,11 +8,8 @@ import filters.*;
  * Main Window of our program...
  */
 public class MainView extends View {
-    private int compression = 750;
-
     public MainView(Controller controller) {
         super(controller);
-        setCompression(compression);
     }
 
     @Override

@@ -13,8 +13,8 @@ public interface ApplicationConfig {
     public int getAccelerometerYChannelNumber();
     public int getAccelerometerZChannelNumber();
 
-    public double getAccelerometerRemFrequency();
-    public double getEogRemFrequency();
+    public int getAccelerometerRemFrequency();
+    public int getEogRemFrequency();
 
     public boolean isFrequencyAutoAdjustment();
 

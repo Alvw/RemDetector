@@ -1,9 +1,9 @@
 package gui;
 
-import bdf.BdfConfig;
-import bdf.BdfSignalConfig;
+import bdf.SignalConfig;
 import dreamrec.ApplicationException;
 import dreamrec.Controller;
+import dreamrec.RecordingSettings;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,7 +18,6 @@ public class SettingsWindow extends JDialog  {
 
     private String patientIdentificationLabel = "Patient";
     private String recordingIdentificationLabel = "Record";
-    private String title = "EDF Recorder";
     private String start = "Start";
     private String stop = "Stop";
     private String cancel = "Cancel";
@@ -28,18 +27,17 @@ public class SettingsWindow extends JDialog  {
     private int FILENAME_LENGTH = 40;
     private int DIRNAME_LENGTH = 40;
     private int CHANNEL_NAME_LENGTH = 16;
-    private int DIVIDER_LENGTH = 2;
 
     private String DEFAULT_FILENAME = "date-time.bdf";
+    private String DEFAULT_TITLE = "Recording Settings";
 
     private JButton startButton = new JButton(start);
     private JButton cancelButton = new JButton(cancel);
     private JButton changeDirButton = new JButton(changeDir);
 
-    private JLabel[] channelFrequency;
-    private JCheckBox[] channelEnable;
-    private JTextField[] channelName;
-    private JTextField[] channelDivider;
+    private JLabel[] channelsFrequencies;
+    private JCheckBox[] activeChannels;
+    private JTextField[] channelsLabels;
 
     private JTextField patientIdentification;
     private JTextArea recordIdentification;
@@ -48,33 +46,22 @@ public class SettingsWindow extends JDialog  {
     private JTextField dirToSave;
 
     private JComponent[] channelsHeaders = {new JLabel("Number"), new JLabel("Name"),
-            new JLabel("Frequency (Hz)"), new JLabel("Divider"), new JLabel("Enable")};
+            new JLabel("Frequency (Hz)"),  new JLabel("Enable")};
 
-    private BdfConfig bdfConfig;
+    private RecordingSettings recordingSettings;
+    private String currentDir = System.getProperty("user.dir"); // current working directory ("./");
     private Controller controller;
-    private int[] frequencyDividers;
-    private int numberOfChannels;
-    private File fileToRead;
 
 
-    public SettingsWindow(Frame owner, BdfConfig bdfConfig,  Controller controller) {
+    public SettingsWindow(JFrame owner, Controller controller, RecordingSettings recordingSettings) {
         super(owner, ModalityType.APPLICATION_MODAL);
-        this.bdfConfig = bdfConfig;
+        this.recordingSettings = recordingSettings;
         this.controller = controller;
-        numberOfChannels = bdfConfig.getNumberOfSignals();
-        frequencyDividers = createDefaultDividers(bdfConfig);
+        setTitle(DEFAULT_TITLE);
         init();
         arrangeForm();
         setActions();
         setVisible(true);
-    }
-
-    private int[] createDefaultDividers(BdfConfig bdfConfig) {
-        int[] dividers = new int[bdfConfig.getNumberOfSignals()];
-        for(int i = 0; i < dividers.length; i++) {
-            dividers[i] = 1;
-        }
-        return dividers;
     }
 
 
@@ -83,67 +70,108 @@ public class SettingsWindow extends JDialog  {
         recordIdentification = new JTextArea(2,IDENTIFICATION_LENGTH);
         fileToSave = new JTextField(FILENAME_LENGTH);
         dirToSave = new JTextField(DIRNAME_LENGTH);
+        dirToSave.setEnabled(false);
 
-        channelFrequency = new JLabel[numberOfChannels];
-        channelEnable = new JCheckBox[numberOfChannels];
-        channelName = new JTextField[numberOfChannels];
-        channelDivider = new JTextField[numberOfChannels];
+        int numberOfChannels = recordingSettings.getChannelsLabels().length;
+
+        channelsFrequencies = new JLabel[numberOfChannels];
+        activeChannels = new JCheckBox[numberOfChannels];
+        channelsLabels = new JTextField[numberOfChannels];
 
         for (int i = 0; i < numberOfChannels; i++) {
-            channelFrequency[i] = new JLabel();
-            channelEnable[i] = new JCheckBox();
-            channelName[i] = new JTextField(CHANNEL_NAME_LENGTH);
-            channelDivider[i] = new JTextField();
-            channelDivider[i].setDocument(new NumberDocument(DIVIDER_LENGTH));
-            channelDivider[i].setColumns(DIVIDER_LENGTH);
+            channelsFrequencies[i] = new JLabel();
+            channelsLabels[i] = new JTextField(CHANNEL_NAME_LENGTH);
+            activeChannels[i] = new JCheckBox();
+            activeChannels[i].addItemListener(new EnableChannelListener(i));
         }
 
         loadData();
     }
 
-    private void loadData() {
-       // patientIdentification.setText(bdfConfig.getLocalPatientIdentification());
-       // recordIdentification.setText(bdfConfig.getLocalRecordingIdentification());
-        BdfSignalConfig[] signalsConfigList = bdfConfig.getSignalsConfigList();
-        double[] frequencies = bdfConfig.getSignalsFrequencies();
-        for (int i = 0; i < numberOfChannels; i++) {
-            channelFrequency[i].setText(String.valueOf(frequencies[i]));
-            channelName[i].setText(signalsConfigList[i].getLabel());
-            channelDivider[i].setText(String.valueOf(frequencyDividers[i]));
+
+    private class EnableChannelListener implements ItemListener {
+        private int channelNumber;
+
+        private EnableChannelListener(int channelNumber) {
+            this.channelNumber = channelNumber;
+        }
+
+        @Override
+        public void itemStateChanged(ItemEvent itemEvent) {
+            if(itemEvent.getStateChange() == ItemEvent.SELECTED) {
+                channelsLabels[channelNumber].setEnabled(true);
+            }
+            else {
+                channelsLabels[channelNumber].setEnabled(false);
+            }
         }
     }
 
-    private void saveData() {
-       // bdfConfig.setLocalPatientIdentification(getPatientIdentification());
-       // bdfConfig.setLocalRecordingIdentification(getRecordIdentification());
-        BdfSignalConfig[] signalsConfigList = bdfConfig.getSignalsConfigList();
-        try {
-            for (int i = 0; i < numberOfChannels; i++) {
-                signalsConfigList[i].setLabel(getChannelName(i));
-                if(isChannelEnable(i)) {
-                    frequencyDividers[i] = getChannelDivider(i);
-                }
-                else {
-                    frequencyDividers[i] = 0;
-                }
+
+    private void loadData() {
+        patientIdentification.setText(recordingSettings.getPatientIdentification());
+        recordIdentification.setText(recordingSettings.getRecordingIdentification());
+
+        double[] frequencies = recordingSettings.getChannelsFrequencies();
+        String[] labels = recordingSettings.getChannelsLabels();
+        boolean[] isActives = recordingSettings.getActiveChannels();
+
+        int numberOfChannels = labels.length;
+
+        for (int i = 0; i < numberOfChannels; i++) {
+            channelsFrequencies[i].setText(String.valueOf(frequencies[i]));
+            channelsLabels[i].setText(labels[i]);
+            activeChannels[i].setSelected(true);
+            activeChannels[i].setSelected(isActives[i]);
+        }
+
+        File file = recordingSettings.getFile();
+        String dirName = recordingSettings.getDirectoryToSave();
+
+        if(dirName != null ) {
+            File dir = new File(dirName);
+            if(dir.isDirectory() && dir.exists()) {
+                currentDir = dirName;
             }
-        } catch (ApplicationException e) {
-            showMessage(e.getMessage());
+        }
+        if(file != null & file.isFile()) {
+            fileToSave.setText(file.getName());
+            dirToSave.setText(file.getParent());
+            setTitle(file.getName());
+        }
+        else{
+            fileToSave.setText(DEFAULT_FILENAME);
+            dirToSave.setText(currentDir);
         }
     }
+
+    private RecordingSettings saveData() {
+        RecordingSettings resultingSettings = new RecordingSettings(getChannelsLabels());
+        resultingSettings.setRecordingIdentification(getRecordIdentification());
+        resultingSettings.setPatientIdentification(getPatientIdentification());
+        resultingSettings.setActiveChannels(getActiveChannels());
+
+        String filename = getFileToSave();
+        if(filename != null) {
+            resultingSettings.setFile(new File(getDirToSave(), filename));
+        }
+        resultingSettings.setDirectoryToSave(currentDir);
+        return resultingSettings;
+    }
+
 
     private void arrangeForm() {
-        setTitle(title);
-
-        int hgap = 5;
+        int hgap = 10;
         int vgap = 0;
-        JPanel patientPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, hgap, vgap));
+        JPanel patientPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, hgap, vgap));
         patientPanel.add(new JLabel(patientIdentificationLabel));
         patientPanel.add(patientIdentification);
+        patientIdentification.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
 
-        JPanel recordingPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, hgap, vgap));
+        JPanel recordingPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, hgap, vgap));
         recordingPanel.add(new JLabel(recordingIdentificationLabel));
         recordingPanel.add(recordIdentification);
+        recordIdentification.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
 
 
         hgap = 5;
@@ -163,12 +191,12 @@ public class SettingsWindow extends JDialog  {
         for (JComponent component : channelsHeaders) {
             channelsPanel.add(component);
         }
+        int numberOfChannels = channelsLabels.length;
         for (int i = 0; i < numberOfChannels; i++) {
             channelsPanel.add(new JLabel(" " + (i + 1) + " "));
-            channelsPanel.add(channelName[i]);
-            channelsPanel.add(channelFrequency[i]);
-            channelsPanel.add(channelDivider[i]);
-            channelsPanel.add(channelEnable[i]);
+            channelsPanel.add(channelsLabels[i]);
+            channelsPanel.add(channelsFrequencies[i]);
+            channelsPanel.add(activeChannels[i]);
         }
 
         hgap = 0;
@@ -181,7 +209,7 @@ public class SettingsWindow extends JDialog  {
         hgap = 5;
         vgap = 0;
         JPanel filePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, hgap, vgap));
-        filePanel.add(new JLabel("File Name"));
+        filePanel.add(new JLabel("File Name  "));
         filePanel.add(fileToSave);
 
         JPanel dirPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, hgap, vgap));
@@ -223,21 +251,6 @@ public class SettingsWindow extends JDialog  {
     }
 
     private void setActions() {
-        patientIdentification.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusGained(FocusEvent focusEvent) {
-                patientIdentification.selectAll();
-            }
-        });
-
-
-        recordIdentification.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusGained(FocusEvent focusEvent) {
-                recordIdentification.selectAll();
-            }
-        });
-
         changeDirButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -248,29 +261,47 @@ public class SettingsWindow extends JDialog  {
             }
         });
 
-        addWindowListener(new WindowAdapter() {
+        cancelButton.addActionListener(new ActionListener() {
             @Override
-            public void windowClosing(WindowEvent windowEvent) {
+            public void actionPerformed(ActionEvent actionEvent) {
+                close();
             }
         });
+
+        startButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                try {
+                    controller.startDataReading(saveData());
+                    close();
+                } catch (ApplicationException e) {
+                    showMessage(e.getMessage());
+                    //  System.exit(0);
+                }
+            }
+        });
+    }
+
+    public void close() {
+        SettingsWindow.this.dispose();
     }
 
     public String chooseDirToSave() {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Specify a directory to save");
-     /*   String currentDir = GuiConfig.getCurrentDir();
-        if(currentDir == null || !(new File(currentDir).exists())) {
-            currentDir = System.getProperty("user.dir"); // current working directory ("./")
-        } */
-       // fileChooser.setCurrentDirectory(new File(currentDir));
+        fileChooser.setCurrentDirectory(new File(currentDir));
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         int fileChooserState = fileChooser.showOpenDialog(this);
         if (fileChooserState == JFileChooser.APPROVE_OPTION) {
             String dir = fileChooser.getSelectedFile().getAbsolutePath();
-          //  GuiConfig.setCurrentDir(dir);
+            currentDir = dir;
             return dir;
         }
         return null;
+    }
+
+    public String getDirToSave() {
+         return dirToSave.getText();
     }
 
     public String getFileToSave() {
@@ -278,7 +309,7 @@ public class SettingsWindow extends JDialog  {
         String filename = fileToSave.getText();
         // if filename is default filename
         if(filename.equals(DEFAULT_FILENAME)) {
-            return null;
+          //  return null;
         }
         // if filename has no extension
         if(filename.lastIndexOf('.') == -1) {
@@ -297,66 +328,22 @@ public class SettingsWindow extends JDialog  {
         return filename;
     }
 
-    private void disableEnableFields(boolean isEnable) {
-        patientIdentification.setEnabled(isEnable);
-        recordIdentification.setEnabled(isEnable);
-        fileToSave.setEnabled(isEnable);
 
-
-        for (int i = 0; i < numberOfChannels; i++) {
-            channelEnable[i].setEnabled(isEnable);
-            channelName[i].setEnabled(isEnable);
-            channelFrequency[i].setEnabled(isEnable);
+    private boolean[] getActiveChannels() {
+        boolean[] isActives = new boolean[activeChannels.length];
+        for(int i = 0; i < activeChannels.length; i++) {
+            isActives[i] = activeChannels[i].isSelected();
         }
+        return isActives;
     }
 
-
-    private void disableFields() {
-        boolean isEnable = false;
-        disableEnableFields(isEnable);
-
-
-    }
-
-
-    private void enableFields() {
-        boolean isEnable = true;
-        disableEnableFields(isEnable);
-        for (int i = 0; i < numberOfChannels; i++) {
-            if (!isChannelEnable(i)) {
-                enableChannel(i, false);
-            }
+    private String[] getChannelsLabels() {
+        String[] labels = new String[channelsLabels.length];
+        for(int i = 0; i < channelsLabels.length; i++) {
+            labels[i] = channelsLabels[i].getText();
         }
-   /*     if (!bdfHeaderData.getAdsConfiguration().isAccelerometerEnabled()) {
-            enableAccelerometer(false);
-        }*/
+        return labels;
     }
-
-
-    private void enableChannel(int channelNumber, boolean isEnable) {
-        channelFrequency[channelNumber].setEnabled(isEnable);
-        channelName[channelNumber].setEnabled(isEnable);
-    }
-
-
-    private boolean isChannelEnable(int channelNumber) {
-        return channelEnable[channelNumber].isSelected();
-    }
-
-    private String getChannelName(int channelNumber) {
-        return channelName[channelNumber].getText();
-    }
-
-    private int getChannelDivider (int channelNumber) throws ApplicationException {
-        String divString = channelDivider[channelNumber].getText();
-        try {
-            Integer div = Integer.parseInt(divString);
-            return div;
-        } catch (NumberFormatException e) {
-             throw new ApplicationException("Channels Dividers should be Integer");
-        }
-    }
-
 
     private String getPatientIdentification() {
         return patientIdentification.getText();
@@ -369,6 +356,4 @@ public class SettingsWindow extends JDialog  {
     public void showMessage(String s) {
         JOptionPane.showMessageDialog(this, s);
     }
-
-
 }

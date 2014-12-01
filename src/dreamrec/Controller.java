@@ -2,9 +2,8 @@ package dreamrec;
 
 import bdf.BdfProvider;
 import bdf.BdfReader;
-import bdf.BdfWriter;
-import gui.MainView;
-import gui.SettingsWindow;
+import bdf.RecordingBdfConfig;
+import gui.GuiConfig;
 import gui.View;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -22,13 +21,15 @@ public class Controller {
 
     private boolean isRecording = false;
     private BdfProvider bdfProvider;
-    private BdfWriter bdfWriter;
+    private RecordingBdfConfig recordingBdfConfig;
+    private int eogRemFrequency;
+    private int accelerometerRemFrequency;
+    private GuiConfig guiConfig;
 
-
-
-
-    public Controller() {
-        mainWindow = new MainView(this);
+    public Controller(int eogRemFrequency, int accelerometerRemFrequency) {
+        this.eogRemFrequency = eogRemFrequency;
+        this.accelerometerRemFrequency = accelerometerRemFrequency;
+        this.guiConfig = guiConfig;
     }
 
     public void setView(View view) {
@@ -60,35 +61,49 @@ public class Controller {
         System.exit(0);
     }
 
-    public void openPreview(File file) {
+    public void setBdfProvider(File file) {
         try {
-            bdfProvider = new BdfReader(file);
-            new SettingsWindow(mainWindow, bdfProvider.getBdfConfig(), this);
+            BdfReader bdfReader = new BdfReader(file);
+            recordingBdfConfig = bdfReader.getBdfConfig();
+            bdfProvider = bdfReader;
+            RecordingSettings recordingSettings = new RecordingSettings(recordingBdfConfig);
+            boolean[] isChannelsActive = RemConfig.isRemLabels(recordingBdfConfig.getSignalsLabels());
+            recordingSettings.setActiveChannels(isChannelsActive);
+            recordingSettings.setFile(file);
+            mainWindow.openRecordingSettingsPreview(recordingSettings);
         } catch (ApplicationException e) {
             mainWindow.showMessage("Bdf file reading is failed!");
         }
     }
 
-    public void openPreview() {
-        try {
-            bdfProvider = ApplicationFactory.getDeviceImplementation();
-            new SettingsWindow(mainWindow, bdfProvider.getBdfConfig(), this);
-        } catch (ApplicationException e) {
-            mainWindow.showMessage(e.getMessage());
+
+    public void startDataReading(RecordingSettings recordingSettings) throws ApplicationException{
+        if(! isRecording) {
+            RemConfig remConfig = new RemConfig(recordingSettings.getChannelsLabels());
+            RemAdapter remAdapter = new RemAdapter(recordingBdfConfig,remConfig, eogRemFrequency, accelerometerRemFrequency);
+            remAdapter.setActiveChannels(recordingSettings.getActiveChannels());
+            DataStore dataStore = new DataStore(bdfProvider, remAdapter.getDividers());
+            mainWindow.setDataStore(dataStore);
+            bdfProvider.startReading();
+            isRecording = true;
+            System.out.println("file to save: "+recordingSettings.getFile().getAbsolutePath());
         }
     }
 
-    public void startRecording(int[] dividers) {
-        if(! isRecording) {
-            try {
-                DataStore dataStore = new DataStore(bdfProvider, dividers);
-                mainWindow.setDataStore(dataStore);
-                bdfProvider.startReading();
-                isRecording = true;
-            } catch (ApplicationException e) {
-                mainWindow.showMessage(e.getMessage());
-                System.exit(0);
-            }
-        }
+    public String getCurrentDirToRead() {
+         return guiConfig.getDirectoryToRead();
+    }
+
+    public String getCurrentDirToSave() {
+        return guiConfig.getDirectoryToSave();
+    }
+
+    public void setCurrentDirToRead(String dir) {
+        guiConfig.setDirectoryToRead(dir);
+
+    }
+
+    public void setCurrentDirToSave(String dir) {
+        guiConfig.setDirectoryToSave(dir);
     }
 }

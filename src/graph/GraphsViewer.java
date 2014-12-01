@@ -14,7 +14,7 @@ import java.util.ArrayList;
  *
  */
 public class GraphsViewer extends JPanel {
-    public  int compression = 1;
+    public  int compression = 750;
     private double timeFrequency = 0;
 
     private int DEFAULT_GRAPH_PANEL_WEIGHT  = 4;

@@ -1,6 +1,5 @@
 package bdf;
 
-import dreamrec.ExperimentInfo;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -16,21 +15,19 @@ import java.util.Date;
 public class BdfWriter implements BdfListener {
 
     private static final Log LOG = LogFactory.getLog(BdfWriter.class);
-    private final BdfConfig bdfConfig;
-    private final ExperimentInfo experimentInfo;
+    private final RecordingBdfConfig recordingBdfConfig;
     private RandomAccessFile fileToSave;
     private long startRecordingTime;
     private long stopRecordingTime;
     private int numberOfDataRecords;
     private boolean stopRecordingRequest;
 
-    public BdfWriter(BdfConfig bdfConfig, ExperimentInfo experimentInfo) {
-        this(bdfConfig, experimentInfo, new SimpleDateFormat("dd-MM-yyyy_HH-mm").format(new Date(System.currentTimeMillis())) + ".bdf");
+    public BdfWriter(RecordingBdfConfig recordingBdfConfig) {
+        this(recordingBdfConfig, new SimpleDateFormat("dd-MM-yyyy_HH-mm").format(new Date(System.currentTimeMillis())) + ".bdf");
     }
 
-    public BdfWriter(BdfConfig bdfConfig, ExperimentInfo experimentInfo, String fileToSave) {
-       this.bdfConfig = bdfConfig;
-        this.experimentInfo = experimentInfo;
+    public BdfWriter(RecordingBdfConfig recordingBdfConfig, String fileToSave) {
+        this.recordingBdfConfig = recordingBdfConfig;
         try {
             this.fileToSave = new RandomAccessFile(fileToSave, "rw");
         } catch (FileNotFoundException e) {
@@ -42,11 +39,11 @@ public class BdfWriter implements BdfListener {
     public synchronized void onDataRecordReceived(byte[] bdfDataRecord) {
         if (!stopRecordingRequest) {
             if (numberOfDataRecords == 0) {
-                startRecordingTime = System.currentTimeMillis() - (long)bdfConfig.getDurationOfDataRecord(); //1 second (1000 msec) duration of a data record
-                experimentInfo.setStartTime(startRecordingTime);
-                experimentInfo.setNumberOfDataRecords(-1);
+                startRecordingTime = System.currentTimeMillis() - (long) recordingBdfConfig.getDurationOfDataRecord(); //1 second (1000 msec) duration of a data record
+                recordingBdfConfig.setStartTime(startRecordingTime);
+                recordingBdfConfig.setNumberOfDataRecords(-1);
                 try {
-                    fileToSave.write(BdfHeaderWriter.createBdfHeader(bdfConfig, experimentInfo));
+                    fileToSave.write(BdfHeaderWriter.createBdfHeader(recordingBdfConfig));
                 } catch (IOException e) {
                     LOG.error(e);
                     throw new RuntimeException(e);
@@ -72,13 +69,15 @@ public class BdfWriter implements BdfListener {
     public synchronized void onStopReading() {
         if (stopRecordingRequest) return;
         stopRecordingRequest = true;
-        double durationOfDataRecord = (stopRecordingTime - startRecordingTime) * 0.001 / numberOfDataRecords;
-        experimentInfo.setDurationOfDataRecord(durationOfDataRecord);
-        experimentInfo.setStartTime(startRecordingTime);
-        experimentInfo.setNumberOfDataRecords(numberOfDataRecords);
+        double actualDurationOfDataRecord = (stopRecordingTime - startRecordingTime) * 0.001 / numberOfDataRecords;
+        // if BdfProvide(device) don't have quartz we can activate
+        // Frequency Adjustment (i.e. calculate actualDurationOfDataRecord during writing results to Bdf file
+
+        recordingBdfConfig.setStartTime(startRecordingTime);
+        recordingBdfConfig.setNumberOfDataRecords(numberOfDataRecords);
         try {
             fileToSave.seek(0);
-            fileToSave.write(BdfHeaderWriter.createBdfHeader(bdfConfig,experimentInfo));
+            fileToSave.write(BdfHeaderWriter.createBdfHeader(recordingBdfConfig));
             fileToSave.close();
         } catch (IOException e) {
             LOG.error(e);
@@ -88,6 +87,6 @@ public class BdfWriter implements BdfListener {
         LOG.info("Start recording time = " + startRecordingTime + " (" + dateFormat.format(new Date(startRecordingTime)));
         LOG.info("Stop recording time = " + stopRecordingTime + " (" + dateFormat.format(new Date(stopRecordingTime)));
         LOG.info("Number of data records = " + numberOfDataRecords);
-        LOG.info("Duration of a data record = " + durationOfDataRecord);
+        LOG.info("Duration of a data record = " + actualDurationOfDataRecord);
     }
 }

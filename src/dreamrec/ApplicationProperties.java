@@ -86,15 +86,15 @@ public class ApplicationProperties implements ApplicationConfig {
     }
 
     @Override
-    public double getAccelerometerRemFrequency() {
+    public int getAccelerometerRemFrequency() {
         int defaultValue = -1;
-        return config.getDouble(ACCELEROMETER_REM_FREQUENCY, defaultValue);
+        return config.getInt(ACCELEROMETER_REM_FREQUENCY, defaultValue);
     }
 
     @Override
-    public double getEogRemFrequency() {
+    public int getEogRemFrequency() {
         int defaultValue = -1;
-        return config.getDouble(EOG_REM_FREQUENCY, defaultValue);
+        return config.getInt(EOG_REM_FREQUENCY, defaultValue);
     }
 
     @Override
