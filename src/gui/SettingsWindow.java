@@ -68,6 +68,8 @@ public class SettingsWindow extends JDialog  {
     private void init() {
         patientIdentification = new JTextField(IDENTIFICATION_LENGTH);
         recordIdentification = new JTextArea(2,IDENTIFICATION_LENGTH);
+        patientIdentification.setDocument(new FixSizeDocument(IDENTIFICATION_LENGTH * 2));
+        recordIdentification.setDocument(new FixSizeDocument(IDENTIFICATION_LENGTH * 2));
         fileToSave = new JTextField(FILENAME_LENGTH);
         dirToSave = new JTextField(DIRNAME_LENGTH);
         dirToSave.setEnabled(false);
@@ -81,6 +83,7 @@ public class SettingsWindow extends JDialog  {
         for (int i = 0; i < numberOfChannels; i++) {
             channelsFrequencies[i] = new JLabel();
             channelsLabels[i] = new JTextField(CHANNEL_NAME_LENGTH);
+            channelsLabels[i].setDocument(new FixSizeDocument(CHANNEL_NAME_LENGTH));
             activeChannels[i] = new JCheckBox();
             activeChannels[i].addItemListener(new EnableChannelListener(i));
         }
