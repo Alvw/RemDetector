@@ -186,7 +186,7 @@ public class BdfHeaderReader {
             for(int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
                 signalConfigArray[signalNumber] = signalBuildersArray[signalNumber].build();
             }
-
+            System.out.println("durationOfDataRecord "+durationOfDataRecord);
             recordingBdfConfig = new RecordingBdfConfig(durationOfDataRecord, numberOfBytesInDataFormat, signalConfigArray);
             recordingBdfConfig.setPatientIdentification(patientIdentification);
             recordingBdfConfig.setRecordingIdentification(recordIdentification);

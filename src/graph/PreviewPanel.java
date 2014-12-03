@@ -82,7 +82,6 @@ class PreviewPanel extends GraphPanel {
         int MINUTES_10 = 10 * MINUTE;
         int MINUTES_30 = 30 * MINUTE;//milliseconds
         int point_distance_msec = (int) (1000/timeFrequency);
-
         g.setColor(axisColor);
         Graphics2D g2d = (Graphics2D) g;
         g2d.transform(AffineTransform.getScaleInstance(1.0, -1.0)); // flip transformation

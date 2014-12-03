@@ -122,7 +122,8 @@ public class SettingsWindow extends JDialog  {
         int numberOfChannels = labels.length;
 
         for (int i = 0; i < numberOfChannels; i++) {
-            channelsFrequencies[i].setText(String.valueOf(frequencies[i]));
+            int frequency = (int) Math.round(frequencies[i]);
+            channelsFrequencies[i].setText(String.valueOf(frequency));
             channelsLabels[i].setText(labels[i]);
             activeChannels[i].setSelected(true);
             activeChannels[i].setSelected(isActives[i]);

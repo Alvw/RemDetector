@@ -2,6 +2,7 @@ package dreamrec;
 
 import bdf.BdfProvider;
 import bdf.BdfReader;
+import bdf.BdfRecordsJoiner;
 import bdf.RecordingBdfConfig;
 import gui.GuiConfig;
 import gui.View;
@@ -80,11 +81,14 @@ public class Controller {
     public void startDataReading(RecordingSettings recordingSettings) throws ApplicationException{
         if(! isRecording) {
             RemConfig remConfig = new RemConfig(recordingSettings.getChannelsLabels());
-            RemAdapter remAdapter = new RemAdapter(recordingBdfConfig,remConfig, eogRemFrequency, accelerometerRemFrequency);
-            remAdapter.setActiveChannels(recordingSettings.getActiveChannels());
-            DataStore dataStore = new DataStore(bdfProvider, remAdapter.getDividers());
+            RemConfigurator remConfigurator = new RemConfigurator(recordingBdfConfig,remConfig, eogRemFrequency, accelerometerRemFrequency);
+            remConfigurator.setActiveChannels(recordingSettings.getActiveChannels());
+            int[] dividers = remConfigurator.getDividers();
+            int numberOfRecordsToJoin = remConfigurator.getNumberOfRecordsToJoin();
+            BdfProvider joinedBdfProvider = new BdfRecordsJoiner(bdfProvider, numberOfRecordsToJoin);
+            DataStore dataStore = new DataStore(joinedBdfProvider, remConfigurator.getDividers());
             mainWindow.setDataStore(dataStore);
-            bdfProvider.startReading();
+            joinedBdfProvider.startReading();
             isRecording = true;
             System.out.println("file to save: "+recordingSettings.getFile().getAbsolutePath());
         }

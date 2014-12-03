@@ -76,4 +76,5 @@ public class RecordingBdfConfig extends DeviceBdfConfig implements BdfConfig {
         }
         return  signalsLabels;
     }
+
 }
