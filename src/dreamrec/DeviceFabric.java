@@ -1,22 +1,21 @@
 package dreamrec;
 
-import bdf.BdfProvider;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
  *
  */
-public class ApplicationFactory {
-    private static final Log log = LogFactory.getLog(ApplicationFactory.class);
-    private  BdfProvider device;
+public class DeviceFabric {
+    private static final Log log = LogFactory.getLog(DeviceFabric.class);
+    private  BdfDevice device;
     private  ApplicationConfig config;
 
-    public ApplicationFactory(ApplicationConfig config) {
+    public DeviceFabric(ApplicationConfig config) {
         this.config = config;
     }
 
-    public BdfProvider getDeviceImplementation() throws ApplicationException {
+   synchronized public BdfDevice getDeviceImplementation() throws ApplicationException {
         if(device == null) {
             String deviceClassName = config.getDeviceClassName();
             if(deviceClassName == null) {
@@ -24,7 +23,7 @@ public class ApplicationFactory {
             }
             try {
                 Class deviceClass = Class.forName(deviceClassName);
-                device = (BdfProvider)deviceClass.newInstance();
+                device = (BdfDevice)deviceClass.newInstance();
             } catch (ClassNotFoundException e) {
                 log.error(e);
                 throw new ApplicationException("Device Implementing Class is not found ");

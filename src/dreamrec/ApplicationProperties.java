@@ -43,12 +43,16 @@ public class ApplicationProperties implements ApplicationConfig {
 
     @Override
     public void setDirectoryToSave(String directory) {
-        config.setProperty(DIRECTORY_TO_SAVE, directory);
+        if(directory != null) {
+            config.setProperty(DIRECTORY_TO_SAVE, directory);
+        }
     }
 
     @Override
     public void setDirectoryToRead(String directory) {
-        config.setProperty(DIRECTORY_TO_READ, directory);
+        if(directory != null) {
+            config.setProperty(DIRECTORY_TO_READ, directory);
+        }
     }
 
     @Override

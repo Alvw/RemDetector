@@ -6,7 +6,7 @@ package bdf;
  */
 public class RecordingBdfConfig extends DeviceBdfConfig implements BdfConfig {
 
-    private long startTime;
+    private long startTime = -1;
     private String patientIdentification;
     private String recordingIdentification;
     private int numberOfDataRecords = -1;
@@ -77,4 +77,33 @@ public class RecordingBdfConfig extends DeviceBdfConfig implements BdfConfig {
         return  signalsLabels;
     }
 
+    /*
+  * we suppose:
+  * 1)  that "ideal/theoretical" number of records per seconds(rps) = 1/durationOfDataRecord is integer. Or durationOfDataRecord is already integer
+  * 2) Real durationOfDataRecord is only slightly different from its supposed theoretical value
+  * So for example instead of 500 Hz real frequency will be 503 Hz or so on
+  *
+  * Here we calculate that theoretical normalized DurationOfData record on the base of its real value
+  */
+    public double getNormalizedDurationOfDataRecord() {
+        double normalizedDurationOfDataRecord;
+        if(durationOfDataRecord > 3/4) { // case durationOfDataRecord is integer
+            normalizedDurationOfDataRecord = Math.round(durationOfDataRecord);
+        }
+        else { // duration of data record is 1/2, 1/3, 1/4 ....
+            long rps = Math.round(1 / durationOfDataRecord);
+            normalizedDurationOfDataRecord = (1.0 / rps);
+        }
+        return normalizedDurationOfDataRecord;
+    }
+
+    public int[] getNormalizedSignalsFrequencies() {
+        double normalizedDurationOfDataRecord = getNormalizedDurationOfDataRecord();
+        int[] numbersOfSamplesInEachDataRecord = getNumbersOfSamplesInEachDataRecord();
+        int[] normalizedFrequencies = new int[numbersOfSamplesInEachDataRecord.length];
+        for(int i = 0; i < numbersOfSamplesInEachDataRecord.length; i++) {
+            normalizedFrequencies[i] = (int) (numbersOfSamplesInEachDataRecord[i] / normalizedDurationOfDataRecord);
+        }
+        return normalizedFrequencies;
+    }
 }

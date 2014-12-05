@@ -3,7 +3,6 @@ package bdf;
 import dreamrec.ApplicationException;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * Created by mac on 02/12/14.
@@ -70,6 +69,11 @@ public class BdfRecordsJoiner implements BdfProvider, BdfListener {
     @Override
     public void addBdfDataListener(BdfListener bdfListener) {
         listeners.add(bdfListener);
+    }
+
+    @Override
+    public void removeBdfDataListener(BdfListener bdfListener) {
+        listeners.remove(bdfListener);
     }
 
     @Override

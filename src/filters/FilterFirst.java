@@ -1,28 +1,28 @@
 package filters;
 
 import data.DataSet;
-import graph.GraphsViewer;
+import graph.GraphsView;
 
 /**
  *
  */
 public class FilterFirst extends FilterBuffered {
 
-    private GraphsViewer graphsViewer;
+    private GraphsView graphsView;
      private int offset = 640;
      int bufferSize = 100;
 
-     public FilterFirst(DataSet inputData, GraphsViewer graphsViewer) {
+     public FilterFirst(DataSet inputData, GraphsView graphsView) {
          super(inputData);
-         this.graphsViewer = graphsViewer;
+         this.graphsView = graphsView;
      }
 
      // @Override
      protected int getData_(int index) {
-         int offsetLevel = graphsViewer.getStartIndex() + offset;
+         int offsetLevel = graphsView.getStartIndex() + offset;
          if(offsetLevel >= size())
          {
-             offsetLevel = (size() - graphsViewer.getStartIndex())/2;
+             offsetLevel = (size() - graphsView.getStartIndex())/2;
          }
          return inputData.get(index) - inputData.get(offsetLevel);
      }

@@ -3,6 +3,7 @@ package dreamrec;
 import bdf.*;
 import com.apple.eawt.Application;
 import data.DataList;
+import data.DataSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -29,6 +30,13 @@ public class DataStore implements BdfListener {
     private long startTime;
     private BdfParser bdfParser;
     private volatile boolean isReadingStopped = false;
+
+    public void clear() {
+        for(DataList channel : channelsList) {
+            channel.clear();
+        }
+        dataRecordsBuffer.clear();
+    }
 
     public DataStore(BdfProvider bdfProvider, int[] frequencyDividers) throws ApplicationException{
         BdfConfig bdfConfig = bdfProvider.getBdfConfig();
@@ -119,6 +127,9 @@ public class DataStore implements BdfListener {
         return startTime;
     }
 
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
+    }
 
     private void notifyListeners() {
         for (DataStoreListener listener : updateListeners) {

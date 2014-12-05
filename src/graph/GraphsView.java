@@ -13,7 +13,7 @@ import java.util.ArrayList;
 /**
  *
  */
-public class GraphsViewer extends JPanel {
+public class GraphsView extends JPanel {
     public  int compression = 750;
     private double timeFrequency = 0;
 
@@ -33,7 +33,7 @@ public class GraphsViewer extends JPanel {
     private JScrollPane scrollPanel = new JScrollPane(scrollablePanel, JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
     private ViewController viewController = new ViewController();
 
-    public GraphsViewer() {
+    public GraphsView() {
         setLayout(new BorderLayout());
         paintingPanel.setBackground(BG_COLOR);
         paintingPanel.setLayout(new BoxLayout(paintingPanel, BoxLayout.Y_AXIS));

@@ -9,7 +9,7 @@ import java.io.File;
  */
 public class RecordingSettings {
     private String[] channelsLabels;
-    private double[] channelsFrequencies;
+    private int[] channelsFrequencies;
     private String patientIdentification;
     private String recordingIdentification;
     private boolean[] activeChannels;
@@ -25,14 +25,14 @@ public class RecordingSettings {
         this(recordingBdfConfig.getSignalsLabels());
         patientIdentification = recordingBdfConfig.getPatientIdentification();
         recordingIdentification = recordingBdfConfig.getRecordingIdentification();
-        channelsFrequencies = recordingBdfConfig.getSignalsFrequencies();
+        channelsFrequencies = recordingBdfConfig.getNormalizedSignalsFrequencies();
     }
 
     public String[] getChannelsLabels() {
         return channelsLabels;
     }
 
-    public double[] getChannelsFrequencies() {
+    public int[] getChannelsFrequencies() {
         return channelsFrequencies;
     }
 

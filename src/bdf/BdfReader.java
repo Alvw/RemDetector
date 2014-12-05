@@ -22,6 +22,7 @@ public class BdfReader implements BdfProvider {
 
     private ArrayList<BdfListener> bdfListenersList = new ArrayList<BdfListener>();
 
+
     public BdfReader(File file) throws ApplicationException {
         try {
             BdfHeaderReader bdfHeaderReader = new BdfHeaderReader(file);
@@ -101,6 +102,10 @@ public class BdfReader implements BdfProvider {
         bdfListenersList.add(bdfBdfListener);
     }
 
+    @Override
+    public void removeBdfDataListener(BdfListener bdfListener) {
+        bdfListenersList.remove(bdfListener);
+    }
 
     @Override
     public RecordingBdfConfig getBdfConfig() {

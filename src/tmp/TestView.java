@@ -2,7 +2,7 @@ package tmp;
 
 import data.DataSet;
 import filters.*;
-import graph.GraphsViewer;
+import graph.GraphsView;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,7 +12,7 @@ import java.awt.*;
  */
 public class TestView extends JFrame {
     private String title = "Dream Recorder";
-    private GraphsViewer graphsViewer;
+    private GraphsView graphsView;
     private  JMenuBar menu = new JMenuBar();
     private int COMPRESSION = 50;
 
@@ -20,15 +20,15 @@ public class TestView extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setTitle(title);
 
-        graphsViewer = new GraphsViewer();
-        graphsViewer.setPreferredSize(getWorkspaceDimention());
+        graphsView = new GraphsView();
+        graphsView.setPreferredSize(getWorkspaceDimention());
 
-        graphsViewer.addGraphPanel(1, true);
-        graphsViewer.addGraphPanel(1, true);
+        graphsView.addGraphPanel(1, true);
+        graphsView.addGraphPanel(1, true);
 //        graphsViewer.addGraphPanel(1, true);
 
-        graphsViewer.addPreviewPanel(1, false);
-        graphsViewer.setCompression(COMPRESSION);
+        graphsView.addPreviewPanel(1, false);
+        graphsView.setCompression(COMPRESSION);
 
         TestData data = new TestData();
         DataSet testData = data.getCosStream();
@@ -36,7 +36,7 @@ public class TestView extends JFrame {
         DataSet filteredData = new FilterBandPass_Alfa(testData);
 //        DataStream filteredData = new FilterBandPass_Delta_1(testData);
 
-        DataSet compressedFilteredData = new CompressorMaximizing(filteredData, graphsViewer.getCompression());
+        DataSet compressedFilteredData = new CompressorMaximizing(filteredData, graphsView.getCompression());
 
 /*        graphsViewer.addGraphs(0, testData);
         graphsViewer.addGraphs(0, data.getPeriodStream());
@@ -53,7 +53,7 @@ public class TestView extends JFrame {
     }
 
     public void syncView() {
-        graphsViewer.syncView();
+        graphsView.syncView();
     }
 
     public void showMessage(String s) {

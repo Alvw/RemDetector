@@ -1,7 +1,7 @@
 package tmp;
 
 import dreamrec.Controller;
-import graph.GraphsViewer;
+import graph.GraphsView;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,7 +15,7 @@ import java.awt.event.KeyEvent;
  */
 public class GenaView extends JFrame {
     private String title = "Dream Recorder";
-    private GraphsViewer graphsViewer;
+    private GraphsView graphsView;
     private  JMenuBar menu = new JMenuBar();
     private ApparatModel model;
     private Controller controller;
@@ -33,23 +33,23 @@ public class GenaView extends JFrame {
             @Override
             public void keyPressed(KeyEvent e) {
                 super.keyPressed(e);
-                graphsViewer.dispatchEvent(e); // send KeyEvent to graphsViewer
+                graphsView.dispatchEvent(e); // send KeyEvent to graphsViewer
                 int key = e.getKeyCode();
                 if (key == KeyEvent.VK_UP) {
                     model.movementLimitUp();
-                    graphsViewer.syncView();
+                    graphsView.syncView();
                 }
 
                 if (key == KeyEvent.VK_DOWN) {
                     model.movementLimitDown();
-                    graphsViewer.syncView();
+                    graphsView.syncView();
                 }
             }
         });
 
-        graphsViewer = new GraphsViewer();
-        graphsViewer.setPreferredSize(getWorkspaceDimention());
-        add(graphsViewer, BorderLayout.CENTER);
+        graphsView = new GraphsView();
+        graphsView.setPreferredSize(getWorkspaceDimention());
+        add(graphsView, BorderLayout.CENTER);
 
       // formGenaViewer();
 

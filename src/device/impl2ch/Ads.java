@@ -1,6 +1,7 @@
 package device.impl2ch;
 
 import bdf.*;
+import dreamrec.BdfDevice;
 import gnu.io.NoSuchPortException;
 import gnu.io.PortInUseException;
 import org.apache.commons.logging.Log;
@@ -12,7 +13,7 @@ import java.util.List;
 /**
  *
  */
-public class Ads implements BdfProvider {
+public class Ads implements BdfDevice {
 
     private static final Log log = LogFactory.getLog(Ads.class);
 
@@ -20,7 +21,7 @@ public class Ads implements BdfProvider {
     private ComPort comPort;
     private boolean isRecording;
     AdsConfiguration adsConfiguration;
-    private RecordingBdfConfig recordingConfig;
+    private DeviceBdfConfig deviceBdfConfig;
 
     public Ads() {
         adsConfiguration = new AdsConfigUtil().readConfiguration();
@@ -80,11 +81,16 @@ public class Ads implements BdfProvider {
     }
 
     @Override
-    public BdfConfig getBdfConfig() {
-        if(recordingConfig == null) {
-            recordingConfig = createBdfConfig();
+    public void removeBdfDataListener(BdfListener bdfListener) {
+        bdfListeners.remove(bdfListener);
+    }
+
+    @Override
+    public DeviceBdfConfig getBdfConfig() {
+        if(deviceBdfConfig == null) {
+            deviceBdfConfig = createBdfConfig();
         }
-        return recordingConfig;
+        return deviceBdfConfig;
     }
 
 

@@ -73,6 +73,14 @@ public class DataList implements DataSet {
         }
     }
 
+
+    public void clear() {
+        if(intArrayList != null) {
+            intArrayList.clear();
+        }
+        arrayList.clear();
+    }
+
     @Override
     public int size() {
         if(intArrayList != null) {
@@ -93,4 +101,5 @@ public class DataList implements DataSet {
     public double getFrequency() {
         return frequency;
     }
+
 }

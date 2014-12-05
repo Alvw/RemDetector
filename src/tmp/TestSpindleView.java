@@ -1,16 +1,14 @@
 package tmp;
 
 
-import data.DataSet;
-import filters.*;
-import graph.GraphsViewer;
+import graph.GraphsView;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class TestSpindleView extends JFrame {
     private String title = "Spindle Test";
-    private GraphsViewer graphsViewer;
+    private GraphsView graphsView;
     private  JMenuBar menu = new JMenuBar();
 
 
@@ -18,12 +16,12 @@ public class TestSpindleView extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setTitle(title);
 
-        graphsViewer = new GraphsViewer();
-        graphsViewer.setPreferredSize(getWorkspaceDimention());
+        graphsView = new GraphsView();
+        graphsView.setPreferredSize(getWorkspaceDimention());
 
-        graphsViewer.addGraphPanel(8, true);
-        graphsViewer.addGraphPanel(8, true);
-        graphsViewer.addPreviewPanel(1, true);
+        graphsView.addGraphPanel(8, true);
+        graphsView.addGraphPanel(8, true);
+        graphsView.addPreviewPanel(1, true);
 
 
 /*        DataSet testData = new TestSpindle().getDataStream();
@@ -40,7 +38,7 @@ public class TestSpindleView extends JFrame {
     }
 
     public void syncView() {
-        graphsViewer.syncView();
+        graphsView.syncView();
     }
 
     public void showMessage(String s) {
