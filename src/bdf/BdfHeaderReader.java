@@ -45,10 +45,11 @@ nr of samples[ns] * integer : last signal
 
 public class BdfHeaderReader {
     private static final Log log = LogFactory.getLog(BdfHeaderReader.class);
-    RecordingBdfConfig recordingBdfConfig;
 
-    public BdfHeaderReader(File file) throws ApplicationException {
+
+    public static RecordingBdfConfig readBdfHeader(File file) throws ApplicationException {
         BufferedReader reader = null;
+        RecordingBdfConfig recordingBdfConfig;
         try {
             reader = new BufferedReader(new FileReader(file));
             int VERSION_LENGTH = 8;
@@ -194,6 +195,8 @@ public class BdfHeaderReader {
             recordingBdfConfig.setNumberOfDataRecords(numberOfDataRecords);
             reader.close();
 
+            return recordingBdfConfig;
+
         } catch (Exception e) {
             log.error(e);
             throw new ApplicationException("Error while reading from file " + file.getName());
@@ -206,11 +209,8 @@ public class BdfHeaderReader {
         }
     }
 
-    public RecordingBdfConfig getRecordingBdfConfig() {
-        return recordingBdfConfig;
-    }
 
-    private Integer stringToInt(String str) throws  ApplicationException {
+    private static Integer stringToInt(String str) throws  ApplicationException {
         try {
             str = str.trim();
             return Integer.valueOf(str);
@@ -220,7 +220,7 @@ public class BdfHeaderReader {
         }
     }
 
-    private Double stringToDouble(String str) throws  ApplicationException {
+    private static Double stringToDouble(String str) throws  ApplicationException {
         try {
             str = str.trim();
             return Double.valueOf(str);

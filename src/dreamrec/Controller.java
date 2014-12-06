@@ -1,9 +1,6 @@
 package dreamrec;
 
-import bdf.BdfProvider;
-import bdf.BdfReader;
-import bdf.BdfRecordsJoiner;
-import bdf.RecordingBdfConfig;
+import bdf.*;
 import gui.View;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -29,6 +26,7 @@ public class Controller {
     private String currentDirToSave;
     private File fileToRead;
     private File fileToSave;
+    private BdfWriter bdfWriter;
 
     public Controller(ApplicationConfig applicationConfig, BdfDevice bdfDevice) {
         this.applicationConfig = applicationConfig;
@@ -49,6 +47,7 @@ public class Controller {
             try {
                 bdfProvider.stopReading();
                 bdfProvider.removeBdfDataListener(dataStore);
+                bdfProvider.removeBdfDataListener(bdfWriter);
                 isRecording = false;
             } catch (ApplicationException e) {
                 mainWindow.showMessage(e.getMessage());
@@ -59,10 +58,20 @@ public class Controller {
         isRecording = false;
     }
 
-    private void saveToFile(String filename, String dir) {
-        if (filename == null) {
-            filename = new SimpleDateFormat("dd-MM-yyyy_HH-mm").format(new Date(System.currentTimeMillis())) + ".drm";
+    private void saveToFile(String dir)  throws  ApplicationException{
+        String filename = new SimpleDateFormat("dd-MM-yyyy_HH-mm").format(new Date(System.currentTimeMillis())) + ".drm";
+        saveToFile(new File(filename, dir));
+    }
+
+    private void saveToFile(File file)  throws  ApplicationException{
+        if(fileToRead != null && fileToRead.equals(fileToSave)) {
+            BdfHeaderWriter.writeBdfHeader(recordingBdfConfig, file);
         }
+        else {
+            bdfWriter = new BdfWriter(recordingBdfConfig, file);
+            bdfProvider.addBdfDataListener(bdfWriter);
+        }
+
     }
 
     public void closeApplication() {
@@ -92,7 +101,6 @@ public class Controller {
             } else {
                 throw new ApplicationException("File: " + file + " is not valid");
             }
-
         } catch (ApplicationException e) {
             mainWindow.showMessage("Bdf File reading is failed!");
         }
@@ -102,6 +110,7 @@ public class Controller {
         if (!isRecording) {
             bdfProvider = bdfDevice;
             recordingBdfConfig = new RecordingBdfConfig(bdfDevice.getBdfConfig());
+            fileToRead = null;
             RecordingSettings recordingSettings = new RecordingSettings(recordingBdfConfig);
             boolean[] isChannelsActive = RemConfig.isRemLabels(recordingBdfConfig.getSignalsLabels());
             recordingSettings.setActiveChannels(isChannelsActive);
@@ -118,12 +127,25 @@ public class Controller {
         int numberOfRecordsToJoin = remConfigurator.getNumberOfRecordsToJoin();
         BdfProvider joinedBdfProvider = new BdfRecordsJoiner(bdfProvider, numberOfRecordsToJoin);
         if (dataStore != null) {
-            dataStore.clear(); // to free memory occupied by old DataStore
+            dataStore.clear(); // stop update timer and free memory occupied by old DataStore
         }
         dataStore = new DataStore(joinedBdfProvider, remConfigurator.getDividers());
         dataStore.addListener(mainWindow);
         dataStore.setStartTime(recordingBdfConfig.getStartTime());
         GraphsConfigurator.configurate(mainWindow, dataStore);
+
+        recordingBdfConfig.setPatientIdentification(recordingSettings.getPatientIdentification());
+        recordingBdfConfig.setRecordingIdentification(recordingSettings.getRecordingIdentification());
+        recordingBdfConfig.setSignalsLabels(recordingSettings.getChannelsLabels());
+        File fileToSave = recordingSettings.getFile();
+        currentDirToSave = recordingSettings.getDirectoryToSave();
+        if(fileToSave != null) {
+            saveToFile(fileToSave);
+        }
+        else {
+            saveToFile(currentDirToSave);
+        }
+
         joinedBdfProvider.startReading();
         isRecording = true;
         System.out.println("file to save: " + recordingSettings.getFile().getAbsolutePath());

@@ -78,7 +78,10 @@ public class DataList implements DataSet {
         if(intArrayList != null) {
             intArrayList.clear();
         }
-        arrayList.clear();
+        else{
+            arrayList.clear();
+        }
+
     }
 
     @Override

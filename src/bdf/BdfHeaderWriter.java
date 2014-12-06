@@ -1,6 +1,14 @@
 package bdf;
 
 
+import dreamrec.ApplicationException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
@@ -8,9 +16,39 @@ import java.util.Date;
 
 import static com.crostec.ads.AdsUtils.adjustLength;
 
-class BdfHeaderWriter {
+public class BdfHeaderWriter {
+    private static final Log LOG = LogFactory.getLog(BdfHeaderWriter.class);
+
+    public static void writeBdfHeader(RecordingBdfConfig recordingBdfConfig, File fileToSave)  throws ApplicationException {
+        RandomAccessFile fileAccess;
+        try {
+            fileAccess = new RandomAccessFile(fileToSave, "rw");
+
+        } catch (FileNotFoundException e) {
+            LOG.error(e);
+            throw new ApplicationException("File: " + fileToSave.getAbsolutePath() + "could not be written");
+        }
+
+        try {
+            fileAccess.write(createBdfHeader(recordingBdfConfig));
+            fileAccess.close();
+        } catch (IOException e) {
+            LOG.error(e);
+            throw new RuntimeException(e);
+        }
+    }
 
     public static byte[] createBdfHeader(RecordingBdfConfig recordingBdfConfig) {
+        return createBdfHeader(recordingBdfConfig, 0);
+    }
+
+    public static byte[] createBdfHeader(RecordingBdfConfig recordingBdfConfig, double  actualDurationOfDataRecord) {
+        double  durationOfDataRecord = recordingBdfConfig.getDurationOfDataRecord();
+
+        if(actualDurationOfDataRecord > 0) {
+             durationOfDataRecord = actualDurationOfDataRecord;
+        }
+
         Charset characterSet = Charset.forName("US-ASCII");
         StringBuilder bdfHeader = new StringBuilder();
 
@@ -44,7 +82,7 @@ class BdfHeaderWriter {
         bdfHeader.append(adjustLength(Integer.toString(numberOfBytesInHeaderRecord), 8));
         bdfHeader.append(adjustLength(versionOfDataFormat, 44));
         bdfHeader.append(adjustLength(Integer.toString(numberOfDataRecords), 8));
-        bdfHeader.append(adjustLength(String.format("%.6f", recordingBdfConfig.getDurationOfDataRecord()).replace(",", "."), 8));
+        bdfHeader.append(adjustLength(String.format("%.6f", durationOfDataRecord).replace(",", "."), 8));
         bdfHeader.append(adjustLength(Integer.toString(numberOfSignals), 4));
 
         StringBuilder labels = new StringBuilder();
