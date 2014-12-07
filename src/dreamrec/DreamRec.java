@@ -16,7 +16,6 @@ public class DreamRec {
             DeviceFabric deviceFabric = new DeviceFabric(applicationConfig);
             Controller controller = new Controller(applicationConfig, deviceFabric.getDeviceImplementation());
             View mainWindow = new View(controller);
-            controller.setView(mainWindow);
 
         } catch (ApplicationException e) {
 

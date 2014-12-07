@@ -1,9 +1,7 @@
 package dreamrec;
 
 import bdf.*;
-import com.apple.eawt.Application;
 import data.DataList;
-import data.DataSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -27,11 +25,13 @@ public class DataStore implements BdfListener {
     private int[] dividers; // frequency dividers or 0 - if signal is disabled
     private Timer updateTimer;
     private int UPDATE_DELAY = 250;
-    private long startTime;
-    private int numberOfDataRecords = -1;
+
     private BdfParser bdfParser;
     private BdfConfig bdfConfig;
     private volatile boolean isReadingStopped = false;
+    private volatile boolean isReadingStarted = false;
+    private volatile  int numberOfDataRecords = -1;
+    private volatile long startTime;
 
     public void clear() {
         updateTimer.stop();
@@ -81,7 +81,17 @@ public class DataStore implements BdfListener {
         updateTimer = new Timer(UPDATE_DELAY, new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 processBufferedData();
-                notifyListeners();
+                if(isReadingStarted) {
+                    for (DataStoreListener listener : updateListeners) {
+                        listener.onStart(startTime);
+                    }
+                    isReadingStarted = false;
+                }
+
+                for (DataStoreListener listener : updateListeners) {
+                    listener.onDataUpdate();
+                }
+
                 if (isReadingStopped) {
                     updateTimer.stop();
                 }
@@ -102,9 +112,13 @@ public class DataStore implements BdfListener {
     @Override
     public void onDataRecordReceived(byte[] dataRecord) {
         numberOfDataRecords++;
-        if (startTime == -1 && numberOfDataRecords == 0) {
-            startTime = System.currentTimeMillis() - (long) bdfConfig.getDurationOfDataRecord(); //1 second (1000 msec) duration of a data record
+        if(numberOfDataRecords == 0) {
+            if (startTime == -1) {
+                startTime = System.currentTimeMillis() - (long) bdfConfig.getDurationOfDataRecord(); //1 second (1000 msec) duration of a data record
+            }
+            isReadingStarted = true;
         }
+
         if (SwingUtilities.isEventDispatchThread()) { // if data comes from gui thread we process it at once
             processDataRecord(dataRecord);
         } else {
@@ -130,19 +144,11 @@ public class DataStore implements BdfListener {
         return channelsList[signalNumber];
     }
 
-    public long getStartTime() {
-        return startTime;
-    }
 
     public void setStartTime(long startTime) {
         this.startTime = startTime;
     }
 
-    private void notifyListeners() {
-        for (DataStoreListener listener : updateListeners) {
-            listener.onDataStoreUpdate();
-        }
-    }
 
     private void processBufferedData() {
         while (dataRecordsBuffer.size() > 0) {
