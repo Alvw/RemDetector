@@ -87,7 +87,7 @@ public class RecordingBdfConfig extends DeviceBdfConfig implements BdfConfig {
   */
     public double getNormalizedDurationOfDataRecord() {
         double normalizedDurationOfDataRecord;
-        if(durationOfDataRecord > 3/4) { // case durationOfDataRecord is integer
+        if(durationOfDataRecord > 3.0/4) { // case durationOfDataRecord is integer
             normalizedDurationOfDataRecord = Math.round(durationOfDataRecord);
         }
         else { // duration of data record is 1/2, 1/3, 1/4 ....

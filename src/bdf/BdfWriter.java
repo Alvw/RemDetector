@@ -72,8 +72,8 @@ public class BdfWriter implements BdfListener {
 
         try {
             fileToSave.seek(0);
-           // fileToSave.write(BdfHeaderWriter.createBdfHeader(recordingBdfConfig, actualDurationOfDataRecord));
-            fileToSave.write(BdfHeaderWriter.createBdfHeader(recordingBdfConfig));
+            fileToSave.write(BdfHeaderWriter.createBdfHeader(recordingBdfConfig, actualDurationOfDataRecord));
+            //fileToSave.write(BdfHeaderWriter.createBdfHeader(recordingBdfConfig));
             fileToSave.close();
         } catch (IOException e) {
             LOG.error(e);

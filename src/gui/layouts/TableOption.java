@@ -1,4 +1,4 @@
-package gui;
+package gui.layouts;
 
 import java.util.StringTokenizer;
 

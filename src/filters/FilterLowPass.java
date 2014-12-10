@@ -9,7 +9,7 @@ import data.DataSet;
 public class FilterLowPass extends FilterBuffered {
     private int bufferSize;
     private int indexBefore = -10;
-    private int sumBefore = 0;
+    private long sumBefore = 0;
 
     public FilterLowPass(DataSet inputData, int bufferSize) {
         super(inputData);
@@ -24,7 +24,7 @@ public class FilterLowPass extends FilterBuffered {
         if (index >= size()- bufferSize) {
             return 0;
         }
-        int sum = 0;
+        long sum = 0;
         if(index == (indexBefore +1)) {
             sum = sumBefore + inputData.get(index + bufferSize) - inputData.get(index - bufferSize);
             sumBefore = sum;
@@ -35,6 +35,6 @@ public class FilterLowPass extends FilterBuffered {
                 sum += inputData.get(i);
             }
         }
-        return sum/(2*bufferSize);
+        return (int)(sum/(2*bufferSize));
     }
 }

@@ -3,7 +3,7 @@ package dreamrec;
 import data.DataSet;
 import filters.*;
 import gui.DataView;
-import gui.View;
+import gui.MainWindow;
 
 /**
  * Created by mac on 04/12/14.
@@ -18,9 +18,10 @@ public class GraphsConfigurator {
         DataSet channel_1 = dataStore.getChannelData(0);
         DataSet channel_2 = dataStore.getChannelData(2);
 
-        //  graphsViewer.addGraph(0, new FilterHiPass(channel_1, 100));
         view.addGraphPanel(1, true);
-        view.addGraphs(new FilterOffset_1(channel_1, view));
+        //iew.addGraphs(new FilterOffset_1(channel_1, view));
+        //  graphsViewer.addGraphs(new FilterHiPass(channel_1, 100));
+        view.addGraphs(channel_1);
         view.addGraphPanel(1, true);
         view.addGraphs(new FilterDerivative(channel_1));
         view.addGraphPanel(1, true);
@@ -32,11 +33,11 @@ public class GraphsConfigurator {
         view.addPreviews(compressedVelocityRem);
     }
 
-    private static void GalaConfiguration(View view, DataStore dataStore) {
+    private static void GalaConfiguration(MainWindow mainWindow, DataStore dataStore) {
 
     }
 
-    private static void GenaConfiguration(View view, DataStore dataStore) {
+    private static void GenaConfiguration(MainWindow mainWindow, DataStore dataStore) {
 
     }
 }

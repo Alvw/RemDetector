@@ -1,6 +1,9 @@
 package dreamrec;
 
 import bdf.RecordingBdfConfig;
+import prefilters.FrequencyDividingPreFilter;
+import prefilters.HiPassPreFilter;
+import prefilters.PreFilter;
 
 /**
  *
@@ -8,20 +11,32 @@ import bdf.RecordingBdfConfig;
 public class RemConfigurator {
     private int eogRemFrequency;
     private int accelerometerRemFrequency;
+    private int eogRemCutoffPeriod;
+
     private RecordingBdfConfig bdfConfig;
     private RemConfig remConfig;
     boolean[] activeChannels;
 
 
-    public RemConfigurator(RecordingBdfConfig bdfConfig, RemConfig remConfig, int eogRemFrequency, int accelerometerRemFrequency) {
-        this.eogRemFrequency = eogRemFrequency;
-        this.accelerometerRemFrequency = accelerometerRemFrequency;
+    public RemConfigurator(RecordingBdfConfig bdfConfig, RemConfig remConfig) {
         this.bdfConfig = bdfConfig;
         this.remConfig = remConfig;
         activeChannels = new boolean[bdfConfig.getNumberOfSignals()];
         for(int i = 0; i < activeChannels.length; i++) {
             activeChannels[i] = false;
         }
+     }
+
+    public void setEogRemFrequency(int eogRemFrequency) {
+        this.eogRemFrequency = eogRemFrequency;
+    }
+
+    public void setAccelerometerRemFrequency(int accelerometerRemFrequency) {
+        this.accelerometerRemFrequency = accelerometerRemFrequency;
+    }
+
+    public void setEogRemCutoffPeriod(int eogRemCutoffPeriod) {
+        this.eogRemCutoffPeriod = eogRemCutoffPeriod;
     }
 
 
@@ -39,10 +54,7 @@ public class RemConfigurator {
             return 1;
         }
         int rps = (int) (1/normalizedDurationOfDataRecord);
-        if((rps % RPS_MIN) != 0) {
-            return rps;
-        }
-        if((eogRemFrequency % RPS_MIN) != 0 || (accelerometerRemFrequency % RPS_MIN) != 0) {
+        if((rps % RPS_MIN) != 0 || (eogRemFrequency % RPS_MIN) != 0 || (accelerometerRemFrequency % RPS_MIN) != 0) {
             return rps;
         }
         int[] frequencies = bdfConfig.getNormalizedSignalsFrequencies();
@@ -64,35 +76,48 @@ public class RemConfigurator {
         }
     }
 
-    public int[] getDividers() throws ApplicationException {
+    public PreFilter[] getPreFilters() throws ApplicationException {
+        int rps = (int) (1/bdfConfig.getDurationOfDataRecord());
+        if(rps > 10000) { // real max sps is about 2000... So if it is more 10000... something wrong and we just do nothing
+            String errorMsg = "Frequencies are too high for REM mode";
+            throw new ApplicationException(errorMsg);
+        }
         int[] frequencies = bdfConfig.getNormalizedSignalsFrequencies();
-        int[] dividers = new int[frequencies.length];
-        for(int i = 0; i < dividers.length; i++) {
-            dividers[i] = 0;
+        PreFilter[] preFilters = new PreFilter[frequencies.length];
+        for(int i = 0; i < preFilters.length; i++) {
             if(activeChannels[i]) {
-                dividers[i] = 1;
                 if (eogRemFrequency != 0 && (frequencies[i] % eogRemFrequency) == 0) {
-                    dividers[i] = frequencies[i] / eogRemFrequency;
+                    int divider = frequencies[i] / eogRemFrequency;
+                    if(divider > 1) {
+                        preFilters[i] = new FrequencyDividingPreFilter(divider);
+                    }
                 }
             }
             if(eogRemFrequency != 0 && i == remConfig.getEog() ) {
                 if ((frequencies[i] % eogRemFrequency) == 0) {
-                    dividers[i] = frequencies[i] / eogRemFrequency;
+                    int divider = frequencies[i] / eogRemFrequency;
+                    if(divider > 1) {
+                        int bufferSize = eogRemFrequency * eogRemCutoffPeriod;
+                        preFilters[i] = new FrequencyDividingPreFilter(new HiPassPreFilter(bufferSize), divider);
+                    }
                 } else {
-                    String errorMsg = "Eog Frequency= " + frequencies[i] + "\n is not divisible by EogRemFrequency=" + eogRemFrequency;
+                    String errorMsg = "Eog Frequency= " + frequencies[i] + " is not divisible by EogRemFrequency=" + eogRemFrequency;
                     throw new ApplicationException(errorMsg);
                 }
             }
             if(accelerometerRemFrequency != 0 && (i == remConfig.getAccelerometerX() || i == remConfig.getAccelerometerY() || i == remConfig.getAccelerometerZ())) {
                 if((frequencies[i] % accelerometerRemFrequency) == 0 ) {
-                    dividers[i] = frequencies[i] / accelerometerRemFrequency;
+                    int divider = frequencies[i] / accelerometerRemFrequency;
+                    if(divider > 1) {
+                        preFilters[i] = new FrequencyDividingPreFilter(divider);
+                    }
                 }
                 else {
-                    String errorMsg = "Accelerometer Frequency= "+frequencies[i] + "\n is not divisible by AccelerometerRemFrequency="+accelerometerRemFrequency;
+                    String errorMsg = "Accelerometer Frequency= "+frequencies[i] + " is not divisible by AccelerometerRemFrequency="+accelerometerRemFrequency;
                     throw new ApplicationException(errorMsg);
                 }
             }
         }
-        return dividers;
+        return preFilters;
     }
 }

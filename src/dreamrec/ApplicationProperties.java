@@ -18,6 +18,7 @@ public class ApplicationProperties implements ApplicationConfig {
     private static final String DEVICE_ACCELEROMETER_Z = "accelerometerZ_channel_number";
     private static final String ACCELEROMETER_REM_FREQUENCY = "accelerometer_rem_frequency";
     private static final String EOG_REM_FREQUENCY = "eog_rem_frequency";
+    private static final String EOG_REM_CUTOFF_PERIOD = "eog_rem_cutoff_period";
     private static final String IS_FREQUENCY_AUTO_ADJUSTMENT = "is_frequency_auto_adjustment";
 
     private static PropertiesConfiguration config;
@@ -108,5 +109,10 @@ public class ApplicationProperties implements ApplicationConfig {
 
     private String getDeviceType() {
         return config.getString(DEVICE_TYPE);
+    }
+
+    @Override
+    public int getEogRemCutoffPeriod() {
+        return config.getInt(EOG_REM_CUTOFF_PERIOD);
     }
 }

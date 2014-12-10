@@ -1,6 +1,6 @@
 package dreamrec;
 
-import gui.View;
+import gui.MainWindow;
 
 /**
  * Created by IntelliJ IDEA.
@@ -15,7 +15,7 @@ public class DreamRec {
             ApplicationConfig applicationConfig = new ApplicationProperties();
             DeviceFabric deviceFabric = new DeviceFabric(applicationConfig);
             Controller controller = new Controller(applicationConfig, deviceFabric.getDeviceImplementation());
-            View mainWindow = new View(controller);
+            MainWindow mainWindow = new MainWindow(controller);
 
         } catch (ApplicationException e) {
 

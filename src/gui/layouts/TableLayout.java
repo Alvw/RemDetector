@@ -1,4 +1,4 @@
-package gui;
+package gui.layouts;
 
 // Table layout manager, with the flexibility of GridBagLayout but the ease
 // of use of HTML table declarations.

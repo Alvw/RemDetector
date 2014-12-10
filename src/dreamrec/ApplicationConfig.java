@@ -7,6 +7,7 @@ public interface ApplicationConfig {
     public void setDirectoryToSave(String directory);
     public void setDirectoryToRead(String directory);
 
+
     public String getDeviceClassName();
     public int getEogChannelNumber();
     public int getAccelerometerXChannelNumber();
@@ -15,6 +16,8 @@ public interface ApplicationConfig {
 
     public int getAccelerometerRemFrequency();
     public int getEogRemFrequency();
+
+    public int getEogRemCutoffPeriod();
 
     public boolean isFrequencyAutoAdjustment();
 

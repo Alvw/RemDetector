@@ -17,8 +17,6 @@ public class Controller {
     private BdfDevice bdfDevice;
     private BdfProvider bdfProvider;
     private RecordingBdfConfig recordingBdfConfig;
-    private int eogRemFrequency;
-    private int accelerometerRemFrequency;
     private DataStore dataStore;
     private ApplicationConfig applicationConfig;
     private String currentDirToRead;
@@ -30,8 +28,6 @@ public class Controller {
     public Controller(ApplicationConfig applicationConfig, BdfDevice bdfDevice) {
         this.applicationConfig = applicationConfig;
         this.bdfDevice = bdfDevice;
-        eogRemFrequency = applicationConfig.getEogRemFrequency();
-        accelerometerRemFrequency = applicationConfig.getAccelerometerRemFrequency();
         currentDirToRead = applicationConfig.getDirectoryToRead();
         currentDirToSave = applicationConfig.getDirectoryToSave();
     }
@@ -44,7 +40,7 @@ public class Controller {
             bdfProvider.removeBdfDataListener(dataStore);
             bdfProvider.removeBdfDataListener(bdfWriter);
             isRecording = false;
-        }
+         }
 
         if (!isRecording) return;
         isRecording = false;
@@ -56,7 +52,7 @@ public class Controller {
     }
 
     private void saveToFile(File file)  throws  ApplicationException{
-        if(fileToRead != null && fileToRead.equals(fileToSave)) {
+       if(fileToRead != null && fileToRead.equals(file)) {
             BdfHeaderWriter.writeBdfHeader(recordingBdfConfig, file);
         }
         else {
@@ -105,14 +101,17 @@ public class Controller {
 
     public DataView startDataReading(RecordingSettings recordingSettings) throws ApplicationException {
         RemConfig remConfig = new RemConfig(recordingSettings.getChannelsLabels());
-        RemConfigurator remConfigurator = new RemConfigurator(recordingBdfConfig, remConfig, eogRemFrequency, accelerometerRemFrequency);
+        RemConfigurator remConfigurator = new RemConfigurator(recordingBdfConfig, remConfig);
+        remConfigurator.setAccelerometerRemFrequency(applicationConfig.getAccelerometerRemFrequency());
+        remConfigurator.setEogRemFrequency(applicationConfig.getEogRemFrequency());
+        remConfigurator.setEogRemCutoffPeriod(applicationConfig.getEogRemCutoffPeriod());
         remConfigurator.setActiveChannels(recordingSettings.getActiveChannels());
         int numberOfRecordsToJoin = remConfigurator.getNumberOfRecordsToJoin();
         BdfProvider joinedBdfProvider = new BdfRecordsJoiner(bdfProvider, numberOfRecordsToJoin);
         if (dataStore != null) {
             dataStore.clear(); // stop update timer and free memory occupied by old DataStore
         }
-        dataStore = new DataStore(joinedBdfProvider, remConfigurator.getDividers());
+        dataStore = new DataStore(joinedBdfProvider, remConfigurator.getPreFilters());
         DataView dataView = new DataView();
         GraphsConfigurator.configurate(dataView, dataStore);
         dataStore.addListener(dataView);

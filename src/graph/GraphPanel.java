@@ -51,11 +51,13 @@ public class GraphPanel extends JPanel {
     
 
 
-    protected void setStart(long startTime, double timeFrequency) {
+    protected void setStart(long startTime) {
             this.startTime = startTime;
-            this.timeFrequency = timeFrequency;
     }
 
+    protected void setTimeFrequency(double timeFrequency) {
+        this.timeFrequency = timeFrequency;
+    }
 
     public int getStartPoint() {
         return startPoint;

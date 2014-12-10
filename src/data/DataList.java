@@ -2,13 +2,16 @@ package data;
 
 
 import gnu.trove.list.array.TIntArrayList;
+import prefilters.AbstractPreFilter;
+import prefilters.PreFilter;
+
 import java.util.ArrayList;
 
 
 /**
 
  */
-public class DataList implements DataSet {
+public class DataList extends AbstractPreFilter implements DataSet  {
     private double frequency = 0;
     private TIntArrayList intArrayList;
     private ArrayList<Integer> arrayList;
@@ -25,6 +28,11 @@ public class DataList implements DataSet {
 
 
     public DataList() {
+        intArrayList = new TIntArrayList();
+    }
+
+    public DataList(PreFilter input) {
+        super(input);
         intArrayList = new TIntArrayList();
     }
 
@@ -51,17 +59,7 @@ public class DataList implements DataSet {
         else {
             arrayList.add(value);
         }
-    }
-
-    public void add(int[] values) {
-        if(intArrayList != null) {
-            intArrayList.add(values);
-        }
-        else {
-            for(int i = 0; i < values.length; i++) {
-                arrayList.add(values[i]);
-            }
-        }
+        notifyListeners(value);
     }
 
     public void set(int index, int value) {

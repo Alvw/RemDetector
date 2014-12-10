@@ -14,7 +14,7 @@ import java.util.ArrayList;
  *
  */
 public class GraphsView extends JPanel {
-    public  int compression = 750;
+    private  int compression = 750;
     private double timeFrequency = 0;
 
     private int DEFAULT_GRAPH_PANEL_WEIGHT  = 4;
@@ -75,22 +75,30 @@ public class GraphsView extends JPanel {
 
     public void setStart(long startTime) {
         for (GraphPanel panel : graphPanelList) {
-            panel.setStart(startTime, timeFrequency);
+            panel.setStart(startTime);
         }
-        double previewTimeFrequency = timeFrequency/compression;
         for (PreviewPanel panel : previewPanelList) {
-            panel.setStart(startTime, previewTimeFrequency);
-            panel.setCompression(compression);
+            panel.setStart(startTime);
         }
     }
 
     public void setTimeFrequency(double timeFrequency) {
         this.timeFrequency = timeFrequency;
+        for (GraphPanel panel : graphPanelList) {
+            panel.setTimeFrequency(timeFrequency);
+        }
+        double previewTimeFrequency = timeFrequency/compression;
+        for (PreviewPanel panel : previewPanelList) {
+            panel.setTimeFrequency(previewTimeFrequency);
+        }
     }
+
 
     public void setCompression(int compression) {
         this.compression = compression;
+        double previewTimeFrequency = timeFrequency/compression;
         for (PreviewPanel panel : previewPanelList) {
+            panel.setTimeFrequency(previewTimeFrequency);
             panel.setCompression(compression);
         }
     }
@@ -108,6 +116,9 @@ public class GraphsView extends JPanel {
 
     public void addPreviewPanel(int weight, boolean isXCentered) {
         PreviewPanel panel = new PreviewPanel(weight, isXCentered);
+        double previewTimeFrequency = timeFrequency/compression;
+        panel.setTimeFrequency(previewTimeFrequency);
+        panel.setCompression(compression);
         panel.addSlotListener(viewController);
         previewPanelList.add(panel);
         paintingPanel.add(panel);
