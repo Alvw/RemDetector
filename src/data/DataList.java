@@ -3,7 +3,6 @@ package data;
 
 import gnu.trove.list.array.TIntArrayList;
 import prefilters.AbstractPreFilter;
-import prefilters.PreFilter;
 
 import java.util.ArrayList;
 
@@ -28,11 +27,6 @@ public class DataList extends AbstractPreFilter implements DataSet  {
 
 
     public DataList() {
-        intArrayList = new TIntArrayList();
-    }
-
-    public DataList(PreFilter input) {
-        super(input);
         intArrayList = new TIntArrayList();
     }
 

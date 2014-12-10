@@ -111,7 +111,7 @@ public class Controller {
         if (dataStore != null) {
             dataStore.clear(); // stop update timer and free memory occupied by old DataStore
         }
-        dataStore = new DataStore(joinedBdfProvider, remConfigurator.getPreFilters());
+        dataStore = new DataStore(joinedBdfProvider, recordingSettings.getActiveChannels(), remConfigurator.getPreFilters());
         DataView dataView = new DataView();
         GraphsConfigurator.configurate(dataView, dataStore);
         dataStore.addListener(dataView);

@@ -113,6 +113,7 @@ public class ApplicationProperties implements ApplicationConfig {
 
     @Override
     public int getEogRemCutoffPeriod() {
-        return config.getInt(EOG_REM_CUTOFF_PERIOD);
+        int defaultValue = 0;
+        return config.getInt(EOG_REM_CUTOFF_PERIOD, defaultValue);
     }
 }

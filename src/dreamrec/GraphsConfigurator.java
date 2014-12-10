@@ -19,8 +19,7 @@ public class GraphsConfigurator {
         DataSet channel_2 = dataStore.getChannelData(2);
 
         view.addGraphPanel(1, true);
-        //iew.addGraphs(new FilterOffset_1(channel_1, view));
-        //  graphsViewer.addGraphs(new FilterHiPass(channel_1, 100));
+        //view.addGraphs(new FilterOffset_1(channel_1, view));
         view.addGraphs(channel_1);
         view.addGraphPanel(1, true);
         view.addGraphs(new FilterDerivative(channel_1));

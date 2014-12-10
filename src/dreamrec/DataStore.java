@@ -48,15 +48,29 @@ public class DataStore implements BdfListener {
         dataRecordsBuffer.clear();
     }
 
-    public DataStore(BdfProvider bdfProvider, PreFilter[] preFilters) throws ApplicationException {
+    public DataStore(BdfProvider bdfProvider, boolean[] channelsMask, PreFilter[] preFilters) throws ApplicationException {
+        bdfProvider.addBdfDataListener(this);
         bdfConfig = bdfProvider.getBdfConfig();
+        bufferSize = (int) (BUFFER_CAPACITY_SECONDS / bdfConfig.getDurationOfDataRecord());
+        dataRecordsBuffer = new LinkedBlockingQueue<byte[]>(bufferSize);
+        bdfParser = new BdfParser(bdfConfig);
+
         int[] numbersOfSamplesInEachDataRecord = bdfConfig.getNumbersOfSamplesInEachDataRecord();
-        preFiltersList = new PreFilter[bdfConfig.getNumberOfSignals()];
-        channelsMask = new boolean[bdfConfig.getNumberOfSignals()];
+        int numberOfSignals = bdfConfig.getNumberOfSignals();
+        preFiltersList = new PreFilter[numberOfSignals];
+        this.channelsMask = new boolean[numberOfSignals];
+        for(int i = 0; i < channelsMask.length; i++) {
+            this.channelsMask[i] = true;
+        }
+        if(channelsMask != null) {
+            int length = Math.min(this.channelsMask.length, channelsMask.length);
+            for(int i = 0; i < length; i++) {
+                this.channelsMask[i] = channelsMask[i];
+            }
+        }
         if (preFilters != null) {
             int length = Math.min(preFiltersList.length, preFilters.length);
             for (int i = 0; i < length; i++) {
-                channelsMask[i] = true;
                 if (preFilters[i] != null) {
                     if (numbersOfSamplesInEachDataRecord[i] % preFilters[i].getDivider() == 0) {
                         preFiltersList[i] = preFilters[i];
@@ -67,12 +81,6 @@ public class DataStore implements BdfListener {
                 }
             }
         }
-
-        bdfProvider.addBdfDataListener(this);
-        bufferSize = (int) (BUFFER_CAPACITY_SECONDS / bdfConfig.getDurationOfDataRecord());
-        dataRecordsBuffer = new LinkedBlockingQueue<byte[]>(bufferSize);
-        bdfParser = new BdfParser(bdfConfig);
-        int numberOfSignals = bdfConfig.getNumberOfSignals();
         channelsList = new DataList[numberOfSignals];
         for (int i = 0; i < numberOfSignals; i++) {
             if (channelsMask[i]) {
@@ -112,7 +120,7 @@ public class DataStore implements BdfListener {
     }
 
     public DataStore(BdfProvider bdfProvider) throws ApplicationException {
-        this(bdfProvider, null);
+        this(bdfProvider, null, null);
     }
 
     public int getNumberOfChannels() {
