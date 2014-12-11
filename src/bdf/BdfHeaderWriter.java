@@ -44,7 +44,6 @@ public class BdfHeaderWriter {
 
     public static byte[] createBdfHeader(RecordingBdfConfig recordingBdfConfig, double  actualDurationOfDataRecord) {
         double  durationOfDataRecord = recordingBdfConfig.getDurationOfDataRecord();
-
         if(actualDurationOfDataRecord > 0) {
              durationOfDataRecord = actualDurationOfDataRecord;
         }

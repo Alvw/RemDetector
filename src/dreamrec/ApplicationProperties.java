@@ -104,7 +104,8 @@ public class ApplicationProperties implements ApplicationConfig {
 
     @Override
     public boolean isFrequencyAutoAdjustment() {
-        return config.getBoolean(IS_FREQUENCY_AUTO_ADJUSTMENT);
+        boolean defaultValue = true;
+        return config.getBoolean(IS_FREQUENCY_AUTO_ADJUSTMENT, defaultValue);
     }
 
     private String getDeviceType() {

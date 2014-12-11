@@ -23,7 +23,7 @@ public class BdfWriter implements BdfListener {
     private long stopRecordingTime;
     private int numberOfDataRecords;
     private boolean stopRecordingRequest;
-
+    boolean isFrequencyAutoAdjustment = true;
 
     public BdfWriter(RecordingBdfConfig recordingBdfConfig, File fileToSave)  throws ApplicationException {
         this.recordingBdfConfig = recordingBdfConfig;
@@ -33,6 +33,10 @@ public class BdfWriter implements BdfListener {
             LOG.error(e);
             throw new ApplicationException("File: " + fileToSave.getAbsolutePath() + "could not be written");
         }
+    }
+
+    public void setFrequencyAutoAdjustment(boolean isFrequencyAutoAdjustment) {
+        this.isFrequencyAutoAdjustment = isFrequencyAutoAdjustment;
     }
 
 
@@ -65,15 +69,18 @@ public class BdfWriter implements BdfListener {
     public synchronized void onStopReading() {
         if (stopRecordingRequest) return;
         stopRecordingRequest = true;
-        // if BdfProvide(device) don't have quartz we should calculate actualDurationOfDataRecord
-        double actualDurationOfDataRecord = (stopRecordingTime - startRecordingTime) * 0.001 / numberOfDataRecords;
         recordingBdfConfig.setStartTime(startRecordingTime);
         recordingBdfConfig.setNumberOfDataRecords(numberOfDataRecords);
-
+        // if BdfProvide(device) don't have quartz we should calculate actualDurationOfDataRecord
+        double actualDurationOfDataRecord = (stopRecordingTime - startRecordingTime) * 0.001 / numberOfDataRecords;
         try {
             fileToSave.seek(0);
-            fileToSave.write(BdfHeaderWriter.createBdfHeader(recordingBdfConfig, actualDurationOfDataRecord));
-            //fileToSave.write(BdfHeaderWriter.createBdfHeader(recordingBdfConfig));
+            if(isFrequencyAutoAdjustment) {
+                fileToSave.write(BdfHeaderWriter.createBdfHeader(recordingBdfConfig, actualDurationOfDataRecord));
+            }
+            else{
+                fileToSave.write(BdfHeaderWriter.createBdfHeader(recordingBdfConfig));
+            }
             fileToSave.close();
         } catch (IOException e) {
             LOG.error(e);

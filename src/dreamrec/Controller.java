@@ -57,6 +57,7 @@ public class Controller {
         }
         else {
             bdfWriter = new BdfWriter(recordingBdfConfig, file);
+            bdfWriter.setFrequencyAutoAdjustment(applicationConfig.isFrequencyAutoAdjustment());
             bdfProvider.addBdfDataListener(bdfWriter);
         }
 

@@ -76,6 +76,7 @@ public class RemConfigurator {
         }
     }
 
+
     public PreFilter[] getPreFilters() throws ApplicationException {
         int rps = (int) (1/bdfConfig.getDurationOfDataRecord());
         if(rps > 10000) { // real max sps is about 2000... So if it is more 10000... something wrong and we just do nothing
