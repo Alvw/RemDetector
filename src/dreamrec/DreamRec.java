@@ -1,5 +1,6 @@
 package dreamrec;
 
+import gui.GuiConfig;
 import gui.MainWindow;
 
 /**
@@ -13,9 +14,14 @@ public class DreamRec {
     public static void main(String[] args) {
         try {
             ApplicationConfig applicationConfig = new ApplicationProperties();
+            GuiConfig guiConfig = new GuiProperties();
             DeviceFabric deviceFabric = new DeviceFabric(applicationConfig);
-            Controller controller = new Controller(applicationConfig, deviceFabric.getDeviceImplementation());
-            MainWindow mainWindow = new MainWindow(controller);
+            RemConfigurator remConfigurator = new RemConfigurator(applicationConfig.getEogRemFrequency(),
+                    applicationConfig.getAccelerometerRemFrequency(),
+                    applicationConfig.getEogRemCutoffPeriod());
+            Controller controller = new Controller(deviceFabric.getDeviceImplementation(),
+                    remConfigurator, applicationConfig.isFrequencyAutoAdjustment());
+            MainWindow mainWindow = new MainWindow(controller, guiConfig);
 
         } catch (ApplicationException e) {
 

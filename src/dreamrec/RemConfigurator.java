@@ -12,30 +12,14 @@ public class RemConfigurator {
     private int eogRemFrequency;
     private int accelerometerRemFrequency;
     private int eogRemCutoffPeriod;
+    // real max sps (Samples per seconds) is about 2000...
+    // rps(records per seconds) <= sps
+    private final int RPS_MAX = 10000;
 
-    private RecordingBdfConfig bdfConfig;
-    private RemConfig remConfig;
-    boolean[] activeChannels;
 
-
-    public RemConfigurator(RecordingBdfConfig bdfConfig, RemConfig remConfig) {
-        this.bdfConfig = bdfConfig;
-        this.remConfig = remConfig;
-        activeChannels = new boolean[bdfConfig.getNumberOfSignals()];
-        for(int i = 0; i < activeChannels.length; i++) {
-            activeChannels[i] = false;
-        }
-     }
-
-    public void setEogRemFrequency(int eogRemFrequency) {
+    public RemConfigurator(int eogRemFrequency, int accelerometerRemFrequency, int eogRemCutoffPeriod) {
         this.eogRemFrequency = eogRemFrequency;
-    }
-
-    public void setAccelerometerRemFrequency(int accelerometerRemFrequency) {
         this.accelerometerRemFrequency = accelerometerRemFrequency;
-    }
-
-    public void setEogRemCutoffPeriod(int eogRemCutoffPeriod) {
         this.eogRemCutoffPeriod = eogRemCutoffPeriod;
     }
 
@@ -44,7 +28,7 @@ public class RemConfigurator {
       * final duration Of joined data record should be or 1 or 1/RPS_MIN (if rps and all frequencies are divisible by RPS_MIN)
       * if durationOfDataRecord >= 1 we don´t change it
       */
-    public int getNumberOfRecordsToJoin() {
+    public int getNumberOfRecordsToJoin(RecordingBdfConfig bdfConfig) {
         double normalizedDurationOfDataRecord = bdfConfig.getNormalizedDurationOfDataRecord();
         int RPS_MIN = 5;
         if(eogRemFrequency == 0 && accelerometerRemFrequency == 0) {
@@ -66,34 +50,17 @@ public class RemConfigurator {
         return rps/RPS_MIN;
     }
 
-    public void setActiveChannels (boolean[] activeChannels)  {
-        int length = Math.min(this.activeChannels.length, activeChannels.length);
-        for(int i = 0; i < length; i++) {
-            this.activeChannels[i] = activeChannels[i];
-            if(i == remConfig.getEog() || i == remConfig.getAccelerometerX() || i == remConfig.getAccelerometerY() || i == remConfig.getAccelerometerZ()) {
-                this.activeChannels[i] = true;
-            }
-        }
-    }
 
-
-    public PreFilter[] getPreFilters() throws ApplicationException {
+    public PreFilter[] getPreFilters(RecordingBdfConfig bdfConfig) throws ApplicationException {
+        RemConfig remConfig = new RemConfig(bdfConfig.getSignalsLabels());
         int rps = (int) (1/bdfConfig.getDurationOfDataRecord());
-        if(rps > 10000) { // real max sps is about 2000... So if it is more 10000... something wrong and we just do nothing
+        if(rps > RPS_MAX) { // something wrong and we just do nothing
             String errorMsg = "Frequencies are too high for REM mode";
             throw new ApplicationException(errorMsg);
         }
         int[] frequencies = bdfConfig.getNormalizedSignalsFrequencies();
         PreFilter[] preFilters = new PreFilter[frequencies.length];
         for(int i = 0; i < preFilters.length; i++) {
-            if(activeChannels[i]) {
-                if (eogRemFrequency != 0 && (frequencies[i] % eogRemFrequency) == 0) {
-                    int divider = frequencies[i] / eogRemFrequency;
-                    if(divider > 1) {
-                        preFilters[i] = new FrequencyDividingPreFilter(divider);
-                    }
-                }
-            }
             if(eogRemFrequency != 0 && i == remConfig.getEog() ) {
                 if ((frequencies[i] % eogRemFrequency) == 0) {
                     int divider = frequencies[i] / eogRemFrequency;

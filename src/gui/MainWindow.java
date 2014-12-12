@@ -10,6 +10,8 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 
 public class MainWindow extends JFrame {
@@ -21,11 +23,22 @@ public class MainWindow extends JFrame {
     private JMenuBar menu = new JMenuBar();
     private Controller controller;
     private String currentDirToRead = System.getProperty("user.dir"); // current working directory ("./")
+    private GuiConfig guiConfig;
 
-
-    public MainWindow(Controller controller) {
+    public MainWindow(Controller controller, GuiConfig guiConfig) {
         this.controller = controller;
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.guiConfig = guiConfig;
+        String dir = guiConfig.getDirectoryToRead();
+        if(dir != null && new File(dir).exists()) {
+            currentDirToRead = dir;
+        }
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+               // super.windowClosing(e);
+                close();
+            }
+        });
         setTitle(TITLE);
         menu.setBackground(MENU_BG_COLOR);
         menu.setForeground(MENU_TEXT_COLOR);
@@ -38,6 +51,15 @@ public class MainWindow extends JFrame {
         setVisible(true);
     }
 
+    private void close() {
+        try{
+            controller.closeApplication();
+            guiConfig.setDirectoryToRead(currentDirToRead);
+        }catch (ApplicationException e)  {
+            showMessage(e.getMessage());
+        }
+    }
+
     public void setDataView(DataView dataView) {
         if (graphsView != null) {
             remove(graphsView);
@@ -46,12 +68,6 @@ public class MainWindow extends JFrame {
         graphsView.setPreferredSize(getWorkspaceDimension());
         add(graphsView, BorderLayout.CENTER);
         pack();
-    }
-
-    public void setCurrentDirToRead(String currentDirToRead) {
-        if (currentDirToRead != null && new File(currentDirToRead).exists()) {
-            this.currentDirToRead = currentDirToRead;
-        }
     }
 
     public void showMessage(String s) {

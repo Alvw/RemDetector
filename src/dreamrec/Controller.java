@@ -18,18 +18,15 @@ public class Controller {
     private BdfProvider bdfProvider;
     private RecordingBdfConfig recordingBdfConfig;
     private DataStore dataStore;
-    private ApplicationConfig applicationConfig;
-    private String currentDirToRead;
-    private String currentDirToSave;
+    private boolean isFrequencyAutoAdjustment;
     private File fileToRead;
-    private File fileToSave;
     private BdfWriter bdfWriter;
+    private RemConfigurator remConfigurator;
 
-    public Controller(ApplicationConfig applicationConfig, BdfDevice bdfDevice) {
-        this.applicationConfig = applicationConfig;
+    public Controller(BdfDevice bdfDevice, RemConfigurator remConfigurator, boolean isFrequencyAutoAdjustment) {
         this.bdfDevice = bdfDevice;
-        currentDirToRead = applicationConfig.getDirectoryToRead();
-        currentDirToSave = applicationConfig.getDirectoryToSave();
+        this.remConfigurator = remConfigurator;
+        this.isFrequencyAutoAdjustment = isFrequencyAutoAdjustment;
     }
 
 
@@ -57,7 +54,7 @@ public class Controller {
         }
         else {
             bdfWriter = new BdfWriter(recordingBdfConfig, file);
-            bdfWriter.setFrequencyAutoAdjustment(applicationConfig.isFrequencyAutoAdjustment());
+            bdfWriter.setFrequencyAutoAdjustment(isFrequencyAutoAdjustment);
             bdfProvider.addBdfDataListener(bdfWriter);
         }
 
@@ -65,8 +62,6 @@ public class Controller {
 
     public void closeApplication() throws ApplicationException {
         stopRecording();
-        applicationConfig.setDirectoryToRead(currentDirToRead);
-        applicationConfig.setDirectoryToSave(currentDirToSave);
         System.exit(0);
     }
 
@@ -80,7 +75,6 @@ public class Controller {
             bdfProvider = bdfReader;
             recordingBdfConfig = bdfReader.getBdfConfig();
             fileToRead = file;
-            currentDirToRead = file.getParent();
             return getRecordingSettings();
         } else {
             throw new ApplicationException("File: " + file + " is not valid");
@@ -101,29 +95,22 @@ public class Controller {
 
 
     public DataView startDataReading(RecordingSettings recordingSettings) throws ApplicationException {
-        RemConfig remConfig = new RemConfig(recordingSettings.getChannelsLabels());
-        RemConfigurator remConfigurator = new RemConfigurator(recordingBdfConfig, remConfig);
-        remConfigurator.setAccelerometerRemFrequency(applicationConfig.getAccelerometerRemFrequency());
-        remConfigurator.setEogRemFrequency(applicationConfig.getEogRemFrequency());
-        remConfigurator.setEogRemCutoffPeriod(applicationConfig.getEogRemCutoffPeriod());
-        remConfigurator.setActiveChannels(recordingSettings.getActiveChannels());
-        int numberOfRecordsToJoin = remConfigurator.getNumberOfRecordsToJoin();
+        recordingBdfConfig.setPatientIdentification(recordingSettings.getPatientIdentification());
+        recordingBdfConfig.setRecordingIdentification(recordingSettings.getRecordingIdentification());
+        recordingBdfConfig.setSignalsLabels(recordingSettings.getChannelsLabels());
+        int numberOfRecordsToJoin = remConfigurator.getNumberOfRecordsToJoin(recordingBdfConfig);
         BdfProvider joinedBdfProvider = new BdfRecordsJoiner(bdfProvider, numberOfRecordsToJoin);
         if (dataStore != null) {
             dataStore.clear(); // stop update timer and free memory occupied by old DataStore
         }
-        dataStore = new DataStore(joinedBdfProvider, recordingSettings.getActiveChannels(), remConfigurator.getPreFilters());
+        dataStore = new DataStore(joinedBdfProvider, recordingSettings.getActiveChannels(), remConfigurator.getPreFilters(recordingBdfConfig));
         DataView dataView = new DataView();
         GraphsConfigurator.configurate(dataView, dataStore);
         dataStore.addListener(dataView);
         dataStore.setStartTime(recordingBdfConfig.getStartTime());
 
-
-        recordingBdfConfig.setPatientIdentification(recordingSettings.getPatientIdentification());
-        recordingBdfConfig.setRecordingIdentification(recordingSettings.getRecordingIdentification());
-        recordingBdfConfig.setSignalsLabels(recordingSettings.getChannelsLabels());
         File fileToSave = recordingSettings.getFile();
-        currentDirToSave = recordingSettings.getDirectoryToSave();
+        String currentDirToSave = recordingSettings.getDirectoryToSave();
         if(fileToSave != null) {
             saveToFile(fileToSave);
         }
@@ -142,7 +129,6 @@ public class Controller {
         boolean[] isChannelsActive = RemConfig.isRemLabels(recordingBdfConfig.getSignalsLabels());
         recordingSettings.setActiveChannels(isChannelsActive);
         recordingSettings.setFile(fileToRead);
-        recordingSettings.setDirectoryToSave(currentDirToSave);
         return recordingSettings;
     }
 

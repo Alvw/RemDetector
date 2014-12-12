@@ -9,8 +9,6 @@ public class ApplicationProperties implements ApplicationConfig {
     private static final Log log = LogFactory.getLog(ApplicationProperties.class);
     private static final String APPLICATION_PROPERTIES = "application.properties";
     private static final String DEVICE_TYPE = "device_type";
-    private static final String DIRECTORY_TO_READ = "directory_to_read";
-    private static final String DIRECTORY_TO_SAVE = "directory_to_save";
     private static final String DEVICE_CLASS_NAME = "class_name";
     private static final String DEVICE_EOG = "EOG_channel_number";
     private static final String DEVICE_ACCELEROMETER_X = "accelerometerX_channel_number";
@@ -32,29 +30,6 @@ public class ApplicationProperties implements ApplicationConfig {
         }
     }
 
-    @Override
-    public String getDirectoryToSave() {
-        return config.getString(DIRECTORY_TO_SAVE);
-    }
-
-    @Override
-    public String getDirectoryToRead() {
-        return config.getString(DIRECTORY_TO_READ);
-    }
-
-    @Override
-    public void setDirectoryToSave(String directory) {
-        if(directory != null) {
-            config.setProperty(DIRECTORY_TO_SAVE, directory);
-        }
-    }
-
-    @Override
-    public void setDirectoryToRead(String directory) {
-        if(directory != null) {
-            config.setProperty(DIRECTORY_TO_READ, directory);
-        }
-    }
 
     @Override
     public String getDeviceClassName() {
