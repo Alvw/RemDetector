@@ -21,9 +21,9 @@ public class Controller {
     private boolean isFrequencyAutoAdjustment;
     private File fileToRead;
     private BdfWriter bdfWriter;
-    private RemConfigurator remConfigurator;
+    private RemUtils remConfigurator;
 
-    public Controller(BdfDevice bdfDevice, RemConfigurator remConfigurator, boolean isFrequencyAutoAdjustment) {
+    public Controller(BdfDevice bdfDevice, RemUtils remConfigurator, boolean isFrequencyAutoAdjustment) {
         this.bdfDevice = bdfDevice;
         this.remConfigurator = remConfigurator;
         this.isFrequencyAutoAdjustment = isFrequencyAutoAdjustment;

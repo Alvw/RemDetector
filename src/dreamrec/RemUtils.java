@@ -8,7 +8,7 @@ import prefilters.PreFilter;
 /**
  *
  */
-public class RemConfigurator {
+public class RemUtils {
     private int eogRemFrequency;
     private int accelerometerRemFrequency;
     private int eogRemCutoffPeriod;
@@ -17,7 +17,7 @@ public class RemConfigurator {
     private final int RPS_MAX = 10000;
 
 
-    public RemConfigurator(RemConfig remConfig) {
+    public RemUtils(RemConfig remConfig) {
         eogRemFrequency = remConfig.getEogRemFrequency();
         accelerometerRemFrequency = remConfig.getAccelerometerRemFrequency();
         eogRemCutoffPeriod = remConfig.getEogRemCutoffPeriod();
