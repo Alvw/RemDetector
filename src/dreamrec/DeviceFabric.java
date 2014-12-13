@@ -9,15 +9,15 @@ import org.apache.commons.logging.LogFactory;
 public class DeviceFabric {
     private static final Log log = LogFactory.getLog(DeviceFabric.class);
     private  BdfDevice device;
-    private  ApplicationConfig config;
+    private  String deviceClassName;
 
-    public DeviceFabric(ApplicationConfig config) {
-        this.config = config;
+    public DeviceFabric(String deviceClassName) {
+        this.deviceClassName = deviceClassName;
     }
 
    synchronized public BdfDevice getDeviceImplementation() throws ApplicationException {
         if(device == null) {
-            String deviceClassName = config.getDeviceClassName();
+
             if(deviceClassName == null) {
                 throw new ApplicationException("Device type or Implementing Class is not specified");
             }

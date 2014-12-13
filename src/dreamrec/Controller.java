@@ -126,7 +126,7 @@ public class Controller {
 
     private RecordingSettings getRecordingSettings() {
         RecordingSettings recordingSettings = new RecordingSettings(recordingBdfConfig);
-        boolean[] isChannelsActive = RemConfig.isRemLabels(recordingBdfConfig.getSignalsLabels());
+        boolean[] isChannelsActive = RemChannels.isRemLabels(recordingBdfConfig.getSignalsLabels());
         recordingSettings.setActiveChannels(isChannelsActive);
         recordingSettings.setFile(fileToRead);
         return recordingSettings;

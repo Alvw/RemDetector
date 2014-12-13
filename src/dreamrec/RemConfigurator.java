@@ -17,10 +17,10 @@ public class RemConfigurator {
     private final int RPS_MAX = 10000;
 
 
-    public RemConfigurator(int eogRemFrequency, int accelerometerRemFrequency, int eogRemCutoffPeriod) {
-        this.eogRemFrequency = eogRemFrequency;
-        this.accelerometerRemFrequency = accelerometerRemFrequency;
-        this.eogRemCutoffPeriod = eogRemCutoffPeriod;
+    public RemConfigurator(RemConfig remConfig) {
+        eogRemFrequency = remConfig.getEogRemFrequency();
+        accelerometerRemFrequency = remConfig.getAccelerometerRemFrequency();
+        eogRemCutoffPeriod = remConfig.getEogRemCutoffPeriod();
     }
 
 
@@ -52,7 +52,7 @@ public class RemConfigurator {
 
 
     public PreFilter[] getPreFilters(RecordingBdfConfig bdfConfig) throws ApplicationException {
-        RemConfig remConfig = new RemConfig(bdfConfig.getSignalsLabels());
+        RemChannels remChannels = new RemChannels(bdfConfig.getSignalsLabels());
         int rps = (int) (1/bdfConfig.getDurationOfDataRecord());
         if(rps > RPS_MAX) { // something wrong and we just do nothing
             String errorMsg = "Frequencies are too high for REM mode";
@@ -61,7 +61,7 @@ public class RemConfigurator {
         int[] frequencies = bdfConfig.getNormalizedSignalsFrequencies();
         PreFilter[] preFilters = new PreFilter[frequencies.length];
         for(int i = 0; i < preFilters.length; i++) {
-            if(eogRemFrequency != 0 && i == remConfig.getEog() ) {
+            if(eogRemFrequency != 0 && i == remChannels.getEog() ) {
                 if ((frequencies[i] % eogRemFrequency) == 0) {
                     int divider = frequencies[i] / eogRemFrequency;
                     if(divider > 1) {
@@ -73,7 +73,7 @@ public class RemConfigurator {
                     throw new ApplicationException(errorMsg);
                 }
             }
-            if(accelerometerRemFrequency != 0 && (i == remConfig.getAccelerometerX() || i == remConfig.getAccelerometerY() || i == remConfig.getAccelerometerZ())) {
+            if(accelerometerRemFrequency != 0 && (i == remChannels.getAccelerometerX() || i == remChannels.getAccelerometerY() || i == remChannels.getAccelerometerZ())) {
                 if((frequencies[i] % accelerometerRemFrequency) == 0 ) {
                     int divider = frequencies[i] / accelerometerRemFrequency;
                     if(divider > 1) {
