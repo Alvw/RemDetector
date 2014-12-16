@@ -6,8 +6,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class Controller {
 
@@ -43,12 +41,10 @@ public class Controller {
         isRecording = false;
     }
 
-    private void saveToFile(String dir)  throws  ApplicationException{
-        String filename = new SimpleDateFormat("dd-MM-yyyy_HH-mm").format(new Date(System.currentTimeMillis())) + ".drm";
-        saveToFile(new File(filename, dir));
-    }
-
     private void saveToFile(File file)  throws  ApplicationException{
+       if(file == null) {
+           throw new ApplicationException("File to save is not specified");
+       }
        if(fileToRead != null && fileToRead.equals(file)) {
             BdfHeaderWriter.writeBdfHeader(recordingBdfConfig, file);
         }
@@ -108,19 +104,9 @@ public class Controller {
         GraphsConfigurator.configurate(dataView, dataStore);
         dataStore.addListener(dataView);
         dataStore.setStartTime(recordingBdfConfig.getStartTime());
-
-        File fileToSave = recordingSettings.getFile();
-        String currentDirToSave = recordingSettings.getDirectoryToSave();
-        if(fileToSave != null) {
-            saveToFile(fileToSave);
-        }
-        else {
-            saveToFile(currentDirToSave);
-        }
-
         joinedBdfProvider.startReading();
+        saveToFile(recordingSettings.getFile());
         isRecording = true;
-        System.out.println("file to save: " + recordingSettings.getFile().getAbsolutePath());
         return dataView;
     }
 

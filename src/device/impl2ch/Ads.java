@@ -1,6 +1,7 @@
 package device.impl2ch;
 
 import bdf.*;
+import dreamrec.ApplicationException;
 import dreamrec.BdfDevice;
 import gnu.io.NoSuchPortException;
 import gnu.io.PortInUseException;
@@ -28,7 +29,7 @@ public class Ads implements BdfDevice {
     }
 
     @Override
-    public void startReading() {
+    public void startReading() throws ApplicationException{
         String failConnectMessage = "Connection failed. Check com port settings.\nReset power on the target amplifier. Restart the application.";
         try {
             FrameDecoder frameDecoder = new FrameDecoder(adsConfiguration) {
@@ -143,7 +144,7 @@ public class Ads implements BdfDevice {
             signalConfigList.add(signalConfig);
         }
 
-        int DurationOfDataRecord = adsConfiguration.getDeviceType().getMaxDiv().getValue() / adsConfiguration.getSps().getValue();
+        double DurationOfDataRecord = (double)(adsConfiguration.getDeviceType().getMaxDiv().getValue()) / adsConfiguration.getSps().getValue();
         int numberOfBytesInDataFormat = 3;
         SignalConfig[] signalConfigArray = signalConfigList.toArray(new SignalConfig[signalConfigList.size()]);
         RecordingBdfConfig recordingConfig = new RecordingBdfConfig(DurationOfDataRecord, numberOfBytesInDataFormat, signalConfigArray);

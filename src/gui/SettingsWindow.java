@@ -9,6 +9,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 class SettingsWindow extends JDialog {
 
@@ -41,12 +43,12 @@ class SettingsWindow extends JDialog {
     private JTextField dirToSaveField;
 
     private JComponent[] headersForChannelsSettings = {new JLabel("Number"), new JLabel("Name"),
-            new JLabel("Frequency (Hz)"),  new JLabel("Enable")};
+            new JLabel("Frequency (Hz)"), new JLabel("Enable")};
+
+    private JPanel saveAsBorderPanel;
 
     private RecordingSettings recordingSettings;
     private MainWindow mainWindow;
-    private String currentDir = System.getProperty("user.dir"); // current working directory ("./");
-
 
     public SettingsWindow(MainWindow mainWindow, RecordingSettings recordingSettings) {
         super(mainWindow, ModalityType.APPLICATION_MODAL);
@@ -56,13 +58,14 @@ class SettingsWindow extends JDialog {
         init();
         arrangeForm();
         setActions();
+        loadData();
         setVisible(true);
     }
 
 
     private void init() {
         patientIdentificationField = new JTextField(IDENTIFICATION_LENGTH);
-        recordIdentificationField = new JTextArea(2,IDENTIFICATION_LENGTH);
+        recordIdentificationField = new JTextArea(2, IDENTIFICATION_LENGTH);
         patientIdentificationField.setDocument(new FixSizeDocument(IDENTIFICATION_LENGTH * 2));
         recordIdentificationField.setDocument(new FixSizeDocument(IDENTIFICATION_LENGTH * 2));
         filenameToSaveField = new JTextField(FILENAME_LENGTH);
@@ -82,8 +85,6 @@ class SettingsWindow extends JDialog {
             isChannelsActiveFields[i] = new JCheckBox();
             isChannelsActiveFields[i].addItemListener(new setChannelActiveListener(i));
         }
-
-        loadData();
     }
 
 
@@ -105,22 +106,15 @@ class SettingsWindow extends JDialog {
         }
 
         File file = recordingSettings.getFile();
-        String dirName = recordingSettings.getDirectoryToSave();
-
-        if(dirName != null ) {
-            File dir = new File(dirName);
-            if(dir.isDirectory() && dir.exists()) {
-                currentDir = dirName;
-            }
-        }
-        if(file != null & file.isFile()) {
+        if (file != null) {
             filenameToSaveField.setText(file.getName());
             dirToSaveField.setText(file.getParent());
             setTitle(file.getName());
-        }
-        else{
+            saveAsBorderPanel.setVisible(false);
+            pack();
+        } else {
             filenameToSaveField.setText(DEFAULT_FILENAME);
-            dirToSaveField.setText(currentDir);
+            dirToSaveField.setText(mainWindow.getCurrentDirToSave());
         }
     }
 
@@ -129,12 +123,7 @@ class SettingsWindow extends JDialog {
         resultingSettings.setRecordingIdentification(getRecordIdentification());
         resultingSettings.setPatientIdentification(getPatientIdentification());
         resultingSettings.setActiveChannels(getActiveChannels());
-
-        String filename = getFileToSave();
-        if(filename != null) {
-            resultingSettings.setFile(new File(getDirToSave(), filename));
-        }
-        resultingSettings.setDirectoryToSave(currentDir);
+        resultingSettings.setFile(new File(getDirToSave(), getFileToSave()));
         return resultingSettings;
     }
 
@@ -203,7 +192,7 @@ class SettingsWindow extends JDialog {
 
         hgap = 5;
         vgap = 10;
-        JPanel saveAsBorderPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, hgap, vgap));
+        saveAsBorderPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, hgap, vgap));
         saveAsBorderPanel.setBorder(BorderFactory.createTitledBorder("Save As"));
         saveAsBorderPanel.add(saveAsPanel);
 
@@ -231,11 +220,11 @@ class SettingsWindow extends JDialog {
 
     private void setActions() {
         patientIdentificationField.addFocusListener(new FocusAdapter() {
-             @Override
-             public void focusGained(FocusEvent focusEvent) {
-                 patientIdentificationField.selectAll();
-                 }
-             });
+            @Override
+            public void focusGained(FocusEvent focusEvent) {
+                patientIdentificationField.selectAll();
+            }
+        });
 
         filenameToSaveField.addFocusListener(new FocusAdapter() {
             @Override
@@ -264,6 +253,16 @@ class SettingsWindow extends JDialog {
         startButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
+                File file = new File(getDirToSave(), getFileToSave());
+                if(recordingSettings.getFile() == null && file != null && file.exists()) {
+                    int dialogButton = JOptionPane.YES_NO_OPTION;
+                    String dialogTitle = "Choose option";
+                    String dialogMsg = "The file: "+file.getName() + " is already exists! \nAre you sure you want to change it?";
+                    int dialogResult = JOptionPane.showConfirmDialog(SettingsWindow.this, dialogMsg, dialogTitle, dialogButton);
+                    if(dialogResult == JOptionPane.NO_OPTION) {
+                        return;
+                    }
+                }
                 try {
                     mainWindow.startReading(getRecordingSettings());
                     close();
@@ -282,12 +281,12 @@ class SettingsWindow extends JDialog {
     public String chooseDirToSave() {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Specify a directory to save");
-        fileChooser.setCurrentDirectory(new File(currentDir));
+        fileChooser.setCurrentDirectory(new File(mainWindow.getCurrentDirToSave()));
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         int fileChooserState = fileChooser.showOpenDialog(this);
         if (fileChooserState == JFileChooser.APPROVE_OPTION) {
             String dir = fileChooser.getSelectedFile().getAbsolutePath();
-            currentDir = dir;
+            mainWindow.setCurrentDirToSave(dir);
             return dir;
         }
         return null;
@@ -300,19 +299,27 @@ class SettingsWindow extends JDialog {
     public String getFileToSave() {
         String[] extensionList = {"bdf", "edf"};
         String filename = filenameToSaveField.getText();
+        String defaultFilename = new SimpleDateFormat("dd-MM-yyyy_HH-mm").format(new Date(System.currentTimeMillis()))
+                + "." + extensionList[0];
+
         // if filename is default filename
-        if(filename.equals(DEFAULT_FILENAME)) {
-            //  return null;
+        if (filename == null) {
+            return defaultFilename;
         }
+        filename = filename.trim();
+        if (filename.isEmpty() || filename.equals(DEFAULT_FILENAME)) {
+            return defaultFilename;
+        }
+
         // if filename has no extension
-        if(filename.lastIndexOf('.') == -1) {
+        if (filename.lastIndexOf('.') == -1) {
             filename = filename.concat(".").concat(extensionList[0]);
             return filename;
         }
         // if  extension  match with one from given extensionList
         // (?i) makes it case insensitive (catch BDF as well as bdf)
-        for(String ext : extensionList) {
-            if(filename.matches("(?i).*\\."+ext)) {
+        for (String ext : extensionList) {
+            if (filename.matches("(?i).*\\." + ext)) {
                 return filename;
             }
         }
@@ -324,7 +331,7 @@ class SettingsWindow extends JDialog {
 
     private boolean[] getActiveChannels() {
         boolean[] isActives = new boolean[isChannelsActiveFields.length];
-        for(int i = 0; i < isChannelsActiveFields.length; i++) {
+        for (int i = 0; i < isChannelsActiveFields.length; i++) {
             isActives[i] = isChannelsActiveFields[i].isSelected();
         }
         return isActives;
@@ -332,7 +339,7 @@ class SettingsWindow extends JDialog {
 
     private String[] getChannelsLabels() {
         String[] labels = new String[channelsLabelsFields.length];
-        for(int i = 0; i < channelsLabelsFields.length; i++) {
+        for (int i = 0; i < channelsLabelsFields.length; i++) {
             labels[i] = channelsLabelsFields[i].getText();
         }
         return labels;
@@ -359,10 +366,9 @@ class SettingsWindow extends JDialog {
 
         @Override
         public void itemStateChanged(ItemEvent itemEvent) {
-            if(itemEvent.getStateChange() == ItemEvent.SELECTED) {
+            if (itemEvent.getStateChange() == ItemEvent.SELECTED) {
                 channelsLabelsFields[channelNumber].setEnabled(true);
-            }
-            else {
+            } else {
                 channelsLabelsFields[channelNumber].setEnabled(false);
             }
         }

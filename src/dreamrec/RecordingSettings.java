@@ -13,7 +13,6 @@ public class RecordingSettings {
     private String patientIdentification;
     private String recordingIdentification;
     private boolean[] activeChannels;
-    private String directoryToSave;
     private File file;
 
     public RecordingSettings(String[] channelsLabels) {
@@ -61,14 +60,6 @@ public class RecordingSettings {
         for (int i = 0; i < length; i++) {
             this.activeChannels[i] = activeChannels[i];
         }
-    }
-
-    public String getDirectoryToSave() {
-        return directoryToSave;
-    }
-
-    public void setDirectoryToSave(String directoryToSave) {
-        this.directoryToSave = directoryToSave;
     }
 
     public File getFile() {

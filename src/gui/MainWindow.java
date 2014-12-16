@@ -23,14 +23,19 @@ public class MainWindow extends JFrame {
     private JMenuBar menu = new JMenuBar();
     private Controller controller;
     private String currentDirToRead = System.getProperty("user.dir"); // current working directory ("./")
+    private String currentDirToSave = System.getProperty("user.dir"); // current working directory ("./")
     private GuiConfig guiConfig;
 
     public MainWindow(Controller controller, GuiConfig guiConfig) {
         this.controller = controller;
         this.guiConfig = guiConfig;
-        String dir = guiConfig.getDirectoryToRead();
-        if(dir != null && new File(dir).exists()) {
-            currentDirToRead = dir;
+        String dirToRead = guiConfig.getDirectoryToRead();
+        if(dirToRead != null && new File(dirToRead).exists()) {
+            currentDirToRead = dirToRead;
+        }
+        String dirToSave = guiConfig.getDirectoryToSave();
+        if(dirToSave != null && new File(dirToSave).exists()) {
+            currentDirToSave = dirToSave;
         }
         addWindowListener(new WindowAdapter() {
             @Override
@@ -53,8 +58,9 @@ public class MainWindow extends JFrame {
 
     private void close() {
         try{
-            controller.closeApplication();
             guiConfig.setDirectoryToRead(currentDirToRead);
+            guiConfig.setDirectoryToSave(currentDirToSave);
+            controller.closeApplication();
         }catch (ApplicationException e)  {
             showMessage(e.getMessage());
         }
@@ -74,6 +80,13 @@ public class MainWindow extends JFrame {
         JOptionPane.showMessageDialog(this, s);
     }
 
+    public String getCurrentDirToSave() {
+        return currentDirToSave;
+    }
+
+    public void setCurrentDirToSave(String currentDirToSave) {
+        this.currentDirToSave = currentDirToSave;
+    }
 
     private Dimension getWorkspaceDimension() {
         Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
