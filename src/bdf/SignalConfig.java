@@ -6,8 +6,8 @@ package bdf;
 public class SignalConfig {
     private final int digitalMin;
     private final int digitalMax;
-    private final int physicalMin;
-    private final int physicalMax;
+    private final double physicalMin;
+    private final double physicalMax;
     private final String physicalDimension;
     private final int numberOfSamplesInEachDataRecord;
     private String label;
@@ -25,8 +25,8 @@ public class SignalConfig {
     public static class Builder {
         private int digitalMin;
         private int digitalMax;
-        private int physicalMin;
-        private int physicalMax;
+        private double physicalMin;
+        private double physicalMax;
         private String physicalDimension;
         private int numberOfSamplesInEachDataRecord;
         private String label;
@@ -41,12 +41,12 @@ public class SignalConfig {
             return this;
         }
 
-        public Builder setPhysicalMin(int physicalMin) {
+        public Builder setPhysicalMin(double physicalMin) {
             this.physicalMin  =  physicalMin;
             return this;
         }
 
-        public Builder setPhysicalMax(int physicalMax) {
+        public Builder setPhysicalMax(double physicalMax) {
             this.physicalMax  =  physicalMax;
             return this;
         }
@@ -88,11 +88,11 @@ public class SignalConfig {
         return digitalMax;
     }
 
-    public int getPhysicalMin() {
+    public double getPhysicalMin() {
         return physicalMin;
     }
 
-    public int getPhysicalMax() {
+    public double getPhysicalMax() {
         return physicalMax;
     }
 

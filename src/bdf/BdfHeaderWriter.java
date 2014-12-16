@@ -100,8 +100,8 @@ public class BdfHeaderWriter {
                 labels.append(adjustLength(signalConfig.getLabel(), 16));
                 transducerTypes.append(adjustLength("Unknown", 80));
                 physicalDimensions.append(adjustLength(signalConfig.getPhysicalDimension(), 8));
-               int physicalMaximum = signalConfig.getPhysicalMax();
-               int physicalMinimum = signalConfig.getPhysicalMin();
+               double physicalMaximum = signalConfig.getPhysicalMax();
+               double physicalMinimum = signalConfig.getPhysicalMin();
                int digitalMax = signalConfig.getDigitalMax();
                int digitalMin = signalConfig.getDigitalMin();
 

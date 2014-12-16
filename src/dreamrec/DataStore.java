@@ -48,7 +48,7 @@ public class DataStore implements BdfListener {
         dataRecordsBuffer.clear();
     }
 
-    public DataStore(BdfProvider bdfProvider, boolean[] channelsMask, PreFilter[] preFilters) throws ApplicationException {
+    public DataStore(BdfProvider bdfProvider, boolean[] channelsMask, PreFilter... preFilters) throws ApplicationException {
         bdfProvider.addBdfDataListener(this);
         bdfConfig = bdfProvider.getBdfConfig();
         bufferSize = (int) (BUFFER_CAPACITY_SECONDS / bdfConfig.getDurationOfDataRecord());
