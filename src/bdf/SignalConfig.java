@@ -10,7 +10,9 @@ public class SignalConfig {
     private final double physicalMax;
     private final String physicalDimension;
     private final int numberOfSamplesInEachDataRecord;
-    private String label;
+    private final String prefiltering;
+    private String transducerType = "Unknown";
+    private String label = "";
 
     private SignalConfig(Builder builder) {
         digitalMin = builder.digitalMin;
@@ -19,6 +21,8 @@ public class SignalConfig {
         physicalMax = builder.physicalMax;
         physicalDimension = builder.physicalDimension;
         numberOfSamplesInEachDataRecord = builder.numberOfSamplesInEachDataRecord;
+        prefiltering = builder.prefiltering;
+        transducerType = builder.transducerType;
         label = builder.label;
     }
 
@@ -29,6 +33,8 @@ public class SignalConfig {
         private double physicalMax;
         private String physicalDimension;
         private int numberOfSamplesInEachDataRecord;
+        private String prefiltering;
+        private String transducerType;
         private String label;
 
         public Builder setDigitalMin(int digitalMin) {
@@ -61,6 +67,16 @@ public class SignalConfig {
             return this;
         }
 
+        public Builder setPrefiltering(String prefiltering) {
+            this.prefiltering  =  prefiltering;
+            return this;
+        }
+
+        public Builder setTransducerType(String transducerType) {
+            this.transducerType  =  transducerType;
+            return this;
+        }
+
         public Builder setLabel(String label) {
             this.label  =  label;
             return this;
@@ -71,6 +87,17 @@ public class SignalConfig {
         }
     }
 
+    public String getPrefiltering() {
+        return prefiltering;
+    }
+
+    public String getTransducerType() {
+        return transducerType;
+    }
+
+    public void setTransducerType(String transducerType) {
+        this.transducerType = transducerType;
+    }
 
     public String getLabel() {
         return label;

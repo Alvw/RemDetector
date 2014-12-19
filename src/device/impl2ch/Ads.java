@@ -46,13 +46,13 @@ public class Ads implements BdfDevice {
         } catch (NoSuchPortException e) {
             String msg = "No port with the name " + adsConfiguration.getComPortName() + "\n" + failConnectMessage;
             log.error(msg, e);
-            throw new AdsException(msg, e);
+            throw new ApplicationException(msg, e);
         } catch (PortInUseException e) {
             log.error(failConnectMessage, e);
-            throw new AdsException(failConnectMessage, e);
+            throw new ApplicationException(failConnectMessage, e);
         } catch (Throwable e) {
             log.error(failConnectMessage, e);
-            throw new AdsException(failConnectMessage, e);
+            throw new ApplicationException(failConnectMessage, e);
         }
     }
 
@@ -104,10 +104,12 @@ public class Ads implements BdfDevice {
                 int numberOfSamplesInEachDataRecord = adsConfiguration.getDeviceType().getMaxDiv().getValue() / channelConfiguration.getDivider().getValue();
                 SignalConfig signalConfig = new SignalConfig.Builder()
                         .setLabel("Channel " + n++)
+                        .setTransducerType("Unknown")
                         .setDigitalMax(8388607)
                         .setDigitalMin(-8388608)
                         .setPhysicalMax(physicalMax)
                         .setPhysicalMin(-physicalMax)
+                        .setPrefiltering("None")
                         .setNumberOfSamplesInEachDataRecord(numberOfSamplesInEachDataRecord)
                         .setPhysicalDimension("uV").build();
 
@@ -119,10 +121,12 @@ public class Ads implements BdfDevice {
             if (adsConfiguration.isAccelerometerEnabled()) {
                 SignalConfig signalConfig = new SignalConfig.Builder()
                         .setLabel("Accelerometer " + i + 1)
+                        .setTransducerType("Unknown")
                         .setDigitalMax(30800)
                         .setDigitalMin(-30800)
                         .setPhysicalMax(2)
                         .setPhysicalMin(-2)
+                        .setPrefiltering("None")
                         .setNumberOfSamplesInEachDataRecord(numberOfSamplesInEachDataRecord)
                         .setPhysicalDimension("g")
                         .build();
@@ -130,19 +134,20 @@ public class Ads implements BdfDevice {
                 signalConfigList.add(signalConfig);
             }
         }
-        for (int i = 0; i < 2; i++) {
+
             SignalConfig signalConfig = new SignalConfig.Builder()
-                    .setLabel("Loff stat " + i + 1)
+                    .setLabel("System events ")
+                    .setTransducerType("Unknown")
                     .setDigitalMax(8388607)
                     .setDigitalMin(-8388608)
                     .setPhysicalMax(8388607)
                     .setPhysicalMin(-8388608)
+                    .setPrefiltering("None")
                     .setNumberOfSamplesInEachDataRecord(1)
                     .setPhysicalDimension("n/a")
                     .build();
-
             signalConfigList.add(signalConfig);
-        }
+
 
         double DurationOfDataRecord = (double)(adsConfiguration.getDeviceType().getMaxDiv().getValue()) / adsConfiguration.getSps().getValue();
         int numberOfBytesInDataFormat = 3;

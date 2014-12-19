@@ -110,7 +110,7 @@ class SettingsWindow extends JDialog {
             filenameToSaveField.setText(file.getName());
             dirToSaveField.setText(file.getParent());
             setTitle(file.getName());
-            saveAsBorderPanel.setVisible(false);
+           // saveAsBorderPanel.setVisible(false);
             pack();
         } else {
             filenameToSaveField.setText(DEFAULT_FILENAME);

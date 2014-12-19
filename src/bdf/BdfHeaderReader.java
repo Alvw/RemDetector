@@ -95,7 +95,6 @@ public class BdfHeaderReader {
             String startTimeStr = new String(buffer);
             String dateFormat = "dd.MM.yy HH.mm.ss";
             String startDateTimeStr = startDateStr + " " + startTimeStr;
-            System.out.println("tartDateTimeStr "+startDateTimeStr);
             long startTime;
             try{
                 Date date = new SimpleDateFormat(dateFormat).parse(startDateTimeStr);
@@ -115,7 +114,6 @@ public class BdfHeaderReader {
             if(dataFormat.equals("24BIT")) {
                 numberOfBytesInDataFormat = 3;  // bdf
             }
-            System.out.println(dataFormat +"  numberOfBytesInDataFormat "+numberOfBytesInDataFormat);
 
             buffer = new char[NUMBER_Of_DATARECORDS_LENGTH];
             reader.read(buffer, 0, NUMBER_Of_DATARECORDS_LENGTH);
@@ -143,6 +141,7 @@ public class BdfHeaderReader {
             for(int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
                 buffer = new char[SIGNAL_TRANSDUCER_TYPE_LENGTH];
                 reader.read(buffer, 0, SIGNAL_TRANSDUCER_TYPE_LENGTH);
+                signalBuildersArray[signalNumber].setTransducerType(new String(buffer).trim());
             }
             for(int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
                 buffer = new char[SIGNAL_PHYSICAL_DIMENSION_LENGTH];
@@ -176,6 +175,7 @@ public class BdfHeaderReader {
             for(int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
                 buffer = new char[SIGNAL_PREFILTERING_LENGTH];
                 reader.read(buffer, 0, SIGNAL_PREFILTERING_LENGTH);
+                signalBuildersArray[signalNumber].setPrefiltering(new String(buffer).trim());
             }
             for(int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
                 buffer = new char[SIGNAL_NUMBER_OF_SAMPLES_LENGTH];

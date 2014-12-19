@@ -4,6 +4,7 @@ import bdf.*;
 import gui.DataView;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import prefilters.PreFilter;
 
 import java.io.File;
 
@@ -19,14 +20,24 @@ public class Controller {
     private boolean isFrequencyAutoAdjustment;
     private File fileToRead;
     private BdfWriter bdfWriter;
-    private RemUtils remConfigurator;
+    private RemConfigurator remConfigurator;
+    private boolean isRemMode;
 
-    public Controller(BdfDevice bdfDevice, RemUtils remConfigurator, boolean isFrequencyAutoAdjustment) {
+    public Controller(BdfDevice bdfDevice) {
         this.bdfDevice = bdfDevice;
-        this.remConfigurator = remConfigurator;
-        this.isFrequencyAutoAdjustment = isFrequencyAutoAdjustment;
     }
 
+    public void setRemMode(boolean isRemMode) {
+        this.isRemMode = isRemMode;
+    }
+
+    public void setRemConfigurator(RemConfigurator remConfigurator) {
+        this.remConfigurator = remConfigurator;
+    }
+
+    public void setFrequencyAutoAdjustment(boolean isFrequencyAutoAdjustment) {
+        this.isFrequencyAutoAdjustment = isFrequencyAutoAdjustment;
+    }
 
     public void stopRecording() throws ApplicationException {
         if (isRecording) {
@@ -46,7 +57,7 @@ public class Controller {
         }
         if (fileToRead != null && fileToRead.equals(file)) {
             System.out.println("write header");
-          //  BdfHeaderWriter.writeBdfHeader(recordingBdfConfig, file);
+            //BdfHeaderWriter.writeBdfHeader(recordingBdfConfig, file);
         } else {
             System.out.println("write file");
             bdfWriter = new BdfWriter(recordingBdfConfig, file);
@@ -93,21 +104,35 @@ public class Controller {
         recordingBdfConfig.setPatientIdentification(recordingSettings.getPatientIdentification());
         recordingBdfConfig.setRecordingIdentification(recordingSettings.getRecordingIdentification());
         recordingBdfConfig.setSignalsLabels(recordingSettings.getChannelsLabels());
-        int numberOfRecordsToJoin = remConfigurator.getNumberOfRecordsToJoin(recordingBdfConfig);
-         BdfProvider joinedBdfProvider = new BdfRecordsJoiner(bdfProvider, numberOfRecordsToJoin);
+        DataView dataView = new DataView();
+        PreFilter[] prefilters = new PreFilter[recordingBdfConfig.getNumberOfSignals()];
         if (dataStore != null) {
             dataStore.clear(); // stop update timer and free memory occupied by old DataStore
         }
-        dataStore = new DataStore(joinedBdfProvider, recordingSettings.getActiveChannels(), remConfigurator.getPreFilters(recordingBdfConfig));
-        DataView dataView = new DataView();
-        GraphsConfigurator.configurate(dataView, dataStore);
+        if (isRemMode) {
+            RemChannels remChannels = new RemChannels(recordingBdfConfig.getSignalsLabels());
+            if (remConfigurator != null) {
+                int numberOfRecordsToJoin = remConfigurator.getNumberOfRecordsToJoin(recordingBdfConfig);
+                bdfProvider = new BdfRecordsJoiner(bdfProvider, numberOfRecordsToJoin);;
+                prefilters = remConfigurator.getPreFilters(recordingBdfConfig, remChannels);
+            }
+            dataStore = new RemDataStore(bdfProvider, remChannels);
+            dataStore.setPreFilters(prefilters);
+            dataStore.setChannelsMask(recordingSettings.getActiveChannels());
+            GraphsConfigurator.configureRem(dataView, (RemDataStore)dataStore);
+        } else {
+            dataStore = new DataStore(bdfProvider);
+            dataStore.setChannelsMask(recordingSettings.getActiveChannels());
+            GraphsConfigurator.configure(dataView, dataStore);
+        }
         dataStore.addListener(dataView);
         dataStore.setStartTime(recordingBdfConfig.getStartTime());
-        joinedBdfProvider.startReading();
         saveToFile(recordingSettings.getFile());
+        bdfProvider.startReading();
         isRecording = true;
         return dataView;
     }
+
 
     private RecordingSettings getRecordingSettings() {
         RecordingSettings recordingSettings = new RecordingSettings(recordingBdfConfig);

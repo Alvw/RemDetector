@@ -8,7 +8,7 @@ import prefilters.PreFilter;
 /**
  *
  */
-public class RemUtils {
+public class RemConfigurator {
     private int eogRemFrequency;
     private int accelerometerRemFrequency;
     private int eogRemCutoffPeriod;
@@ -17,10 +17,10 @@ public class RemUtils {
     private final int RPS_MAX = 10000;
 
 
-    public RemUtils(RemConfig remConfig) {
-        eogRemFrequency = remConfig.getEogRemFrequency();
-        accelerometerRemFrequency = remConfig.getAccelerometerRemFrequency();
-        eogRemCutoffPeriod = remConfig.getEogRemCutoffPeriod();
+    public RemConfigurator(int eogRemFrequency, int accelerometerRemFrequency, int eogRemCutoffPeriod) {
+        this.eogRemFrequency = eogRemFrequency;
+        this.accelerometerRemFrequency = accelerometerRemFrequency;
+        this.eogRemCutoffPeriod = eogRemCutoffPeriod;
     }
 
 
@@ -51,8 +51,7 @@ public class RemUtils {
     }
 
 
-    public PreFilter[] getPreFilters(RecordingBdfConfig bdfConfig) throws ApplicationException {
-        RemChannels remChannels = new RemChannels(bdfConfig.getSignalsLabels());
+    public PreFilter[] getPreFilters(RecordingBdfConfig bdfConfig, RemChannels remChannels) throws ApplicationException {
         int rps = (int) (1/bdfConfig.getDurationOfDataRecord());
         if(rps > RPS_MAX) { // something wrong and we just do nothing
             String errorMsg = "Frequencies are too high for REM mode";

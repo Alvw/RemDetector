@@ -18,7 +18,7 @@ public class DreamRec {
         try {
             File configDirectory = new File(System.getProperty("user.dir"), "config");
             ApplicationProperties applicationProperties = new ApplicationProperties(new File(configDirectory, "application.properties"));
-            RemConfig remConfig = new RemProperties(new File(configDirectory, "rem.properties"));
+            RemProperties remProperties = new RemProperties(new File(configDirectory, "rem.properties"));
             GuiConfig guiConfig = new GuiProperties(new File(configDirectory, "gui.properties"));
             String deviceClass = applicationProperties.getDeviceClassName();
             DeviceFabric deviceFabric = new DeviceFabric(deviceClass);
@@ -26,8 +26,12 @@ public class DreamRec {
             DeviceBdfConfig bdfConfig = bdfDevice.getBdfConfig();
             bdfConfig.setSignalsLabels(applicationProperties.getDeviceChannelsLabels(bdfConfig.getNumberOfSignals()));
             boolean isFrequencyAutoAdjustment = applicationProperties.isFrequencyAutoAdjustment();
-            RemUtils remConfigurator = new RemUtils(remConfig);
-            Controller controller = new Controller(bdfDevice, remConfigurator, isFrequencyAutoAdjustment);
+            RemConfigurator remConfigurator = new RemConfigurator(remProperties.getEogRemFrequency(),
+                    remProperties.getAccelerometerRemFrequency(), remProperties.getEogRemCutoffPeriod());
+            Controller controller = new Controller(bdfDevice);
+            controller.setRemConfigurator(remConfigurator);
+            controller.setFrequencyAutoAdjustment(isFrequencyAutoAdjustment);
+            controller.setRemMode(false);
 
             MainWindow mainWindow = new MainWindow(controller, guiConfig);
 
