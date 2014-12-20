@@ -17,25 +17,28 @@ import java.util.List;
 public class Ads implements BdfDevice {
 
     private static final Log log = LogFactory.getLog(Ads.class);
-
+    private final int NUMBER_OF_BYTES_IN_DATA_FORMAT = 3;
     private List<BdfListener> bdfListeners = new ArrayList<BdfListener>();
     private ComPort comPort;
     private boolean isRecording;
-    AdsConfiguration adsConfiguration;
-    private DeviceBdfConfig deviceBdfConfig;
+    private AdsConfiguration adsConfiguration;
+    DeviceBdfConfig bdfConfig;
+
+
 
     public Ads() {
         adsConfiguration = new AdsConfigUtil().readConfiguration();
+        bdfConfig = createBdfConfig();
     }
 
     @Override
-    public void startReading() throws ApplicationException{
+    public void startReading() throws ApplicationException {
         String failConnectMessage = "Connection failed. Check com port settings.\nReset power on the target amplifier. Restart the application.";
         try {
-            FrameDecoder frameDecoder = new FrameDecoder(adsConfiguration) {
+            FrameDecoder frameDecoder = new FrameDecoder(getNumberOfDataSamples(), NUMBER_OF_BYTES_IN_DATA_FORMAT) {
                 @Override
-                public void notifyListeners(int[] decodedFrame) {
-                   // notifyAdsDataListeners(decodedFrame);
+                public void notifyListeners(byte[] decodedFrame) {
+                    notifyAdsDataListeners(decodedFrame);
                 }
             };
             comPort = new ComPort();
@@ -88,10 +91,8 @@ public class Ads implements BdfDevice {
 
     @Override
     public DeviceBdfConfig getBdfConfig() {
-        if(deviceBdfConfig == null) {
-            deviceBdfConfig = createBdfConfig();
-        }
-        return deviceBdfConfig;
+       // return createBdfConfig();
+        return bdfConfig;
     }
 
 
@@ -135,24 +136,37 @@ public class Ads implements BdfDevice {
             }
         }
 
-            SignalConfig signalConfig = new SignalConfig.Builder()
-                    .setLabel("System events ")
-                    .setTransducerType("Unknown")
-                    .setDigitalMax(8388607)
-                    .setDigitalMin(-8388608)
-                    .setPhysicalMax(8388607)
-                    .setPhysicalMin(-8388608)
-                    .setPrefiltering("None")
-                    .setNumberOfSamplesInEachDataRecord(1)
-                    .setPhysicalDimension("n/a")
-                    .build();
-            signalConfigList.add(signalConfig);
+        // channel for device specific information (loff status and so on);
+        SignalConfig signalConfig = new SignalConfig.Builder()
+                .setLabel("System events ")
+                .setTransducerType("Unknown")
+                .setDigitalMax(8388607)
+                .setDigitalMin(-8388608)
+                .setPhysicalMax(8388607)
+                .setPhysicalMin(-8388608)
+                .setPrefiltering("None")
+                .setNumberOfSamplesInEachDataRecord(1)
+                .setPhysicalDimension("n/a")
+                .build();
+        signalConfigList.add(signalConfig);
 
 
-        double DurationOfDataRecord = (double)(adsConfiguration.getDeviceType().getMaxDiv().getValue()) / adsConfiguration.getSps().getValue();
-        int numberOfBytesInDataFormat = 3;
+        double DurationOfDataRecord = (double) (adsConfiguration.getDeviceType().getMaxDiv().getValue()) / adsConfiguration.getSps().getValue();
         SignalConfig[] signalConfigArray = signalConfigList.toArray(new SignalConfig[signalConfigList.size()]);
-        RecordingBdfConfig recordingConfig = new RecordingBdfConfig(DurationOfDataRecord, numberOfBytesInDataFormat, signalConfigArray);
+        RecordingBdfConfig recordingConfig = new RecordingBdfConfig(DurationOfDataRecord, NUMBER_OF_BYTES_IN_DATA_FORMAT, signalConfigArray);
         return recordingConfig;
+    }
+
+    private int getNumberOfDataSamples() {
+        int numberOfDataSamples = 0;
+        BdfConfig bdfConfig = getBdfConfig();
+        // the last channel is virtual channel for device specific information (loff status and so on)
+        // so we do not take it into consideration
+        int numberOfRealChannels = bdfConfig.getNumberOfSignals() - 1;
+        int[] numbersOfSamplesInEachDataRecord = bdfConfig.getNumbersOfSamplesInEachDataRecord();
+        for (int i = 0; i < numberOfRealChannels; i++) {
+            numberOfDataSamples += numbersOfSamplesInEachDataRecord[i];
+        }
+        return numberOfDataSamples;
     }
 }

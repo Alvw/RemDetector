@@ -6,46 +6,48 @@ import org.apache.commons.logging.LogFactory;
 abstract class FrameDecoder {
 
     public static final int START_FRAME_MARKER = 254;
-    private int frameIndex;
-    private int rawFrameSize;
-    private int decodedFrameSize;
-    private int[] rawFrame;
+    private int index;
+    private int inputFrameSize;
+    int outputFrameSize = 0;
+    private byte[] inputFrame;
     private static final Log log = LogFactory.getLog(FrameDecoder.class);
 
-    public FrameDecoder(AdsConfiguration configuration) {
-        decodedFrameSize = AdsUtils.getDecodedFrameSize(configuration);
-        rawFrameSize = ((decodedFrameSize-2) * 3) + 3; //3 bytes for each ads channel value or accelerometer value + 1 byte marker + 2 bytes device specific information
-        rawFrame = new int[rawFrameSize];
-        log.info("Com port frame size: " + rawFrameSize + " bytes");
-        log.info("Decoded frame size: " + decodedFrameSize);
+    public FrameDecoder(int numberOfDataSamples, int numberOfBytesInDataFormat) {
+        // numberOfBytesInDataFormat for each ads or accelerometer channel sample
+        // + 1 byte marker + 2 bytes device specific information
+        inputFrameSize = numberOfDataSamples * numberOfBytesInDataFormat + 1 + 2;
+
+       // we add one virtual channel (that will occupy numberOfBytesInDataFormat)
+       // to store 2 bytes of device specific information
+        outputFrameSize = numberOfDataSamples * numberOfBytesInDataFormat + numberOfBytesInDataFormat;
+
+        inputFrame = new byte[inputFrameSize];
+        log.info("Com port inputFrame size: " + inputFrameSize + " bytes");
+        log.info("Decoded inputFrame size: " + outputFrameSize);
+        System.out.println("Com port inputFrame size: " + inputFrameSize + " bytes");
+        System.out.println("Decoded inputFrame size: " + outputFrameSize);
     }
 
-    public void onByteReceived(int inByte) {
-        if (frameIndex == 0 && inByte == START_FRAME_MARKER) {
-            rawFrame[frameIndex] = inByte;
-            frameIndex++;
-        } else if (frameIndex > 0 && frameIndex < (rawFrameSize - 1)) {
-            rawFrame[frameIndex] = inByte;
-            frameIndex++;
-        } else if (frameIndex == (rawFrameSize - 1)) {
-            rawFrame[frameIndex] = inByte;
-            frameIndex = 0;
-            onFrameReceived();
+    public void onByteReceived(byte inByte) {
+        int inByteInt = inByte & 0xFF;
+        if (index == 0 && inByteInt == START_FRAME_MARKER) {
+            inputFrame[index] = inByte;
+            index++;
+        } else if (index > 0 && index < (inputFrameSize - 1)) {
+            inputFrame[index] = inByte;
+            index++;
+        } else if (index == (inputFrameSize - 1)) {
+            inputFrame[index] = inByte;
+            index = 0;
+            byte[] outputFrame = new byte[outputFrameSize];
+            // copy inputFrame to outputFrame skipping fist marker byte
+            System.arraycopy(inputFrame, 1, outputFrame, 0, inputFrame.length - 1);
+            notifyListeners(outputFrame);
         } else {
-            log.warn("Lost Frame. Frame index = " + frameIndex + " inByte = " + inByte);
-            frameIndex = 0;
+            log.warn("Lost Frame. Frame index = " + index + " inByte = " + inByte);
+            index = 0;
         }
     }
 
-    private void onFrameReceived() {
-        int[] decodedFrame = new int[decodedFrameSize];
-        for (int i = 0; i < decodedFrameSize - 2; i++) {
-            decodedFrame[i] = (((rawFrame[i * 3 + 3] << 24) + ((rawFrame[i * 3 + 2]) << 16) + (rawFrame[i * 3 + 1] << 8)) / 256);
-        }
-        decodedFrame[decodedFrame.length - 2] = rawFrame[rawFrame.length - 2];
-        decodedFrame[decodedFrame.length - 1] = rawFrame[rawFrame.length - 1];
-        notifyListeners(decodedFrame);
-    }
-
-    public abstract void notifyListeners(int[] decodedFrame);
+    public abstract void notifyListeners(byte[] decodedFrame);
 }

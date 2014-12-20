@@ -31,7 +31,7 @@ public class DreamRec {
             Controller controller = new Controller(bdfDevice);
             controller.setRemConfigurator(remConfigurator);
             controller.setFrequencyAutoAdjustment(isFrequencyAutoAdjustment);
-            controller.setRemMode(false);
+            controller.setRemMode(true);
 
             MainWindow mainWindow = new MainWindow(controller, guiConfig);
 

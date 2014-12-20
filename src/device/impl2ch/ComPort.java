@@ -112,7 +112,7 @@ class ComPort {
                     while (isConnected && (len = this.in.read(buf)) > -1) {
                         for (int i = 0; i < len; i++) {
                             if (frameDecoder != null) {
-                                frameDecoder.onByteReceived((buf[i] & 0xFF));
+                                frameDecoder.onByteReceived((buf[i]));
                             }
                         }
                     }

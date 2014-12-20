@@ -40,15 +40,14 @@ public class Controller {
     }
 
     public void stopRecording() throws ApplicationException {
+        System.out.println("stopRecording ");
         if (isRecording) {
             bdfProvider.stopReading();
             bdfProvider.removeBdfDataListener(dataStore);
             bdfProvider.removeBdfDataListener(bdfWriter);
             isRecording = false;
         }
-
-        if (!isRecording) return;
-        isRecording = false;
+        throw new ApplicationException("can't stop");
     }
 
     private void saveToFile(File file) throws ApplicationException {
@@ -67,8 +66,12 @@ public class Controller {
 
     }
 
-    public void closeApplication() throws ApplicationException {
-        stopRecording();
+    public void closeApplication()  {
+        try {
+            stopRecording();
+        } catch (ApplicationException e) {
+            log.error(e);
+        }
         System.exit(0);
     }
 
@@ -113,7 +116,7 @@ public class Controller {
             RemChannels remChannels = new RemChannels(recordingBdfConfig.getSignalsLabels());
             if (remConfigurator != null) {
                 int numberOfRecordsToJoin = remConfigurator.getNumberOfRecordsToJoin(recordingBdfConfig);
-                bdfProvider = new BdfRecordsJoiner(bdfProvider, numberOfRecordsToJoin);;
+                bdfProvider = new BdfRecordsJoiner(bdfProvider, numberOfRecordsToJoin);
                 prefilters = remConfigurator.getPreFilters(recordingBdfConfig, remChannels);
             }
             dataStore = new RemDataStore(bdfProvider, remChannels);
@@ -136,8 +139,10 @@ public class Controller {
 
     private RecordingSettings getRecordingSettings() {
         RecordingSettings recordingSettings = new RecordingSettings(recordingBdfConfig);
-        boolean[] isChannelsActive = RemChannels.isRemLabels(recordingBdfConfig.getSignalsLabels());
-        recordingSettings.setActiveChannels(isChannelsActive);
+        if(isRemMode) {
+            boolean[] isChannelsActive = RemChannels.isRemLabels(recordingBdfConfig.getSignalsLabels());
+            recordingSettings.setActiveChannels(isChannelsActive);
+        }
         recordingSettings.setFile(fileToRead);
         return recordingSettings;
     }

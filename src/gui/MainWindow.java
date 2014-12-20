@@ -57,13 +57,9 @@ public class MainWindow extends JFrame {
     }
 
     private void close() {
-        try{
             guiConfig.setDirectoryToRead(currentDirToRead);
             guiConfig.setDirectoryToSave(currentDirToSave);
             controller.closeApplication();
-        }catch (ApplicationException e)  {
-            showMessage(e.getMessage());
-        }
     }
 
     public void setDataView(DataView dataView) {
