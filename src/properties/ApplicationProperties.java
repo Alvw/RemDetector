@@ -2,21 +2,21 @@ package properties;
 
 import dreamrec.ApplicationException;
 
-import java.io.File;
+import java.util.HashMap;
+import java.util.Iterator;
 
 public class ApplicationProperties extends FileProperties {
     private static final String DEVICE_TYPE = "device.type";
     private static final String DEVICE_CLASSNAME = "device.classname";
-    private static final String DEVICE_CHANNEL = "device.channel";
+    private static final String DEVICE_CHANNEL_NAME = "device.channel.name";
     private static final String IS_FREQUENCY_AUTO_ADJUSTMENT = "is_frequency_auto_adjustment";
 
-    public ApplicationProperties(File file) throws ApplicationException {
+    public ApplicationProperties(String file) throws ApplicationException {
         super(file);
         String deviceType = config.getString(DEVICE_TYPE);
         if(deviceType != null) {
             String devicePropertiesFilename = deviceType.concat(".").concat("properties");
-            File devicePropertiesFile = new File(file.getParent(), devicePropertiesFilename);
-            addPropertiesFile(devicePropertiesFile);
+            addPropertiesFile(devicePropertiesFilename);
         }
     }
 
@@ -30,15 +30,30 @@ public class ApplicationProperties extends FileProperties {
         return config.getBoolean(IS_FREQUENCY_AUTO_ADJUSTMENT, defaultValue);
     }
 
-    public String[] getDeviceChannelsLabels(int numberOfChannels) {
-        //Iterator<String> keys = config.getKeys(DEVICE_CHANNEL);
-        String[] labels = new String[numberOfChannels];
-        for(int i = 0; i < numberOfChannels; i++) {
-            String key = DEVICE_CHANNEL + "." + i;
-            labels[i] = config.getString(key);
+    public String[] getDeviceChannelsLabels() {
+        Iterator<String> keys = config.getKeys(DEVICE_CHANNEL_NAME);
+        HashMap<Integer, String> labelsMap = new HashMap<Integer, String>();
+        int indexMax = -1;
+
+        while(keys.hasNext()) {
+            String key = keys.next();
+            String indexStr = key.substring(DEVICE_CHANNEL_NAME.length()+1);
+            try {
+                Integer index = Integer.parseInt(indexStr);
+                String label = config.getString(key);
+                labelsMap.put(index, label);
+                indexMax = Math.max(indexMax, index);
+            } catch (NumberFormatException e) {
+
+            }
         }
-
-        return labels;
+        if(indexMax >= 0) {
+            String[] labels = new String[indexMax+1];
+            for (Integer index : labelsMap.keySet()) {
+                labels[index] = labelsMap.get(index);
+            }
+            return labels;
+        }
+        return null;
     }
-
 }

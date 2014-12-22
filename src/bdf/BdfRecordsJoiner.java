@@ -78,7 +78,6 @@ public class BdfRecordsJoiner implements BdfProvider, BdfListener {
 
     @Override
     public BdfConfig getBdfConfig() {
-        System.out.println("numberOfRecordsToJoin "+numberOfRecordsToJoin);
         return new JoinedBdfConfig(bdfProvider.getBdfConfig(), numberOfRecordsToJoin);
     }
 }

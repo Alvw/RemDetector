@@ -197,7 +197,6 @@ public class BdfHeaderReader {
             recordingBdfConfig.setStartTime(startTime);
             recordingBdfConfig.setNumberOfDataRecords(numberOfDataRecords);
             reader.close();
-            System.out.println("durationOfDataRecord "+durationOfDataRecord);
             return recordingBdfConfig;
 
         } catch (Exception e) {

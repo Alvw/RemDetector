@@ -2,14 +2,11 @@ package properties;
 
 import dreamrec.ApplicationException;
 import org.apache.commons.configuration.CompositeConfiguration;
-
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.FileConfiguration;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import java.io.File;
 
 /**
  * Created by mac on 13/12/14.
@@ -19,23 +16,23 @@ public class FileProperties {
     private FileConfiguration fileConfig;
     protected CompositeConfiguration config;
 
-    public FileProperties(File file) throws ApplicationException {
+    public FileProperties(String file) throws ApplicationException {
         try {
             fileConfig = new PropertiesConfiguration(file);
             config = new CompositeConfiguration(fileConfig);
             fileConfig.setAutoSave(true);
         } catch (ConfigurationException e) {
             log.error(e);
-            throw new ApplicationException("Error reading from properties file: " + file.getAbsolutePath());
+            throw new ApplicationException("Error reading from properties file: " + file);
         }
     }
 
-    public void addPropertiesFile(File file) throws  ApplicationException {
+    public void addPropertiesFile(String file) throws  ApplicationException {
         try {
             config.addConfiguration(new PropertiesConfiguration(file));
         } catch (ConfigurationException e) {
             log.error(e);
-            throw new ApplicationException("Error reading from properties file: " + file.getAbsolutePath());
+            throw new ApplicationException("Error reading from properties file: ");
         }
     }
 

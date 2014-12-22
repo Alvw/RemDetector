@@ -2,8 +2,6 @@ package properties;
 
 import dreamrec.ApplicationException;
 
-import java.io.File;
-
 /**
  * Created by mac on 12/12/14.
  */
@@ -12,7 +10,7 @@ public class RemProperties extends FileProperties  {
     private static final String EOG_REM_FREQUENCY = "rem.eog_frequency";
     private static final String EOG_REM_CUTOFF_PERIOD = "rem.eog_cutoff_period";
 
-    public RemProperties(File file) throws ApplicationException {
+    public RemProperties(String file) throws ApplicationException {
        super(file);
     }
 

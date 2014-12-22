@@ -83,15 +83,17 @@ public class BdfReader implements BdfProvider {
 
     @Override
     public void stopReading() {
-        try {
-            fileInputStream.close();
-            isFileOpen = false;
-        } catch (IOException e) {
-            log.error(e);
-        }
+        if(isFileOpen) {
+            try {
+                fileInputStream.close();
+                isFileOpen = false;
+                for (BdfListener bdfBdfListener : bdfListenersList) {
+                    bdfBdfListener.onStopReading();
+                }
 
-        for (BdfListener bdfBdfListener : bdfListenersList) {
-            bdfBdfListener.onStopReading();
+            } catch (IOException e) {
+                log.error(e);
+            }
         }
     }
 

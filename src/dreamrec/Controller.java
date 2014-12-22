@@ -46,8 +46,8 @@ public class Controller {
             bdfProvider.removeBdfDataListener(dataStore);
             bdfProvider.removeBdfDataListener(bdfWriter);
             isRecording = false;
+            System.out.println("stop finished ");
         }
-        throw new ApplicationException("can't stop");
     }
 
     private void saveToFile(File file) throws ApplicationException {

@@ -1,6 +1,5 @@
 package dreamrec;
 
-import bdf.DeviceBdfConfig;
 import gui.GuiConfig;
 import gui.MainWindow;
 import properties.ApplicationProperties;
@@ -8,7 +7,6 @@ import properties.GuiProperties;
 import properties.RemProperties;
 
 import javax.swing.*;
-import java.io.File;
 
 /**
  *
@@ -16,15 +14,13 @@ import java.io.File;
 public class DreamRec {
     public static void main(String[] args) {
         try {
-            File configDirectory = new File(System.getProperty("user.dir"), "config");
-            ApplicationProperties applicationProperties = new ApplicationProperties(new File(configDirectory, "application.properties"));
-            RemProperties remProperties = new RemProperties(new File(configDirectory, "rem.properties"));
-            GuiConfig guiConfig = new GuiProperties(new File(configDirectory, "gui.properties"));
+            ApplicationProperties applicationProperties = new ApplicationProperties("application.properties");
+            RemProperties remProperties = new RemProperties("rem.properties");
+            GuiConfig guiConfig = new GuiProperties("gui.properties");
             String deviceClass = applicationProperties.getDeviceClassName();
             DeviceFabric deviceFabric = new DeviceFabric(deviceClass);
             BdfDevice bdfDevice = deviceFabric.getDeviceImplementation();
-            DeviceBdfConfig bdfConfig = bdfDevice.getBdfConfig();
-            bdfConfig.setSignalsLabels(applicationProperties.getDeviceChannelsLabels(bdfConfig.getNumberOfSignals()));
+            applicationProperties.getDeviceChannelsLabels();
             boolean isFrequencyAutoAdjustment = applicationProperties.isFrequencyAutoAdjustment();
             RemConfigurator remConfigurator = new RemConfigurator(remProperties.getEogRemFrequency(),
                     remProperties.getAccelerometerRemFrequency(), remProperties.getEogRemCutoffPeriod());

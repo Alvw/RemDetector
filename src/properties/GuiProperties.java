@@ -3,14 +3,11 @@ package properties;
 import dreamrec.ApplicationException;
 import gui.GuiConfig;
 
-
-import java.io.File;
-
 public class GuiProperties extends FileProperties implements GuiConfig{
     private static final String DIRECTORY_TO_READ = "directory_to_read";
     private static final String DIRECTORY_TO_SAVE = "directory_to_save";
 
-    public GuiProperties(File file) throws ApplicationException {
+    public GuiProperties(String file) throws ApplicationException {
         super(file);
 
     }

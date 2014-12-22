@@ -5,7 +5,7 @@ import org.apache.commons.logging.LogFactory;
 
 abstract class FrameDecoder {
 
-    public static final int START_FRAME_MARKER = 254;
+    public static final byte START_FRAME_MARKER = (byte)(254 & 0xFF);
     private int index;
     private int inputFrameSize;
     int outputFrameSize = 0;
@@ -29,8 +29,7 @@ abstract class FrameDecoder {
     }
 
     public void onByteReceived(byte inByte) {
-        int inByteInt = inByte & 0xFF;
-        if (index == 0 && inByteInt == START_FRAME_MARKER) {
+        if (index == 0 && inByte == START_FRAME_MARKER) {
             inputFrame[index] = inByte;
             index++;
         } else if (index > 0 && index < (inputFrameSize - 1)) {
