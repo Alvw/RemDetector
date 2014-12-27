@@ -9,6 +9,7 @@ import java.awt.event.MouseWheelListener;
 import java.awt.geom.AffineTransform;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 /**
@@ -19,27 +20,24 @@ import java.util.Date;
  * To change this template use File | Settings | File Templates.
  */
 public class GraphPanel extends JPanel {
-    protected DataSet[] graphs = new DataSet[3];//panel can have a several graphs. Max 3 for simplicity
+    protected java.util.List<DataSet> graphs = new ArrayList<DataSet>();//panel can have a several graphs. Max 3 for simplicity
 
-    protected static final int X_INDENT = 50;
-    protected static final int Y_INDENT = 20;
     protected static final double ZOOM_PLUS_CHANGE = Math.sqrt(2.0);// 2 clicks(rotations) up increase zoom twice
     protected static final double ZOOM_MINUS_CHANGE = 1 / ZOOM_PLUS_CHANGE; // similarly 2 clicks(rotations) down reduces zoom twice
     protected static final Color bgColor = Color.BLACK;
     protected static final Color axisColor = Color.GREEN;
     protected static final Color graphColors[] = {Color.YELLOW, Color.RED, Color.CYAN};
 
-    protected int startPoint = 0;
     protected double zoom = 0.5;
     protected boolean isAutoZoom;
     protected boolean isXCentered = true;
-    protected long startTime = 0;
     protected int weight = 1;
-    protected double timeFrequency = 0;
+    protected GraphsData graphsData;
 
-    GraphPanel(int weight, boolean isXCentered) {
+    GraphPanel(int weight, boolean isXCentered, GraphsData graphsData) {
         this.weight = weight;
         this.isXCentered = isXCentered;
+        this.graphsData = graphsData;
         setBackground(bgColor);
         // MouseListener to zoom Y_Axes
         addMouseWheelListener(new MouseWheelListener() {
@@ -48,37 +46,20 @@ public class GraphPanel extends JPanel {
             }
         });
     }
-    
-
-
-    protected void setStart(long startTime) {
-            this.startTime = startTime;
-    }
-
-    protected void setTimeFrequency(double timeFrequency) {
-        this.timeFrequency = timeFrequency;
-    }
-
-    public int getStartPoint() {
-        return startPoint;
-    }
-
-    protected void setStartPoint(int startPoint) {
-        this.startPoint = startPoint;
-    }
 
     protected int getWeight() {
         return weight;
     }
 
+    protected double getTimeFrequency() {
+         return graphsData.getTimeFrequency();
+    }
+
     protected int getWorkspaceWidth() {
-        return (getSize().width - X_INDENT);
+        return (getSize().width - graphsData.X_INDENT);
     }
 
 
-    protected int getFullWidth() {
-        return X_INDENT + getGraphsSize();
-    }
 
     protected void zooming(int zoomDirection) {
         if (zoomDirection > 0) {
@@ -90,24 +71,10 @@ public class GraphPanel extends JPanel {
     }
 
     protected void addGraph(DataSet graphData) {
-        int count = 0;
-        while (graphs[count] != null) {
-            count++;
-        }
-        if (count < graphs.length) {
-            graphs[count] = graphData;
-        }
+        graphs.add(graphData);
         repaint();
     }
 
-
-    protected int getGraphsSize() {
-        if (graphs[0] == null) {
-            return 0;
-        } else {
-            return graphs[0].size();
-        }
-    }
 
     protected void setAutoZoom(boolean isAutoZoom) {
         this.isAutoZoom = isAutoZoom;
@@ -152,17 +119,16 @@ public class GraphPanel extends JPanel {
         int SECOND = 1000; //milliseconds
         int SECONDS_10 = 10 * SECOND; //milliseconds
         int MINUTE = 60*SECOND;//milliseconds
-        int point_distance_msec = (int) (1000/timeFrequency);
+        int point_distance_msec = (int) (1000/getTimeFrequency());
 
         g.setColor(axisColor);
         Graphics2D g2d = (Graphics2D) g;
         g2d.transform(AffineTransform.getScaleInstance(1.0, -1.0)); // flip transformation
 
-
         DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-        long newStartTime = (startTime/ point_distance_msec)* point_distance_msec + point_distance_msec;
+        long newStartTime = (graphsData.getStartTime()/ point_distance_msec)* point_distance_msec + point_distance_msec;
         for (int i = 0; i  < getWorkspaceWidth(); i++) {
-            long iTime = newStartTime + (long)((startPoint + i) * point_distance_msec);
+            long iTime = newStartTime + (long)((getStartIndex() + i) * point_distance_msec);
             if((iTime % SECONDS_10) == 0){
                 // Paint Rectangle
                 g.fillRect(i - 1, -4, 3, 9);
@@ -198,24 +164,25 @@ public class GraphPanel extends JPanel {
         if(isXCentered) {
             return getSize().height/2;
         }
-        return (getSize().height - Y_INDENT);
+        return (getSize().height - graphsData.Y_INDENT);
     }
 
 
     protected void transformCoordinate(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
-        g2d.translate(X_INDENT, getMaxY()); // move XY origin to the left bottom point
+        g2d.translate(graphsData.X_INDENT, getMaxY()); // move XY origin to the left bottom point
         g2d.transform(AffineTransform.getScaleInstance(1, -1)); // flip Y-axis
     }
 
     protected void restoreCoordinate(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
-        g2d.translate(-X_INDENT, getMaxY()); // move XY origin to the left top point
+        g2d.translate(-graphsData.X_INDENT, getMaxY()); // move XY origin to the left top point
         g2d.transform(AffineTransform.getScaleInstance(1, -1)); // flip Y-axis and zoom it
     }
 
     protected int getValue(int x, DataSet graph) {
         double frequency = graph.getFrequency();
+        double timeFrequency = getTimeFrequency();
         int value = 0;
         // points x corresponds to frequencyBase
         if(timeFrequency == 0 || frequency == timeFrequency) {
@@ -240,14 +207,18 @@ public class GraphPanel extends JPanel {
         }
         return value;
     }
+    protected int getStartIndex() {
+        return graphsData.getStartIndex();
+    }
 
     protected void paintGraphs(Graphics g) {
         int graph_number = 0;
+        int startPoint = getStartIndex();
         for (DataSet graph : graphs) {
             Color graphColor = graphColors[graph_number];
             graph_number++;
             if (graph != null) {
-                int size = (int)(graph.size() * timeFrequency / graph.getFrequency());
+                int size = (int)(graph.size() * getTimeFrequency() / graph.getFrequency());
                 int endPoint = Math.min(getWorkspaceWidth(), (size - startPoint));
                 VerticalLine vLine = new VerticalLine();
                 for (int x = 0; x < endPoint; x++) {
@@ -267,54 +238,6 @@ public class GraphPanel extends JPanel {
     }
 
 
-    protected void paintGraphs_old(Graphics g) {
-        int graph_number = 0;
-        for (DataSet graph : graphs) {
-            Color graphColor = graphColors[graph_number];
-            graph_number++;
-            if (graph != null) {
-                int endIndex = Math.min(getWorkspaceWidth(), (graph.size() - startPoint));
-                VerticalLine vLine = new VerticalLine();
-                for (int x = 0; x < endIndex; x++) {
-                    int value = graph.get(x + startPoint);
-                    if(value == DataSet.UNDEFINED) {
-                        vLine.clear();
-                    }
-                    else {
-                        g.setColor(graphColor);
-                        int y = (int) Math.round(zoom * value);
-                        drawVerticalLine(g, x, y, vLine);
-                    }
-
-                 /*   if(value == DataStream.STAND) {
-                        g.setColor(Color.blue);
-                        g.drawLine(x, 0, x, getMaxY()/2);
-                    }
-                    else if(value == DataStream.MOVE) {
-                        g.setColor(Color.white);
-                        g.drawLine(x, 0, x, getMaxY()/3);
-                    }
-
-                    else if(value == DataStream.UNDEFINED) {
-
-                    }
-                    else if(value > DataStream.WORKSPACE) {
-                        Integer v = new Integer(value - DataStream.WORKSPACE);
-                        Graphics2D g2d = (Graphics2D) g;
-                        g2d.transform(AffineTransform.getScaleInstance(1, -1)); // flip Y-axis
-                         g.drawString(v.toString(), x, 20);
-                        g2d.transform(AffineTransform.getScaleInstance(1, -1)); // flip Y-axis
-                    }
-                    else{
-                        g.setColor(graphColor);
-                        int y = (int) Math.round(zoom * value);
-                        drawVerticalLine(g, x, y, vLine);
-                    }  */
-
-                }
-            }
-        }
-    }
 
     @Override
     protected void paintComponent(Graphics g) {
@@ -323,7 +246,7 @@ public class GraphPanel extends JPanel {
 
         paintAxisY(g);
 
-        if(timeFrequency != 0) {
+        if(getTimeFrequency() != 0) {
             paintAxisX(g);
         }
 

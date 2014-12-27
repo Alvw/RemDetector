@@ -1,5 +1,8 @@
 package graph;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -8,6 +11,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -17,61 +21,50 @@ import java.util.Date;
  * To change this template use File | Settings | File Templates.
  */
 class PreviewPanel extends GraphPanel {
+    private static final Log log = LogFactory.getLog(PreviewPanel.class);
+    protected Color SLOT_COLOR = Color.MAGENTA;
+    private List<SlotListener> slotListeners = new ArrayList<SlotListener>();
 
-    private ArrayList<SlotListener> slotListeners = new ArrayList<SlotListener>();
-    private int slotIndex = 0;  // according to the beginning of Data arrays
-    private Color slotColor = Color.MAGENTA;
-    private int compression = 1;
-
-
-    PreviewPanel(int weight, boolean isXCentered) {
-        super(weight, isXCentered);
+    PreviewPanel(int weight, boolean isXCentered, GraphsData graphsData) {
+        super(weight, isXCentered, graphsData);
         //MouseListener to move Slot
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
-                int newSlotIndex = e.getX() - X_INDENT + startPoint;
-                notifySlotListeners(newSlotIndex);
+                int slotPosition = e.getX() - GraphsData.X_INDENT;
+                notifySlotListeners(slotPosition);
             }
         });
     }
 
-
-    int getSlotIndex() {
-        return slotIndex;
-    }
-
-    void setSlotIndex(int slotIndex) {
-        this.slotIndex = slotIndex;
-    }
-
-    protected void setCompression(int compression) {
-        this.compression = compression;
-    }
-
-    int getSlotWidth() {
-        if(compression <= 1) {
-            return 0;
-        }
-        return  Math.max(1, (getWorkspaceWidth() / compression));
-    }
-
     public void addSlotListener(SlotListener slotListener) {
-          slotListeners.add(slotListener);
+        slotListeners.add(slotListener);
     }
-
     private void notifySlotListeners(int newSlotPosition) {
         for (SlotListener listener: slotListeners) {
             listener.moveSlot(newSlotPosition);
-
         }
     }
 
+    @Override
+    protected int getStartIndex() {
+        return graphsData.getScrollPosition();
+    }
+
+    @Override
+    protected double getTimeFrequency() {
+        return graphsData.getTimeFrequency() / graphsData.getCompression();
+    }
+
     private void paintSlot(Graphics g) {
-        if(getSlotWidth() > 0) {
-            g.setColor(slotColor);
-            g.drawRect(slotIndex - startPoint, 0, getSlotWidth(), getMaxY());
+        int slotWidth = graphsData.getSlotWidth();
+        int slotPosition = graphsData.getSlotPosition();
+        if(slotWidth > 0) {
+            g.setColor(SLOT_COLOR);
+            g.drawRect(slotPosition, 0, slotWidth, getMaxY());
+            g.drawLine(slotPosition-1, 0, slotPosition-1, getMaxY());
+            g.drawLine(slotPosition-2, 0, slotPosition-2, getMaxY());
         }
     }
 
@@ -81,6 +74,8 @@ class PreviewPanel extends GraphPanel {
         int MINUTES_2 = 2 * MINUTE;
         int MINUTES_10 = 10 * MINUTE;
         int MINUTES_30 = 30 * MINUTE;//milliseconds
+        long startTime = graphsData.getStartTime();
+        double timeFrequency = getTimeFrequency();
         int point_distance_msec = (int) (1000/timeFrequency);
         g.setColor(axisColor);
         Graphics2D g2d = (Graphics2D) g;
@@ -94,7 +89,7 @@ class PreviewPanel extends GraphPanel {
         long newStartTime = (startTime/ point_distance_msec)* point_distance_msec + point_distance_msec;
         for (int i = 0; i  < getWorkspaceWidth(); i++) {
 
-            long iTime = newStartTime + (long)((startPoint + i) * point_distance_msec);
+            long iTime = newStartTime + (long)((getStartIndex() + i) * point_distance_msec);
             if((iTime % MINUTES_10) == 0){
                 // Paint Triangle
                 g.fillPolygon(new int[]{i - 3, i + 3, i}, new int[]{0, 0, 6}, 3);
