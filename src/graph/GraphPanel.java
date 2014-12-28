@@ -9,7 +9,6 @@ import java.awt.event.MouseWheelListener;
 import java.awt.geom.AffineTransform;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 
 /**
@@ -20,8 +19,7 @@ import java.util.Date;
  * To change this template use File | Settings | File Templates.
  */
 public class GraphPanel extends JPanel {
-    protected java.util.List<DataSet> graphs = new ArrayList<DataSet>();//panel can have a several graphs. Max 3 for simplicity
-
+    protected java.util.List<DataSet> graphs;
     protected static final double ZOOM_PLUS_CHANGE = Math.sqrt(2.0);// 2 clicks(rotations) up increase zoom twice
     protected static final double ZOOM_MINUS_CHANGE = 1 / ZOOM_PLUS_CHANGE; // similarly 2 clicks(rotations) down reduces zoom twice
     protected static final Color bgColor = Color.BLACK;
@@ -38,6 +36,7 @@ public class GraphPanel extends JPanel {
         this.weight = weight;
         this.isXCentered = isXCentered;
         this.graphsData = graphsData;
+        graphs = graphsData.getLastGraphList();
         setBackground(bgColor);
         // MouseListener to zoom Y_Axes
         addMouseWheelListener(new MouseWheelListener() {
@@ -67,11 +66,6 @@ public class GraphPanel extends JPanel {
         } else {
             zoom = zoom * ZOOM_MINUS_CHANGE;
         }
-        repaint();
-    }
-
-    protected void addGraph(DataSet graphData) {
-        graphs.add(graphData);
         repaint();
     }
 
@@ -114,7 +108,6 @@ public class GraphPanel extends JPanel {
     }
 
     protected void paintAxisX(Graphics g) {
-
         int SECOND_HALF = 500; //milliseconds
         int SECOND = 1000; //milliseconds
         int SECONDS_10 = 10 * SECOND; //milliseconds
@@ -218,7 +211,10 @@ public class GraphPanel extends JPanel {
             Color graphColor = graphColors[graph_number];
             graph_number++;
             if (graph != null) {
-                int size = (int)(graph.size() * getTimeFrequency() / graph.getFrequency());
+                int size = graph.size();
+                if(getTimeFrequency() > 0 && graph.getFrequency() > 0) {
+                    size = (int)(size * getTimeFrequency() / graph.getFrequency());
+                }
                 int endPoint = Math.min(getWorkspaceWidth(), (size - startPoint));
                 VerticalLine vLine = new VerticalLine();
                 for (int x = 0; x < endPoint; x++) {

@@ -31,6 +31,9 @@ class GraphsData {
     }
 
     void addGraphs(DataSet... graphs) {
+        if(listOfGraphLists.size() == 0) {
+           addGraphList();
+        }
         List<DataSet> lastGraphList = listOfGraphLists.get(listOfGraphLists.size() - 1);
         for(DataSet graph : graphs) {
             lastGraphList.add(graph);
@@ -42,10 +45,20 @@ class GraphsData {
     }
 
     void addPreviews(DataSet... previews) {
+        if(listOfPreviewLists.size() == 0) {
+            addPreviewList();
+        }
         List<DataSet> lastPreviewList = listOfPreviewLists.get(listOfPreviewLists.size() - 1);
         for(DataSet preview : previews) {
             lastPreviewList.add(preview);
         }
+    }
+    List<DataSet> getLastGraphList() {
+        return listOfGraphLists.get(listOfGraphLists.size() - 1);
+    }
+
+    List<DataSet> getLastPreviewList() {
+        return listOfPreviewLists.get(listOfPreviewLists.size() - 1);
     }
 
     int getSlotPosition() {
@@ -64,7 +77,7 @@ class GraphsData {
             for (DataSet graph : graphsList) {
                 int graphSize = graph.size();
                 if(timeFrequency > 0 && graph.getFrequency() > 0) {
-                     graphSize *= (int)(timeFrequency / graph.getFrequency());
+                     graphSize = (int)(graphSize * timeFrequency / graph.getFrequency());
                 }
                 graphsSize = Math.max(graphsSize, graphSize);
             }
@@ -76,7 +89,7 @@ class GraphsData {
             for (DataSet preview : previewList) {
                 int previewSize = preview.size();
                 if(frequency > 0 && preview.getFrequency() > 0) {
-                    previewSize *= (int)(frequency / preview.getFrequency());
+                    previewSize = (int)(previewSize * frequency / preview.getFrequency());
                 }
                 previewsSize = Math.max(previewsSize, previewSize);
             }
@@ -102,13 +115,8 @@ class GraphsData {
     }
 
     void moveSlot(int slotPosition) {
-        if(slotPosition < 0) {
-            slotPosition = 0;
-        }
-        if(slotPosition > getSlotMaxPosition()) {
-            slotPosition = getSlotMaxPosition();
-        }
-        startIndex = (slotPosition + scrollPosition) * compression;
+       int newStartIndex = (slotPosition + scrollPosition) * compression;
+       setStartIndex(newStartIndex);
     }
 
 
@@ -179,9 +187,6 @@ class GraphsData {
     void moveForward() {
         int shift = (int)(getDrawingAreaWidth() * 0.8);
         int newStartIndex = getStartIndex() + shift;
-        if(newStartIndex > getMaxStartIndex()) {
-            newStartIndex = getMaxStartIndex();
-        }
         setStartIndex(newStartIndex);
     }
 
@@ -196,9 +201,6 @@ class GraphsData {
         else {
             int shift = (int)(getDrawingAreaWidth() * 0.8);
             int newStartIndex = getStartIndex() - shift;
-            if(newStartIndex < 0) {
-                newStartIndex = 0;
-            }
             setStartIndex(newStartIndex);
         }
     }

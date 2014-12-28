@@ -27,6 +27,7 @@ class PreviewPanel extends GraphPanel {
 
     PreviewPanel(int weight, boolean isXCentered, GraphsData graphsData) {
         super(weight, isXCentered, graphsData);
+        graphs = graphsData.getLastPreviewList();
         //MouseListener to move Slot
         addMouseListener(new MouseAdapter() {
             @Override
