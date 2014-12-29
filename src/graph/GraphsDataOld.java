@@ -4,13 +4,10 @@ import data.DataSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 
-class GraphsData implements ChangeListener {
+class GraphsDataOld {
     private static final Log log = LogFactory.getLog(GraphsDataOld.class);
 
     // bigger GAP - less precision need slot to start autoscroll
@@ -22,27 +19,20 @@ class GraphsData implements ChangeListener {
     private double timeFrequency;
     private long startTime;
     private int startIndex;
-    //private int scrollPosition;
+    private int scrollPosition;
     private int canvasWidth;
-    private BoundedRangeModel scrollModel;
     // graphs list for every panel
     private List<List<DataSet>> listOfGraphLists = new ArrayList<List<DataSet>>();
     // preview list for every preview panel
     private List<List<DataSet>> listOfPreviewLists = new ArrayList<List<DataSet>>();
 
-    GraphsData(BoundedRangeModel scrollModel) {
-        this.scrollModel = scrollModel;
-        scrollModel.addChangeListener(this);
-    }
-
     void addGraphList() {
         listOfGraphLists.add(new ArrayList<DataSet>());
     }
 
-
     void addGraphs(DataSet... graphs) {
         if(listOfGraphLists.size() == 0) {
-            addGraphList();
+           addGraphList();
         }
         List<DataSet> lastGraphList = listOfGraphLists.get(listOfGraphLists.size() - 1);
         for(DataSet graph : graphs) {
@@ -73,16 +63,12 @@ class GraphsData implements ChangeListener {
 
     int getSlotPosition() {
         int slotIndex = startIndex / compression;
-        int slotPosition = slotIndex - getScrollPosition();
+        int slotPosition = slotIndex - scrollPosition;
         return slotPosition;
     }
 
     int getDrawingAreaWidth() {
-        int width = canvasWidth - X_INDENT;
-        if(width < 0) {
-            width = 0;
-        }
-        return width;
+        return (canvasWidth - X_INDENT);
     }
 
     int getGraphsSize() {
@@ -91,7 +77,7 @@ class GraphsData implements ChangeListener {
             for (DataSet graph : graphsList) {
                 int graphSize = graph.size();
                 if(timeFrequency > 0 && graph.getFrequency() > 0) {
-                    graphSize = (int)(graphSize * timeFrequency / graph.getFrequency());
+                     graphSize = (int)(graphSize * timeFrequency / graph.getFrequency());
                 }
                 graphsSize = Math.max(graphsSize, graphSize);
             }
@@ -129,20 +115,20 @@ class GraphsData implements ChangeListener {
     }
 
     void moveSlot(int slotPosition) {
-        int newStartIndex = (slotPosition + getScrollPosition()) * compression;
-        setStartIndex(newStartIndex);
+       int newStartIndex = (slotPosition + scrollPosition) * compression;
+       setStartIndex(newStartIndex);
     }
 
 
     int getSlotWidth() {
-        if(compression > 1 && getDrawingAreaWidth() > 0) {
-            return  Math.max(1, (getDrawingAreaWidth() / compression));
+        if(compression <= 1) {
+            return 0;
         }
-        return 0;
+        return  Math.max(1, (getDrawingAreaWidth() / compression));
     }
 
     int getSlotMaxPosition() {
-        int maxPosition = getPreviewsSize() - getScrollPosition() - getSlotWidth();
+        int maxPosition = getPreviewsSize() - scrollPosition - getSlotWidth();
         if(maxPosition < 0) {
             maxPosition = 0;
         }
@@ -151,26 +137,14 @@ class GraphsData implements ChangeListener {
     }
 
     void setScrollPosition(int scrollPosition) {
-        scrollModel.setValue(scrollPosition);
-   /*     if(getSlotPosition() < 0){
+        this.scrollPosition = scrollPosition;
+        if(getSlotPosition() < 0){
             //adjust slotPosition to 0
             startIndex = scrollPosition * compression;
         }
         if(getSlotPosition() > getSlotMaxPosition()){
             //adjust slotPosition to slotMaxPosition
             startIndex = (scrollPosition + getSlotMaxPosition())* compression;
-        }   */
-    }
-
-    @Override
-    public void stateChanged(ChangeEvent e) {
-        if(getSlotPosition() < 0){
-            //adjust slotPosition to 0
-            startIndex = getScrollPosition() * compression;
-        }
-        if(getSlotPosition() > getSlotMaxPosition()){
-            //adjust slotPosition to slotMaxPosition
-            startIndex = (getScrollPosition() + getSlotMaxPosition())* compression;
         }
     }
 
@@ -184,11 +158,11 @@ class GraphsData implements ChangeListener {
         this.startIndex = startIndex;
         if(getSlotPosition() < 0){
             //adjust slotPosition to 0
-            setScrollPosition(startIndex / compression);
+            scrollPosition = startIndex / compression;
         }
         if(getSlotPosition() > getSlotMaxPosition()){
             //adjust slotPosition to slotMaxPosition
-            setScrollPosition(startIndex / compression - getSlotMaxPosition());
+            scrollPosition = startIndex / compression - getSlotMaxPosition();
         }
     }
 
@@ -196,7 +170,7 @@ class GraphsData implements ChangeListener {
         this.canvasWidth = canvasWidth;
         if(getSlotPosition() > getSlotMaxPosition()){
             //adjust slotPosition to slotMaxPosition
-            startIndex = (getScrollPosition() + getSlotMaxPosition())* compression;
+            startIndex = (scrollPosition + getSlotMaxPosition())* compression;
         }
     }
 
@@ -233,7 +207,7 @@ class GraphsData implements ChangeListener {
 
 
     public int getScrollPosition() {
-        return scrollModel.getValue();
+        return scrollPosition;
     }
 
     public int getStartIndex() {

@@ -8,14 +8,12 @@ import graph.GraphsView;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.io.File;
 
 public class MainWindow extends JFrame {
     private final String TITLE = "Dream Recorder";
+    private final Color BG_COLOR = Color.BLACK;
     private final Color MENU_BG_COLOR = Color.LIGHT_GRAY;
     private final Color MENU_TEXT_COLOR = Color.BLACK;
 
@@ -45,13 +43,13 @@ public class MainWindow extends JFrame {
             }
         });
         setTitle(TITLE);
+        getContentPane().setBackground(BG_COLOR);
         menu.setBackground(MENU_BG_COLOR);
         menu.setForeground(MENU_TEXT_COLOR);
         menu.setBorder(BorderFactory.createEmptyBorder());
         formMenu();
         graphsView = new GraphsView();
-        graphsView.setPreferredSize(getWorkspaceDimension());
-        add(graphsView, BorderLayout.CENTER);
+        setPreferredSize(getWorkspaceDimension());
         pack();
         setVisible(true);
     }
@@ -67,9 +65,9 @@ public class MainWindow extends JFrame {
             remove(graphsView);
         }
         graphsView = dataView;
-        graphsView.setPreferredSize(getWorkspaceDimension());
         add(graphsView, BorderLayout.CENTER);
-        pack();
+        graphsView.grabFocus();
+        revalidate();
     }
 
     public void showMessage(String s) {
@@ -85,9 +83,12 @@ public class MainWindow extends JFrame {
     }
 
     private Dimension getWorkspaceDimension() {
-        Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
-        int width = dimension.width - 20;
-        int height = dimension.height - 150;
+        // To get the effective screen size (the size of the screen without the taskbar and etc)
+        // GraphicsEnvironment has a method which returns the maximum available size,
+        // accounting all taskbars etc. no matter where they are aligned
+        Rectangle dimension = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
+        int width = dimension.width;
+        int height = dimension.height;
         return new Dimension(width, height);
     }
 

@@ -33,7 +33,7 @@ class PreviewPanel extends GraphPanel {
             @Override
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
-                int slotPosition = e.getX() - GraphsData.X_INDENT;
+                int slotPosition = e.getX() - GraphsDataOld.X_INDENT;
                 notifySlotListeners(slotPosition);
             }
         });

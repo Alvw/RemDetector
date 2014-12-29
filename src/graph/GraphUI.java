@@ -21,8 +21,7 @@ public class GraphUI extends BasicScrollBarUI {
                 public void mouseClicked(MouseEvent e) {
                     super.mouseClicked(e);
                     //Increment button is clicked!
-                    scrollBar.setValueIsAdjusting(true);
-                    System.out.println("Increment button is clicked");
+                    System.out.println("Increment button is clicked " + scrollBar.getValue());
                 }
             });
         }
@@ -31,8 +30,7 @@ public class GraphUI extends BasicScrollBarUI {
                 @Override
                 public void mouseClicked(MouseEvent e) {
                     //Decrement button is clicked!
-                    scrollBar.setValueIsAdjusting(true);
-                    System.out.println("Decrement button is clicked");
+                    System.out.println("Decrement button is clicked " + scrollBar.getValue());
                 }
             });
         }

@@ -53,7 +53,7 @@ public class TestView extends JFrame {
     }
 
     public void syncView() {
-        graphsView.syncView();
+       // graphsView.syncView();
     }
 
     public void showMessage(String s) {

@@ -37,12 +37,12 @@ public class GenaView extends JFrame {
                 int key = e.getKeyCode();
                 if (key == KeyEvent.VK_UP) {
                     model.movementLimitUp();
-                    graphsView.syncView();
+                   // graphsView.syncView();
                 }
 
                 if (key == KeyEvent.VK_DOWN) {
                     model.movementLimitDown();
-                    graphsView.syncView();
+                   // graphsView.syncView();
                 }
             }
         });

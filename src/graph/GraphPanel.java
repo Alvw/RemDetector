@@ -178,7 +178,7 @@ public class GraphPanel extends JPanel {
         double timeFrequency = getTimeFrequency();
         int value = 0;
         // points x corresponds to frequencyBase
-        if(timeFrequency == 0 || frequency == timeFrequency) {
+        if(timeFrequency == 0 || frequency == 0 || frequency == timeFrequency) {
             value = graph.get(x);
         }
         else if(frequency < timeFrequency) {
@@ -207,6 +207,9 @@ public class GraphPanel extends JPanel {
     protected void paintGraphs(Graphics g) {
         int graph_number = 0;
         int startPoint = getStartIndex();
+        if(startPoint < 0 ) {
+            return;
+        }
         for (DataSet graph : graphs) {
             Color graphColor = graphColors[graph_number];
             graph_number++;
@@ -214,6 +217,9 @@ public class GraphPanel extends JPanel {
                 int size = graph.size();
                 if(getTimeFrequency() > 0 && graph.getFrequency() > 0) {
                     size = (int)(size * getTimeFrequency() / graph.getFrequency());
+                }
+                if(startPoint >= size ) {
+                    return;
                 }
                 int endPoint = Math.min(getWorkspaceWidth(), (size - startPoint));
                 VerticalLine vLine = new VerticalLine();
@@ -245,7 +251,6 @@ public class GraphPanel extends JPanel {
         if(getTimeFrequency() != 0) {
             paintAxisX(g);
         }
-
         paintGraphs(g);
 
         restoreCoordinate(g);

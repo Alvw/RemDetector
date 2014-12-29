@@ -22,7 +22,7 @@ public class GraphsView extends JPanel implements SlotListener{
 
     private final Color BG_COLOR = Color.BLACK;
 
-    private GraphsData graphSettings = new GraphsData();
+    private GraphsData graphSettings;
 
     private ArrayList<GraphPanel> graphPanelList = new ArrayList<GraphPanel>();
     private ArrayList<PreviewPanel> previewPanelList = new ArrayList<PreviewPanel>();
@@ -38,20 +38,19 @@ public class GraphsView extends JPanel implements SlotListener{
         paintingPanel.setLayout(new BoxLayout(paintingPanel, BoxLayout.Y_AXIS));
         add(paintingPanel, BorderLayout.CENTER);
         scrollBar =  scrollPanel.getHorizontalScrollBar();
+        graphSettings = new GraphsData(scrollBar.getModel());
         scrollBar.addAdjustmentListener(new AdjustmentListener() {
             @Override
             public void adjustmentValueChanged(AdjustmentEvent e) {
-                if (scrollBar.getValueIsAdjusting()) {  // fire only when scroll was dragged by user
-                    graphSettings.setScrollPosition(e.getValue());
-                    System.out.println("scroll: " + e.getValue());
-                    repaint();
-                }
+                repaint();
             }
         });
 
         add(scrollPanel, BorderLayout.SOUTH);
 
         setFocusable(true); //only that way KeyListeners work
+       // requestFocus();
+        //grabFocus();
 
         // Key Listener to move Slot
         addKeyListener(new KeyAdapter() {
@@ -61,12 +60,12 @@ public class GraphsView extends JPanel implements SlotListener{
                 int key = e.getKeyCode();
                 if (key == KeyEvent.VK_RIGHT) {
                     graphSettings.moveForward();
-                    syncView();
+                    repaint();
                 }
 
                 if (key == KeyEvent.VK_LEFT) {
                     graphSettings.moveBackward();
-                    syncView();
+                    repaint();
                 }
             }
         });
@@ -76,24 +75,36 @@ public class GraphsView extends JPanel implements SlotListener{
             public void componentResized(ComponentEvent e) {
                 super.componentResized(e);
                 graphSettings.setCanvasWidth(getWidth());
+                setPanelsSizes();
             }
         });
     }
 
-    private void syncScroll() {
+
+    @Override
+    public void repaint() {
+        super.repaint();
         if (previewPanelList != null) {
             if (previewPanelList.size() > 0) {
                 scrollablePanel.setPreferredSize(new Dimension(graphSettings.getPreviewFullSize(), 0));
-                int modelPosition = graphSettings.getScrollPosition();
-                int viewportPosition = scrollPanel.getViewport().getViewPosition().x;
-                if(modelPosition != viewportPosition) {
-                    scrollPanel.getViewport().setViewPosition(new Point(modelPosition, 0));
-                    scrollablePanel.revalidate(); // we always have to call component.revalidate() after changing it "directly"(outside the GUI)
-                    scrollPanel.repaint();
-                }
-             }
+                // int modelPosition = graphSettings.getScrollPosition();
+                //  scrollPanel.getViewport().setViewPosition(new Point(modelPosition, 0));
+                scrollablePanel.revalidate(); // we always have to call component.revalidate() after changing it "directly"(outside the GUI)
+                scrollPanel.repaint();
+            }
+        }
+        if(graphPanelList != null) {
+            for (GraphPanel panel : graphPanelList) {
+                panel.repaint();
+            }
+        }
+        if(previewPanelList != null) {
+            for (GraphPanel panel : previewPanelList) {
+                panel.repaint();
+            }
         }
     }
+
 
 
     public void setStart(long startTime) {
@@ -122,7 +133,7 @@ public class GraphsView extends JPanel implements SlotListener{
         GraphPanel panel = new GraphPanel(weight, isXCentered, graphSettings);
         graphPanelList.add(panel);
         paintingPanel.add(panel);
-        setPanelsPreferredSizes();
+        setPanelsSizes();
         repaint();
     }
 
@@ -132,7 +143,7 @@ public class GraphsView extends JPanel implements SlotListener{
         panel.addSlotListener(this);
         previewPanelList.add(panel);
         paintingPanel.add(panel);
-        setPanelsPreferredSizes();
+        setPanelsSizes();
         repaint();
     }
 
@@ -162,38 +173,10 @@ public class GraphsView extends JPanel implements SlotListener{
         repaint();
     }
 
-    @Override
-    public void setPreferredSize(Dimension d) {
-        super.setPreferredSize(d);
-        setPanelsPreferredSizes();
-    }
 
-
-
-    public void syncView() {
-        syncScroll();
-        repaint();
-    }
-
-    @Override
-    public void repaint() {
-        super.repaint();
-        if(graphPanelList != null) {
-            for (GraphPanel panel : graphPanelList) {
-                panel.repaint();
-            }
-        }
-        if(previewPanelList != null) {
-            for (GraphPanel panel : previewPanelList) {
-                panel.repaint();
-            }
-        }
-    }
-
-    private void setPanelsPreferredSizes() {
-        Dimension d = getPreferredSize();
-        int width = d.width;
-        int height = d.height - scrollPanel.getPreferredSize().height;
+    private void setPanelsSizes() {
+        int width = paintingPanel.getWidth();
+        int height = paintingPanel.getHeight();
         int sumWeight = 0;
         for (GraphPanel panel : graphPanelList) {
             sumWeight += panel.getWeight();
@@ -201,18 +184,18 @@ public class GraphsView extends JPanel implements SlotListener{
         for (PreviewPanel panel : previewPanelList) {
             sumWeight += panel.getWeight();
         }
-
         for (GraphPanel panel : graphPanelList) {
             panel.setPreferredSize(new Dimension(width, height * panel.getWeight() / sumWeight));
         }
         for (PreviewPanel panel : previewPanelList) {
             panel.setPreferredSize(new Dimension(width, height * panel.getWeight() / sumWeight));
         }
+        paintingPanel.revalidate();
     }
 
     @Override
     public void moveSlot(int newSlotIndex) {
         graphSettings.moveSlot(newSlotIndex);
-        syncView();
+        repaint();
     }
 }
