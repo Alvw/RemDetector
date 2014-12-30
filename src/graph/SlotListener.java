@@ -8,6 +8,5 @@ package graph;
  * To change this template use File | Settings | File Templates.
  */
 interface SlotListener {
-
       void moveSlot(int newSlotIndex);
 }

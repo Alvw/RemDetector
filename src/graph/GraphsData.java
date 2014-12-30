@@ -7,11 +7,15 @@ import org.apache.commons.logging.LogFactory;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.EventListenerList;
 import java.util.ArrayList;
 import java.util.List;
 
-class GraphsData  {
-    private static final Log log = LogFactory.getLog(GraphsDataOld.class);
+class GraphsData {
+    private static final Log log = LogFactory.getLog(GraphsData.class);
+    protected ChangeEvent changeEvent = null;
+    protected EventListenerList listenerList = new EventListenerList();
+
 
     // bigger GAP - less precision need slot to start autoscroll
     private static final int AUTO_SCROLL_GAP = 10;
@@ -22,22 +26,16 @@ class GraphsData  {
     private double timeFrequency;
     private long startTime;
     private int startIndex;
-    //private int scrollPosition;
+    private int scrollPosition;
     private int canvasWidth;
-    private BoundedRangeModel scrollModel;
+
     // graphs list for every panel
     private List<List<DataSet>> listOfGraphLists = new ArrayList<List<DataSet>>();
     // preview list for every preview panel
     private List<List<DataSet>> listOfPreviewLists = new ArrayList<List<DataSet>>();
 
-    GraphsData(BoundedRangeModel scrollModel) {
-        this.scrollModel = scrollModel;
-        scrollModel.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                 adjustStartIndex();
-            }
-        });
+    BoundedRangeModel getScrollBoundedRangeModel() {
+        return new ScrollModel(this);
     }
 
     void addGraphList() {
@@ -78,7 +76,7 @@ class GraphsData  {
 
     int getSlotPosition() {
         int slotIndex = startIndex / compression;
-        int slotPosition = slotIndex - getScrollPosition();
+        int slotPosition = slotIndex - scrollPosition;
         return slotPosition;
     }
 
@@ -134,8 +132,15 @@ class GraphsData  {
     }
 
     void moveSlot(int slotPosition) {
-        int newStartIndex = (slotPosition + getScrollPosition()) * compression;
+        if(slotPosition < 0) {
+            slotPosition = 0;
+        }
+        if(slotPosition > getMaxSlotPosition()) {
+            slotPosition = getMaxSlotPosition();
+        }
+        int newStartIndex = (slotPosition + scrollPosition) * compression;
         setStartIndex(newStartIndex);
+        fireStateChanged();
     }
 
 
@@ -146,8 +151,8 @@ class GraphsData  {
         return 0;
     }
 
-    int getSlotMaxPosition() {
-        int maxPosition = getPreviewsSize() - getScrollPosition() - getSlotWidth();
+    int getMaxSlotPosition() {
+        int maxPosition = getPreviewsSize() - scrollPosition - getSlotWidth();
         if(maxPosition < 0) {
             maxPosition = 0;
         }
@@ -155,27 +160,28 @@ class GraphsData  {
         return maxPosition;
     }
 
+
+    int getMaxScrollPosition() {
+        return getPreviewFullSize() - canvasWidth;
+    }
+
     void setScrollPosition(int scrollPosition) {
-        scrollModel.setValue(scrollPosition);
-   /*     if(getSlotPosition() < 0){
+        if(scrollPosition < 0) {
+            scrollPosition = 0;
+        }
+        if(scrollPosition > getMaxScrollPosition()) {
+            scrollPosition = getMaxScrollPosition();
+        }
+        this.scrollPosition = scrollPosition;
+        if(getSlotPosition() < 0){
             //adjust slotPosition to 0
             startIndex = scrollPosition * compression;
         }
-        if(getSlotPosition() > getSlotMaxPosition()){
+        if(getSlotPosition() > getMaxSlotPosition()){
             //adjust slotPosition to slotMaxPosition
-            startIndex = (scrollPosition + getSlotMaxPosition())* compression;
-        }   */
-    }
-
-    void adjustStartIndex() {
-        if(getSlotPosition() < 0){
-            //adjust slotPosition to 0
-            startIndex = getScrollPosition() * compression;
+            startIndex = (scrollPosition + getMaxSlotPosition())* compression;
         }
-        if(getSlotPosition() > getSlotMaxPosition()){
-            //adjust slotPosition to slotMaxPosition
-            startIndex = (getScrollPosition() + getSlotMaxPosition())* compression;
-        }
+        fireStateChanged();
     }
 
     void setStartIndex(int startIndex) {
@@ -190,34 +196,43 @@ class GraphsData  {
             //adjust slotPosition to 0
             setScrollPosition(startIndex / compression);
         }
-        if(getSlotPosition() > getSlotMaxPosition()){
+        if(getSlotPosition() > getMaxSlotPosition()){
             //adjust slotPosition to slotMaxPosition
-            setScrollPosition(startIndex / compression - getSlotMaxPosition());
+            setScrollPosition(startIndex / compression - getMaxSlotPosition());
         }
+        fireStateChanged();
     }
+
 
     void setCanvasWidth(int canvasWidth) {
         this.canvasWidth = canvasWidth;
-        if(getSlotPosition() > getSlotMaxPosition()){
+        if(getSlotPosition() > getMaxSlotPosition()){
             //adjust slotPosition to slotMaxPosition
-            startIndex = (getScrollPosition() + getSlotMaxPosition())* compression;
+            startIndex = (scrollPosition + getMaxSlotPosition())* compression;
         }
+        fireStateChanged();
+    }
+
+    public int getCanvasWidth() {
+        return canvasWidth;
     }
 
     boolean isAutoScroll() {
-        return (getSlotMaxPosition() <= (getSlotPosition() + AUTO_SCROLL_GAP));
+        return (getMaxSlotPosition() <= (getSlotPosition() + AUTO_SCROLL_GAP));
     }
 
     void autoScroll() {
         if (isAutoScroll()) {
             setStartIndex(getMaxStartIndex());
         }
+        fireStateChanged();
     }
 
     void moveForward() {
         int shift = (int)(getDrawingAreaWidth() * 0.8);
         int newStartIndex = getStartIndex() + shift;
         setStartIndex(newStartIndex);
+        fireStateChanged();
     }
 
     void moveBackward() {
@@ -233,11 +248,12 @@ class GraphsData  {
             int newStartIndex = getStartIndex() - shift;
             setStartIndex(newStartIndex);
         }
+        fireStateChanged();
     }
 
 
     public int getScrollPosition() {
-        return scrollModel.getValue();
+        return scrollPosition;
     }
 
     public int getStartIndex() {
@@ -251,6 +267,7 @@ class GraphsData  {
 
     public void setCompression(int compression) {
         this.compression = compression;
+        fireStateChanged();
     }
 
     public double getTimeFrequency() {
@@ -259,6 +276,7 @@ class GraphsData  {
 
     public void setTimeFrequency(double timeFrequency) {
         this.timeFrequency = timeFrequency;
+        fireStateChanged();
     }
 
     public long getStartTime() {
@@ -267,5 +285,29 @@ class GraphsData  {
 
     public void setStartTime(long startTime) {
         this.startTime = startTime;
+        fireStateChanged();
+    }
+    /*
+     * The rest of this is event handling code copied from
+     * DefaultBoundedRangeModel.
+     */
+    public void addChangeListener(ChangeListener l) {
+        listenerList.add(ChangeListener.class, l);
+    }
+
+    public void removeChangeListener(ChangeListener l) {
+        listenerList.remove(ChangeListener.class, l);
+    }
+
+    protected void fireStateChanged() {
+        Object[] listeners = listenerList.getListenerList();
+        for (int i = listeners.length - 2; i >= 0; i -=2 ) {
+            if (listeners[i] == ChangeListener.class) {
+                if (changeEvent == null) {
+                    changeEvent = new ChangeEvent(this);
+                }
+                ((ChangeListener)listeners[i+1]).stateChanged(changeEvent);
+            }
+        }
     }
 }

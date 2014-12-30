@@ -5,6 +5,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
@@ -12,7 +14,7 @@ import java.util.ArrayList;
 /**
  *
  */
-public class GraphsView extends JPanel implements SlotListener{
+public class GraphsView extends JPanel implements SlotListener, ChangeListener{
     private static final Log log = LogFactory.getLog(GraphsView.class);
     private int DEFAULT_GRAPH_PANEL_WEIGHT = 4;
     private int DEFAULT_PREVIEW_PANEL_WEIGHT = 2;
@@ -22,32 +24,23 @@ public class GraphsView extends JPanel implements SlotListener{
 
     private final Color BG_COLOR = Color.BLACK;
 
-    private GraphsData graphSettings;
+    private GraphsData graphsData;
 
     private ArrayList<GraphPanel> graphPanelList = new ArrayList<GraphPanel>();
     private ArrayList<PreviewPanel> previewPanelList = new ArrayList<PreviewPanel>();
 
     private JPanel paintingPanel = new JPanel();
-    private JPanel scrollablePanel = new JPanel();
-    private JScrollPane scrollPanel = new JScrollPane(scrollablePanel, JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-    private final JScrollBar scrollBar;
+    private JScrollBar scrollBar = new JScrollBar(JScrollBar.HORIZONTAL);
 
     public GraphsView() {
         setLayout(new BorderLayout());
         paintingPanel.setBackground(BG_COLOR);
         paintingPanel.setLayout(new BoxLayout(paintingPanel, BoxLayout.Y_AXIS));
         add(paintingPanel, BorderLayout.CENTER);
-        scrollBar =  scrollPanel.getHorizontalScrollBar();
-        graphSettings = new GraphsData(scrollBar.getModel());
-        scrollBar.addAdjustmentListener(new AdjustmentListener() {
-            @Override
-            public void adjustmentValueChanged(AdjustmentEvent e) {
-                repaint();
-            }
-        });
-
-        add(scrollPanel, BorderLayout.SOUTH);
-
+        graphsData = new GraphsData();
+        graphsData.addChangeListener(this);
+        scrollBar.setModel(graphsData.getScrollBoundedRangeModel());
+        add(scrollBar, BorderLayout.SOUTH);
         setFocusable(true); //only that way KeyListeners work
         requestFocusInWindow();
 
@@ -58,12 +51,12 @@ public class GraphsView extends JPanel implements SlotListener{
                 super.keyPressed(e);
                 int key = e.getKeyCode();
                 if (key == KeyEvent.VK_RIGHT) {
-                    graphSettings.moveForward();
+                    graphsData.moveForward();
                     repaint();
                 }
 
                 if (key == KeyEvent.VK_LEFT) {
-                    graphSettings.moveBackward();
+                    graphsData.moveBackward();
                     repaint();
                 }
             }
@@ -73,24 +66,23 @@ public class GraphsView extends JPanel implements SlotListener{
             @Override
             public void componentResized(ComponentEvent e) {
                 super.componentResized(e);
-                graphSettings.setCanvasWidth(getWidth());
+                graphsData.setCanvasWidth(getWidth());
                 setPanelsSizes();
             }
         });
     }
 
+    @Override
+    public void stateChanged(ChangeEvent e) {
+        repaint();
+    }
 
     @Override
     public void repaint() {
         super.repaint();
-        if (previewPanelList != null) {
-            if (previewPanelList.size() > 0) {
-                scrollablePanel.setPreferredSize(new Dimension(graphSettings.getPreviewFullSize(), 0));
-                // int modelPosition = graphSettings.getScrollPosition();
-                //  scrollPanel.getViewport().setViewPosition(new Point(modelPosition, 0));
-                scrollablePanel.revalidate(); // we always have to call component.revalidate() after changing it "directly"(outside the GUI)
-                scrollPanel.repaint();
-            }
+        if(scrollBar !=null) {
+            scrollBar.revalidate();
+            scrollBar.repaint();
         }
         if(graphPanelList != null) {
             for (GraphPanel panel : graphPanelList) {
@@ -104,32 +96,30 @@ public class GraphsView extends JPanel implements SlotListener{
         }
     }
 
-
-
     public void setStart(long startTime) {
-        graphSettings.setStartTime(startTime);
+        graphsData.setStartTime(startTime);
     }
 
     public int getStartIndex() {
-        return graphSettings.getStartIndex();
+        return graphsData.getStartIndex();
     }
 
     public void setTimeFrequency(double timeFrequency) {
-        graphSettings.setTimeFrequency(timeFrequency);
+        graphsData.setTimeFrequency(timeFrequency);
     }
 
 
     public void setCompression(int compression) {
-        graphSettings.setCompression(compression);
+        graphsData.setCompression(compression);
     }
 
     public int getCompression() {
-        return graphSettings.getCompression();
+        return graphsData.getCompression();
     }
 
     public void addGraphPanel(int weight, boolean isXCentered) {
-        graphSettings.addGraphList();
-        GraphPanel panel = new GraphPanel(weight, isXCentered, graphSettings);
+        graphsData.addGraphList();
+        GraphPanel panel = new GraphPanel(weight, isXCentered, graphsData);
         graphPanelList.add(panel);
         paintingPanel.add(panel);
         setPanelsSizes();
@@ -137,8 +127,8 @@ public class GraphsView extends JPanel implements SlotListener{
     }
 
     public void addPreviewPanel(int weight, boolean isXCentered) {
-        graphSettings.addPreviewList();
-        PreviewPanel panel = new PreviewPanel(weight, isXCentered, graphSettings);
+        graphsData.addPreviewList();
+        PreviewPanel panel = new PreviewPanel(weight, isXCentered, graphsData);
         panel.addSlotListener(this);
         previewPanelList.add(panel);
         paintingPanel.add(panel);
@@ -152,9 +142,9 @@ public class GraphsView extends JPanel implements SlotListener{
          */
     public void addGraphs(DataSet... graphs) {
         for(DataSet g : graphs) {
-            graphSettings.setTimeFrequency(Math.max(graphSettings.getTimeFrequency(), g.getFrequency()));
+            graphsData.setTimeFrequency(Math.max(graphsData.getTimeFrequency(), g.getFrequency()));
         }
-        graphSettings.addGraphs(graphs);
+        graphsData.addGraphs(graphs);
         if (graphPanelList.size() == 0) {
             addGraphPanel(DEFAULT_GRAPH_PANEL_WEIGHT, IS_GRAPH_X_CENTERED_DEFAULT);
         }
@@ -165,7 +155,7 @@ public class GraphsView extends JPanel implements SlotListener{
      * Add Previews to the last preview panel. If there is no preview panel create one
      */
     public void addPreviews(DataSet... previews) {
-        graphSettings.addPreviews(previews);
+        graphsData.addPreviews(previews);
         if (previewPanelList.size() == 0) {
             addGraphPanel(DEFAULT_PREVIEW_PANEL_WEIGHT, IS_PREVIEW_X_CENTERED_DEFAULT);
         }
@@ -194,7 +184,7 @@ public class GraphsView extends JPanel implements SlotListener{
 
     @Override
     public void moveSlot(int newSlotIndex) {
-        graphSettings.moveSlot(newSlotIndex);
+        graphsData.moveSlot(newSlotIndex);
         repaint();
     }
 }
