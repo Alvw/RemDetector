@@ -10,7 +10,7 @@ import javax.swing.event.ChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 
-class GraphsData implements ChangeListener {
+class GraphsData  {
     private static final Log log = LogFactory.getLog(GraphsDataOld.class);
 
     // bigger GAP - less precision need slot to start autoscroll
@@ -32,7 +32,12 @@ class GraphsData implements ChangeListener {
 
     GraphsData(BoundedRangeModel scrollModel) {
         this.scrollModel = scrollModel;
-        scrollModel.addChangeListener(this);
+        scrollModel.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                 adjustStartIndex();
+            }
+        });
     }
 
     void addGraphList() {
@@ -162,8 +167,7 @@ class GraphsData implements ChangeListener {
         }   */
     }
 
-    @Override
-    public void stateChanged(ChangeEvent e) {
+    void adjustStartIndex() {
         if(getSlotPosition() < 0){
             //adjust slotPosition to 0
             startIndex = getScrollPosition() * compression;

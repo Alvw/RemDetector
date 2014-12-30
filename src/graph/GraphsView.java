@@ -49,8 +49,7 @@ public class GraphsView extends JPanel implements SlotListener{
         add(scrollPanel, BorderLayout.SOUTH);
 
         setFocusable(true); //only that way KeyListeners work
-       // requestFocus();
-        //grabFocus();
+        requestFocusInWindow();
 
         // Key Listener to move Slot
         addKeyListener(new KeyAdapter() {

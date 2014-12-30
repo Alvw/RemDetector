@@ -48,7 +48,6 @@ public class MainWindow extends JFrame {
         menu.setForeground(MENU_TEXT_COLOR);
         menu.setBorder(BorderFactory.createEmptyBorder());
         formMenu();
-        graphsView = new GraphsView();
         setPreferredSize(getWorkspaceDimension());
         pack();
         setVisible(true);
@@ -66,7 +65,7 @@ public class MainWindow extends JFrame {
         }
         graphsView = dataView;
         add(graphsView, BorderLayout.CENTER);
-        graphsView.grabFocus();
+        graphsView.requestFocusInWindow();
         revalidate();
     }
 
