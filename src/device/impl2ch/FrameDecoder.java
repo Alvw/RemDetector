@@ -24,8 +24,6 @@ abstract class FrameDecoder {
         inputFrame = new byte[inputFrameSize];
         log.info("Com port inputFrame size: " + inputFrameSize + " bytes");
         log.info("Decoded inputFrame size: " + outputFrameSize);
-        System.out.println("Com port inputFrame size: " + inputFrameSize + " bytes");
-        System.out.println("Decoded inputFrame size: " + outputFrameSize);
     }
 
     public void onByteReceived(byte inByte) {

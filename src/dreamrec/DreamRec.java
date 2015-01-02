@@ -20,7 +20,7 @@ public class DreamRec {
             String deviceClass = applicationProperties.getDeviceClassName();
             DeviceFabric deviceFabric = new DeviceFabric(deviceClass);
             BdfDevice bdfDevice = deviceFabric.getDeviceImplementation();
-            applicationProperties.getDeviceChannelsLabels();
+            bdfDevice.getBdfConfig().setSignalsLabels(applicationProperties.getDeviceChannelsLabels());
             boolean isFrequencyAutoAdjustment = applicationProperties.isFrequencyAutoAdjustment();
             RemConfigurator remConfigurator = new RemConfigurator(remProperties.getEogRemFrequency(),
                     remProperties.getAccelerometerRemFrequency(), remProperties.getEogRemCutoffPeriod());

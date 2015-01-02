@@ -38,6 +38,7 @@ public class Ads implements BdfDevice {
             FrameDecoder frameDecoder = new FrameDecoder(getNumberOfDataSamples(), NUMBER_OF_BYTES_IN_DATA_FORMAT) {
                 @Override
                 public void notifyListeners(byte[] decodedFrame) {
+                    System.out.println("frame come to ads");
                     notifyAdsDataListeners(decodedFrame);
                 }
             };
@@ -66,6 +67,7 @@ public class Ads implements BdfDevice {
     }
 
     public void stopReading() {
+        log.debug("Stop Reading begins");
         for (BdfListener adsBdfListener : bdfListeners) {
             adsBdfListener.onStopReading();
         }
@@ -77,6 +79,7 @@ public class Ads implements BdfDevice {
             log.warn(e);
         }
         comPort.disconnect();
+        log.debug("Stop Reading finished");
     }
 
     @Override

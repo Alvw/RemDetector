@@ -11,7 +11,7 @@ import java.io.File;
 public class Controller {
 
     private static final Log log = LogFactory.getLog(Controller.class);
-
+    private final int COMPRESSION = 750;  // to do: find the correct place for that constant
     private boolean isRecording = false;
     private BdfDevice bdfDevice;
     private BdfProvider bdfProvider;
@@ -108,6 +108,7 @@ public class Controller {
         recordingBdfConfig.setRecordingIdentification(recordingSettings.getRecordingIdentification());
         recordingBdfConfig.setSignalsLabels(recordingSettings.getChannelsLabels());
         DataView dataView = new DataView();
+        dataView.setCompression(COMPRESSION);
         PreFilter[] prefilters = new PreFilter[recordingBdfConfig.getNumberOfSignals()];
         if (dataStore != null) {
             dataStore.clear(); // stop update timer and free memory occupied by old DataStore

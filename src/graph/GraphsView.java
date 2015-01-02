@@ -80,6 +80,9 @@ public class GraphsView extends JPanel implements SlotListener, ChangeListener{
     @Override
     public void repaint() {
         super.repaint();
+        if(graphsData != null) {
+            graphsData.autoScroll();
+        }
         if(scrollBar !=null) {
             scrollBar.revalidate();
             scrollBar.repaint();
@@ -141,9 +144,6 @@ public class GraphsView extends JPanel implements SlotListener, ChangeListener{
          * Add Graphs to the last graph panel. If there is no graph panel create one
          */
     public void addGraphs(DataSet... graphs) {
-        for(DataSet g : graphs) {
-            graphsData.setTimeFrequency(Math.max(graphsData.getTimeFrequency(), g.getFrequency()));
-        }
         graphsData.addGraphs(graphs);
         if (graphPanelList.size() == 0) {
             addGraphPanel(DEFAULT_GRAPH_PANEL_WEIGHT, IS_GRAPH_X_CENTERED_DEFAULT);
@@ -157,7 +157,7 @@ public class GraphsView extends JPanel implements SlotListener, ChangeListener{
     public void addPreviews(DataSet... previews) {
         graphsData.addPreviews(previews);
         if (previewPanelList.size() == 0) {
-            addGraphPanel(DEFAULT_PREVIEW_PANEL_WEIGHT, IS_PREVIEW_X_CENTERED_DEFAULT);
+            addPreviewPanel(DEFAULT_PREVIEW_PANEL_WEIGHT, IS_PREVIEW_X_CENTERED_DEFAULT);
         }
         repaint();
     }

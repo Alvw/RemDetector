@@ -22,7 +22,7 @@ class GraphsData {
 
     static final int X_INDENT = 50;
     static final int Y_INDENT = 20;
-    private  int compression = 750;
+    private  int compression = 1;
     private double timeFrequency;
     private long startTime;
     private int startIndex;
@@ -50,6 +50,7 @@ class GraphsData {
         List<DataSet> lastGraphList = listOfGraphLists.get(listOfGraphLists.size() - 1);
         for(DataSet graph : graphs) {
             lastGraphList.add(graph);
+            setTimeFrequency(Math.max(timeFrequency, graph.getFrequency()));
         }
     }
 
@@ -66,6 +67,8 @@ class GraphsData {
             lastPreviewList.add(preview);
         }
     }
+
+
     List<DataSet> getLastGraphList() {
         return listOfGraphLists.get(listOfGraphLists.size() - 1);
     }
@@ -225,7 +228,6 @@ class GraphsData {
         if (isAutoScroll()) {
             setStartIndex(getMaxStartIndex());
         }
-        fireStateChanged();
     }
 
     void moveForward() {
