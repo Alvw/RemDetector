@@ -49,7 +49,7 @@ class GraphsData {
         }
         List<DataSet> lastGraphList = listOfGraphLists.get(listOfGraphLists.size() - 1);
         for(DataSet graph : graphs) {
-            lastGraphList.add(graph);
+            lastGraphList.add(new FrequencyConverter(graph, timeFrequency, false));
             setTimeFrequency(Math.max(timeFrequency, graph.getFrequency()));
         }
     }
@@ -64,8 +64,37 @@ class GraphsData {
         }
         List<DataSet> lastPreviewList = listOfPreviewLists.get(listOfPreviewLists.size() - 1);
         for(DataSet preview : previews) {
-            lastPreviewList.add(preview);
+            lastPreviewList.add(new FrequencyConverter(preview, timeFrequency/compression, true));
         }
+    }
+
+    public void setCompression(int compression) {
+        this.compression = compression;
+        for(List<DataSet> listOfPreviews : listOfPreviewLists) {
+            for(DataSet preview : listOfPreviews) {
+                FrequencyConverter previewAdjusted = (FrequencyConverter) preview;
+                previewAdjusted.setFrequency(timeFrequency/compression);
+            }
+        }
+        fireStateChanged();
+    }
+
+    public void setTimeFrequency(double timeFrequency) {
+        this.timeFrequency = timeFrequency;
+        for(List<DataSet> listOfGraphs : listOfGraphLists) {
+            for(DataSet graph : listOfGraphs) {
+                FrequencyConverter graphAdjusted = (FrequencyConverter) graph;
+                graphAdjusted.setFrequency(timeFrequency);
+            }
+        }
+        for(List<DataSet> listOfPreviews : listOfPreviewLists) {
+            for(DataSet preview : listOfPreviews) {
+                FrequencyConverter previewAdjusted = (FrequencyConverter) preview;
+                previewAdjusted.setFrequency(timeFrequency/compression);
+            }
+        }
+
+        fireStateChanged();
     }
 
 
@@ -262,24 +291,14 @@ class GraphsData {
         return startIndex;
     }
 
-
     public int getCompression() {
         return compression;
-    }
-
-    public void setCompression(int compression) {
-        this.compression = compression;
-        fireStateChanged();
     }
 
     public double getTimeFrequency() {
         return timeFrequency;
     }
 
-    public void setTimeFrequency(double timeFrequency) {
-        this.timeFrequency = timeFrequency;
-        fireStateChanged();
-    }
 
     public long getStartTime() {
         return startTime;

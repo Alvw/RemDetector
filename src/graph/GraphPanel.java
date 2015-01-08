@@ -173,33 +173,7 @@ public class GraphPanel extends JPanel {
         g2d.transform(AffineTransform.getScaleInstance(1, -1)); // flip Y-axis and zoom it
     }
 
-    protected int getValue(int x, DataSet graph) {
-        double frequency = graph.getFrequency();
-        double timeFrequency = getTimeFrequency();
-        int value = 0;
-        // points x corresponds to frequencyBase
-        if(timeFrequency == 0 || frequency == 0 || frequency == timeFrequency) {
-            value = graph.get(x);
-        }
-        else if(frequency < timeFrequency) {
-            int index = (int)(frequency * x / timeFrequency);
-            value = graph.get(index);
-        }
-        else if(frequency > timeFrequency) {
-            if(x == 0) {
-                value = graph.get(x);
-            }
-            else {
-                int indexStart = (int)(frequency * (x-1) / timeFrequency);
-                int indexEnd = (int)(frequency * x / timeFrequency);
-                for(int index = indexStart; index < indexEnd; index++) {
-                    value += graph.get(index);
-                }
-                value = value/(indexEnd - indexStart);
-            }
-        }
-        return value;
-    }
+
     protected int getStartIndex() {
         return graphsData.getStartIndex();
     }
@@ -214,18 +188,14 @@ public class GraphPanel extends JPanel {
             Color graphColor = graphColors[graph_number];
             graph_number++;
             if (graph != null) {
-                int size = graph.size();
-                if(getTimeFrequency() > 0 && graph.getFrequency() > 0) {
-                    size = (int)(size * getTimeFrequency() / graph.getFrequency());
-                }
-                if(startPoint >= size ) {
+
+                if(startPoint >= graph.size() ) {
                     return;
                 }
-                int endPoint = Math.min(getWorkspaceWidth(), (size - startPoint));
+                int endPoint = Math.min(getWorkspaceWidth(), (graph.size() - startPoint));
                 VerticalLine vLine = new VerticalLine();
                 for (int x = 0; x < endPoint; x++) {
-                    //int value = graph.get(x + startPoint);
-                    int value = getValue(x + startPoint, graph);
+                    int value = graph.get(x + startPoint);
                     if(value == DataSet.UNDEFINED) {
                         vLine.clear();
                     }
@@ -238,8 +208,6 @@ public class GraphPanel extends JPanel {
             }
         }
     }
-
-
 
     @Override
     protected void paintComponent(Graphics g) {
