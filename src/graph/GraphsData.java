@@ -18,7 +18,7 @@ class GraphsData {
 
 
     // bigger GAP - less precision need slot to start autoscroll
-    private static final int AUTO_SCROLL_GAP = 10;
+    private static final int AUTO_SCROLL_GAP = 2;
 
     static final int X_INDENT = 50;
     static final int Y_INDENT = 20;

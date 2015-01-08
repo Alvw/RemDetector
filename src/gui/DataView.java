@@ -10,7 +10,7 @@ public class DataView extends GraphsView implements DataStoreListener {
 
     @Override
     public void onDataUpdate() {
-        repaint();
+        synchronize();
     }
 
     @Override

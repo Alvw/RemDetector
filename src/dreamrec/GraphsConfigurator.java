@@ -1,10 +1,7 @@
 package dreamrec;
 
 import data.DataSet;
-import filters.CompressorMaximizing;
-import filters.FilterAbs;
-import filters.FilterDerivative;
-import filters.FilterDerivativeRem;
+import filters.*;
 import gui.DataView;
 
 /**
@@ -40,7 +37,7 @@ public class GraphsConfigurator {
 
         view.addPreviewPanel(1, false);
         DataSet velocityRem =  new FilterAbs(new FilterDerivativeRem(channel_1));
-        DataSet compressedVelocityRem =  new CompressorMaximizing(velocityRem, view.getCompression());
+        DataSet compressedVelocityRem =  new CompressorAveraging(velocityRem, view.getCompression());
         view.addPreviews(compressedVelocityRem);
     }
 }

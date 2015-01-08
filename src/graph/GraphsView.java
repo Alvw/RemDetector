@@ -52,12 +52,10 @@ public class GraphsView extends JPanel implements SlotListener, ChangeListener{
                 int key = e.getKeyCode();
                 if (key == KeyEvent.VK_RIGHT) {
                     graphsData.moveForward();
-                    repaint();
                 }
 
                 if (key == KeyEvent.VK_LEFT) {
                     graphsData.moveBackward();
-                    repaint();
                 }
             }
         });
@@ -72,6 +70,13 @@ public class GraphsView extends JPanel implements SlotListener, ChangeListener{
         });
     }
 
+    public void synchronize(){
+        if(graphsData != null) {
+            graphsData.autoScroll();
+        }
+        repaint();
+    }
+
     @Override
     public void stateChanged(ChangeEvent e) {
         repaint();
@@ -80,9 +85,6 @@ public class GraphsView extends JPanel implements SlotListener, ChangeListener{
     @Override
     public void repaint() {
         super.repaint();
-        if(graphsData != null) {
-            graphsData.autoScroll();
-        }
         if(scrollBar !=null) {
             scrollBar.revalidate();
             scrollBar.repaint();
@@ -126,7 +128,6 @@ public class GraphsView extends JPanel implements SlotListener, ChangeListener{
         graphPanelList.add(panel);
         paintingPanel.add(panel);
         setPanelsSizes();
-        repaint();
     }
 
     public void addPreviewPanel(int weight, boolean isXCentered) {
@@ -136,7 +137,6 @@ public class GraphsView extends JPanel implements SlotListener, ChangeListener{
         previewPanelList.add(panel);
         paintingPanel.add(panel);
         setPanelsSizes();
-        repaint();
     }
 
 
@@ -148,7 +148,6 @@ public class GraphsView extends JPanel implements SlotListener, ChangeListener{
         if (graphPanelList.size() == 0) {
             addGraphPanel(DEFAULT_GRAPH_PANEL_WEIGHT, IS_GRAPH_X_CENTERED_DEFAULT);
         }
-        repaint();
     }
 
     /*
@@ -159,7 +158,6 @@ public class GraphsView extends JPanel implements SlotListener, ChangeListener{
         if (previewPanelList.size() == 0) {
             addPreviewPanel(DEFAULT_PREVIEW_PANEL_WEIGHT, IS_PREVIEW_X_CENTERED_DEFAULT);
         }
-        repaint();
     }
 
 
@@ -185,6 +183,5 @@ public class GraphsView extends JPanel implements SlotListener, ChangeListener{
     @Override
     public void moveSlot(int newSlotIndex) {
         graphsData.moveSlot(newSlotIndex);
-        repaint();
     }
 }

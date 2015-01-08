@@ -38,7 +38,6 @@ public class Ads implements BdfDevice {
             FrameDecoder frameDecoder = new FrameDecoder(getNumberOfDataSamples(), NUMBER_OF_BYTES_IN_DATA_FORMAT) {
                 @Override
                 public void notifyListeners(byte[] decodedFrame) {
-                    System.out.println("frame come to ads");
                     notifyAdsDataListeners(decodedFrame);
                 }
             };
