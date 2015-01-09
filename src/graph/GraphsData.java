@@ -1,5 +1,7 @@
 package graph;
 
+import data.BufferedConverter;
+import data.Converter;
 import data.DataSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -49,7 +51,7 @@ class GraphsData {
         }
         List<DataSet> lastGraphList = listOfGraphLists.get(listOfGraphLists.size() - 1);
         for(DataSet graph : graphs) {
-            lastGraphList.add(new FrequencyConverter(graph, timeFrequency, false));
+            lastGraphList.add(new FrequencyConverterAvg(graph, timeFrequency));
             setTimeFrequency(Math.max(timeFrequency, graph.getFrequency()));
         }
     }
@@ -64,7 +66,7 @@ class GraphsData {
         }
         List<DataSet> lastPreviewList = listOfPreviewLists.get(listOfPreviewLists.size() - 1);
         for(DataSet preview : previews) {
-            lastPreviewList.add(new FrequencyConverter(preview, timeFrequency/compression, true));
+            lastPreviewList.add(new BufferedConverter(new FrequencyConverterMax(preview, timeFrequency/compression)));
         }
     }
 
@@ -72,7 +74,7 @@ class GraphsData {
         this.compression = compression;
         for(List<DataSet> listOfPreviews : listOfPreviewLists) {
             for(DataSet preview : listOfPreviews) {
-                FrequencyConverter previewAdjusted = (FrequencyConverter) preview;
+                BufferedConverter previewAdjusted = (BufferedConverter) preview;
                 previewAdjusted.setFrequency(timeFrequency/compression);
             }
         }
@@ -83,13 +85,13 @@ class GraphsData {
         this.timeFrequency = timeFrequency;
         for(List<DataSet> listOfGraphs : listOfGraphLists) {
             for(DataSet graph : listOfGraphs) {
-                FrequencyConverter graphAdjusted = (FrequencyConverter) graph;
+                Converter graphAdjusted = (Converter) graph;
                 graphAdjusted.setFrequency(timeFrequency);
             }
         }
         for(List<DataSet> listOfPreviews : listOfPreviewLists) {
             for(DataSet preview : listOfPreviews) {
-                FrequencyConverter previewAdjusted = (FrequencyConverter) preview;
+                BufferedConverter previewAdjusted = (BufferedConverter) preview;
                 previewAdjusted.setFrequency(timeFrequency/compression);
             }
         }

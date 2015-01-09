@@ -3,19 +3,13 @@ package graph;
 import data.Converter;
 import data.DataSet;
 
-public class FrequencyConverter extends Converter{
-
-    public FrequencyConverter(DataSet inputData, double outputFrequency, boolean isBuffering) {
-        super(inputData, outputFrequency, isBuffering);
-    }
-
-    public void setFrequency(double outputFrequency) {
-        this.outputFrequency = outputFrequency;
-        outputData.clear();
+public class FrequencyConverterAvg extends Converter {
+    public FrequencyConverterAvg(DataSet inputData, double outputFrequency) {
+        super(inputData, outputFrequency);
     }
 
     @Override
-    protected int getConverted(int index) {
+    public int get(int index) {
         int value = 0;
         double inputFrequency = inputData.getFrequency();
         if(outputFrequency == 0 || inputFrequency == 0 || inputFrequency == outputFrequency) {
