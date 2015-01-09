@@ -3,9 +3,14 @@ package graph;
 import data.Converter;
 import data.DataSet;
 
-public class FrequencyConverterAvg extends Converter {
+public class FrequencyConverterAvg extends Converter implements FrequencyConverter{
     public FrequencyConverterAvg(DataSet inputData, double outputFrequency) {
         super(inputData, outputFrequency);
+    }
+
+    @Override
+    public void setFrequency(double outputFrequency) {
+        this.outputFrequency = outputFrequency;
     }
 
     @Override

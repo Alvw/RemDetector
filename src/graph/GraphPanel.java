@@ -19,24 +19,24 @@ import java.util.Date;
  * To change this template use File | Settings | File Templates.
  */
 public class GraphPanel extends JPanel {
-    protected java.util.List<DataSet> graphs;
     protected static final double ZOOM_PLUS_CHANGE = Math.sqrt(2.0);// 2 clicks(rotations) up increase zoom twice
     protected static final double ZOOM_MINUS_CHANGE = 1 / ZOOM_PLUS_CHANGE; // similarly 2 clicks(rotations) down reduces zoom twice
     protected static final Color bgColor = Color.BLACK;
     protected static final Color axisColor = Color.GREEN;
     protected static final Color graphColors[] = {Color.YELLOW, Color.RED, Color.CYAN};
 
+    protected int panelNumber;
     protected double zoom = 0.5;
     protected boolean isAutoZoom;
     protected boolean isXCentered = true;
     protected int weight = 1;
     protected GraphsData graphsData;
 
-    GraphPanel(int weight, boolean isXCentered, GraphsData graphsData) {
+    GraphPanel(int weight, boolean isXCentered, int panelNumber, GraphsData graphsData) {
         this.weight = weight;
         this.isXCentered = isXCentered;
         this.graphsData = graphsData;
-        graphs = graphsData.getLastGraphList();
+        this.panelNumber = panelNumber;
         setBackground(bgColor);
         // MouseListener to zoom Y_Axes
         addMouseWheelListener(new MouseWheelListener() {
@@ -44,6 +44,10 @@ public class GraphPanel extends JPanel {
                 zooming(e.getWheelRotation());
             }
         });
+    }
+
+    protected java.util.List<? extends DataSet> getGraphs() {
+        return graphsData.getGraphList(panelNumber);
     }
 
     protected int getWeight() {
@@ -58,8 +62,6 @@ public class GraphPanel extends JPanel {
         return (getSize().width - graphsData.X_INDENT);
     }
 
-
-
     protected void zooming(int zoomDirection) {
         if (zoomDirection > 0) {
             zoom = zoom * ZOOM_PLUS_CHANGE;
@@ -70,13 +72,7 @@ public class GraphPanel extends JPanel {
     }
 
 
-    protected void setAutoZoom(boolean isAutoZoom) {
-        this.isAutoZoom = isAutoZoom;
-        repaint();
-    }
-
     protected void paintAxisY(Graphics g) {
-
         int minValueStep = 50;  //default value between two labels
         int minPointStep = 20; // distance between two labels in pixels
         int minValue = 0;
@@ -184,7 +180,7 @@ public class GraphPanel extends JPanel {
         if(startPoint < 0 ) {
             return;
         }
-        for (DataSet graph : graphs) {
+        for (DataSet graph : getGraphs()) {
             Color graphColor = graphColors[graph_number];
             graph_number++;
             if (graph != null) {

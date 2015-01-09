@@ -14,10 +14,6 @@ public abstract class Converter implements DataSet{
         this.outputFrequency = outputFrequency;
     }
 
-    public void setFrequency(double outputFrequency) {
-        this.outputFrequency = outputFrequency;
-    }
-
     @Override
     public int size() {
         int size = inputData.size();

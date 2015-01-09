@@ -3,10 +3,16 @@ package graph;
 import data.Converter;
 import data.DataSet;
 
-public class FrequencyConverterMax extends Converter {
+public class FrequencyConverterMax extends Converter implements FrequencyConverter {
     public FrequencyConverterMax(DataSet inputData, double outputFrequency) {
         super(inputData, outputFrequency);
     }
+
+    @Override
+    public void setFrequency(double outputFrequency) {
+        this.outputFrequency = outputFrequency;
+    }
+
 
     @Override
     public int get(int index) {

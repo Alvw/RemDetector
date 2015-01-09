@@ -20,7 +20,7 @@ public class GraphsConfigurator {
         view.addPreviewPanel(1, false);
         DataSet velocityRem =  new FilterAbs(new FilterDerivativeRem(channel_1));
         DataSet compressedVelocityRem =  new CompressorMaximizing(velocityRem, view.getCompression());
-        view.addPreviews(compressedVelocityRem);
+        view.addPreviewsMax(compressedVelocityRem);
     }
 
     public static void configureRem(DataView view, RemDataStore dataStore) {
@@ -38,6 +38,6 @@ public class GraphsConfigurator {
         view.addPreviewPanel(1, false);
         DataSet velocityRem =  new FilterAbs(new FilterDerivativeRem(channel_1));
        // DataSet compressedVelocityRem =  new CompressorMaximizing(velocityRem, view.getCompression());
-        view.addPreviews(velocityRem);
+        view.addPreviewsMax(velocityRem);
     }
 }

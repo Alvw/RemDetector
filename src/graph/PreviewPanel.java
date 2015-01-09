@@ -1,5 +1,6 @@
 package graph;
 
+import data.DataSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -25,9 +26,8 @@ class PreviewPanel extends GraphPanel {
     protected Color SLOT_COLOR = Color.MAGENTA;
     private List<SlotListener> slotListeners = new ArrayList<SlotListener>();
 
-    PreviewPanel(int weight, boolean isXCentered, GraphsData graphsData) {
-        super(weight, isXCentered, graphsData);
-        graphs = graphsData.getLastPreviewList();
+    PreviewPanel(int weight, boolean isXCentered, int panelNumber,GraphsData graphsData) {
+        super(weight, isXCentered, panelNumber, graphsData);
         //MouseListener to move Slot
         addMouseListener(new MouseAdapter() {
             @Override
@@ -46,6 +46,11 @@ class PreviewPanel extends GraphPanel {
         for (SlotListener listener: slotListeners) {
             listener.moveSlot(newSlotPosition);
         }
+    }
+
+    @Override
+    protected java.util.List<? extends DataSet> getGraphs() {
+        return graphsData.getPreviewList(panelNumber);
     }
 
     @Override
@@ -116,7 +121,7 @@ class PreviewPanel extends GraphPanel {
 
     @Override
     protected void paintComponent(Graphics g) {
-        super.paintComponent(g);    //To change body of overridden methods use File | Settings | File Templates.
+        super.paintComponent(g);
         transformCoordinate(g);
         paintSlot(g);
         restoreCoordinate(g);

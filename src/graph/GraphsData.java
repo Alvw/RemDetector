@@ -1,7 +1,5 @@
 package graph;
 
-import data.BufferedConverter;
-import data.Converter;
 import data.DataSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,9 +29,9 @@ class GraphsData {
     private int scrollPosition;
     private int canvasWidth;
 
-    // graphs list for every panel
+    // graphs list for every graph panel
     private List<List<DataSet>> listOfGraphLists = new ArrayList<List<DataSet>>();
-    // preview list for every preview panel
+    // previews list for every preview panel
     private List<List<DataSet>> listOfPreviewLists = new ArrayList<List<DataSet>>();
 
     BoundedRangeModel getScrollBoundedRangeModel() {
@@ -43,7 +41,6 @@ class GraphsData {
     void addGraphList() {
         listOfGraphLists.add(new ArrayList<DataSet>());
     }
-
 
     void addGraphs(DataSet... graphs) {
         if(listOfGraphLists.size() == 0) {
@@ -60,13 +57,23 @@ class GraphsData {
         listOfPreviewLists.add(new ArrayList<DataSet>());
     }
 
-    void addPreviews(DataSet... previews) {
+    void addPreviewsAvg(DataSet... previews) {
         if(listOfPreviewLists.size() == 0) {
             addPreviewList();
         }
         List<DataSet> lastPreviewList = listOfPreviewLists.get(listOfPreviewLists.size() - 1);
         for(DataSet preview : previews) {
-            lastPreviewList.add(new BufferedConverter(new FrequencyConverterMax(preview, timeFrequency/compression)));
+            lastPreviewList.add(new BufferedFrequencyConverter(new FrequencyConverterAvg(preview, timeFrequency/compression)));
+        }
+    }
+
+    void addPreviewsMax(DataSet... previews) {
+        if(listOfPreviewLists.size() == 0) {
+            addPreviewList();
+        }
+        List<DataSet> lastPreviewList = listOfPreviewLists.get(listOfPreviewLists.size() - 1);
+        for(DataSet preview : previews) {
+            lastPreviewList.add(new BufferedFrequencyConverter(new FrequencyConverterMax(preview, timeFrequency/compression)));
         }
     }
 
@@ -74,8 +81,8 @@ class GraphsData {
         this.compression = compression;
         for(List<DataSet> listOfPreviews : listOfPreviewLists) {
             for(DataSet preview : listOfPreviews) {
-                BufferedConverter previewAdjusted = (BufferedConverter) preview;
-                previewAdjusted.setFrequency(timeFrequency/compression);
+                FrequencyConverter previewCasted = (FrequencyConverter) preview;
+                previewCasted.setFrequency(timeFrequency/compression);
             }
         }
         fireStateChanged();
@@ -85,27 +92,26 @@ class GraphsData {
         this.timeFrequency = timeFrequency;
         for(List<DataSet> listOfGraphs : listOfGraphLists) {
             for(DataSet graph : listOfGraphs) {
-                Converter graphAdjusted = (Converter) graph;
-                graphAdjusted.setFrequency(timeFrequency);
+                FrequencyConverter graphCasted = (FrequencyConverter) graph;
+                graphCasted.setFrequency(timeFrequency);
             }
         }
         for(List<DataSet> listOfPreviews : listOfPreviewLists) {
             for(DataSet preview : listOfPreviews) {
-                BufferedConverter previewAdjusted = (BufferedConverter) preview;
-                previewAdjusted.setFrequency(timeFrequency/compression);
+                FrequencyConverter previewCasted = (FrequencyConverter) preview;
+                previewCasted.setFrequency(timeFrequency/compression);
             }
         }
 
         fireStateChanged();
     }
 
-
-    List<DataSet> getLastGraphList() {
-        return listOfGraphLists.get(listOfGraphLists.size() - 1);
+    List<DataSet> getGraphList(int listNumber) {
+        return listOfGraphLists.get(listNumber);
     }
 
-    List<DataSet> getLastPreviewList() {
-        return listOfPreviewLists.get(listOfPreviewLists.size() - 1);
+    List<DataSet> getPreviewList(int listNumber) {
+        return listOfPreviewLists.get(listNumber);
     }
 
     int getSlotPosition() {

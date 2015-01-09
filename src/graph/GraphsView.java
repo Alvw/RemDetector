@@ -124,7 +124,8 @@ public class GraphsView extends JPanel implements SlotListener, ChangeListener{
 
     public void addGraphPanel(int weight, boolean isXCentered) {
         graphsData.addGraphList();
-        GraphPanel panel = new GraphPanel(weight, isXCentered, graphsData);
+        int panelNumber = graphPanelList.size();
+        GraphPanel panel = new GraphPanel(weight, isXCentered, panelNumber, graphsData);
         graphPanelList.add(panel);
         paintingPanel.add(panel);
         setPanelsSizes();
@@ -132,7 +133,8 @@ public class GraphsView extends JPanel implements SlotListener, ChangeListener{
 
     public void addPreviewPanel(int weight, boolean isXCentered) {
         graphsData.addPreviewList();
-        PreviewPanel panel = new PreviewPanel(weight, isXCentered, graphsData);
+        int panelNumber = previewPanelList.size();
+        PreviewPanel panel = new PreviewPanel(weight, isXCentered, panelNumber, graphsData);
         panel.addSlotListener(this);
         previewPanelList.add(panel);
         paintingPanel.add(panel);
@@ -153,8 +155,15 @@ public class GraphsView extends JPanel implements SlotListener, ChangeListener{
     /*
      * Add Previews to the last preview panel. If there is no preview panel create one
      */
-    public void addPreviews(DataSet... previews) {
-        graphsData.addPreviews(previews);
+    public void addPreviewsAvg(DataSet... previews) {
+        graphsData.addPreviewsAvg(previews);
+        if (previewPanelList.size() == 0) {
+            addPreviewPanel(DEFAULT_PREVIEW_PANEL_WEIGHT, IS_PREVIEW_X_CENTERED_DEFAULT);
+        }
+    }
+
+    public void addPreviewsMax(DataSet... previews) {
+        graphsData.addPreviewsMax(previews);
         if (previewPanelList.size() == 0) {
             addPreviewPanel(DEFAULT_PREVIEW_PANEL_WEIGHT, IS_PREVIEW_X_CENTERED_DEFAULT);
         }

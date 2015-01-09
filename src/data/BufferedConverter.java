@@ -1,15 +1,11 @@
 package data;
 
 public class BufferedConverter implements DataSet {
-    protected Converter converter;
+    protected DataSet converter;
     protected DataList outputData = new DataList();
 
-    public BufferedConverter(Converter converter) {
+    public BufferedConverter(DataSet converter) {
         this.converter = converter;
-    }
-
-    public void setFrequency(double outputFrequency) {
-        converter.setFrequency(outputFrequency);
     }
 
 
