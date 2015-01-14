@@ -7,11 +7,7 @@ import org.apache.commons.logging.LogFactory;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.geom.AffineTransform;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -26,7 +22,7 @@ class PreviewPanel extends GraphPanel {
     protected Color SLOT_COLOR = Color.MAGENTA;
     private List<SlotListener> slotListeners = new ArrayList<SlotListener>();
 
-    PreviewPanel(int weight, boolean isXCentered, int panelNumber,GraphsData graphsData) {
+    PreviewPanel(int weight, boolean isXCentered, int panelNumber, GraphsData graphsData) {
         super(weight, isXCentered, panelNumber, graphsData);
         //MouseListener to move Slot
         addMouseListener(new MouseAdapter() {
@@ -49,7 +45,7 @@ class PreviewPanel extends GraphPanel {
     }
 
     @Override
-    protected java.util.List<? extends DataSet> getGraphs() {
+    protected List<? extends DataSet> getGraphs() {
         return graphsData.getPreviewList(panelNumber);
     }
 
@@ -72,51 +68,6 @@ class PreviewPanel extends GraphPanel {
             g.drawLine(slotPosition-1, 0, slotPosition-1, getMaxY());
             g.drawLine(slotPosition-2, 0, slotPosition-2, getMaxY());
         }
-    }
-
-    @Override
-    protected void paintAxisX(Graphics g) {
-        int MINUTE = 60 * 1000;//milliseconds
-        int MINUTES_2 = 2 * MINUTE;
-        int MINUTES_10 = 10 * MINUTE;
-        int MINUTES_30 = 30 * MINUTE;//milliseconds
-        long startTime = graphsData.getStartTime();
-        double timeFrequency = getTimeFrequency();
-        int point_distance_msec = (int) (1000/timeFrequency);
-        g.setColor(axisColor);
-        Graphics2D g2d = (Graphics2D) g;
-        g2d.transform(AffineTransform.getScaleInstance(1.0, -1.0)); // flip transformation
-
-        DateFormat dateFormat = new SimpleDateFormat("HH:mm");
-        if(startTime == 0 ) {
-            startTime = System.currentTimeMillis();
-        }
-
-        long newStartTime = (startTime/ point_distance_msec)* point_distance_msec + point_distance_msec;
-        for (int i = 0; i  < getWorkspaceWidth(); i++) {
-
-            long iTime = newStartTime + (long)((getStartIndex() + i) * point_distance_msec);
-            if((iTime % MINUTES_10) == 0){
-                // Paint Triangle
-                g.fillPolygon(new int[]{i - 3, i + 3, i}, new int[]{0, 0, 6}, 3);
-            }
-            else if((iTime % MINUTES_2) == 0){
-                //paint T
-                g.drawLine(i - 1, 0, i + 1, 0);
-                g.drawLine(i, 0, i, 5);
-            }
-            else if((iTime % MINUTE) == 0){
-                // Paint Point
-                g.drawLine(i, 0, i, 0);
-            }
-
-            if(((iTime % MINUTES_30) == 0)){
-                String timeStamp = dateFormat.format(new Date(iTime)) ;
-                // Paint Time Stamp
-                g.drawString(timeStamp, i - 15, +18);
-            }
-        }
-        g2d.transform(AffineTransform.getScaleInstance(1.0, -1.0)); // flip transformation
     }
 
     @Override

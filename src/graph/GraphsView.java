@@ -118,6 +118,11 @@ public class GraphsView extends JPanel implements SlotListener, ChangeListener{
         graphsData.setCompression(compression);
     }
 
+    public void setPreviewTimeFrequency(double timeFrequency) {
+        int compression = (int)(graphsData.getTimeFrequency() / timeFrequency);
+        graphsData.setCompression(compression);
+    }
+
     public int getCompression() {
         return graphsData.getCompression();
     }

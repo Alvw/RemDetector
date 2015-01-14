@@ -78,32 +78,36 @@ class GraphsData {
     }
 
     public void setCompression(int compression) {
-        this.compression = compression;
-        for(List<DataSet> listOfPreviews : listOfPreviewLists) {
-            for(DataSet preview : listOfPreviews) {
-                FrequencyConverter previewCasted = (FrequencyConverter) preview;
-                previewCasted.setFrequency(timeFrequency/compression);
+        if(this.compression != compression) {
+            this.compression = compression;
+            for(List<DataSet> listOfPreviews : listOfPreviewLists) {
+                for(DataSet preview : listOfPreviews) {
+                    FrequencyConverter previewCasted = (FrequencyConverter) preview;
+                    previewCasted.setFrequency(timeFrequency/compression);
+                }
             }
+            fireStateChanged();
         }
-        fireStateChanged();
     }
 
     public void setTimeFrequency(double timeFrequency) {
-        this.timeFrequency = timeFrequency;
-        for(List<DataSet> listOfGraphs : listOfGraphLists) {
-            for(DataSet graph : listOfGraphs) {
-                FrequencyConverter graphCasted = (FrequencyConverter) graph;
-                graphCasted.setFrequency(timeFrequency);
+        if(this.timeFrequency != timeFrequency)  {
+            this.timeFrequency = timeFrequency;
+            for(List<DataSet> listOfGraphs : listOfGraphLists) {
+                for(DataSet graph : listOfGraphs) {
+                    FrequencyConverter graphCasted = (FrequencyConverter) graph;
+                    graphCasted.setFrequency(timeFrequency);
+                }
             }
-        }
-        for(List<DataSet> listOfPreviews : listOfPreviewLists) {
-            for(DataSet preview : listOfPreviews) {
-                FrequencyConverter previewCasted = (FrequencyConverter) preview;
-                previewCasted.setFrequency(timeFrequency/compression);
+            for(List<DataSet> listOfPreviews : listOfPreviewLists) {
+                for(DataSet preview : listOfPreviews) {
+                    FrequencyConverter previewCasted = (FrequencyConverter) preview;
+                    previewCasted.setFrequency(timeFrequency/compression);
+                }
             }
-        }
 
-        fireStateChanged();
+            fireStateChanged();
+        }
     }
 
     List<DataSet> getGraphList(int listNumber) {
@@ -313,8 +317,10 @@ class GraphsData {
     }
 
     public void setStartTime(long startTime) {
-        this.startTime = startTime;
-        fireStateChanged();
+        if(this.startTime != startTime){
+            this.startTime = startTime;
+            fireStateChanged();
+        }
     }
     /*
      * The rest of this is event handling code copied from
