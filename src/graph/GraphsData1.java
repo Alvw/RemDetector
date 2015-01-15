@@ -11,8 +11,8 @@ import javax.swing.event.EventListenerList;
 import java.util.ArrayList;
 import java.util.List;
 
-class GraphsData {
-    private static final Log log = LogFactory.getLog(GraphsData.class);
+class GraphsData1 {
+    private static final Log log = LogFactory.getLog(GraphsData1.class);
     protected ChangeEvent changeEvent = null;
     protected EventListenerList listenerList = new EventListenerList();
 
@@ -22,8 +22,7 @@ class GraphsData {
 
     static final int X_INDENT = 50;
     static final int Y_INDENT = 20;
-    static final int DEFAULT_COMPRESSION = 1;
-    private  int compression = DEFAULT_COMPRESSION;
+    private  int compression = 1;
     private double timeFrequency;
     private long startTime;
     private int startIndex;
@@ -36,7 +35,7 @@ class GraphsData {
     private List<List<DataSet>> listOfPreviewLists = new ArrayList<List<DataSet>>();
 
     BoundedRangeModel getScrollBoundedRangeModel() {
-        return new ScrollModel(this);
+        return null;
     }
 
     void addGraphList() {
@@ -80,20 +79,16 @@ class GraphsData {
 
     public void setPreviewTimeFrequency (double previewTimeFrequency) {
         if(previewTimeFrequency == 0) {
-            timeFrequency = 0;
             return;
         }
         if(getTimeFrequency() == 0) {
-            setTimeFrequency(previewTimeFrequency);
+           setTimeFrequency(previewTimeFrequency);
         }
         int compression = (int)(getTimeFrequency() / previewTimeFrequency);
         setCompression(compression);
     }
 
     public void setCompression(int compression) {
-        if(compression <= 0) {
-            compression = DEFAULT_COMPRESSION;
-        }
         if(this.compression != compression) {
             this.compression = compression;
             for(List<DataSet> listOfPreviews : listOfPreviewLists) {

@@ -128,9 +128,9 @@ public class Controller {
             dataStore.setChannelsMask(recordingSettings.getActiveChannels());
             GraphsConfigurator.configure(dataView, dataStore);
         }
-        dataView.setPreviewTimeFrequency(PREVIEW_TIME_FREQUENCY);
         dataStore.addListener(dataView);
         dataStore.setStartTime(recordingBdfConfig.getStartTime());
+        dataView.setPreviewTimeFrequency(PREVIEW_TIME_FREQUENCY);
         saveToFile(recordingSettings.getFile());
         bdfProvider.startReading();
         isRecording = true;

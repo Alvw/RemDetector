@@ -169,7 +169,7 @@ class TimeAxisPainter {
             int markIndex = timeMark.get(i);
             int point = markIndex - startIndex;
             if(point >= 0) {
-                long markTime = startTime + (long)(i * 1000 / timeFrequency);
+                long markTime = startTime + (long)(markIndex * 1000 / timeFrequency);
                 long n = markTime/timeInterval;
                 String timeStamp = dateFormat.format(new Date((n+1)*timeInterval));
 
