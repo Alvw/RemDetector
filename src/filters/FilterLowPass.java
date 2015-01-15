@@ -17,7 +17,7 @@ public class FilterLowPass extends FilterBuffered {
     }
 
     @Override
-    protected int getData(int index) {
+    public int get(int index) {
         if (index < bufferSize) {
             return 0;
         }

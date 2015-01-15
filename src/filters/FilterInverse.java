@@ -1,12 +1,13 @@
 package filters;
 
+import data.Converter;
 import data.DataSet;
 
 /**
  *
  */
 
-public class FilterInverse extends Filter {
+public class FilterInverse extends Converter {
 
     private int derivative = 0;
 
@@ -15,7 +16,7 @@ public class FilterInverse extends Filter {
     }
 
     @Override
-    protected int getData(int index) {
+    public int get(int index) {
 
         return -inputData.get(index);
     }

@@ -1,13 +1,14 @@
 package filters;
 
+import data.Converter;
 import data.DataSet;
 
 /**
  *
  */
 
-public class FilterDerivativeRem extends Filter {
-
+public class FilterDerivativeRem extends Converter {
+    int bufferSize;
     private int distance = 4;
     
     public FilterDerivativeRem(DataSet inputData) {
@@ -16,7 +17,7 @@ public class FilterDerivativeRem extends Filter {
     }
 
     @Override
-    protected int getData(int index) {
+    public int get(int index) {
         if (index < distance) {
             return 0;
         }

@@ -1,13 +1,14 @@
 // public class FilterTest {
 package filters;
 
+import data.Converter;
 import data.DataSet;
 
 /**
  *
  */
 
-public class FilterTest extends Filter {
+public class FilterTest extends Converter {
     private int period = 4;
     private int bufferHalf = period * 2;
 
@@ -16,7 +17,7 @@ public class FilterTest extends Filter {
     }
 
     @Override
-    protected int getData(int index) {
+    public int get(int index) {
         if (index < bufferHalf + 4 || (index >= size()- bufferHalf - 4)) {
             return 0;
         }

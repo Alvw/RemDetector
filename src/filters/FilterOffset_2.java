@@ -1,8 +1,9 @@
 package filters;
 
+import data.Converter;
 import data.DataSet;
 
-public class FilterOffset_2 extends Filter {
+public class FilterOffset_2 extends Converter {
     private static int offsetLevel = 0;
     private static int offsetLevel_1 = offsetLevel;
     private static int timerMin = 150;
@@ -13,7 +14,7 @@ public class FilterOffset_2 extends Filter {
         super(inputData);
     }
 
-    protected int getData(int index) {
+    public int get(int index) {
         if (index < timerMin + 1) {
             offsetLevel   = inputData.get(index);
             offsetLevel_1 = offsetLevel;

@@ -1,13 +1,14 @@
 // public class FilterTest {
 package filters;
 
+import data.Converter;
 import data.DataSet;
 
 /**
  *
  */
  // Среднее значение модуля за 8 периодов  (32 точки)
-public class FilterTest_2 extends Filter {
+public class FilterTest_2 extends Converter {
     private int period = 4;
     private int bufferHalf = period * 4;
 
@@ -16,7 +17,7 @@ public class FilterTest_2 extends Filter {
     }
 
     @Override
-    protected int getData(int index) {
+    public int get(int index) {
         if (index < bufferHalf + 4 || (index >= size()- bufferHalf - 4)) {
             return 0;
         }

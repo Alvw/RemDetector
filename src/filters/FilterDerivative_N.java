@@ -1,12 +1,13 @@
 package filters;
 
+import data.Converter;
 import data.DataSet;
 
 /**
  *
  */
 
-public class FilterDerivative_N extends Filter {
+public class FilterDerivative_N extends Converter {
     private int n = 1;
     public FilterDerivative_N(DataSet inputData, int n) {
         super(inputData);
@@ -14,7 +15,7 @@ public class FilterDerivative_N extends Filter {
     }
 
     @Override
-    protected int getData(int index) {
+    public int get(int index) {
         if (index < 2 || (index >= size()- 2)) {
             return 0;
         }

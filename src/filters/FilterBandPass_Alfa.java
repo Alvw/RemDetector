@@ -13,7 +13,7 @@ public class FilterBandPass_Alfa extends FilterBuffered {
     }
 
     @Override
-    protected int getData(int index) {
+    public int get(int index) {
         if ((index < bufferHalf + 2) || (index >= size()- bufferHalf - 2)) {
             return 0;
         }

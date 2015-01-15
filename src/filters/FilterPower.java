@@ -1,12 +1,13 @@
 package filters;
 
+import data.Converter;
 import data.DataSet;
 
 /**
  *
  */
 
-public class FilterPower extends Filter {
+public class FilterPower extends Converter {
 
     private int  distance = 1;
 
@@ -16,7 +17,7 @@ public class FilterPower extends Filter {
     }
 
     @Override
-    protected int getData(int index) {
+    public int get(int index) {
         if(index < distance || index >= (size()-distance)) {
             return 0;
         }

@@ -1,12 +1,13 @@
 package filters;
 
+import data.Converter;
 import data.DataSet;
 
 /**
  *
  */
 
-public class FilterRem extends Filter {
+public class FilterRem extends Converter {
     int stopTimeMscec = 80;
     int derivativeMin = 400;
     int derivativeMax = 2000;
@@ -19,7 +20,7 @@ public class FilterRem extends Filter {
     }
 
     @Override
-    protected int getData(int index) {
+    public int get(int index) {
 
         if (index <= stopPoints) {
             return 0;

@@ -1,19 +1,20 @@
 package filters;
 
+import data.Converter;
 import data.DataSet;
 
 /**
  *
  */
 
-public class FilterDerivativeAbs extends Filter {
+public class FilterDerivativeAbs extends Converter {
 
     public FilterDerivativeAbs(DataSet inputData) {
         super(inputData);
     }
 
     @Override
-    protected int getData(int index) {
+    public int get(int index) {
         if (index == 0) {
             return 0;
         }

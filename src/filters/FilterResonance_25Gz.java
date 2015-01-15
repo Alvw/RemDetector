@@ -12,7 +12,7 @@ public class FilterResonance_25Gz extends FilterBuffered {
     }
 
     @Override
-    protected int getData(int index) {
+    public int get(int index) {
         if (index < 5 || (index >= size()-5) ) {
             return 0;
         }

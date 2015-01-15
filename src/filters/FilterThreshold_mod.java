@@ -1,11 +1,12 @@
 package filters;
 
+import data.Converter;
 import data.DataSet;
 
 /**
  *
  */
-public class FilterThreshold_mod extends Filter {
+public class FilterThreshold_mod extends Converter {
     private int bufferSize = 4;
     private int shift = 0; // points
   
@@ -14,7 +15,7 @@ public class FilterThreshold_mod extends Filter {
     }
 
     @Override
-    protected int getData(int index) {
+    public int get(int index) {
         int sum = Integer.MAX_VALUE;
         int indexShifted = index - shift;
 

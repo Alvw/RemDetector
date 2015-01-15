@@ -8,6 +8,7 @@ import data.DataSet;
 public class FilterHiPass extends FilterBuffered {
     private int indexBefore = -10;
     private long sumBefore = 0;
+    int bufferSize;
 
     public FilterHiPass(DataSet inputData, int bufferSize) {
         super(inputData);
@@ -36,7 +37,7 @@ public class FilterHiPass extends FilterBuffered {
         return inputData.get(index) - (int)(sum/(2*bufferSize));
     }
 
-    protected int getData(int index) {
+    public int get(int index) {
         if (index < bufferSize) {
             return 0;
         }

@@ -36,7 +36,7 @@ public class TestView extends JFrame {
         DataSet filteredData = new FilterBandPass_Alfa(testData);
 //        DataStream filteredData = new FilterBandPass_Delta_1(testData);
 
-        DataSet compressedFilteredData = new CompressorMaximizing(filteredData, graphsView.getCompression());
+     //   DataSet compressedFilteredData = new CompressorMaximizing(filteredData, graphsView.getCompression());
 
 /*        graphsViewer.addGraphs(0, testData);
         graphsViewer.addGraphs(0, data.getPeriodStream());

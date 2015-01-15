@@ -1,5 +1,6 @@
 package filters;
 
+import data.Converter;
 import data.DataSet;
 import graph.GraphsView;
 
@@ -10,7 +11,7 @@ import graph.GraphsView;
  * Time: 22:59
  * To change this template use File | Settings | File Templates.
  */
-public class FilterOffset_1 extends Filter {
+public class FilterOffset_1 extends Converter {
     private GraphsView graphsView;
     private int offset = 640;
 
@@ -20,7 +21,7 @@ public class FilterOffset_1 extends Filter {
     }
 
     // @Override
-    protected int getData(int index) {
+    public int get(int index) {
         if (index >= size()- 1920) {
             return 0;
         }
