@@ -3,15 +3,19 @@ package graph;
 import data.Converter;
 import data.DataSet;
 
-public class FrequencyConverterAvg extends Converter implements FrequencyConverter{
-    public FrequencyConverterAvg(DataSet inputData, double outputFrequency) {
+public class FrequencyConverterRuntime extends Converter implements FrequencyConverter{
+    CompressionType compressionType = CompressionType.AVERAGE;
+
+    public FrequencyConverterRuntime(DataSet inputData, double outputFrequency, CompressionType compressionType) {
         super(inputData, outputFrequency);
+        this.compressionType = compressionType;
     }
 
     @Override
     public void setFrequency(double outputFrequency) {
         this.outputFrequency = outputFrequency;
     }
+
 
     @Override
     public int get(int index) {
@@ -32,9 +36,16 @@ public class FrequencyConverterAvg extends Converter implements FrequencyConvert
                 int indexStart = (int)((index-1) * inputFrequency / outputFrequency);
                 int indexEnd = (int)(index * inputFrequency / outputFrequency);
                 for(int i = indexStart; i < indexEnd; i++) {
-                    value += inputData.get(i);
+                    if(compressionType == CompressionType.AVERAGE) {
+                        value += inputData.get(i);
+                    }
+                    else if(compressionType == CompressionType.MAX) {
+                        value = Math.max(value, inputData.get(i));
+                    }
                 }
-                value = value/(indexEnd - indexStart);
+                if(compressionType == CompressionType.AVERAGE) {
+                    value = value/(indexEnd - indexStart);
+                }
             }
         }
         return value;

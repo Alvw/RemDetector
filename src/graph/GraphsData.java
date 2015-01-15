@@ -49,7 +49,7 @@ class GraphsData {
         }
         List<DataSet> lastGraphList = listOfGraphLists.get(listOfGraphLists.size() - 1);
         for(DataSet graph : graphs) {
-            lastGraphList.add(new FrequencyConverterAvg(graph, timeFrequency));
+            lastGraphList.add(new FrequencyConverterRuntime(graph, timeFrequency, CompressionType.AVERAGE));
             setTimeFrequency(Math.max(timeFrequency, graph.getFrequency()));
         }
     }
@@ -58,23 +58,14 @@ class GraphsData {
         listOfPreviewLists.add(new ArrayList<DataSet>());
     }
 
-    void addPreviewsAvg(DataSet... previews) {
+    void addPreviews(CompressionType compressionType, DataSet... previews) {
         if(listOfPreviewLists.size() == 0) {
             addPreviewList();
         }
         List<DataSet> lastPreviewList = listOfPreviewLists.get(listOfPreviewLists.size() - 1);
         for(DataSet preview : previews) {
-            lastPreviewList.add(new BufferedFrequencyConverter(new FrequencyConverterAvg(preview, timeFrequency/compression)));
-        }
-    }
-
-    void addPreviewsMax(DataSet... previews) {
-        if(listOfPreviewLists.size() == 0) {
-            addPreviewList();
-        }
-        List<DataSet> lastPreviewList = listOfPreviewLists.get(listOfPreviewLists.size() - 1);
-        for(DataSet preview : previews) {
-            lastPreviewList.add(new BufferedFrequencyConverter(new FrequencyConverterMax(preview, timeFrequency/compression)));
+            FrequencyConverter frequencyConverter = new FrequencyConverterRuntime(preview, timeFrequency/compression, compressionType);
+            lastPreviewList.add(new FrequencyConverterBuffered(frequencyConverter));
         }
     }
 

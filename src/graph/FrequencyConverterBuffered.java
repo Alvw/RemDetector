@@ -2,8 +2,8 @@ package graph;
 
 import data.BufferedConverter;
 
-public class BufferedFrequencyConverter extends BufferedConverter implements FrequencyConverter {
-    public BufferedFrequencyConverter(FrequencyConverter converter) {
+public class FrequencyConverterBuffered extends BufferedConverter implements FrequencyConverter {
+    public FrequencyConverterBuffered(FrequencyConverter converter) {
         super(converter);
     }
 

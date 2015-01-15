@@ -6,6 +6,7 @@ public abstract class Converter implements DataSet{
 
     protected Converter(DataSet inputData) {
         this.inputData = inputData;
+        outputFrequency = inputData.getFrequency();
     }
 
 

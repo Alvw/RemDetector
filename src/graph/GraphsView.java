@@ -159,15 +159,12 @@ public class GraphsView extends JPanel implements SlotListener, ChangeListener{
     /*
      * Add Previews to the last preview panel. If there is no preview panel create one
      */
-    public void addPreviewsAvg(DataSet... previews) {
-        graphsData.addPreviewsAvg(previews);
-        if (previewPanelList.size() == 0) {
-            addPreviewPanel(DEFAULT_PREVIEW_PANEL_WEIGHT, IS_PREVIEW_X_CENTERED_DEFAULT);
-        }
+    public void addPreviews(DataSet... previews) {
+       addPreviews(CompressionType.AVERAGE, previews);
     }
 
-    public void addPreviewsMax(DataSet... previews) {
-        graphsData.addPreviewsMax(previews);
+    public void addPreviews(CompressionType compressionType, DataSet... previews) {
+        graphsData.addPreviews(compressionType, previews);
         if (previewPanelList.size() == 0) {
             addPreviewPanel(DEFAULT_PREVIEW_PANEL_WEIGHT, IS_PREVIEW_X_CENTERED_DEFAULT);
         }
