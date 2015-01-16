@@ -22,13 +22,10 @@ public class Ads implements BdfDevice {
     private ComPort comPort;
     private boolean isRecording;
     private AdsConfiguration adsConfiguration;
-    DeviceBdfConfig bdfConfig;
-
 
 
     public Ads() {
         adsConfiguration = new AdsConfigUtil().readConfiguration();
-        bdfConfig = createBdfConfig();
     }
 
     @Override
@@ -93,12 +90,11 @@ public class Ads implements BdfDevice {
 
     @Override
     public DeviceBdfConfig getBdfConfig() {
-       // return createBdfConfig();
-        return bdfConfig;
+        return createBdfConfig();
     }
 
 
-    private RecordingBdfConfig createBdfConfig() {
+    private DeviceBdfConfig createBdfConfig() {
         List<SignalConfig> signalConfigList = new ArrayList<SignalConfig>();
         int n = 0;
         for (AdsChannelConfiguration channelConfiguration : adsConfiguration.getAdsChannels()) {
@@ -155,8 +151,8 @@ public class Ads implements BdfDevice {
 
         double DurationOfDataRecord = (double) (adsConfiguration.getDeviceType().getMaxDiv().getValue()) / adsConfiguration.getSps().getValue();
         SignalConfig[] signalConfigArray = signalConfigList.toArray(new SignalConfig[signalConfigList.size()]);
-        RecordingBdfConfig recordingConfig = new RecordingBdfConfig(DurationOfDataRecord, NUMBER_OF_BYTES_IN_DATA_FORMAT, signalConfigArray);
-        return recordingConfig;
+        DeviceBdfConfig bdfConfig = new DeviceBdfConfig(DurationOfDataRecord, NUMBER_OF_BYTES_IN_DATA_FORMAT, signalConfigArray);
+        return bdfConfig;
     }
 
     private int getNumberOfDataSamples() {

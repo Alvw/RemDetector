@@ -11,17 +11,20 @@ import gui.DataView;
 public class GraphsConfigurator {
 
     public static void configure(DataView view, DataStore dataStore) {
-        DataSet channel_1 = dataStore.getChannelData(0);
-        view.addGraphPanel(1, true);
-        //view.addGraphs(new FilterOffset_1(channel_1, view));
-        view.addGraphs(channel_1);
-        view.addGraphPanel(1, true);
-        view.addGraphs(new FilterDerivative(channel_1));
+        if(dataStore.getNumberOfChannels() > 0) {
+            DataSet channel_1 = dataStore.getChannelData(0);
+            view.addGraphPanel(1, true);
+            //view.addGraphs(new FilterOffset_1(channel_1, view));
+            view.addGraphs(channel_1);
+            view.addGraphPanel(1, true);
+            view.addGraphs(new FilterDerivative(channel_1));
 
-        view.addPreviewPanel(1, false);
-        DataSet velocityRem =  new FilterAbs(new FilterDerivativeRem(channel_1));
-        //DataSet compressedVelocityRem =  new CompressorMaximizing(velocityRem, view.getCompression());
-        view.addPreviews(velocityRem);
+            view.addPreviewPanel(1, false);
+            DataSet velocityRem =  new FilterAbs(new FilterDerivativeRem(channel_1));
+            //DataSet compressedVelocityRem =  new CompressorMaximizing(velocityRem, view.getCompression());
+            view.addPreviews(velocityRem);
+        }
+
     }
 
     public static void configureRem(DataView view, RemDataStore dataStore) {

@@ -37,7 +37,11 @@ class TimeAxisPainter {
     private static void paintTimeStamp(Graphics g, int i, String timeStamp) {
         // Paint Time Stamp
         g.setColor(AXIS_COLOR);
-        g.drawString(timeStamp, i - 15, +18);
+        FontMetrics fm = g.getFontMetrics(g.getFont());
+        int stampWidth = fm.stringWidth(timeStamp);
+        int stampHeight = fm.getHeight();
+        int stampShift = stampWidth/2;
+        g.drawString(timeStamp, i - stampShift, stampHeight+2);
     }
 
     static void paint(Graphics g, long startTime, int startIndex, double timeFrequency) {

@@ -19,12 +19,12 @@ public class DreamRec {
             GuiConfig guiConfig = new GuiProperties("gui.properties");
             String deviceClass = applicationProperties.getDeviceClassName();
             DeviceFabric deviceFabric = new DeviceFabric(deviceClass);
-            BdfDevice bdfDevice = deviceFabric.getDeviceImplementation();
-            bdfDevice.getBdfConfig().setSignalsLabels(applicationProperties.getDeviceChannelsLabels());
+            String[] deviceSignalsLabels = applicationProperties.getDeviceChannelsLabels();
             boolean isFrequencyAutoAdjustment = applicationProperties.isFrequencyAutoAdjustment();
             RemConfigurator remConfigurator = new RemConfigurator(remProperties.getEogRemFrequency(),
                     remProperties.getAccelerometerRemFrequency(), remProperties.getEogRemCutoffPeriod());
-            Controller controller = new Controller(bdfDevice);
+            Controller controller = new Controller(deviceFabric);
+            controller.setDeviceSignalsLabels(deviceSignalsLabels);
             controller.setRemConfigurator(remConfigurator);
             controller.setFrequencyAutoAdjustment(isFrequencyAutoAdjustment);
             controller.setRemMode(true);

@@ -13,18 +13,22 @@ public class Controller {
     private static final Log log = LogFactory.getLog(Controller.class);
     private final double PREVIEW_TIME_FREQUENCY = 50.0 / 750;
     private boolean isRecording = false;
-    private BdfDevice bdfDevice;
+    private DeviceFabric deviceFabric;
+    private String[] deviceSignalsLabels;
     private BdfProvider bdfProvider;
     private RecordingBdfConfig recordingBdfConfig;
-    private DataStore dataStore;
     private boolean isFrequencyAutoAdjustment;
     private File fileToRead;
     private BdfWriter bdfWriter;
     private RemConfigurator remConfigurator;
     private boolean isRemMode;
 
-    public Controller(BdfDevice bdfDevice) {
-        this.bdfDevice = bdfDevice;
+    public Controller(DeviceFabric deviceFabric) {
+        this.deviceFabric = deviceFabric;
+    }
+
+    public void setDeviceSignalsLabels(String[] deviceSignalsLabels) {
+        this.deviceSignalsLabels = deviceSignalsLabels;
     }
 
     public void setRemMode(boolean isRemMode) {
@@ -43,8 +47,7 @@ public class Controller {
         System.out.println("stopRecording ");
         if (isRecording) {
             bdfProvider.stopReading();
-            bdfProvider.removeBdfDataListener(dataStore);
-            bdfProvider.removeBdfDataListener(bdfWriter);
+            bdfProvider = null;
             isRecording = false;
             System.out.println("stop finished ");
         }
@@ -66,7 +69,7 @@ public class Controller {
 
     }
 
-    public void closeApplication()  {
+    public void closeApplication() {
         try {
             stopRecording();
         } catch (ApplicationException e) {
@@ -93,8 +96,10 @@ public class Controller {
 
     public RecordingSettings setDeviceBdfProvider() throws ApplicationException {
         if (!isRecording) {
+            BdfDevice bdfDevice = deviceFabric.getDeviceImplementation();
             bdfProvider = bdfDevice;
             recordingBdfConfig = new RecordingBdfConfig(bdfDevice.getBdfConfig());
+            recordingBdfConfig.setSignalsLabels(deviceSignalsLabels);
             fileToRead = null;
             return getRecordingSettings();
         } else {
@@ -109,9 +114,7 @@ public class Controller {
         recordingBdfConfig.setSignalsLabels(recordingSettings.getChannelsLabels());
         DataView dataView = new DataView();
         PreFilter[] prefilters = new PreFilter[recordingBdfConfig.getNumberOfSignals()];
-        if (dataStore != null) {
-            dataStore.clear(); // stop update timer and free memory occupied by old DataStore
-        }
+        DataStore dataStore;
         if (isRemMode) {
             RemChannels remChannels = new RemChannels(recordingBdfConfig.getSignalsLabels());
             if (remConfigurator != null) {
@@ -122,7 +125,7 @@ public class Controller {
             dataStore = new RemDataStore(bdfProvider, remChannels);
             dataStore.setPreFilters(prefilters);
             dataStore.setChannelsMask(recordingSettings.getActiveChannels());
-            GraphsConfigurator.configureRem(dataView, (RemDataStore)dataStore);
+            GraphsConfigurator.configureRem(dataView, (RemDataStore) dataStore);
         } else {
             dataStore = new DataStore(bdfProvider);
             dataStore.setChannelsMask(recordingSettings.getActiveChannels());
@@ -140,7 +143,7 @@ public class Controller {
 
     private RecordingSettings getRecordingSettings() {
         RecordingSettings recordingSettings = new RecordingSettings(recordingBdfConfig);
-        if(isRemMode) {
+        if (isRemMode) {
             boolean[] isChannelsActive = RemChannels.isRemLabels(recordingBdfConfig.getSignalsLabels());
             recordingSettings.setActiveChannels(isChannelsActive);
         }

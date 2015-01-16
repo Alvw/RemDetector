@@ -21,7 +21,7 @@ public class DataStore implements BdfListener {
     //private ConcurrentLinkedQueue<byte[]> dataRecordsBuffer = new ConcurrentLinkedQueue<byte[]>();
     private LinkedBlockingQueue<byte[]> dataRecordsBuffer;
 
-    private int BUFFER_CAPACITY_SECONDS = 60 * 20; // to protect from OutOfMemoryError
+    private int BUFFER_CAPACITY_SECONDS = 60 * 30; // to protect from OutOfMemoryError
     private int bufferSize;
     private ArrayList<DataStoreListener> updateListeners = new ArrayList<DataStoreListener>();
 
@@ -42,6 +42,7 @@ public class DataStore implements BdfListener {
         bdfProvider.addBdfDataListener(this);
         bdfConfig = bdfProvider.getBdfConfig();
         bufferSize = (int) (BUFFER_CAPACITY_SECONDS / bdfConfig.getDurationOfDataRecord());
+        bufferSize = bufferSize / bdfConfig.getNumberOfSignals();
         dataRecordsBuffer = new LinkedBlockingQueue<byte[]>(bufferSize);
         bdfParser = new BdfParser(bdfConfig);
 
@@ -106,19 +107,14 @@ public class DataStore implements BdfListener {
         }
     }
 
-    public void clear() {
-        updateTimer.stop();
-        for (DataList channel : channelsList) {
-            if (channel != null) {
-                channel.clear();
+    public int getNumberOfChannels() {
+        int numberOfChannels = getNumberOfSignals();
+        for(boolean isActive : channelsMask) {
+            if(!isActive) {
+                numberOfChannels--;
             }
         }
-        dataRecordsBuffer.clear();
-    }
-
-
-    public int getNumberOfChannels() {
-        return signalToChannel(getNumberOfSignals() - 1) + 1;
+        return numberOfChannels;
     }
 
     private void start() {
@@ -194,15 +190,7 @@ public class DataStore implements BdfListener {
         return channelsList.length;
     }
 
-    private int signalToChannel(int signalNumber) {
-        int channelNumber = -1;
-        for (int i = 0; i < signalNumber; i++) {
-            if (signalNumber != 0) {
-                channelNumber++;
-            }
-        }
-        return channelNumber;
-    }
+
 
     private int channelToSignal(int channelNumber) {
         int number = -1;
