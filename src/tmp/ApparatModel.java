@@ -1,5 +1,6 @@
 package tmp;
 
+import data.DataDimension;
 import data.DataList;
 import data.DataSet;
 import filters.*;
@@ -422,6 +423,11 @@ public class ApparatModel {
         @Override
         public double getFrequency() {
             return 0;
+        }
+
+        @Override
+        public DataDimension getDataDimension() {
+            return new DataDimension();
         }
     }
 

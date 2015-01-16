@@ -1,6 +1,8 @@
 package bdf;
 
 
+import data.DataDimension;
+
 /**
  * Created by Al on 03.11.14.
  */
@@ -36,8 +38,13 @@ public class RecordingBdfConfig  implements BdfConfig {
     }
 
     @Override
-    public int[] getNumberOfSamplesInEachDataRecord() {
-        return deviceBdfConfig.getNumberOfSamplesInEachDataRecord();
+    public int[] getSignalNumberOfSamplesInEachDataRecord() {
+        return deviceBdfConfig.getSignalNumberOfSamplesInEachDataRecord();
+    }
+
+    @Override
+    public DataDimension[] getSignalDimension() {
+        return deviceBdfConfig.getSignalDimension();
     }
 
     public SignalConfig[] getSignalsConfigList() {
@@ -127,7 +134,7 @@ public class RecordingBdfConfig  implements BdfConfig {
 
     public int[] getNormalizedSignalsFrequencies() {
         double normalizedDurationOfDataRecord = getNormalizedDurationOfDataRecord();
-        int[] numbersOfSamplesInEachDataRecord = getNumberOfSamplesInEachDataRecord();
+        int[] numbersOfSamplesInEachDataRecord = getSignalNumberOfSamplesInEachDataRecord();
         int[] normalizedFrequencies = new int[numbersOfSamplesInEachDataRecord.length];
         for(int i = 0; i < numbersOfSamplesInEachDataRecord.length; i++) {
             normalizedFrequencies[i] = (int) (numbersOfSamplesInEachDataRecord[i] / normalizedDurationOfDataRecord);

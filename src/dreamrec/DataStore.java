@@ -53,7 +53,7 @@ public class DataStore implements BdfListener {
             this.channelsMask[i] = true;
         }
 
-        int numbersOfSamplesInEachDataRecord[] = bdfConfig.getNumberOfSamplesInEachDataRecord();
+        int numbersOfSamplesInEachDataRecord[] = bdfConfig.getSignalNumberOfSamplesInEachDataRecord();
         channelsList = new DataList[numberOfSignals];
         for (int i = 0; i < channelsList.length; i++) {
             double frequency = numbersOfSamplesInEachDataRecord[i] / bdfConfig.getDurationOfDataRecord();
@@ -91,7 +91,7 @@ public class DataStore implements BdfListener {
     }
 
     public void setPreFilters(PreFilter[] preFilters) throws ApplicationException {
-        int numbersOfSamplesInEachDataRecord[] = bdfConfig.getNumberOfSamplesInEachDataRecord();
+        int numbersOfSamplesInEachDataRecord[] = bdfConfig.getSignalNumberOfSamplesInEachDataRecord();
         int length = Math.min(preFiltersList.length, preFilters.length);
         for (int i = 0; i < length; i++) {
             if (preFilters[i] != null) {

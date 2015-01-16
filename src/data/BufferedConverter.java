@@ -31,4 +31,9 @@ public class BufferedConverter implements DataSet {
     public double getFrequency() {
         return converter.getFrequency();
     }
+
+    @Override
+    public DataDimension getDataDimension() {
+        return converter.getDataDimension();
+    }
 }

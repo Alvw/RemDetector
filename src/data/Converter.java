@@ -31,5 +31,10 @@ public abstract class Converter implements DataSet {
     public double getFrequency() {
         return outputFrequency;
     }
+
+    @Override
+    public DataDimension getDataDimension() {
+        return inputData.getDataDimension();
+    }
 }
 

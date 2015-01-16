@@ -1,5 +1,7 @@
 package bdf;
 
+import data.DataDimension;
+
 /**
  * Created by mac on 27/11/14.
  */
@@ -8,5 +10,6 @@ public interface BdfConfig {
     public int getNumberOfBytesInDataFormat();
     public int getNumberOfSignals();
 
-    public int[] getNumberOfSamplesInEachDataRecord();
+    public int[] getSignalNumberOfSamplesInEachDataRecord();
+    public DataDimension[] getSignalDimension();
 }

@@ -17,8 +17,8 @@ public class JoinedBdfConfig extends BdfConfigWrapper implements BdfConfig {
     }
 
     @Override
-    public int[] getNumberOfSamplesInEachDataRecord() {
-        int[] numbersOfSamplesInEachDataRecord = bdfConfig.getNumberOfSamplesInEachDataRecord();
+    public int[] getSignalNumberOfSamplesInEachDataRecord() {
+        int[] numbersOfSamplesInEachDataRecord = bdfConfig.getSignalNumberOfSamplesInEachDataRecord();
         for(int i = 0; i < numbersOfSamplesInEachDataRecord.length; i++) {
             numbersOfSamplesInEachDataRecord[i]  = numbersOfSamplesInEachDataRecord[i] * numberOfRecordsToJoin;
         }

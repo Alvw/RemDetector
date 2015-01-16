@@ -1,5 +1,7 @@
 package bdf;
 
+import data.DataDimension;
+
 /**
  * Created by mac on 28/11/14.
  */
@@ -30,12 +32,21 @@ public class DeviceBdfConfig implements BdfConfig {
     }
 
     @Override
-    public int[] getNumberOfSamplesInEachDataRecord() {
-        int[] NumbersOfSamplesInEachDataRecord = new int[getNumberOfSignals()];
+    public int[] getSignalNumberOfSamplesInEachDataRecord() {
+        int[] numbersOfSamplesInEachDataRecord = new int[getNumberOfSignals()];
         for(int i = 0; i < getNumberOfSignals(); i++) {
-            NumbersOfSamplesInEachDataRecord[i]  = signalsConfigList[i].getNumberOfSamplesInEachDataRecord();
+            numbersOfSamplesInEachDataRecord[i]  = signalsConfigList[i].getNumberOfSamplesInEachDataRecord();
         }
-        return  NumbersOfSamplesInEachDataRecord;
+        return  numbersOfSamplesInEachDataRecord;
+    }
+
+    @Override
+    public DataDimension[] getSignalDimension() {
+        DataDimension[] dataDimensions = new DataDimension[getNumberOfSignals()];
+        for(int i = 0; i < getNumberOfSignals(); i++) {
+            dataDimensions[i]  = signalsConfigList[i].getDataDimension();
+        }
+        return  dataDimensions;
     }
 
     public SignalConfig[] getSignalsConfigList() {

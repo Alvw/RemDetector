@@ -21,7 +21,7 @@ public class BdfRecordsJoiner implements BdfProvider, BdfListener {
         this.bdfProvider = bdfProvider;
         bdfProvider.addBdfDataListener(this);
         this.numberOfRecordsToJoin = numberOfRecordsToJoin;
-        numbersOfSamplesInEachDataRecord = bdfProvider.getBdfConfig().getNumberOfSamplesInEachDataRecord();
+        numbersOfSamplesInEachDataRecord = bdfProvider.getBdfConfig().getSignalNumberOfSamplesInEachDataRecord();
         numberOfBytesInDataFormat = bdfProvider.getBdfConfig().getNumberOfBytesInDataFormat();
         for(int i = 0; i < numbersOfSamplesInEachDataRecord.length; i++) {
             resultingBdfDataRecordLength += numbersOfSamplesInEachDataRecord[i];

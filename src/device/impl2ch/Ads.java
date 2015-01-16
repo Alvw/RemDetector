@@ -1,6 +1,7 @@
 package device.impl2ch;
 
 import bdf.*;
+import data.DataDimension;
 import dreamrec.ApplicationException;
 import dreamrec.BdfDevice;
 import gnu.io.NoSuchPortException;
@@ -101,53 +102,49 @@ public class Ads implements BdfDevice {
             if (channelConfiguration.isEnabled()) {
                 int physicalMax = 2400000 / channelConfiguration.getGain().getValue();
                 int numberOfSamplesInEachDataRecord = adsConfiguration.getDeviceType().getMaxDiv().getValue() / channelConfiguration.getDivider().getValue();
-                SignalConfig signalConfig = new SignalConfig.Builder()
-                        .setLabel("Channel " + n++)
-                        .setTransducerType("Unknown")
-                        .setDigitalMax(8388607)
-                        .setDigitalMin(-8388608)
-                        .setPhysicalMax(physicalMax)
-                        .setPhysicalMin(-physicalMax)
-                        .setPrefiltering("None")
-                        .setNumberOfSamplesInEachDataRecord(numberOfSamplesInEachDataRecord)
-                        .setPhysicalDimension("uV").build();
-
+                DataDimension dataDimension = new DataDimension();
+                dataDimension.setDigitalMax(8388607);
+                dataDimension.setDigitalMin(-8388608);
+                dataDimension.setPhysicalMax(physicalMax);
+                dataDimension.setPhysicalMin(-physicalMax);
+                dataDimension.setPhysicalDimension("uV");
+                SignalConfig signalConfig = new SignalConfig(numberOfSamplesInEachDataRecord, dataDimension);
+                signalConfig.setLabel("Channel " + n++);
+                signalConfig.setTransducerType("Unknown");
+                signalConfig.setPrefiltering("None");
                 signalConfigList.add(signalConfig);
             }
         }
         for (int i = 0; i < 3; i++) {
             int numberOfSamplesInEachDataRecord = adsConfiguration.getDeviceType().getMaxDiv().getValue() / adsConfiguration.getAccelerometerDivider().getValue();
             if (adsConfiguration.isAccelerometerEnabled()) {
-                SignalConfig signalConfig = new SignalConfig.Builder()
-                        .setLabel("Accelerometer " + i + 1)
-                        .setTransducerType("Unknown")
-                        .setDigitalMax(30800)
-                        .setDigitalMin(-30800)
-                        .setPhysicalMax(2)
-                        .setPhysicalMin(-2)
-                        .setPrefiltering("None")
-                        .setNumberOfSamplesInEachDataRecord(numberOfSamplesInEachDataRecord)
-                        .setPhysicalDimension("g")
-                        .build();
-
+                DataDimension dataDimension = new DataDimension();
+                dataDimension.setDigitalMax(30800);
+                dataDimension.setDigitalMin(-30800);
+                dataDimension.setPhysicalMax(2);
+                dataDimension.setPhysicalMin(-2);
+                dataDimension.setPhysicalDimension("g");
+                SignalConfig signalConfig = new SignalConfig(numberOfSamplesInEachDataRecord, dataDimension);
+                signalConfig.setLabel("Accelerometer " + i + 1);
+                signalConfig.setTransducerType("Unknown");
+                signalConfig.setPrefiltering("None");
                 signalConfigList.add(signalConfig);
             }
         }
 
         // channel for device specific information (loff status and so on);
-        SignalConfig signalConfig = new SignalConfig.Builder()
-                .setLabel("System events ")
-                .setTransducerType("Unknown")
-                .setDigitalMax(8388607)
-                .setDigitalMin(-8388608)
-                .setPhysicalMax(8388607)
-                .setPhysicalMin(-8388608)
-                .setPrefiltering("None")
-                .setNumberOfSamplesInEachDataRecord(1)
-                .setPhysicalDimension("n/a")
-                .build();
+        int numberOfSamplesInEachDataRecord = 1;
+        DataDimension dataDimension = new DataDimension();
+        dataDimension.setDigitalMax(8388607);
+        dataDimension.setDigitalMin(-8388608);
+        dataDimension.setPhysicalMax(8388607);
+        dataDimension.setPhysicalMin(-8388607);
+        dataDimension.setPhysicalDimension("");
+        SignalConfig signalConfig = new SignalConfig(numberOfSamplesInEachDataRecord, dataDimension);
+        signalConfig.setLabel("System events");
+        signalConfig.setTransducerType("Unknown");
+        signalConfig.setPrefiltering("None");
         signalConfigList.add(signalConfig);
-
 
         double DurationOfDataRecord = (double) (adsConfiguration.getDeviceType().getMaxDiv().getValue()) / adsConfiguration.getSps().getValue();
         SignalConfig[] signalConfigArray = signalConfigList.toArray(new SignalConfig[signalConfigList.size()]);
@@ -161,7 +158,7 @@ public class Ads implements BdfDevice {
         // the last channel is virtual channel for device specific information (loff status and so on)
         // so we do not take it into consideration
         int numberOfRealChannels = bdfConfig.getNumberOfSignals() - 1;
-        int[] numbersOfSamplesInEachDataRecord = bdfConfig.getNumberOfSamplesInEachDataRecord();
+        int[] numbersOfSamplesInEachDataRecord = bdfConfig.getSignalNumberOfSamplesInEachDataRecord();
         for (int i = 0; i < numberOfRealChannels; i++) {
             numberOfDataSamples += numbersOfSamplesInEachDataRecord[i];
         }

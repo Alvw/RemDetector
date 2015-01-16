@@ -73,7 +73,7 @@ public class BdfParser {
     }
 
     public int[] parseDataRecordSignal(byte[] bdfDataRecord, int signalNumber) {
-        int numberOfSamples = bdfConfig.getNumberOfSamplesInEachDataRecord()[signalNumber];
+        int numberOfSamples = bdfConfig.getSignalNumberOfSamplesInEachDataRecord()[signalNumber];
         int startIndex = getSignalStartIndexInDataRecord(signalNumber);
         int[] result = new int[numberOfSamples];
         for (int i = 0; i < numberOfSamples; i++) {
@@ -85,7 +85,7 @@ public class BdfParser {
     private int getSignalStartIndexInDataRecord(int signalNumber) {
         int startIndex = 0;
         for (int i = 0; i < signalNumber; i++) {
-            startIndex += bdfConfig.getNumberOfSamplesInEachDataRecord()[i];
+            startIndex += bdfConfig.getSignalNumberOfSamplesInEachDataRecord()[i];
         }
         return startIndex;
     }
