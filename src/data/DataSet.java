@@ -20,4 +20,9 @@ public interface DataSet {
     public int size();
     public int get(int index);
     public double getFrequency();
+    public int getDigitalMin();
+    public int getDigitalMax();
+    public double getPhysicalMin();
+    public double getPhysicalMax();
+    public String getPhysicalDimension();
 }
