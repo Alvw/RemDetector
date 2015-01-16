@@ -26,7 +26,7 @@ public class BdfConfigWrapper implements BdfConfig{
     }
 
     @Override
-    public int[] getNumbersOfSamplesInEachDataRecord() {
-        return bdfConfig.getNumbersOfSamplesInEachDataRecord();
+    public int[] getNumberOfSamplesInEachDataRecord() {
+        return bdfConfig.getNumberOfSamplesInEachDataRecord();
     }
 }

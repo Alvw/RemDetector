@@ -43,7 +43,7 @@ public class BdfReader implements BdfProvider {
 
     private int getTotalNumberOfBytesInDataRecord() {
         int totalNumberOfSamplesInEachDataRecord = 0;
-        int[] numbersOfSamplesInEachDataRecord = recordingBdfConfig.getNumbersOfSamplesInEachDataRecord();
+        int[] numbersOfSamplesInEachDataRecord = recordingBdfConfig.getNumberOfSamplesInEachDataRecord();
         for (int signalNumber = 0; signalNumber < recordingBdfConfig.getNumberOfSignals(); signalNumber++) {
             totalNumberOfSamplesInEachDataRecord += numbersOfSamplesInEachDataRecord[signalNumber];
         }

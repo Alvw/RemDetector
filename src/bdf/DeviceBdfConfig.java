@@ -30,7 +30,7 @@ public class DeviceBdfConfig implements BdfConfig {
     }
 
     @Override
-    public int[] getNumbersOfSamplesInEachDataRecord() {
+    public int[] getNumberOfSamplesInEachDataRecord() {
         int[] NumbersOfSamplesInEachDataRecord = new int[getNumberOfSignals()];
         for(int i = 0; i < getNumberOfSignals(); i++) {
             NumbersOfSamplesInEachDataRecord[i]  = signalsConfigList[i].getNumberOfSamplesInEachDataRecord();

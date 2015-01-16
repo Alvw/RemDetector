@@ -161,7 +161,7 @@ public class Ads implements BdfDevice {
         // the last channel is virtual channel for device specific information (loff status and so on)
         // so we do not take it into consideration
         int numberOfRealChannels = bdfConfig.getNumberOfSignals() - 1;
-        int[] numbersOfSamplesInEachDataRecord = bdfConfig.getNumbersOfSamplesInEachDataRecord();
+        int[] numbersOfSamplesInEachDataRecord = bdfConfig.getNumberOfSamplesInEachDataRecord();
         for (int i = 0; i < numberOfRealChannels; i++) {
             numberOfDataSamples += numbersOfSamplesInEachDataRecord[i];
         }

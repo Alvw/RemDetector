@@ -36,8 +36,8 @@ public class RecordingBdfConfig  implements BdfConfig {
     }
 
     @Override
-    public int[] getNumbersOfSamplesInEachDataRecord() {
-        return deviceBdfConfig.getNumbersOfSamplesInEachDataRecord();
+    public int[] getNumberOfSamplesInEachDataRecord() {
+        return deviceBdfConfig.getNumberOfSamplesInEachDataRecord();
     }
 
     public SignalConfig[] getSignalsConfigList() {
@@ -127,7 +127,7 @@ public class RecordingBdfConfig  implements BdfConfig {
 
     public int[] getNormalizedSignalsFrequencies() {
         double normalizedDurationOfDataRecord = getNormalizedDurationOfDataRecord();
-        int[] numbersOfSamplesInEachDataRecord = getNumbersOfSamplesInEachDataRecord();
+        int[] numbersOfSamplesInEachDataRecord = getNumberOfSamplesInEachDataRecord();
         int[] normalizedFrequencies = new int[numbersOfSamplesInEachDataRecord.length];
         for(int i = 0; i < numbersOfSamplesInEachDataRecord.length; i++) {
             normalizedFrequencies[i] = (int) (numbersOfSamplesInEachDataRecord[i] / normalizedDurationOfDataRecord);

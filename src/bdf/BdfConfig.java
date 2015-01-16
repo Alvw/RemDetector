@@ -8,5 +8,5 @@ public interface BdfConfig {
     public int getNumberOfBytesInDataFormat();
     public int getNumberOfSignals();
 
-    public int[] getNumbersOfSamplesInEachDataRecord();
+    public int[] getNumberOfSamplesInEachDataRecord();
 }
