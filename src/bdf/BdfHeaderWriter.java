@@ -99,7 +99,7 @@ public class BdfHeaderWriter {
         StringBuilder preFilterings = new StringBuilder();
         StringBuilder samplesNumbers = new StringBuilder();
         StringBuilder reservedForChannels = new StringBuilder();
-        SignalConfig[] signalConfigList = recordingBdfConfig.getSignalsConfigList();
+        SignalConfig[] signalConfigList = recordingBdfConfig.getSignalConfigs();
         for (int i = 0; i < signalConfigList.length; i++) {
             SignalConfig signalConfig = signalConfigList[i];
             labels.append(adjustLength(signalConfig.getLabel(), 16));

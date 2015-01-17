@@ -12,22 +12,21 @@ public class BdfRecordsJoiner implements BdfProvider, BdfListener {
     private int numberOfRecordsToJoin;
     private ArrayList<BdfListener> listeners = new ArrayList<BdfListener>();
     private int recordsCounter;
-    private byte[] resultingBdfDataRecord;
+    private byte[] resultingBdfDataRecords;
     private int numberOfBytesInDataFormat;
-    private int[] numbersOfSamplesInEachDataRecord;
     private int resultingBdfDataRecordLength;
 
     public BdfRecordsJoiner(BdfProvider bdfProvider, int numberOfRecordsToJoin) {
         this.bdfProvider = bdfProvider;
         bdfProvider.addBdfDataListener(this);
         this.numberOfRecordsToJoin = numberOfRecordsToJoin;
-        numbersOfSamplesInEachDataRecord = bdfProvider.getBdfConfig().getSignalNumberOfSamplesInEachDataRecord();
         numberOfBytesInDataFormat = bdfProvider.getBdfConfig().getNumberOfBytesInDataFormat();
-        for(int i = 0; i < numbersOfSamplesInEachDataRecord.length; i++) {
-            resultingBdfDataRecordLength += numbersOfSamplesInEachDataRecord[i];
+
+        for (SignalConfig signalConfig : bdfProvider.getBdfConfig().getSignalConfigs()) {
+            resultingBdfDataRecordLength += signalConfig.getNumberOfSamplesInEachDataRecord();
         }
         resultingBdfDataRecordLength = resultingBdfDataRecordLength * numberOfRecordsToJoin * numberOfBytesInDataFormat;
-        resultingBdfDataRecord = new byte[resultingBdfDataRecordLength];
+        resultingBdfDataRecords = new byte[resultingBdfDataRecordLength];
     }
 
     @Override
@@ -44,26 +43,28 @@ public class BdfRecordsJoiner implements BdfProvider, BdfListener {
     public void onDataRecordReceived(byte[] bdfDataRecord) {
         recordsCounter++;
         int pointer = 0;
-        for(int i = 0; i < numbersOfSamplesInEachDataRecord.length; i++) {
-            int toIndex = (pointer*numberOfRecordsToJoin + numbersOfSamplesInEachDataRecord[i]*(recordsCounter - 1)) * numberOfBytesInDataFormat ;
+        SignalConfig[] signalConfigs = bdfProvider.getBdfConfig().getSignalConfigs();
+        for (int i = 0; i < signalConfigs.length; i++) {
+            int numberOfSamples = signalConfigs[i].getNumberOfSamplesInEachDataRecord();
+            int toIndex = (pointer * numberOfRecordsToJoin + numberOfSamples * (recordsCounter - 1)) * numberOfBytesInDataFormat;
             int fromIndex = pointer * numberOfBytesInDataFormat;
-            System.arraycopy(bdfDataRecord, fromIndex, resultingBdfDataRecord, toIndex, numbersOfSamplesInEachDataRecord[i]*numberOfBytesInDataFormat);
-            pointer += numbersOfSamplesInEachDataRecord[i];
+            System.arraycopy(bdfDataRecord, fromIndex, resultingBdfDataRecords, toIndex, numberOfSamples * numberOfBytesInDataFormat);
+            pointer += numberOfSamples;
         }
-        if(recordsCounter == numberOfRecordsToJoin) {
-            for(BdfListener listener : listeners) {
-                listener.onDataRecordReceived(resultingBdfDataRecord);
+        if (recordsCounter == numberOfRecordsToJoin) {
+            for (BdfListener listener : listeners) {
+                listener.onDataRecordReceived(resultingBdfDataRecords);
             }
-            resultingBdfDataRecord = new byte[resultingBdfDataRecordLength];
+            resultingBdfDataRecords = new byte[resultingBdfDataRecordLength];
             recordsCounter = 0;
         }
     }
 
     @Override
     public void onStopReading() {
-           for(BdfListener listener : listeners) {
-               listener.onStopReading();
-           }
+        for (BdfListener listener : listeners) {
+            listener.onStopReading();
+        }
     }
 
     @Override

@@ -1,9 +1,6 @@
 package dreamrec;
 
-import bdf.BdfConfig;
-import bdf.BdfListener;
-import bdf.BdfParser;
-import bdf.BdfProvider;
+import bdf.*;
 import data.DataList;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -41,24 +38,31 @@ public class DataStore implements BdfListener {
     public DataStore(BdfProvider bdfProvider) {
         bdfProvider.addBdfDataListener(this);
         bdfConfig = bdfProvider.getBdfConfig();
-        bufferSize = (int) (BUFFER_CAPACITY_SECONDS / bdfConfig.getDurationOfDataRecord());
-        bufferSize = bufferSize / bdfConfig.getNumberOfSignals();
-        dataRecordsBuffer = new LinkedBlockingQueue<byte[]>(bufferSize);
-        bdfParser = new BdfParser(bdfConfig);
-
-        int numberOfSignals = bdfConfig.getNumberOfSignals();
-        preFiltersList = new PreFilter[numberOfSignals];
-        this.channelsMask = new boolean[numberOfSignals];
-        for (int i = 0; i < channelsMask.length; i++) {
-            this.channelsMask[i] = true;
+        SignalConfig[] signalConfigs = bdfConfig.getSignalConfigs();
+        int numberOfSignals = signalConfigs.length;
+        int[] numberOfSamplesInEachDataRecords = new int[numberOfSignals];
+        for(int i = 0; i < numberOfSignals; i++) {
+            numberOfSamplesInEachDataRecords[i] = signalConfigs[i].getNumberOfSamplesInEachDataRecord();
         }
 
-        int numbersOfSamplesInEachDataRecord[] = bdfConfig.getSignalNumberOfSamplesInEachDataRecord();
+        bufferSize = (int) (BUFFER_CAPACITY_SECONDS / bdfConfig.getDurationOfDataRecord());
+        bufferSize = bufferSize / numberOfSignals;
+        dataRecordsBuffer = new LinkedBlockingQueue<byte[]>(bufferSize);
+
+        bdfParser = new BdfParser(bdfConfig.getNumberOfBytesInDataFormat(), numberOfSamplesInEachDataRecords);
+
+        preFiltersList = new PreFilter[numberOfSignals];
+        channelsMask = new boolean[numberOfSignals];
+        for (int i = 0; i < numberOfSignals; i++) {
+            channelsMask[i] = true;
+        }
+
         channelsList = new DataList[numberOfSignals];
-        for (int i = 0; i < channelsList.length; i++) {
-            double frequency = numbersOfSamplesInEachDataRecord[i] / bdfConfig.getDurationOfDataRecord();
+        for (int i = 0; i < numberOfSignals; i++) {
+            double frequency = numberOfSamplesInEachDataRecords[i] / bdfConfig.getDurationOfDataRecord();
             channelsList[i] = new DataList();
             channelsList[i].setFrequency(frequency);
+            channelsList[i].setDataDimension(signalConfigs[i].getDataDimension());
         }
 
         updateTimer = new Timer(UPDATE_DELAY, new ActionListener() {
@@ -91,11 +95,11 @@ public class DataStore implements BdfListener {
     }
 
     public void setPreFilters(PreFilter[] preFilters) throws ApplicationException {
-        int numbersOfSamplesInEachDataRecord[] = bdfConfig.getSignalNumberOfSamplesInEachDataRecord();
+        SignalConfig[] signalConfigs = bdfConfig.getSignalConfigs();
         int length = Math.min(preFiltersList.length, preFilters.length);
         for (int i = 0; i < length; i++) {
             if (preFilters[i] != null) {
-                if (numbersOfSamplesInEachDataRecord[i] % preFilters[i].getDivider() == 0) {
+                if (signalConfigs[i].getNumberOfSamplesInEachDataRecord() % preFilters[i].getDivider() == 0) {
                     preFiltersList[i] = preFilters[i];
                     channelsList[i].setFrequency(channelsList[i].getFrequency() / preFilters[i].getDivider());
                     preFiltersList[i].addListener(channelsList[i]);

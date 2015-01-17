@@ -4,12 +4,13 @@ package bdf;
  * Created by mac on 06/11/14.
  */
 public class BdfParser {
-    private BdfConfig bdfConfig;
     private int numberOfBytesInDataFormat;
+    private int[] signalNumberOfSamplesInEachDataRecords;
 
-    public BdfParser(BdfConfig bdfConfig) {
-        numberOfBytesInDataFormat = bdfConfig.getNumberOfBytesInDataFormat();
-        this.bdfConfig = bdfConfig;
+
+    public BdfParser(int numberOfBytesInDataFormat, int[] signalNumberOfSamplesInEachDataRecords) {
+        this.numberOfBytesInDataFormat = numberOfBytesInDataFormat;
+        this.signalNumberOfSamplesInEachDataRecords = signalNumberOfSamplesInEachDataRecords;
     }
 
     public static byte[] intArrayToByteArray(int[] intData, int numberOfBytesPerInt) {
@@ -64,7 +65,7 @@ public class BdfParser {
     }
 
     public int[][] parseDataRecord(byte[] bdfDataRecord) {
-        int numberOfSignals = bdfConfig.getNumberOfSignals();
+        int numberOfSignals = signalNumberOfSamplesInEachDataRecords.length;
         int[][] result = new int[numberOfSignals][];
         for (int i = 0; i < numberOfSignals; i++) {
             result[i] = parseDataRecordSignal(bdfDataRecord, i);
@@ -73,7 +74,7 @@ public class BdfParser {
     }
 
     public int[] parseDataRecordSignal(byte[] bdfDataRecord, int signalNumber) {
-        int numberOfSamples = bdfConfig.getSignalNumberOfSamplesInEachDataRecord()[signalNumber];
+        int numberOfSamples = signalNumberOfSamplesInEachDataRecords[signalNumber];
         int startIndex = getSignalStartIndexInDataRecord(signalNumber);
         int[] result = new int[numberOfSamples];
         for (int i = 0; i < numberOfSamples; i++) {
@@ -85,7 +86,7 @@ public class BdfParser {
     private int getSignalStartIndexInDataRecord(int signalNumber) {
         int startIndex = 0;
         for (int i = 0; i < signalNumber; i++) {
-            startIndex += bdfConfig.getSignalNumberOfSamplesInEachDataRecord()[i];
+            startIndex += signalNumberOfSamplesInEachDataRecords[i];
         }
         return startIndex;
     }

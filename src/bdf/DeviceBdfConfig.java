@@ -1,18 +1,16 @@
 package bdf;
 
-import data.DataDimension;
-
 /**
  * Created by mac on 28/11/14.
  */
 public class DeviceBdfConfig implements BdfConfig {
     protected final double durationOfDataRecord;    // in seconds
     protected final int numberOfBytesInDataFormat; // edf - 2 bytes, bdf - 3 bytes
-    protected final SignalConfig[] signalsConfigList;
+    protected final SignalConfig[] signalConfigs;
 
-    public DeviceBdfConfig(double durationOfDataRecord, int numberOfBytesInDataFormat, SignalConfig... signalsConfigList) {
+    public DeviceBdfConfig(double durationOfDataRecord, int numberOfBytesInDataFormat, SignalConfig... signalConfigs) {
         this.durationOfDataRecord = durationOfDataRecord;
-        this.signalsConfigList = signalsConfigList;
+        this.signalConfigs = signalConfigs;
         this.numberOfBytesInDataFormat = numberOfBytesInDataFormat;
     }
 
@@ -27,29 +25,7 @@ public class DeviceBdfConfig implements BdfConfig {
     }
 
     @Override
-    public int getNumberOfSignals() {
-        return signalsConfigList.length;
-    }
-
-    @Override
-    public int[] getSignalNumberOfSamplesInEachDataRecord() {
-        int[] numbersOfSamplesInEachDataRecord = new int[getNumberOfSignals()];
-        for(int i = 0; i < getNumberOfSignals(); i++) {
-            numbersOfSamplesInEachDataRecord[i]  = signalsConfigList[i].getNumberOfSamplesInEachDataRecord();
-        }
-        return  numbersOfSamplesInEachDataRecord;
-    }
-
-    @Override
-    public DataDimension[] getSignalDimension() {
-        DataDimension[] dataDimensions = new DataDimension[getNumberOfSignals()];
-        for(int i = 0; i < getNumberOfSignals(); i++) {
-            dataDimensions[i]  = signalsConfigList[i].getDataDimension();
-        }
-        return  dataDimensions;
-    }
-
-    public SignalConfig[] getSignalsConfigList() {
-        return signalsConfigList;
+    public SignalConfig[] getSignalConfigs() {
+        return signalConfigs;
     }
 }

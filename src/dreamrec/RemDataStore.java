@@ -9,7 +9,7 @@ public class RemDataStore extends DataStore {
     public RemDataStore(BdfProvider bdfProvider, RemChannels remChannels) throws ApplicationException {
         super(bdfProvider);
         this.remChannels = remChannels;
-        int numberOfSignals = bdfProvider.getBdfConfig().getNumberOfSignals();
+        int numberOfSignals = bdfProvider.getBdfConfig().getSignalConfigs().length;
         if(remChannels.getEog() >= numberOfSignals) {
             String msg = "EOG rem channel number should be less then total number of channels";
             throw new ApplicationException(msg);

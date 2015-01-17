@@ -1,7 +1,5 @@
 package bdf;
 
-import data.DataDimension;
-
 /**
  * Created by mac on 02/12/14.
  */
@@ -23,17 +21,7 @@ public class BdfConfigWrapper implements BdfConfig{
     }
 
     @Override
-    public int getNumberOfSignals() {
-        return bdfConfig.getNumberOfSignals();
-    }
-
-    @Override
-    public int[] getSignalNumberOfSamplesInEachDataRecord() {
-        return bdfConfig.getSignalNumberOfSamplesInEachDataRecord();
-    }
-
-    @Override
-    public DataDimension[] getSignalDimension() {
-        return bdfConfig.getSignalDimension();
+    public SignalConfig[] getSignalConfigs() {
+        return bdfConfig.getSignalConfigs();
     }
 }

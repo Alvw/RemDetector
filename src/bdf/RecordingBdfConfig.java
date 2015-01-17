@@ -1,55 +1,24 @@
 package bdf;
 
 
-import data.DataDimension;
-
 /**
  * Created by Al on 03.11.14.
  */
-public class RecordingBdfConfig  implements BdfConfig {
+public class RecordingBdfConfig extends BdfConfigWrapper {
 
     private long startTime = -1;
     private String patientIdentification;
     private String recordingIdentification;
     private int numberOfDataRecords = -1;
-    private DeviceBdfConfig deviceBdfConfig;
 
     public RecordingBdfConfig(double durationOfDataRecord, int numberOfBytesInDataFormat, SignalConfig... signalsConfigList) {
-        deviceBdfConfig = new DeviceBdfConfig(durationOfDataRecord, numberOfBytesInDataFormat, signalsConfigList);
+        super(new DeviceBdfConfig(durationOfDataRecord, numberOfBytesInDataFormat, signalsConfigList));
     }
 
-    public RecordingBdfConfig(DeviceBdfConfig deviceBdfConfig) {
-        this.deviceBdfConfig = deviceBdfConfig;
+    public RecordingBdfConfig(BdfConfig bdfConfig) {
+        super(bdfConfig);
     }
 
-    @Override
-    public double getDurationOfDataRecord() {
-        return deviceBdfConfig.getDurationOfDataRecord();
-    }
-
-    @Override
-    public int getNumberOfBytesInDataFormat() {
-        return deviceBdfConfig.getNumberOfBytesInDataFormat();
-    }
-
-    @Override
-    public int getNumberOfSignals() {
-        return deviceBdfConfig.getNumberOfSignals();
-    }
-
-    @Override
-    public int[] getSignalNumberOfSamplesInEachDataRecord() {
-        return deviceBdfConfig.getSignalNumberOfSamplesInEachDataRecord();
-    }
-
-    @Override
-    public DataDimension[] getSignalDimension() {
-        return deviceBdfConfig.getSignalDimension();
-    }
-
-    public SignalConfig[] getSignalsConfigList() {
-        return deviceBdfConfig.getSignalsConfigList();
-    }
 
     public long getStartTime() {
         return startTime;
@@ -83,17 +52,20 @@ public class RecordingBdfConfig  implements BdfConfig {
         this.numberOfDataRecords = numberOfDataRecords;
     }
 
-    public double[] getSignalsFrequencies() {
-        SignalConfig[] signalsConfigList = getSignalsConfigList();
+    public int getNumberOfSignals() {
+        return getSignalConfigs().length;
+    }
+
+    public double[] getSignalFrequencies() {
         double[] signalsFrequencies = new double[getNumberOfSignals()];
         for(int i = 0; i < getNumberOfSignals(); i++) {
-            signalsFrequencies[i]  = signalsConfigList[i].getNumberOfSamplesInEachDataRecord()/ getDurationOfDataRecord();
+            signalsFrequencies[i]  = getSignalConfigs()[i].getNumberOfSamplesInEachDataRecord()/ getDurationOfDataRecord();
         }
         return  signalsFrequencies;
     }
 
     public void setSignalsLabels(String[] signalsLabels) {
-        SignalConfig[] signalsConfigList = getSignalsConfigList();
+        SignalConfig[] signalsConfigList = getSignalConfigs();
         int length = Math.min(signalsConfigList.length, signalsLabels.length);
         for (int i = 0; i < length; i++) {
             if (signalsLabels[i] != null) {
@@ -104,9 +76,8 @@ public class RecordingBdfConfig  implements BdfConfig {
 
     public String[] getSignalsLabels() {
         String[] signalsLabels = new String[getNumberOfSignals()];
-        SignalConfig[] signalsConfigList = getSignalsConfigList();
         for(int i = 0; i < getNumberOfSignals(); i++) {
-            signalsLabels[i]  = signalsConfigList[i].getLabel();
+            signalsLabels[i]  = getSignalConfigs()[i].getLabel();
         }
         return  signalsLabels;
     }
@@ -134,10 +105,9 @@ public class RecordingBdfConfig  implements BdfConfig {
 
     public int[] getNormalizedSignalsFrequencies() {
         double normalizedDurationOfDataRecord = getNormalizedDurationOfDataRecord();
-        int[] numbersOfSamplesInEachDataRecord = getSignalNumberOfSamplesInEachDataRecord();
-        int[] normalizedFrequencies = new int[numbersOfSamplesInEachDataRecord.length];
-        for(int i = 0; i < numbersOfSamplesInEachDataRecord.length; i++) {
-            normalizedFrequencies[i] = (int) (numbersOfSamplesInEachDataRecord[i] / normalizedDurationOfDataRecord);
+        int[] normalizedFrequencies = new int[getNumberOfSignals()];
+        for(int i = 0; i < getNumberOfSignals(); i++) {
+            normalizedFrequencies[i] = (int) (getSignalConfigs()[i].getNumberOfSamplesInEachDataRecord() / normalizedDurationOfDataRecord);
         }
         return normalizedFrequencies;
     }
