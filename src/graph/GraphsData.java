@@ -275,7 +275,7 @@ class GraphsData {
     }
 
     void moveForward() {
-        int shift = (int)(getDrawingAreaWidth() * 0.8);
+        int shift = (int)(getDrawingAreaWidth() * 0.5);  //прокрутка
         int newStartIndex = getStartIndex() + shift;
         setStartIndex(newStartIndex);
         fireStateChanged();
@@ -290,7 +290,7 @@ class GraphsData {
             moveSlot(newSlotPosition);
         }
         else {
-            int shift = (int)(getDrawingAreaWidth() * 0.8);
+            int shift = (int)(getDrawingAreaWidth() * 0.5);
             int newStartIndex = getStartIndex() - shift;
             setStartIndex(newStartIndex);
         }

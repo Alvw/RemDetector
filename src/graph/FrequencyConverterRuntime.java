@@ -19,7 +19,7 @@ public class FrequencyConverterRuntime extends Converter implements FrequencyCon
 
     @Override
     public int get(int index) {
-        int value = 0;
+        long value = 0;
         double inputFrequency = inputData.getFrequency();
         if(outputFrequency == 0 || inputFrequency == 0 || inputFrequency == outputFrequency) {
             value = inputData.get(index);
@@ -48,6 +48,6 @@ public class FrequencyConverterRuntime extends Converter implements FrequencyCon
                 }
             }
         }
-        return value;
+        return (int)value;
     }
 }

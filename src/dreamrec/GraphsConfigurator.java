@@ -1,7 +1,9 @@
 package dreamrec;
 
 import data.DataSet;
-import filters.*;
+import filters.FilterAbs;
+import filters.FilterDerivative;
+import filters.FilterDerivativeRem;
 import graph.CompressionType;
 import gui.DataView;
 
@@ -16,13 +18,12 @@ public class GraphsConfigurator {
             view.addGraphPanel(1, true);
             //view.addGraphs(new FilterOffset_1(channel_1, view));
             view.addGraphs(channel_1);
-            view.addGraphPanel(1, true);
-            view.addGraphs(new FilterDerivative(channel_1));
 
-            view.addPreviewPanel(1, false);
+
+          //  view.addPreviewPanel(1, false);
             DataSet velocityRem =  new FilterAbs(new FilterDerivativeRem(channel_1));
             //DataSet compressedVelocityRem =  new CompressorMaximizing(velocityRem, view.getCompression());
-            view.addPreviews(velocityRem);
+           // view.addPreviews(velocityRem);
         }
 
     }
@@ -34,6 +35,7 @@ public class GraphsConfigurator {
         view.addGraphPanel(2, true);
         //view.addGraphs(new FilterOffset_1(channel_1, view));
         view.addGraphs(channel_1);
+        view.addGraphs(new FilterAbs(channel_1), new FilterDerivative(channel_1));
         view.addGraphPanel(2, true);
         view.addGraphs(new FilterDerivative(channel_1));
         view.addGraphPanel(2, true);

@@ -112,6 +112,7 @@ public class Controller {
         recordingBdfConfig.setPatientIdentification(recordingSettings.getPatientIdentification());
         recordingBdfConfig.setRecordingIdentification(recordingSettings.getRecordingIdentification());
         recordingBdfConfig.setSignalsLabels(recordingSettings.getChannelsLabels());
+        saveToFile(recordingSettings.getFile());
         DataView dataView = new DataView();
         PreFilter[] prefilters = new PreFilter[recordingBdfConfig.getNumberOfSignals()];
         DataStore dataStore;
@@ -134,7 +135,6 @@ public class Controller {
         dataStore.addListener(dataView);
         dataStore.setStartTime(recordingBdfConfig.getStartTime());
         dataView.setPreviewTimeFrequency(PREVIEW_TIME_FREQUENCY);
-        saveToFile(recordingSettings.getFile());
         bdfProvider.startReading();
         isRecording = true;
         return dataView;

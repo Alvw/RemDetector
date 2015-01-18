@@ -1,5 +1,6 @@
 package graph;
 
+import data.DataDimension;
 import data.DataSet;
 
 import javax.swing.*;
@@ -44,6 +45,10 @@ public class GraphPanel extends JPanel {
 
     protected java.util.List<? extends DataSet> getGraphs() {
         return graphsData.getGraphList(panelNumber);
+    }
+
+    protected DataDimension getDataDimension() {
+        return getGraphs().get(0).getDataDimension();
     }
 
     protected int getWeight() {
@@ -101,7 +106,7 @@ public class GraphPanel extends JPanel {
         super.paintComponent(g);    //To change body of overridden methods use File | Settings | File Templates.
         transformCoordinate(g);
 
-        YAxisPainter.paint(g, zoom, isXCentered);
+        YAxisPainter.paint(g, zoom, getDataDimension(), isXCentered);
         TimeAxisPainter.paint(g, getStartTime(), getStartIndex(), getTimeFrequency());
 
         int graph_number = 0;
