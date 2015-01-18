@@ -2,7 +2,6 @@ package dreamrec;
 
 import bdf.RecordingBdfConfig;
 import prefilters.FrequencyDividingPreFilter;
-import prefilters.HiPassPreFilter;
 import prefilters.PreFilter;
 
 /**
