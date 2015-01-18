@@ -12,6 +12,7 @@ public class HiPassPreFilter extends AbstractPreFilter{
         this(null, bufferSize);
     }
 
+
     public HiPassPreFilter(PreFilter input, int bufferSize) {
         super(input);
         this.bufferSize = bufferSize;
