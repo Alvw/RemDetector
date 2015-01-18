@@ -66,7 +66,7 @@ public class MainWindow extends JFrame {
         graphsView = dataView;
         add(graphsView, BorderLayout.CENTER);
         graphsView.requestFocusInWindow();
-        revalidate();
+        validate();
     }
 
     public void showMessage(String s) {
