@@ -4,18 +4,11 @@ import data.DataSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.EventListenerList;
 import java.util.ArrayList;
 import java.util.List;
 
 class GraphsData {
     private static final Log log = LogFactory.getLog(GraphsData.class);
-    protected ChangeEvent changeEvent = null;
-    protected EventListenerList listenerList = new EventListenerList();
-
 
     // bigger GAP - less precision need slot to start autoscroll
     private static final int AUTO_SCROLL_GAP = 2;
@@ -25,7 +18,6 @@ class GraphsData {
     static final int DEFAULT_COMPRESSION = 1;
     private  int compression = DEFAULT_COMPRESSION;
     private double timeFrequency;
-    private long startTime;
     private int startIndex;
     private int scrollPosition;
     private int canvasWidth;
@@ -35,9 +27,6 @@ class GraphsData {
     // previews list for every preview panel
     private List<List<DataSet>> listOfPreviewLists = new ArrayList<List<DataSet>>();
 
-    BoundedRangeModel getScrollBoundedRangeModel() {
-        return new ScrollModel(this);
-    }
 
     void addGraphList() {
         listOfGraphLists.add(new ArrayList<DataSet>());
@@ -49,7 +38,7 @@ class GraphsData {
         }
         List<DataSet> lastGraphList = listOfGraphLists.get(listOfGraphLists.size() - 1);
         for(DataSet graph : graphs) {
-            lastGraphList.add(new FrequencyConverterRuntime(graph, timeFrequency, CompressionType.AVERAGE));
+            lastGraphList.add(graph);
             setTimeFrequency(Math.max(timeFrequency, graph.getFrequency()));
         }
     }
@@ -58,22 +47,21 @@ class GraphsData {
         listOfPreviewLists.add(new ArrayList<DataSet>());
     }
 
-    void addPreviews(CompressionType compressionType, DataSet... previews) {
+    double getPreviewFrequency() {
+        return timeFrequency / compression;
+    }
+
+    void addPreviews(DataSet... previews) {
         if(listOfPreviewLists.size() == 0) {
             addPreviewList();
         }
         List<DataSet> lastPreviewList = listOfPreviewLists.get(listOfPreviewLists.size() - 1);
         for(DataSet preview : previews) {
-            FrequencyConverter frequencyConverter = new FrequencyConverterRuntime(preview, timeFrequency/compression, compressionType);
-            lastPreviewList.add(new FrequencyConverterBuffered(frequencyConverter));
+            lastPreviewList.add(preview);
         }
     }
 
     public void setPreviewTimeFrequency (double previewTimeFrequency) {
-        if(previewTimeFrequency == 0) {
-            timeFrequency = 0;
-            return;
-        }
         if(getTimeFrequency() == 0) {
             setTimeFrequency(previewTimeFrequency);
         }
@@ -85,32 +73,14 @@ class GraphsData {
         if(compression <= 0) {
             compression = DEFAULT_COMPRESSION;
         }
-        if(this.compression != compression) {
-            this.compression = compression;
-            for(List<DataSet> listOfPreviews : listOfPreviewLists) {
-                for(DataSet preview : listOfPreviews) {
-                    FrequencyConverter previewCasted = (FrequencyConverter) preview;
-                    previewCasted.setFrequency(timeFrequency/compression);
-                }
-            }
-            fireStateChanged();
-        }
+        this.compression = compression;
     }
 
     public void setTimeFrequency(double timeFrequency) {
-        if(this.timeFrequency != timeFrequency)  {
-            double previewTimeFrequency = this.timeFrequency / compression;
-            this.timeFrequency = timeFrequency;
-            int compressionNew = (int)(timeFrequency / previewTimeFrequency); // to save the same previewTimeFrequency
-            for(List<DataSet> listOfGraphs : listOfGraphLists) {
-                for(DataSet graph : listOfGraphs) {
-                    FrequencyConverter graphCasted = (FrequencyConverter) graph;
-                    graphCasted.setFrequency(timeFrequency);
-                }
-            }
-            setCompression(compressionNew);
-            fireStateChanged();
-        }
+        double previewTimeFrequency = this.timeFrequency / compression;
+        this.timeFrequency = timeFrequency;
+        int compressionNew = (int)(timeFrequency / previewTimeFrequency); // to save the same previewTimeFrequency
+        setCompression(compressionNew);
     }
 
     List<DataSet> getGraphList(int listNumber) {
@@ -187,7 +157,6 @@ class GraphsData {
         }
         int newStartIndex = (slotPosition + scrollPosition) * compression;
         setStartIndex(newStartIndex);
-        fireStateChanged();
     }
 
 
@@ -209,15 +178,19 @@ class GraphsData {
 
 
     int getMaxScrollPosition() {
-        return getPreviewFullSize() - canvasWidth;
+        int maxScrollPosition = getPreviewFullSize() - canvasWidth;
+        if(maxScrollPosition < 0) {
+            maxScrollPosition = 0;
+        }
+        return maxScrollPosition;
     }
 
     void setScrollPosition(int scrollPosition) {
-        if(scrollPosition < 0) {
-            scrollPosition = 0;
-        }
         if(scrollPosition > getMaxScrollPosition()) {
             scrollPosition = getMaxScrollPosition();
+        }
+        if(scrollPosition < 0) {
+            scrollPosition = 0;
         }
         this.scrollPosition = scrollPosition;
         if(getSlotPosition() < 0){
@@ -228,7 +201,6 @@ class GraphsData {
             //adjust slotPosition to slotMaxPosition
             startIndex = (scrollPosition + getMaxSlotPosition())* compression;
         }
-        fireStateChanged();
     }
 
     void setStartIndex(int startIndex) {
@@ -247,17 +219,21 @@ class GraphsData {
             //adjust slotPosition to slotMaxPosition
             setScrollPosition(startIndex / compression - getMaxSlotPosition());
         }
-        fireStateChanged();
     }
 
 
     void setCanvasWidth(int canvasWidth) {
         this.canvasWidth = canvasWidth;
+        if(startIndex > getMaxStartIndex()) {
+            startIndex = getMaxStartIndex();
+        }
+        if(scrollPosition > getMaxScrollPosition()) {
+            scrollPosition = getMaxScrollPosition();
+        }
         if(getSlotPosition() > getMaxSlotPosition()){
             //adjust slotPosition to slotMaxPosition
             startIndex = (scrollPosition + getMaxSlotPosition())* compression;
         }
-        fireStateChanged();
     }
 
     public int getCanvasWidth() {
@@ -275,10 +251,9 @@ class GraphsData {
     }
 
     void moveForward() {
-        int shift = (int)(getDrawingAreaWidth() * 0.5);  //прокрутка
+        int shift = (int)(getDrawingAreaWidth() * 0.25);  //прокрутка
         int newStartIndex = getStartIndex() + shift;
         setStartIndex(newStartIndex);
-        fireStateChanged();
     }
 
     void moveBackward() {
@@ -290,11 +265,10 @@ class GraphsData {
             moveSlot(newSlotPosition);
         }
         else {
-            int shift = (int)(getDrawingAreaWidth() * 0.5);
+            int shift = (int)(getDrawingAreaWidth() * 0.25);
             int newStartIndex = getStartIndex() - shift;
             setStartIndex(newStartIndex);
         }
-        fireStateChanged();
     }
 
 
@@ -312,40 +286,5 @@ class GraphsData {
 
     public double getTimeFrequency() {
         return timeFrequency;
-    }
-
-
-    public long getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(long startTime) {
-        if(this.startTime != startTime){
-            this.startTime = startTime;
-            fireStateChanged();
-        }
-    }
-    /*
-     * The rest of this is event handling code copied from
-     * DefaultBoundedRangeModel.
-     */
-    public void addChangeListener(ChangeListener l) {
-        listenerList.add(ChangeListener.class, l);
-    }
-
-    public void removeChangeListener(ChangeListener l) {
-        listenerList.remove(ChangeListener.class, l);
-    }
-
-    protected void fireStateChanged() {
-        Object[] listeners = listenerList.getListenerList();
-        for (int i = listeners.length - 2; i >= 0; i -=2 ) {
-            if (listeners[i] == ChangeListener.class) {
-                if (changeEvent == null) {
-                    changeEvent = new ChangeEvent(this);
-                }
-                ((ChangeListener)listeners[i+1]).stateChanged(changeEvent);
-            }
-        }
     }
 }

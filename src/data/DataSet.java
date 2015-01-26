@@ -20,5 +20,6 @@ public interface DataSet {
     public int size();
     public int get(int index);
     public double getFrequency();
+    public long getStartTime();
     public DataDimension getDataDimension();
 }

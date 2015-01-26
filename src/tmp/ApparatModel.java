@@ -429,6 +429,11 @@ public class ApparatModel {
         public DataDimension getDataDimension() {
             return new DataDimension();
         }
+
+        @Override
+        public long getStartTime() {
+            return getStartTime();
+        }
     }
 
 

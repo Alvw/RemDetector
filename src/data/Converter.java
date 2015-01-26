@@ -36,5 +36,10 @@ public abstract class Converter implements DataSet {
     public DataDimension getDataDimension() {
         return inputData.getDataDimension();
     }
+
+    @Override
+    public long getStartTime() {
+        return inputData.getStartTime();
+    }
 }
 

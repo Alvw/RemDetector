@@ -6,28 +6,17 @@ import java.awt.*;
 
 public class GraphPainter {
 
-    static void paint(Graphics g, int width1, double zoom, int startIndex, DataSet graph) {
-                int width = g.getClipBounds().width;
-                int startPoint = startIndex;
-                if (startPoint < 0) {
-                    return;
-                }
-
-                if (graph != null) {
-
-                    if (startPoint >= graph.size()) {
-                return;
-            }
-            int endPoint = Math.min(width, (graph.size() - startPoint));
-            VerticalLine vLine = new VerticalLine();
+    static void paint(Graphics g, double zoom, int startIndex, DataSet graph) {
+        if (graph != null && startIndex >= 0 && startIndex < graph.size()) {
+            int width = g.getClipBounds().width;
+            int value = graph.get(startIndex);
+            int y = (int) Math.round(zoom * value);
+            int endPoint = Math.min(width, (graph.size() - startIndex));
+            VerticalLine vLine = new VerticalLine(y);
             for (int x = 0; x < endPoint; x++) {
-                int value = graph.get(x + startPoint);
-                if (value == DataSet.UNDEFINED) {
-                    vLine.clear();
-                } else {
-                    int y = (int) Math.round(zoom * value);
-                    drawVerticalLine(g, x, y, vLine);
-                }
+                value = graph.get(x + startIndex);
+                y = (int) Math.round(zoom * value);
+                drawVerticalLine(g, x, y, vLine);
             }
         }
     }
@@ -40,6 +29,14 @@ public class GraphPainter {
     static class VerticalLine {
         int max = 0;
         int min = -1;
+
+        VerticalLine(int y) {
+            setNewBounds(y);
+        }
+
+        VerticalLine() {
+
+        }
 
         public void clear() {
             max = 0;

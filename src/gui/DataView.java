@@ -13,8 +13,4 @@ public class DataView extends GraphsView implements DataStoreListener {
         synchronize();
     }
 
-    @Override
-    public void onStart(long startTime) {
-        setStart(startTime);
-    }
 }

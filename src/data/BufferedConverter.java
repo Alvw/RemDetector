@@ -36,4 +36,9 @@ public class BufferedConverter implements DataSet {
     public DataDimension getDataDimension() {
         return converter.getDataDimension();
     }
+
+    @Override
+    public long getStartTime() {
+        return converter.getStartTime();
+    }
 }

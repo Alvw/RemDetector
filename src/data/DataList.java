@@ -14,6 +14,7 @@ public class DataList extends AbstractPreFilter implements DataSet  {
     private TIntArrayList intArrayList;
     private ArrayList<Integer> arrayList;
     private double frequency = 0;
+    private long startTime = 0;
     private DataDimension dataDimension = new DataDimension();
 
 
@@ -80,6 +81,16 @@ public class DataList extends AbstractPreFilter implements DataSet  {
 
     public void setDataDimension(DataDimension dataDimension) {
         this.dataDimension = dataDimension;
+    }
+
+
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
+    }
+
+    @Override
+    public long getStartTime() {
+        return startTime;
     }
 
     @Override

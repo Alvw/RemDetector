@@ -5,9 +5,13 @@ import data.DataSet;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.geom.AffineTransform;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -16,47 +20,91 @@ import java.awt.geom.AffineTransform;
  * Time: 14:25
  * To change this template use File | Settings | File Templates.
  */
-public class GraphPanel extends JPanel {
-    protected static final double ZOOM_PLUS_CHANGE = Math.sqrt(2.0);// 2 clicks(rotations) up increase zoom twice
-    protected static final double ZOOM_MINUS_CHANGE = 1 / ZOOM_PLUS_CHANGE; // similarly 2 clicks(rotations) down reduces zoom twice
-    protected static final Color bgColor = Color.BLACK;
-    protected static final Color graphColors[] = {Color.YELLOW, Color.RED, Color.CYAN};
+class GraphPanel extends JPanel {
+    private static final double ZOOM_PLUS_CHANGE = Math.sqrt(2.0);// 2 clicks(rotations) up increase zoom twice
+    private static final double ZOOM_MINUS_CHANGE = 1 / ZOOM_PLUS_CHANGE; // similarly 2 clicks(rotations) down reduces zoom twice
+    private Color graphColors[] = {Color.YELLOW, Color.RED, Color.CYAN};
+    private Color SLOT_COLOR = Color.MAGENTA;
+    private java.util.List<SlotListener> slotListeners = new ArrayList<SlotListener>();
 
-    protected int panelNumber;
-    protected double zoom = 0.5;
-    protected boolean isAutoZoom;
-    protected boolean isXCentered = true;
-    protected int weight = 1;
-    protected GraphsData graphsData;
+    private List<DataSet> graphList = new ArrayList<DataSet>();
+    private double zoom = 0.5;
+    private boolean isXCentered = true;
+    private int weight = 1;
+    private int startIndex = 0;
+    int slotWidth = 0;
+    int slotPosition = 0;
+    int indentX;
+    int indentY;
 
-    GraphPanel(int weight, boolean isXCentered, int panelNumber, GraphsData graphsData) {
-        this.weight = weight;
+    GraphPanel(int weight,  boolean isXCentered) {
         this.isXCentered = isXCentered;
-        this.graphsData = graphsData;
-        this.panelNumber = panelNumber;
-        setBackground(bgColor);
+        this.weight = weight;
+        setBackground(Color.black);
+
         // MouseListener to zoom Y_Axes
         addMouseWheelListener(new MouseWheelListener() {
             public void mouseWheelMoved(MouseWheelEvent e) {
                 zooming(e.getWheelRotation());
             }
         });
+
+        //MouseListener to move Slot
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+                int slotPosition = e.getX() - GraphsData.X_INDENT;
+                notifySlotListeners(slotPosition);
+            }
+        });
     }
 
-    protected java.util.List<? extends DataSet> getGraphs() {
-        return graphsData.getGraphList(panelNumber);
+
+    public void setGraphs(List<DataSet> graphs) {
+        graphList = graphs;
     }
 
-    protected DataDimension getDataDimension() {
-        return getGraphs().get(0).getDataDimension();
+    void setIndentX(int indentX) {
+        this.indentX = indentX;
     }
 
-    protected int getWeight() {
+    void setIndentY(int indentY) {
+        this.indentY = indentY;
+    }
+
+    void setStartIndex(int startIndex) {
+        this.startIndex = startIndex;
+    }
+
+    void setSlotWidth(int slotWidth) {
+        this.slotWidth = slotWidth;
+    }
+
+    void setSlotPosition(int slotPosition) {
+        this.slotPosition = slotPosition;
+    }
+
+    void setBgColor(Color bgColor) {
+        setBackground(bgColor);
+    }
+
+    void addSlotListener(SlotListener slotListener) {
+        slotListeners.add(slotListener);
+    }
+
+    private void notifySlotListeners(int newSlotPosition) {
+        for (SlotListener listener: slotListeners) {
+            listener.moveSlot(newSlotPosition);
+        }
+    }
+
+    int getWeight() {
         return weight;
     }
 
     protected int getWorkspaceWidth() {
-        return (getSize().width - graphsData.X_INDENT);
+        return (getSize().width - indentX);
     }
 
     protected void zooming(int zoomDirection) {
@@ -72,54 +120,58 @@ public class GraphPanel extends JPanel {
         if (isXCentered) {
             return getSize().height / 2;
         }
-        return (getSize().height - graphsData.Y_INDENT);
+        return (getSize().height - indentY);
     }
 
 
     protected void transformCoordinate(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
-        g2d.translate(graphsData.X_INDENT, getMaxY()); // move XY origin to the left bottom point
+        g2d.translate(indentX, getMaxY()); // move XY origin to the left bottom point
         g2d.transform(AffineTransform.getScaleInstance(1, -1)); // flip Y-axis
     }
 
     protected void restoreCoordinate(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
-        g2d.translate(-graphsData.X_INDENT, getMaxY()); // move XY origin to the left top point
+        g2d.translate(-indentX, getMaxY()); // move XY origin to the left top point
         g2d.transform(AffineTransform.getScaleInstance(1, -1)); // flip Y-axis and zoom it
     }
 
-
-    protected int getStartIndex() {
-        return graphsData.getStartIndex();
+    private void paintSlot(Graphics g) {
+        if(slotWidth > 0) {
+            g.setColor(SLOT_COLOR);
+            g.drawRect(slotPosition, 0, slotWidth, getMaxY());
+            g.drawLine(slotPosition-1, 0, slotPosition-1, getMaxY());
+            g.drawLine(slotPosition-2, 0, slotPosition-2, getMaxY());
+        }
     }
 
-    protected double getTimeFrequency() {
-        return graphsData.getTimeFrequency();
-    }
-
-    protected long getStartTime() {
-        return graphsData.getStartTime();
-    }
 
     @Override
     protected void paintComponent(Graphics g) {
-        super.paintComponent(g);    //To change body of overridden methods use File | Settings | File Templates.
+        super.paintComponent(g);
         transformCoordinate(g);
+        double frequency = 0;
+        DataDimension dataDimension = new DataDimension();
+        long startTime = 0;
+        if(graphList.size() > 0 && graphList.get(0) != null) {
+            frequency = graphList.get(0).getFrequency();
+            startTime = graphList.get(0).getStartTime();
+            dataDimension = graphList.get(0).getDataDimension();
+        }
 
-        YAxisPainter.paint(g, zoom, getDataDimension(), isXCentered);
-        TimeAxisPainter.paint(g, getStartTime(), getStartIndex(), getTimeFrequency());
+        YAxisPainter.paint(g, zoom, dataDimension, isXCentered);
+        TimeAxisPainter.paint(g, startTime, startIndex, frequency);
 
         int graph_number = 0;
-        for (DataSet graph : getGraphs()) {
+        for (DataSet graph : graphList) {
             Color graphColor = graphColors[graph_number % graphColors.length];
             graph_number++;
             g.setColor(graphColor);
-            GraphPainter.paint(g, getWorkspaceWidth(), zoom, getStartIndex(), graph);
+            GraphPainter.paint(g, zoom, startIndex, graph);
         }
+
+        paintSlot(g);
 
         restoreCoordinate(g);
     }
 }
-
-
-

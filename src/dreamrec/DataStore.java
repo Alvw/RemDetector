@@ -31,9 +31,7 @@ public class DataStore implements BdfListener {
     private BdfParser bdfParser;
     private BdfConfig bdfConfig;
     private volatile boolean isReadingStopped = false;
-    private volatile boolean isReadingStarted = false;
     private volatile int numberOfDataRecords = -1;
-    private volatile long startTime;
 
     public DataStore(BdfProvider bdfProvider) {
         bdfProvider.addBdfDataListener(this);
@@ -68,12 +66,6 @@ public class DataStore implements BdfListener {
         updateTimer = new Timer(UPDATE_DELAY, new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 processBufferedData();
-                if (isReadingStarted) {
-                    for (DataStoreListener listener : updateListeners) {
-                        listener.onStart(startTime);
-                    }
-                    isReadingStarted = false;
-                }
 
                 for (DataStoreListener listener : updateListeners) {
                     listener.onDataUpdate();
@@ -123,10 +115,19 @@ public class DataStore implements BdfListener {
 
     private void start() {
         updateTimer.start();
-        if (startTime == -1) {
-            startTime = System.currentTimeMillis() - (long) bdfConfig.getDurationOfDataRecord(); //1 second (1000 msec) duration of a data record
+        if (getStartTime() == 0) {
+            long startTime = System.currentTimeMillis() - (long) bdfConfig.getDurationOfDataRecord(); //1 second (1000 msec) duration of a data record
+            setStartTime(startTime);
         }
-        isReadingStarted = true;
+
+    }
+
+    private long getStartTime() {
+        long startTime = 0;
+        if(channelsList.length > 0 && channelsList[0] != null) {
+            startTime = channelsList[0].getStartTime();
+        }
+        return startTime;
     }
 
 
@@ -164,7 +165,9 @@ public class DataStore implements BdfListener {
 
 
     public void setStartTime(long startTime) {
-        this.startTime = startTime;
+        for (int i = 0; i < channelsList.length; i++) {
+            channelsList[i].setStartTime(startTime);
+        }
     }
 
 
