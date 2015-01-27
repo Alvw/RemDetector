@@ -24,7 +24,7 @@ public class GraphsView extends JPanel implements SlotListener {
     private final boolean IS_GRAPH_X_CENTERED_DEFAULT = true;
     private final boolean IS_PREVIEW_X_CENTERED_DEFAULT = false;
 
-    private final int X_INDENT = 0;
+    private final int X_INDENT = 50;
     private final int Y_INDENT = 0;
     private final Color BG_COLOR = Color.BLACK;
     private final Color PREVIEW_BG_COLOR = new Color(40, 40, 40);

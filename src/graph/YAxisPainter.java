@@ -36,7 +36,7 @@ public class YAxisPainter {
             g.drawLine(0, -position, width, -position);
             String valueText = String.format("%.1f", physValue)+" "+physicalDimension;
             g.setColor(AXIS_COLOR);
-            g.drawString(valueText, -30, -position - 1);
+            g.drawString(valueText, -40, -position - 1);
         }
 
         if (isXCentered) {
