@@ -1,51 +1,103 @@
 package graph;
 
+
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 class TimeAxisPainter {
-    private static final Color AXIS_COLOR = Color.GREEN;
-    private static final Color BASE_GRID_COLOR = new Color(50, 50, 50);
-    private static final Color LIGHT_GRID_COLOR = new Color(25, 25, 25);
+    private Color axisColor = Color.GREEN;
+    private Color baseGridColor = new Color(50, 50, 50);
+    private Color lightGridColor = new Color(25, 25, 25);
 
-    private static void paintTimeMark(Graphics g, int i) {
-        g.setColor(BASE_GRID_COLOR);
-        g.drawLine(i, 0, i, -g.getClipBounds().height);
+
+    public void setAxisColor(Color axisColor) {
+        this.axisColor = axisColor;
+    }
+
+    public void setBaseGridColor(Color baseGridColor) {
+        this.baseGridColor = baseGridColor;
+    }
+
+    public void setLightGridColor(Color lightGridColor) {
+        this.lightGridColor = lightGridColor;
+    }
+
+    private void paintTimeMark(Graphics g, int i) {
         // Paint Rectangle
-        g.setColor(AXIS_COLOR);
         g.fillRect(i - 1, -4, 3, 9);
     }
-    private static  void paintGridBaseMark(Graphics g, int i) {
-        g.setColor(LIGHT_GRID_COLOR);
-        g.drawLine(i, 0, i, -g.getClipBounds().height);
 
+    private void paintBaseMark(Graphics g, int i) {
         // Paint Stroke
-        g.setColor(AXIS_COLOR);
         g.drawLine(i, -2, i, +2);
     }
 
-    private static  void paintGridSmallMark(Graphics g, int i) {
+    private void paintSmallMark(Graphics g, int i) {
         // Paint Point
-        g.setColor(AXIS_COLOR);
         g.drawLine(i, 0, i, 0);
     }
 
-    private static void paintTimeStamp(Graphics g, int i, String timeStamp) {
+    private void paintTimeStamp(Graphics g, int i, String timeStamp) {
         // Paint Time Stamp
-        g.setColor(AXIS_COLOR);
         FontMetrics fm = g.getFontMetrics(g.getFont());
         int stampWidth = fm.stringWidth(timeStamp);
         int stampHeight = fm.getHeight();
-        int stampShift = stampWidth/2;
-        g.drawString(timeStamp, i - stampShift, stampHeight+2);
+        int stampShift = stampWidth / 2;
+        g.drawString(timeStamp, i - stampShift, - 10);
     }
 
-    static void paint(Graphics g, long startTime, int startIndex, double timeFrequency) {
-        if(timeFrequency == 0) {
+    private void paintGrid(Graphics g, Color gridColor, int startIndex, List<Integer> gridMarks) {
+        g.setColor(gridColor);
+        for (int i = 0; i < gridMarks.size() - 1; i++) {
+            int point = gridMarks.get(i) - startIndex;
+            if (point >= 0) {
+                g.drawLine(point, g.getClipBounds().height, point, -g.getClipBounds().height);
+            }
+        }
+    }
+
+    private void paintAxis(Graphics g, int startIndex, List<Integer> timeMarks, List<Integer> baseMarks, List<Integer> smallMarks) {
+        g.setColor(axisColor);
+        for (int i = 0; i < smallMarks.size() - 1; i++) {
+            int point = smallMarks.get(i) - startIndex;
+            if (point >= 0) {
+                paintSmallMark(g, point);
+            }
+        }
+        for (int i = 0; i < baseMarks.size() - 1; i++) {
+            int point = baseMarks.get(i) - startIndex;
+            if (point >= 0) {
+                paintBaseMark(g, point);
+            }
+        }
+        for (int i = 0; i < timeMarks.size() - 1; i++) {
+            int markIndex = timeMarks.get(i);
+            int point = markIndex - startIndex;
+            if (point >= 0) {
+                paintTimeMark(g, point);
+            }
+        }
+    }
+
+    private void paintTime(Graphics g, int startIndex, HashMap<Integer, String> timeStamps) {
+        g.setColor(axisColor);
+        for (int i : timeStamps.keySet()) {
+            int point = i - startIndex;
+            if (point >= 0) {
+                paintTimeStamp(g, point, timeStamps.get(i));
+            }
+        }
+    }
+
+
+    void paint(Graphics g, long startTime, int startIndex, double timeFrequency) {
+        if (timeFrequency == 0) {
             return;
         }
         int MSECOND = 1; //milliseconds
@@ -91,98 +143,80 @@ class TimeAxisPainter {
         int timeIntervalDivider = TIME_INTERVAL_DIVIDER_MAX;
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT_FULL);
 
-        int timeIntervalMin = (int)(NUMBER_OF_POINTS_PER_TIME_INTERVAL_MIN * 1000 / timeFrequency);
-        int timeIntervalMax = (int)(NUMBER_OF_POINTS_PER_TIME_INTERVAL_MAX * 1000 / timeFrequency);
+        int timeIntervalMin = (int) (NUMBER_OF_POINTS_PER_TIME_INTERVAL_MIN * 1000 / timeFrequency);
+        int timeIntervalMax = (int) (NUMBER_OF_POINTS_PER_TIME_INTERVAL_MAX * 1000 / timeFrequency);
 
-        for(int i = TIME_INTERVALS.length - 1; i >=0; i--) {
+        for (int i = TIME_INTERVALS.length - 1; i >= 0; i--) {
             int interval = TIME_INTERVALS[i];
-            if( timeIntervalMin <= interval && interval <= timeIntervalMax) {
+            if (timeIntervalMin <= interval && interval <= timeIntervalMax) {
                 timeInterval = interval;
             }
         }
 
-        if(timeInterval >= SECOND){
+        if (timeInterval >= SECOND) {
             dateFormat = new SimpleDateFormat(DATE_FORMAT_SEC);
         }
-        if(timeInterval >= MINUTE){
+        if (timeInterval >= MINUTE) {
             dateFormat = new SimpleDateFormat(DATE_FORMAT_MIN);
         }
-        if(timeInterval >= HOUR){
+        if (timeInterval >= HOUR) {
             dateFormat = new SimpleDateFormat(DATE_FORMAT_HOUR);
         }
-        if(timeInterval == MINUTE || timeInterval == HOUR || timeInterval == SECONDS_30
-                || timeInterval == MINUTES_30){
+        if (timeInterval == MINUTE || timeInterval == HOUR || timeInterval == SECONDS_30
+                || timeInterval == MINUTES_30) {
             timeIntervalDivider = TIME_INTERVAL_DIVIDER_MIN;
         }
 
         int width = g.getClipBounds().width;
-        ArrayList<Integer> timeMark = new ArrayList<Integer>();
-        ArrayList<Integer> baseGridMark = new ArrayList<Integer>();
-        ArrayList<Integer> smallGridMark = new ArrayList<Integer>();
-        int timeIntervalPoints = (int)(timeInterval * timeFrequency / 1000);
+
+        HashMap<Integer, String> timeStamps = new HashMap<Integer, String>();
+        ArrayList<Integer> timeMarks = new ArrayList<Integer>();
+        ArrayList<Integer> baseMarks = new ArrayList<Integer>();
+        ArrayList<Integer> smallMarks = new ArrayList<Integer>();
+
+        int timeIntervalPoints = (int) (timeInterval * timeFrequency / 1000);
         int indexFrom = startIndex - timeIntervalPoints;
         int indexTill = startIndex + width + timeIntervalPoints;
 
-        g.setColor(AXIS_COLOR);
-        Graphics2D g2d = (Graphics2D) g;
-        g2d.transform(AffineTransform.getScaleInstance(1.0, -1.0)); // flip transformation
-        for (int i = indexFrom; i  <= indexTill; i++) {
-            long iTime = startTime + (long)(i * 1000 / timeFrequency);
-            long nextTime = startTime + (long)((i +1) * 1000 / timeFrequency);
-            if(iTime < 0) {
+        for (int i = indexFrom; i <= indexTill; i++) {
+            long iTime = startTime + (long) (i * 1000 / timeFrequency);
+            long nextTime = startTime + (long) ((i + 1) * 1000 / timeFrequency);
+            if (iTime < 0) {
                 iTime = 0;
-                if(timeMark.size() == 0)
-                    timeMark.add(0);
+                if (timeMarks.size() == 0)
+                    timeMarks.add(0);
             }
-            if(nextTime < 0) {
+            if (nextTime < 0) {
                 nextTime = 0;
             }
-            long n = iTime/timeInterval;
-            long n_next = nextTime/timeInterval;
-            if(n_next != n) { // means that time mark is located between points i and i+1
-                timeMark.add(i);
+            long n = iTime / timeInterval;
+            long n_next = nextTime / timeInterval;
+            if (n_next != n) { // means that time mark is located between points i and i+1
+                String timeStamp = dateFormat.format(new Date((n + 1) * timeInterval));
+                timeMarks.add(i);
+                timeStamps.put(i, timeStamp);
             }
         }
-        for(int i = 0; i < timeMark.size() - 1; i++) {
-            int delta = timeMark.get(i+1)  - timeMark.get(i);
-            for(int j = 0; j < timeIntervalDivider; j++) {
-                int markIndex = timeMark.get(i) + delta * j / timeIntervalDivider;
-                baseGridMark.add(markIndex);
+        for (int i = 0; i < timeMarks.size() - 1; i++) {
+            int delta = timeMarks.get(i + 1) - timeMarks.get(i);
+            for (int j = 0; j < timeIntervalDivider; j++) {
+                int markIndex = timeMarks.get(i) + delta * j / timeIntervalDivider;
+                baseMarks.add(markIndex);
             }
         }
 
-        for(int i = 0; i < baseGridMark.size() - 1; i++) {
-            int delta = baseGridMark.get(i+1)  - baseGridMark.get(i);
-            int markIndex = baseGridMark.get(i) + delta/2;
-            smallGridMark.add(markIndex);
+        for (int i = 0; i < baseMarks.size() - 1; i++) {
+            int delta = baseMarks.get(i + 1) - baseMarks.get(i);
+            int markIndex = baseMarks.get(i) + delta / 2;
+            smallMarks.add(markIndex);
         }
 
-        for(int i = 0; i < smallGridMark.size() - 1; i++) {
-            int point = smallGridMark.get(i) - startIndex;
-            if(point >= 0) {
-                paintGridSmallMark(g, point);
-            }
-        }
-        for(int i = 0; i < baseGridMark.size() - 1; i++) {
-            int point = baseGridMark.get(i) - startIndex;
-            if(point >= 0) {
-                paintGridBaseMark(g, point);
-            }
-        }
-        for(int i = 0; i < timeMark.size() - 1; i++) {
-            int markIndex = timeMark.get(i);
-            int point = markIndex - startIndex;
-            if(point >= 0) {
-                long markTime = startTime + (long)(markIndex * 1000 / timeFrequency);
-                long n = markTime/timeInterval;
-                String timeStamp = dateFormat.format(new Date((n+1)*timeInterval));
-
-                paintTimeMark(g, point);
-                paintTimeStamp(g, point, timeStamp);
-            }
-
-        }
-
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.transform(AffineTransform.getScaleInstance(1.0, -1.0)); // flip transformation
+        paintGrid(g, lightGridColor, startIndex, baseMarks);
+        paintGrid(g, baseGridColor, startIndex, timeMarks);
+        paintAxis(g, startIndex, timeMarks, baseMarks, smallMarks);
+        paintTime(g, startIndex, timeStamps);
         g2d.transform(AffineTransform.getScaleInstance(1.0, -1.0)); // flip transformation
     }
 }

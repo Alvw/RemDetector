@@ -13,14 +13,12 @@ class GraphsData {
     // bigger GAP - less precision need slot to start autoscroll
     private static final int AUTO_SCROLL_GAP = 2;
 
-    static final int X_INDENT = 50;
-    static final int Y_INDENT = 20;
     static final int DEFAULT_COMPRESSION = 1;
     private  int compression = DEFAULT_COMPRESSION;
     private double timeFrequency;
     private int startIndex;
     private int scrollPosition;
-    private int canvasWidth;
+    private int drawingAreaWidth;
 
     // graphs list for every graph panel
     private List<List<DataSet>> listOfGraphLists = new ArrayList<List<DataSet>>();
@@ -98,11 +96,7 @@ class GraphsData {
     }
 
     int getDrawingAreaWidth() {
-        int width = canvasWidth - X_INDENT;
-        if(width < 0) {
-            width = 0;
-        }
-        return width;
+        return drawingAreaWidth;
     }
 
     int getGraphsSize() {
@@ -144,9 +138,6 @@ class GraphsData {
         return maxStartIndex;
     }
 
-    int getPreviewFullSize() {
-        return X_INDENT + getPreviewsSize();
-    }
 
     void moveSlot(int slotPosition) {
         if(slotPosition < 0) {
@@ -178,7 +169,7 @@ class GraphsData {
 
 
     int getMaxScrollPosition() {
-        int maxScrollPosition = getPreviewFullSize() - canvasWidth;
+        int maxScrollPosition = getPreviewsSize() - getDrawingAreaWidth();
         if(maxScrollPosition < 0) {
             maxScrollPosition = 0;
         }
@@ -222,8 +213,8 @@ class GraphsData {
     }
 
 
-    void setCanvasWidth(int canvasWidth) {
-        this.canvasWidth = canvasWidth;
+    void setDrawingAreaWidth(int drawingAreaWidth) {
+        this.drawingAreaWidth = drawingAreaWidth;
         if(startIndex > getMaxStartIndex()) {
             startIndex = getMaxStartIndex();
         }
@@ -236,9 +227,6 @@ class GraphsData {
         }
     }
 
-    public int getCanvasWidth() {
-        return canvasWidth;
-    }
 
     boolean isAutoScroll() {
         return (getMaxSlotPosition() <= (getSlotPosition() + AUTO_SCROLL_GAP));

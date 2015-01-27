@@ -23,24 +23,29 @@ import java.util.List;
 class GraphPanel extends JPanel {
     private static final double ZOOM_PLUS_CHANGE = Math.sqrt(2.0);// 2 clicks(rotations) up increase zoom twice
     private static final double ZOOM_MINUS_CHANGE = 1 / ZOOM_PLUS_CHANGE; // similarly 2 clicks(rotations) down reduces zoom twice
+
+    private static final Color DEFAULT_BG_COLOR = Color.black;
+
     private Color graphColors[] = {Color.YELLOW, Color.RED, Color.CYAN};
-    private Color SLOT_COLOR = Color.MAGENTA;
+    private Color slotColor = Color.MAGENTA;
     private java.util.List<SlotListener> slotListeners = new ArrayList<SlotListener>();
 
     private List<DataSet> graphList = new ArrayList<DataSet>();
     private double zoom = 0.5;
     private boolean isXCentered = true;
     private int weight = 1;
-    private int startIndex = 0;
-    int slotWidth = 0;
-    int slotPosition = 0;
-    int indentX;
-    int indentY;
+    private int startIndex;
+    private int slotWidth;
+    private int slotPosition;
+    private int indentX;
+    private int indentY;
+    private TimeAxisPainter timeAxisPainter = new TimeAxisPainter();
+
 
     GraphPanel(int weight,  boolean isXCentered) {
         this.isXCentered = isXCentered;
         this.weight = weight;
-        setBackground(Color.black);
+        setBackground(DEFAULT_BG_COLOR);
 
         // MouseListener to zoom Y_Axes
         addMouseWheelListener(new MouseWheelListener() {
@@ -54,23 +59,15 @@ class GraphPanel extends JPanel {
             @Override
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
-                int slotPosition = e.getX() - GraphsData.X_INDENT;
+                int slotPosition = e.getX() - indentX;
                 notifySlotListeners(slotPosition);
             }
         });
     }
 
 
-    public void setGraphs(List<DataSet> graphs) {
+    void setGraphs(List<DataSet> graphs) {
         graphList = graphs;
-    }
-
-    void setIndentX(int indentX) {
-        this.indentX = indentX;
-    }
-
-    void setIndentY(int indentY) {
-        this.indentY = indentY;
     }
 
     void setStartIndex(int startIndex) {
@@ -87,6 +84,22 @@ class GraphPanel extends JPanel {
 
     void setBgColor(Color bgColor) {
         setBackground(bgColor);
+    }
+
+    void setSlotColor(Color slotColor) {
+        this.slotColor = slotColor;
+    }
+
+    public void setTimeAxisPainter(TimeAxisPainter timeAxisPainter) {
+        this.timeAxisPainter = timeAxisPainter;
+    }
+
+    void setIndentX(int indentX) {
+        this.indentX = indentX;
+    }
+
+    void setIndentY(int indentY) {
+        this.indentY = indentY;
     }
 
     void addSlotListener(SlotListener slotListener) {
@@ -138,7 +151,7 @@ class GraphPanel extends JPanel {
 
     private void paintSlot(Graphics g) {
         if(slotWidth > 0) {
-            g.setColor(SLOT_COLOR);
+            g.setColor(slotColor);
             g.drawRect(slotPosition, 0, slotWidth, getMaxY());
             g.drawLine(slotPosition-1, 0, slotPosition-1, getMaxY());
             g.drawLine(slotPosition-2, 0, slotPosition-2, getMaxY());
@@ -160,7 +173,7 @@ class GraphPanel extends JPanel {
         }
 
         YAxisPainter.paint(g, zoom, dataDimension, isXCentered);
-        TimeAxisPainter.paint(g, startTime, startIndex, frequency);
+        timeAxisPainter.paint(g, startTime, startIndex, frequency);
 
         int graph_number = 0;
         for (DataSet graph : graphList) {

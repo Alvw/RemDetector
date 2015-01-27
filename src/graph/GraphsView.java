@@ -7,7 +7,10 @@ import org.apache.commons.logging.LogFactory;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 
 /**
@@ -15,13 +18,18 @@ import java.util.ArrayList;
  */
 public class GraphsView extends JPanel implements SlotListener {
     private static final Log log = LogFactory.getLog(GraphsView.class);
-    private int DEFAULT_GRAPH_PANEL_WEIGHT = 4;
-    private int DEFAULT_PREVIEW_PANEL_WEIGHT = 2;
+    private final int DEFAULT_GRAPH_PANEL_WEIGHT = 4;
+    private final int DEFAULT_PREVIEW_PANEL_WEIGHT = 2;
 
-    private boolean IS_GRAPH_X_CENTERED_DEFAULT = true;
-    private boolean IS_PREVIEW_X_CENTERED_DEFAULT = false;
+    private final boolean IS_GRAPH_X_CENTERED_DEFAULT = true;
+    private final boolean IS_PREVIEW_X_CENTERED_DEFAULT = false;
 
+    private final int X_INDENT = 0;
+    private final int Y_INDENT = 0;
     private final Color BG_COLOR = Color.BLACK;
+    private final Color PREVIEW_BG_COLOR = new Color(40, 40, 40);
+    private final Color PREVIEW_BASE_GRID_COLOR = new Color(100, 100, 100);
+    private final Color PREVIEW_LIGHT_GRID_COLOR = new Color(60, 60, 60);
 
     private GraphsData graphsData;
 
@@ -63,35 +71,38 @@ public class GraphsView extends JPanel implements SlotListener {
             @Override
             public void componentResized(ComponentEvent e) {
                 super.componentResized(e);
-                graphsData.setCanvasWidth(getWidth());
+                graphsData.setDrawingAreaWidth(getWidth() - X_INDENT);
                 setPanelsSizes();
                 update();
             }
         });
 
-        scrollBar.addAdjustmentListener(new AdjustmentListener() {
+        scrollBar.setModel(new DefaultBoundedRangeModel() {
             @Override
-            public void adjustmentValueChanged(AdjustmentEvent e) {
-                graphsData.setScrollPosition(e.getValue());
+            public int getMinimum() {
+                return 0;
+            }
+            @Override
+            public int getMaximum() {
+                return graphsData.getPreviewsSize();
+            }
+
+            @Override
+            public int getValue() {
+                return graphsData.getScrollPosition();
+            }
+            @Override
+            public void setValue(int newValue) {
+               // super.setValue(newValue);
+                graphsData.setScrollPosition(newValue);
                 update();
             }
-        });
-    }
 
-    private void updateScrollModel() {
-        int newScrollValue = graphsData.getScrollPosition();
-        int newScrollMaximum = graphsData.getPreviewFullSize();
-        int newScrollExtent = graphsData.getCanvasWidth();
-        BoundedRangeModel scrollModel = scrollBar.getModel();
-        if(scrollModel.getExtent() != newScrollExtent) {
-            scrollModel.setExtent(newScrollExtent);
-        }
-        if(scrollModel.getMaximum() != newScrollMaximum) {
-            scrollModel.setMaximum(newScrollMaximum);
-        }
-        if(scrollModel.getValue() != newScrollValue) {
-            scrollModel.setValue(newScrollValue);
-        }
+            @Override
+            public int getExtent() {
+                return graphsData.getDrawingAreaWidth();
+            }
+        });
     }
 
     private void update() {
@@ -103,7 +114,6 @@ public class GraphsView extends JPanel implements SlotListener {
             previewPanel.setSlotPosition(graphsData.getSlotPosition());
             previewPanel.setSlotWidth(graphsData.getSlotWidth());
         }
-        updateScrollModel();
         repaint();
     }
 
@@ -163,8 +173,8 @@ public class GraphsView extends JPanel implements SlotListener {
     public void addGraphPanel(int weight, boolean isXCentered) {
         graphsData.addGraphList();
         GraphPanel panel = new GraphPanel(weight, isXCentered);
-        panel.setIndentX(graphsData.X_INDENT);
-        panel.setIndentY(graphsData.Y_INDENT);
+        panel.setIndentX(X_INDENT);
+        panel.setIndentY(Y_INDENT);
         graphPanelList.add(panel);
         paintingPanel.add(panel);
         setPanelsSizes();
@@ -173,8 +183,13 @@ public class GraphsView extends JPanel implements SlotListener {
     public void addPreviewPanel(int weight, boolean isXCentered) {
         graphsData.addPreviewList();
         GraphPanel panel = new GraphPanel(weight, isXCentered);
-        panel.setIndentX(graphsData.X_INDENT);
-        panel.setIndentY(graphsData.Y_INDENT);
+        panel.setIndentX(X_INDENT);
+        panel.setIndentY(Y_INDENT);
+        panel.setBgColor(PREVIEW_BG_COLOR);
+        TimeAxisPainter timeAxisPainter = new TimeAxisPainter();
+        timeAxisPainter.setBaseGridColor(PREVIEW_BASE_GRID_COLOR);
+        timeAxisPainter.setLightGridColor(PREVIEW_LIGHT_GRID_COLOR);
+        panel.setTimeAxisPainter(timeAxisPainter);
         panel.addSlotListener(this);
         previewPanelList.add(panel);
         paintingPanel.add(panel);
