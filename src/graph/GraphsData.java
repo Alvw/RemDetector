@@ -25,6 +25,20 @@ class GraphsData {
     // previews list for every preview panel
     private List<List<DataSet>> listOfPreviewLists = new ArrayList<List<DataSet>>();
 
+    long getStartTime() {
+        long startTime = 0;
+        if(listOfGraphLists.size() > 0) {
+            if(listOfGraphLists.get(0).size() > 0) {
+                startTime = listOfGraphLists.get(0).get(0).getStartTime();
+            }
+        }
+        else if(listOfPreviewLists.size() > 0) {
+            if(listOfPreviewLists.get(0).size() > 0) {
+                startTime = listOfPreviewLists.get(0).get(0).getStartTime();
+            }
+        }
+        return startTime;
+    }
 
     void addGraphList() {
         listOfGraphLists.add(new ArrayList<DataSet>());
