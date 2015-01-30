@@ -35,8 +35,8 @@ public class GraphsConfigurator {
         view.addGraphPanel(2, true);
         //view.addGraphs(new FilterOffset_1(channel_1, view));
         view.addGraphs(channel_1);
-        view.addGraphPanel(1, true);
-        view.addGraphs(new FilterDerivative(channel_1));
+     //   view.addGraphPanel(1, true);
+      //  view.addGraphs(new FilterDerivative(channel_1));
         view.addGraphPanel(2, true);
         view.addGraphs(new FilterDerivative(channel_2));
 

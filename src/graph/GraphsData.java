@@ -91,8 +91,10 @@ class GraphsData {
     public void setTimeFrequency(double timeFrequency) {
         double previewTimeFrequency = this.timeFrequency / compression;
         this.timeFrequency = timeFrequency;
-        int compressionNew = (int)(timeFrequency / previewTimeFrequency); // to save the same previewTimeFrequency
-        setCompression(compressionNew);
+        if(compression != 1 && previewTimeFrequency != 0) {
+            int compressionNew = (int)(timeFrequency / previewTimeFrequency); // to save the same previewTimeFrequency
+            setCompression(compressionNew);
+        }
     }
 
     List<DataSet> getGraphList(int listNumber) {

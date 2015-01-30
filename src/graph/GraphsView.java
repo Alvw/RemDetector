@@ -18,8 +18,8 @@ import java.util.ArrayList;
  */
 public class GraphsView extends JPanel implements SlotListener {
     private static final Log log = LogFactory.getLog(GraphsView.class);
-    private final int DEFAULT_GRAPH_PANEL_WEIGHT = 4;
-    private final int DEFAULT_PREVIEW_PANEL_WEIGHT = 2;
+    private final int DEFAULT_GRAPH_PANEL_WEIGHT = 1;
+    private final int DEFAULT_PREVIEW_PANEL_WEIGHT = 1;
 
     private final boolean IS_GRAPH_X_CENTERED_DEFAULT = true;
     private final boolean IS_PREVIEW_X_CENTERED_DEFAULT = false;
@@ -27,7 +27,7 @@ public class GraphsView extends JPanel implements SlotListener {
     private final int X_INDENT = 50;
     private final int Y_INDENT = 0;
     private final Color BG_COLOR = Color.BLACK;
-    private final Color PREVIEW_BG_COLOR = new Color(10,0,10);
+    private final Color PREVIEW_BG_COLOR = new Color(25,25,25);
 
     private GraphsData graphsData;
 

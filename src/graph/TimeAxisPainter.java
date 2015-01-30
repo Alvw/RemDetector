@@ -13,7 +13,7 @@ import java.util.List;
 class TimeAxisPainter {
     private Color axisColor = Color.GREEN;
     private Color gridColor = new Color(0, 80, 0);
-    private Color zebraColor = new Color(35, 35, 35);
+    private Color zebraColor = new Color(40, 40, 40);
     private boolean  isGridPaint = true;
     private boolean  isZebraPaint = true;
     private boolean  isAxisPaint = true;
