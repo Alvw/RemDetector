@@ -7,7 +7,7 @@ import java.awt.geom.AffineTransform;
 
 public class YAxisPainter {
     private static final Color AXIS_COLOR = Color.GREEN;
-    private static final Color GRID_COLOR = new Color(0, 80, 0);
+    private static final Color GRID_COLOR = new Color(0, 40, 0);
 
 
     static void paint(Graphics g, double zoom, DataDimension dataDimension) {

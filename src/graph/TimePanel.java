@@ -13,6 +13,7 @@ public class TimePanel extends JPanel{
 
     public TimePanel() {
         timePainter.isAxisPaint(false);
+        timePainter.isGridPaint(false);
         setBackground(Color.black);
     }
 

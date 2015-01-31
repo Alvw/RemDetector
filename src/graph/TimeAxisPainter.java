@@ -12,10 +12,10 @@ import java.util.List;
 
 class TimeAxisPainter {
     private Color axisColor = Color.GREEN;
-    private Color gridColor = new Color(0, 80, 0);
+    private Color gridColor = new Color(0, 40, 0);
+    private Color strongGridColor = new Color(0, 60, 0);
     private Color zebraColor = new Color(40, 40, 40);
     private boolean  isGridPaint = true;
-    private boolean  isZebraPaint = true;
     private boolean  isAxisPaint = true;
     private boolean  isTimeStampsPaint = true;
 
@@ -24,9 +24,6 @@ class TimeAxisPainter {
         this.isGridPaint = isGridPaint;
     }
 
-    public void isZebraPaint(boolean isZebraPaint) {
-        this.isZebraPaint = isZebraPaint;
-    }
 
     public void isAxisPaint(boolean isAxisPaint) {
         this.isAxisPaint = isAxisPaint;
@@ -36,17 +33,6 @@ class TimeAxisPainter {
         this.isTimeStampsPaint = isTimeStampsPaint;
     }
 
-    public void setAxisColor(Color axisColor) {
-        this.axisColor = axisColor;
-    }
-
-    public void setGridColor(Color gridColor) {
-        this.gridColor = gridColor;
-    }
-
-    public void setZebraColor(Color zebraColor) {
-        this.zebraColor = zebraColor;
-    }
 
     private void paintTimeMark(Graphics g, int i) {
         // Paint Rectangle
@@ -70,7 +56,7 @@ class TimeAxisPainter {
         int stampHeight = fm.getHeight();
         int stampShift = stampWidth / 2;
         // g.drawString(timeStamp, i - stampShift, stampHeight+2);
-        g.drawString(timeStamp, i - stampShift, - 8);
+        g.drawString(timeStamp, i - stampShift, - 6);
     }
 
     private void paintGrid(Graphics g, int startIndex, List<Integer> gridMarks) {
@@ -82,6 +68,19 @@ class TimeAxisPainter {
             }
         }
     }
+
+    private void paintStrongGrid(Graphics g, int startIndex, List<Integer> gridMarks) {
+        g.setColor(strongGridColor);
+        for (int i = 0; i < gridMarks.size() - 1; i++) {
+            int point = gridMarks.get(i) - startIndex;
+            if (point >= 0) {
+                g.drawLine(point, g.getClipBounds().height, point, -g.getClipBounds().height);
+               // g.drawLine(point - 1, g.getClipBounds().height, point - 1, -g.getClipBounds().height);
+                g.drawLine(point + 1, g.getClipBounds().height, point + 1, -g.getClipBounds().height);
+            }
+        }
+    }
+
 
     private void paintZebra(Graphics g, int startIndex, List<Integer> gridMarks) {
         g.setColor(zebraColor);
@@ -129,7 +128,7 @@ class TimeAxisPainter {
         for (int i : timeStamps.keySet()) {
             int point = i - startIndex;
             if (point >= 0) {
-                paintTimeMark(g, point);
+              //  paintTimeMark(g, point);
                 paintTimeStamp(g, point, timeStamps.get(i));
             }
         }
@@ -253,11 +252,10 @@ class TimeAxisPainter {
 
         Graphics2D g2d = (Graphics2D) g;
         g2d.transform(AffineTransform.getScaleInstance(1.0, -1.0)); // flip transformation
-        if(isZebraPaint) {
-            paintZebra(g, startIndex, timeMarks);
-        }
+
         if(isGridPaint) {
             paintGrid(g, startIndex, baseMarks);
+            paintStrongGrid(g, startIndex, timeMarks);
         }
         if(isAxisPaint) {
             paintAxis(g, startIndex, timeMarks, baseMarks, smallMarks);
