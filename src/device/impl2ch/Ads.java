@@ -3,7 +3,6 @@ package device.impl2ch;
 import bdf.*;
 import data.DataDimension;
 import dreamrec.ApplicationException;
-import dreamrec.BdfDevice;
 import gnu.io.NoSuchPortException;
 import gnu.io.PortInUseException;
 import org.apache.commons.logging.Log;
@@ -15,7 +14,7 @@ import java.util.List;
 /**
  *
  */
-public class Ads implements BdfDevice {
+public class Ads implements BdfProvider{
 
     private static final Log log = LogFactory.getLog(Ads.class);
     private final int NUMBER_OF_BYTES_IN_DATA_FORMAT = 3;

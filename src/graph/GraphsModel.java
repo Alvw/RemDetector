@@ -7,13 +7,13 @@ import org.apache.commons.logging.LogFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-class GraphsData {
-    private static final Log log = LogFactory.getLog(GraphsData.class);
+class GraphsModel {
+    private static final Log log = LogFactory.getLog(GraphsModel.class);
 
     // bigger GAP - less precision need slot to start autoscroll
     private static final int AUTO_SCROLL_GAP = 2;
+    private static final int DEFAULT_COMPRESSION = 1;
 
-    static final int DEFAULT_COMPRESSION = 1;
     private  int compression = DEFAULT_COMPRESSION;
     private double timeFrequency;
     private int startIndex;
@@ -25,26 +25,27 @@ class GraphsData {
     // previews list for every preview panel
     private List<List<DataSet>> listOfPreviewLists = new ArrayList<List<DataSet>>();
 
-    long getStartTime() {
+
+    public long getStartTime() {
         long startTime = 0;
-        if(listOfGraphLists.size() > 0) {
-            if(listOfGraphLists.get(0).size() > 0) {
-                startTime = listOfGraphLists.get(0).get(0).getStartTime();
+        for(List<DataSet> graphList : listOfGraphLists) {
+            for(DataSet graph : graphList) {
+                startTime = graph.getStartTime();
             }
         }
-        else if(listOfPreviewLists.size() > 0) {
-            if(listOfPreviewLists.get(0).size() > 0) {
-                startTime = listOfPreviewLists.get(0).get(0).getStartTime();
+        for(List<DataSet> previewList : listOfPreviewLists) {
+            for(DataSet preview : previewList) {
+                startTime = preview.getStartTime();
             }
         }
         return startTime;
     }
 
-    void addGraphList() {
+    public void addGraphList() {
         listOfGraphLists.add(new ArrayList<DataSet>());
     }
 
-    void addGraphs(DataSet... graphs) {
+    public void addGraphs(DataSet... graphs) {
         if(listOfGraphLists.size() == 0) {
             addGraphList();
         }
@@ -55,15 +56,11 @@ class GraphsData {
         }
     }
 
-    void addPreviewList() {
+    public void addPreviewList() {
         listOfPreviewLists.add(new ArrayList<DataSet>());
     }
 
-    double getPreviewFrequency() {
-        return timeFrequency / compression;
-    }
-
-    void addPreviews(DataSet... previews) {
+    public void addPreviews(DataSet... previews) {
         if(listOfPreviewLists.size() == 0) {
             addPreviewList();
         }
@@ -72,6 +69,11 @@ class GraphsData {
             lastPreviewList.add(preview);
         }
     }
+
+    public double getPreviewTimeFrequency() {
+        return timeFrequency / getCompression();
+    }
+
 
     public void setPreviewTimeFrequency (double previewTimeFrequency) {
         if(getTimeFrequency() == 0) {
@@ -89,64 +91,84 @@ class GraphsData {
     }
 
     public void setTimeFrequency(double timeFrequency) {
-        double previewTimeFrequency = this.timeFrequency / compression;
+        double previewTimeFrequency = this.timeFrequency / getCompression();
         this.timeFrequency = timeFrequency;
-        if(compression != 1 && previewTimeFrequency != 0) {
+        if(getCompression() != 1 && previewTimeFrequency != 0) {
             int compressionNew = (int)(timeFrequency / previewTimeFrequency); // to save the same previewTimeFrequency
             setCompression(compressionNew);
         }
     }
 
-    List<DataSet> getGraphList(int listNumber) {
+    public List<DataSet> getGraphList(int listNumber) {
         return listOfGraphLists.get(listNumber);
     }
 
-    List<DataSet> getPreviewList(int listNumber) {
+    public List<DataSet> getPreviewList(int listNumber) {
         return listOfPreviewLists.get(listNumber);
     }
 
-    int getSlotPosition() {
-        int slotIndex = startIndex / compression;
+    public int getSlotPosition() {
+        int slotIndex = startIndex / getCompression();
         int slotPosition = slotIndex - scrollPosition;
         return slotPosition;
     }
 
-    int getDrawingAreaWidth() {
+    public int getDrawingAreaWidth() {
         return drawingAreaWidth;
     }
 
-    int getGraphsSize() {
+
+    public int getGraphsSize() {
         int graphsSize = 0;
         for (List<DataSet> graphsList : listOfGraphLists) {
             for (DataSet graph : graphsList) {
-                int graphSize = graph.size();
+                int size = graph.size();
                 if(timeFrequency > 0 && graph.getFrequency() > 0) {
-                    graphSize = (int)(graphSize * timeFrequency / graph.getFrequency());
+                    size = (int)(size * timeFrequency / graph.getFrequency());
                 }
-                graphsSize = Math.max(graphsSize, graphSize);
+                graphsSize = Math.max(graphsSize, size);
             }
         }
 
         int previewsSize = 0;
-        double frequency = timeFrequency/compression;
+        double frequency = timeFrequency/getCompression();
         for (List<DataSet> previewList : listOfPreviewLists) {
             for (DataSet preview : previewList) {
-                int previewSize = preview.size();
+                int size = preview.size();
                 if(frequency > 0 && preview.getFrequency() > 0) {
-                    previewSize = (int)(previewSize * frequency / preview.getFrequency());
+                    size = (int)(size * frequency / preview.getFrequency());
                 }
-                previewsSize = Math.max(previewsSize, previewSize);
+                previewsSize = Math.max(previewsSize, size);
             }
         }
-        graphsSize = Math.max(graphsSize, previewsSize * compression);
-        return graphsSize;
+        return  Math.max(graphsSize, previewsSize * getCompression());
     }
 
-    int getPreviewsSize() {
-        return getGraphsSize() / compression;
+    public int getPreviewsSize() {
+        return  getGraphsSize() / getCompression();
     }
 
-    int getMaxStartIndex () {
+
+    public void moveSlot(int slotPosition) {
+        if(slotPosition < 0) {
+            slotPosition = 0;
+        }
+        if(slotPosition > getMaxSlotPosition()) {
+            slotPosition = getMaxSlotPosition();
+        }
+        int newStartIndex = (slotPosition + scrollPosition) * getCompression();
+        setStartIndex(newStartIndex);
+    }
+
+
+    public int getSlotWidth() {
+        if(getCompression() > 1 && getDrawingAreaWidth() > 0 && getGraphsSize() > 0) {
+            return  Math.max(1, (getDrawingAreaWidth() / getGraphsSize()));
+        }
+        return 0;
+    }
+
+    private int getMaxStartIndex () {
         int maxStartIndex = getGraphsSize() - 1 - getDrawingAreaWidth();
         if (maxStartIndex < 0) {
             maxStartIndex = 0;
@@ -154,27 +176,7 @@ class GraphsData {
         return maxStartIndex;
     }
 
-
-    void moveSlot(int slotPosition) {
-        if(slotPosition < 0) {
-            slotPosition = 0;
-        }
-        if(slotPosition > getMaxSlotPosition()) {
-            slotPosition = getMaxSlotPosition();
-        }
-        int newStartIndex = (slotPosition + scrollPosition) * compression;
-        setStartIndex(newStartIndex);
-    }
-
-
-    int getSlotWidth() {
-        if(compression > 1 && getDrawingAreaWidth() > 0) {
-            return  Math.max(1, (getDrawingAreaWidth() / compression));
-        }
-        return 0;
-    }
-
-    int getMaxSlotPosition() {
+    private int getMaxSlotPosition() {
         int maxPosition = getPreviewsSize() - scrollPosition - getSlotWidth();
         if(maxPosition < 0) {
             maxPosition = 0;
@@ -184,7 +186,7 @@ class GraphsData {
     }
 
 
-    int getMaxScrollPosition() {
+    private int getMaxScrollPosition() {
         int maxScrollPosition = getPreviewsSize() - getDrawingAreaWidth();
         if(maxScrollPosition < 0) {
             maxScrollPosition = 0;
@@ -192,7 +194,7 @@ class GraphsData {
         return maxScrollPosition;
     }
 
-    void setScrollPosition(int scrollPosition) {
+    public void setScrollPosition(int scrollPosition) {
         if(scrollPosition > getMaxScrollPosition()) {
             scrollPosition = getMaxScrollPosition();
         }
@@ -202,15 +204,15 @@ class GraphsData {
         this.scrollPosition = scrollPosition;
         if(getSlotPosition() < 0){
             //adjust slotPosition to 0
-            startIndex = scrollPosition * compression;
+            startIndex = scrollPosition * getCompression();
         }
         if(getSlotPosition() > getMaxSlotPosition()){
             //adjust slotPosition to slotMaxPosition
-            startIndex = (scrollPosition + getMaxSlotPosition())* compression;
+            startIndex = (scrollPosition + getMaxSlotPosition())* getCompression();
         }
     }
 
-    void setStartIndex(int startIndex) {
+    public void setStartIndex(int startIndex) {
         if(startIndex < 0) {
             startIndex = 0;
         }
@@ -220,16 +222,16 @@ class GraphsData {
         this.startIndex = startIndex;
         if(getSlotPosition() < 0){
             //adjust slotPosition to 0
-            setScrollPosition(startIndex / compression);
+            setScrollPosition(startIndex / getCompression());
         }
         if(getSlotPosition() > getMaxSlotPosition()){
             //adjust slotPosition to slotMaxPosition
-            setScrollPosition(startIndex / compression - getMaxSlotPosition());
+            setScrollPosition(startIndex / getCompression() - getMaxSlotPosition());
         }
     }
 
 
-    void setDrawingAreaWidth(int drawingAreaWidth) {
+    public void setDrawingAreaWidth(int drawingAreaWidth) {
         this.drawingAreaWidth = drawingAreaWidth;
         if(startIndex > getMaxStartIndex()) {
             startIndex = getMaxStartIndex();
@@ -239,28 +241,28 @@ class GraphsData {
         }
         if(getSlotPosition() > getMaxSlotPosition()){
             //adjust slotPosition to slotMaxPosition
-            startIndex = (scrollPosition + getMaxSlotPosition())* compression;
+            startIndex = (scrollPosition + getMaxSlotPosition())* getCompression();
         }
     }
 
 
-    boolean isAutoScroll() {
+    private boolean isAutoScroll() {
         return (getMaxSlotPosition() <= (getSlotPosition() + AUTO_SCROLL_GAP));
     }
 
-    void autoScroll() {
+    public void autoScroll() {
         if (isAutoScroll()) {
             setStartIndex(getMaxStartIndex());
         }
     }
 
-    void moveForward() {
+    public void moveForward() {
         int shift = (int)(getDrawingAreaWidth() * 0.25);  //прокрутка
         int newStartIndex = getStartIndex() + shift;
         setStartIndex(newStartIndex);
     }
 
-    void moveBackward() {
+   public  void moveBackward() {
         if (isAutoScroll()) {
             int newSlotPosition = getSlotPosition() - AUTO_SCROLL_GAP - 1; //to stop autoScroll
             if(newSlotPosition < 0) {
@@ -284,7 +286,24 @@ class GraphsData {
         return startIndex;
     }
 
+
     public int getCompression() {
+        int graphsNumber = 0;
+        int previewsNumber = 0;
+        for (List<DataSet> graphsList : listOfGraphLists) {
+            for (DataSet graph : graphsList) {
+                graphsNumber++;
+            }
+        }
+        for (List<DataSet> previewList : listOfPreviewLists) {
+            for (DataSet preview : previewList) {
+                previewsNumber++;
+            }
+        }
+
+        if(graphsNumber == 0 || previewsNumber ==0 ) {
+            return DEFAULT_COMPRESSION;
+        }
         return compression;
     }
 

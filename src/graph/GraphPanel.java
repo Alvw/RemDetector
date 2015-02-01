@@ -20,7 +20,7 @@ import java.util.List;
  * Time: 14:25
  * To change this template use File | Settings | File Templates.
  */
-class GraphPanel extends JPanel {
+public class GraphPanel extends JPanel {
     private static final double ZOOM_PLUS_CHANGE = Math.sqrt(2.0);// 2 clicks(rotations) up increase zoom twice
     private static final double ZOOM_MINUS_CHANGE = 1 / ZOOM_PLUS_CHANGE; // similarly 2 clicks(rotations) down reduces zoom twice
 
@@ -39,13 +39,14 @@ class GraphPanel extends JPanel {
     private int slotPosition;
     private int indentX;
     private int indentY;
+    private GraphPainter graphPainter = new GraphPainter();
     private TimeAxisPainter timeAxisPainter = new TimeAxisPainter();
+    private YAxisPainter yAxisPainter = new YAxisPainter();
 
 
-    GraphPanel(int weight,  boolean isXCentered) {
+    public GraphPanel(int weight, boolean isXCentered) {
         this.isXCentered = isXCentered;
         this.weight = weight;
-        timeAxisPainter.isTimeStampsPaint(false);
         setBackground(DEFAULT_BG_COLOR);
 
         // MouseListener to zoom Y_Axes
@@ -67,23 +68,23 @@ class GraphPanel extends JPanel {
     }
 
 
-    void setGraphs(List<DataSet> graphs) {
+    public void setGraphs(List<DataSet> graphs) {
         graphList = graphs;
     }
 
-    void setStartIndex(int startIndex) {
+    public void setStartIndex(int startIndex) {
         this.startIndex = startIndex;
     }
 
-    void setSlotWidth(int slotWidth) {
+    public void setSlotWidth(int slotWidth) {
         this.slotWidth = slotWidth;
     }
 
-    void setSlotPosition(int slotPosition) {
+    public void setSlotPosition(int slotPosition) {
         this.slotPosition = slotPosition;
     }
 
-    void setSlotColor(Color slotColor) {
+    public void setSlotColor(Color slotColor) {
         this.slotColor = slotColor;
     }
 
@@ -91,11 +92,15 @@ class GraphPanel extends JPanel {
         this.timeAxisPainter = timeAxisPainter;
     }
 
-    void setIndentX(int indentX) {
+    public void setYAxisPainter(YAxisPainter yAxisPainter) {
+        this.yAxisPainter = yAxisPainter;
+    }
+
+    public void setIndentX(int indentX) {
         this.indentX = indentX;
     }
 
-    void setIndentY(int indentY) {
+    public void setIndentY(int indentY) {
         this.indentY = indentY;
     }
 
@@ -104,7 +109,7 @@ class GraphPanel extends JPanel {
     }
 
     private void notifySlotListeners(int newSlotPosition) {
-        for (SlotListener listener: slotListeners) {
+        for (SlotListener listener : slotListeners) {
             listener.moveSlot(newSlotPosition);
         }
     }
@@ -113,11 +118,8 @@ class GraphPanel extends JPanel {
         return weight;
     }
 
-    protected int getWorkspaceWidth() {
-        return (getSize().width - indentX);
-    }
 
-    protected void zooming(int zoomDirection) {
+    private void zooming(int zoomDirection) {
         if (zoomDirection > 0) {
             zoom = zoom * ZOOM_PLUS_CHANGE;
         } else {
@@ -126,7 +128,7 @@ class GraphPanel extends JPanel {
         repaint();
     }
 
-    protected int getMaxY() {
+    private int getMaxY() {
         if (isXCentered) {
             return getSize().height / 2;
         }
@@ -134,13 +136,13 @@ class GraphPanel extends JPanel {
     }
 
 
-    protected void transformCoordinate(Graphics g) {
+    private void transformCoordinate(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
         g2d.translate(indentX, getMaxY()); // move XY origin to the left bottom point
         g2d.transform(AffineTransform.getScaleInstance(1, -1)); // flip Y-axis
     }
 
-    protected void restoreCoordinate(Graphics g) {
+    private void restoreCoordinate(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
         g2d.translate(-indentX, getMaxY()); // move XY origin to the left top point
         g2d.transform(AffineTransform.getScaleInstance(1, -1)); // flip Y-axis and zoom it
@@ -149,10 +151,10 @@ class GraphPanel extends JPanel {
     private void paintSlot(Graphics g) {
         int height = getHeight();
         g.setColor(slotColor);
-        if(slotWidth > 2) {
+        if (slotWidth > 2) {
             g.fillRect(slotPosition, -height, slotWidth, 2 * height);
         }
-        if(slotWidth > 0 &&  slotWidth <= 2) {
+        if (slotWidth > 0 && slotWidth <= 2) {
             g.fillRect(slotPosition - 2, -height, slotWidth + 2, 2 * height);
         }
     }
@@ -165,21 +167,21 @@ class GraphPanel extends JPanel {
         double frequency = 0;
         DataDimension dataDimension = new DataDimension();
         long startTime = 0;
-        if(graphList.size() > 0 && graphList.get(0) != null) {
+        if (graphList.size() > 0 && graphList.get(0) != null) {
             frequency = graphList.get(0).getFrequency();
             startTime = graphList.get(0).getStartTime();
             dataDimension = graphList.get(0).getDataDimension();
+            timeAxisPainter.paint(g, startTime, startIndex, frequency);
+            yAxisPainter.paint(g, zoom, dataDimension);
+            paintSlot(g);
         }
 
-        timeAxisPainter.paint(g, startTime, startIndex, frequency);
-        YAxisPainter.paint(g, zoom, dataDimension);
-        paintSlot(g);
         int graph_number = 0;
         for (DataSet graph : graphList) {
             Color graphColor = graphColors[graph_number % graphColors.length];
             graph_number++;
-            g.setColor(graphColor);
-            GraphPainter.paint(g, zoom, startIndex, graph);
+            graphPainter.setColor(graphColor);
+            graphPainter.paint(g, zoom, startIndex, graph);
         }
         restoreCoordinate(g);
     }

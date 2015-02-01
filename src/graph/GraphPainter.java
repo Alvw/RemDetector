@@ -5,8 +5,15 @@ import data.DataSet;
 import java.awt.*;
 
 public class GraphPainter {
+    private Color graphColor = Color.YELLOW;
 
-    static void paint(Graphics g, double zoom, int startIndex, DataSet graph) {
+
+    public void setColor(Color graphColor) {
+        this.graphColor = graphColor;
+    }
+
+    public void paint(Graphics g, double zoom, int startIndex, DataSet graph) {
+        g.setColor(graphColor);
         if (graph != null && startIndex >= 0 && startIndex < graph.size()) {
             int width = g.getClipBounds().width;
             int value = graph.get(startIndex);
@@ -21,26 +28,17 @@ public class GraphPainter {
         }
     }
 
-    private static void drawVerticalLine(Graphics g, int x, int y, VerticalLine vLine) {
+    private void drawVerticalLine(Graphics g, int x, int y, VerticalLine vLine) {
         vLine.setNewBounds(y);
         g.drawLine(x, vLine.min, x, vLine.max);
     }
 
-    static class VerticalLine {
+    class VerticalLine {
         int max = 0;
         int min = -1;
 
         VerticalLine(int y) {
             setNewBounds(y);
-        }
-
-        VerticalLine() {
-
-        }
-
-        public void clear() {
-            max = 0;
-            min = -1;
         }
 
         void setNewBounds(int y) {

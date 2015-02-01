@@ -96,7 +96,7 @@ public class Controller {
 
     public RecordingSettings setDeviceBdfProvider() throws ApplicationException {
         if (!isRecording) {
-            BdfDevice bdfDevice = deviceFabric.getDeviceImplementation();
+            BdfProvider bdfDevice = deviceFabric.getDeviceImplementation();
             bdfProvider = bdfDevice;
             recordingBdfConfig = new RecordingBdfConfig(bdfDevice.getBdfConfig());
             recordingBdfConfig.setSignalsLabels(deviceSignalsLabels);

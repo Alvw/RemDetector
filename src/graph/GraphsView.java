@@ -18,18 +18,18 @@ import java.util.ArrayList;
  */
 public class GraphsView extends JPanel implements SlotListener {
     private static final Log log = LogFactory.getLog(GraphsView.class);
-    private final int DEFAULT_GRAPH_PANEL_WEIGHT = 1;
-    private final int DEFAULT_PREVIEW_PANEL_WEIGHT = 1;
+    private static final int DEFAULT_GRAPH_PANEL_WEIGHT = 1;
+    private static final int DEFAULT_PREVIEW_PANEL_WEIGHT = 1;
 
-    private final boolean IS_GRAPH_X_CENTERED_DEFAULT = true;
-    private final boolean IS_PREVIEW_X_CENTERED_DEFAULT = false;
+    private static final boolean IS_GRAPH_X_CENTERED_DEFAULT = true;
+    private static final boolean IS_PREVIEW_X_CENTERED_DEFAULT = true;
 
-    private final int X_INDENT = 50;
-    private final int Y_INDENT = 2;
-    private final Color BG_COLOR = Color.BLACK;
-    private final Color PREVIEW_BG_COLOR = new Color(25,25,25);
+    private static final int X_INDENT = 50;
+    private static final int Y_INDENT = 2;
+    private static final Color BG_COLOR = Color.BLACK;
+    private static final Color PREVIEW_BG_COLOR = new Color(25,25,25);
 
-    private GraphsData graphsData;
+    private GraphsModel graphsModel;
 
     private ArrayList<GraphPanel> graphPanelList = new ArrayList<GraphPanel>();
     private ArrayList<GraphPanel> previewPanelList = new ArrayList<GraphPanel>();
@@ -44,7 +44,7 @@ public class GraphsView extends JPanel implements SlotListener {
     private JScrollBar scrollBar = new JScrollBar(JScrollBar.HORIZONTAL);
 
     public GraphsView() {
-        graphsData = new GraphsData();
+        graphsModel = new GraphsModel();
 
         setLayout(new BorderLayout());
         add(mainPanel, BorderLayout.CENTER);
@@ -71,12 +71,12 @@ public class GraphsView extends JPanel implements SlotListener {
                 super.keyPressed(e);
                 int key = e.getKeyCode();
                 if (key == KeyEvent.VK_RIGHT) {
-                    graphsData.moveForward();
+                    graphsModel.moveForward();
                     update();
                 }
 
                 if (key == KeyEvent.VK_LEFT) {
-                    graphsData.moveBackward();
+                    graphsModel.moveBackward();
                     update();
                 }
             }
@@ -86,7 +86,7 @@ public class GraphsView extends JPanel implements SlotListener {
             @Override
             public void componentResized(ComponentEvent e) {
                 super.componentResized(e);
-                graphsData.setDrawingAreaWidth(getWidth() - X_INDENT);
+                graphsModel.setDrawingAreaWidth(getWidth() - X_INDENT);
                 setPanelsSizes();
                 update();
             }
@@ -100,24 +100,24 @@ public class GraphsView extends JPanel implements SlotListener {
 
             @Override
             public int getMaximum() {
-                return graphsData.getPreviewsSize();
+                return graphsModel.getPreviewsSize();
             }
 
             @Override
             public int getValue() {
-                return graphsData.getScrollPosition();
+                return graphsModel.getScrollPosition();
             }
 
             @Override
             public void setValue(int newValue) {
                 // super.setValue(newValue);
-                graphsData.setScrollPosition(newValue);
+                graphsModel.setScrollPosition(newValue);
                 update();
             }
 
             @Override
             public int getExtent() {
-                return graphsData.getDrawingAreaWidth();
+                return graphsModel.getDrawingAreaWidth();
             }
         });
     }
@@ -143,25 +143,25 @@ public class GraphsView extends JPanel implements SlotListener {
 
     private void update() {
         for (GraphPanel graphPanel : graphPanelList) {
-            graphPanel.setStartIndex(graphsData.getStartIndex());
+            graphPanel.setStartIndex(graphsModel.getStartIndex());
         }
         for (GraphPanel previewPanel : previewPanelList) {
-            previewPanel.setStartIndex(graphsData.getScrollPosition());
-            previewPanel.setSlotPosition(graphsData.getSlotPosition());
-            previewPanel.setSlotWidth(graphsData.getSlotWidth());
+            previewPanel.setStartIndex(graphsModel.getScrollPosition());
+            previewPanel.setSlotPosition(graphsModel.getSlotPosition());
+            previewPanel.setSlotWidth(graphsModel.getSlotWidth());
         }
-        graphsTimePanel.setStartIndex(graphsData.getStartIndex());
-        graphsTimePanel.setFrequency(graphsData.getTimeFrequency());
-        graphsTimePanel.setStartTime(graphsData.getStartTime());
-        previewsTimePanel.setStartIndex(graphsData.getScrollPosition());
-        previewsTimePanel.setFrequency(graphsData.getPreviewFrequency());
-        previewsTimePanel.setStartTime(graphsData.getStartTime());
+        graphsTimePanel.setStartIndex(graphsModel.getStartIndex());
+        graphsTimePanel.setFrequency(graphsModel.getTimeFrequency());
+        graphsTimePanel.setStartTime(graphsModel.getStartTime());
+        previewsTimePanel.setStartIndex(graphsModel.getScrollPosition());
+        previewsTimePanel.setFrequency(graphsModel.getPreviewTimeFrequency());
+        previewsTimePanel.setStartTime(graphsModel.getStartTime());
         repaint();
     }
 
     public void synchronize() {
-        if (graphsData != null) {
-            graphsData.autoScroll();
+        if (graphsModel != null) {
+            graphsModel.autoScroll();
         }
         update();
     }
@@ -194,35 +194,35 @@ public class GraphsView extends JPanel implements SlotListener {
 
 
     public int getStartIndex() {
-        return graphsData.getStartIndex();
+        return graphsModel.getStartIndex();
     }
 
     public void setTimeFrequency(double timeFrequency) {
-        graphsData.setTimeFrequency(timeFrequency);
+        graphsModel.setTimeFrequency(timeFrequency);
         setPanelsGraphs();
         setPanelsPreviews();
     }
 
     public void setPreviewTimeFrequency(double previewTimeFrequency) {
-        graphsData.setPreviewTimeFrequency(previewTimeFrequency);
+        graphsModel.setPreviewTimeFrequency(previewTimeFrequency);
         setPanelsPreviews();
     }
 
-    public int getCompression() {
-        return graphsData.getCompression();
-    }
 
     public void setCompression(int compression) {
-        graphsData.setCompression(compression);
+        graphsModel.setCompression(compression);
         setPanelsPreviews();
     }
 
     public void addGraphPanel(int weight, boolean isXCentered) {
-        graphsData.addGraphList();
+        graphsModel.addGraphList();
         GraphPanel panel = new GraphPanel(weight, isXCentered);
         panel.setIndentX(X_INDENT);
         panel.setIndentY(Y_INDENT);
         panel.setBackground(BG_COLOR);
+        TimeAxisPainter timeAxisPainter = new TimeAxisPainter();
+        timeAxisPainter.isValuesPaint(false);
+        panel.setTimeAxisPainter(timeAxisPainter);
         if (graphPanelList.size() == 0) {
             addGraphTimePanel();
         }
@@ -233,12 +233,15 @@ public class GraphsView extends JPanel implements SlotListener {
     }
 
     public void addPreviewPanel(int weight, boolean isXCentered) {
-        graphsData.addPreviewList();
+        graphsModel.addPreviewList();
         GraphPanel panel = new GraphPanel(weight, isXCentered);
         panel.setIndentX(X_INDENT);
         panel.setIndentY(Y_INDENT);
         panel.setBackground(PREVIEW_BG_COLOR);
         panel.addSlotListener(this);
+        TimeAxisPainter timeAxisPainter = new TimeAxisPainter();
+        timeAxisPainter.isValuesPaint(false);
+        panel.setTimeAxisPainter(timeAxisPainter);
         if (previewPanelList.size() == 0) {
             addPreviewTimePanel();
         }
@@ -248,9 +251,9 @@ public class GraphsView extends JPanel implements SlotListener {
     }
 
     private void setPanelsGraphs() {
-        double timeFrequency = graphsData.getTimeFrequency();
+        double timeFrequency = graphsModel.getTimeFrequency();
         for (int i = 0; i < graphPanelList.size(); i++) {
-            java.util.List<DataSet> inputGraphs = graphsData.getGraphList(i);
+            java.util.List<DataSet> inputGraphs = graphsModel.getGraphList(i);
             java.util.List<DataSet> resultingGraphs = new ArrayList<DataSet>();
             for (DataSet graph : inputGraphs) {
                 resultingGraphs.add(new FrequencyConverter(graph, timeFrequency, CompressionType.AVERAGE));
@@ -260,12 +263,12 @@ public class GraphsView extends JPanel implements SlotListener {
     }
 
     private void setPanelsPreviews() {
-        double previewTimeFrequency = graphsData.getPreviewFrequency();
+        double previewTimeFrequency = graphsModel.getPreviewTimeFrequency();
         for (int i = 0; i < previewPanelList.size(); i++) {
-            java.util.List<DataSet> inputPreviews = graphsData.getPreviewList(i);
+            java.util.List<DataSet> inputPreviews = graphsModel.getPreviewList(i);
             java.util.List<DataSet> resultingPreviews = new ArrayList<DataSet>();
             for (DataSet preview : inputPreviews) {
-                FrequencyConverter frequencyConverter = new FrequencyConverter(preview, previewTimeFrequency, CompressionType.AVERAGE);
+                FrequencyConverter frequencyConverter = new FrequencyConverter(preview, previewTimeFrequency, CompressionType.MAX);
                 resultingPreviews.add(new BufferedConverter(frequencyConverter));
             }
             previewPanelList.get(i).setGraphs(resultingPreviews);
@@ -277,7 +280,7 @@ public class GraphsView extends JPanel implements SlotListener {
     * Add Graphs to the last graph panel. If there is no graph panel create one
     */
     public void addGraphs(DataSet... graphs) {
-        graphsData.addGraphs(graphs);
+        graphsModel.addGraphs(graphs);
         if (graphPanelList.size() == 0) {
             addGraphPanel(DEFAULT_GRAPH_PANEL_WEIGHT, IS_GRAPH_X_CENTERED_DEFAULT);
         }
@@ -292,7 +295,7 @@ public class GraphsView extends JPanel implements SlotListener {
     }
 
     public void addPreviews(CompressionType compressionType, DataSet... previews) {
-        graphsData.addPreviews(previews);
+        graphsModel.addPreviews(previews);
         if (previewPanelList.size() == 0) {
             addPreviewPanel(DEFAULT_PREVIEW_PANEL_WEIGHT, IS_PREVIEW_X_CENTERED_DEFAULT);
         }
@@ -322,7 +325,7 @@ public class GraphsView extends JPanel implements SlotListener {
 
     @Override
     public void moveSlot(int newSlotIndex) {
-        graphsData.moveSlot(newSlotIndex);
+        graphsModel.moveSlot(newSlotIndex);
         update();
     }
 }

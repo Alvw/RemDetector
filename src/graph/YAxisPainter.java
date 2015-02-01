@@ -6,11 +6,11 @@ import java.awt.*;
 import java.awt.geom.AffineTransform;
 
 public class YAxisPainter {
-    private static final Color AXIS_COLOR = Color.GREEN;
-    private static final Color GRID_COLOR = new Color(0, 40, 0);
+    private Color axisColor = Color.GREEN;
+    private Color gridColor = new Color(0, 40, 0);
 
 
-    static void paint(Graphics g, double zoom, DataDimension dataDimension) {
+    public void paint(Graphics g, double zoom, DataDimension dataDimension) {
         FontMetrics fm = g.getFontMetrics(g.getFont());
         int fontHeight = fm.getHeight();
         int minPointStep = fontHeight + 4; // distance between two labels in pixels
@@ -18,7 +18,7 @@ public class YAxisPainter {
         String physicalDimension = "";
         if (dataDimension != null) {
             physicalDimension = dataDimension.getPhysicalDimension();
-            gain = (dataDimension.getPhysicalMax() - dataDimension.getPhysicalMin()) / (dataDimension.getDigitalMax() - dataDimension.getDigitalMin());
+            gain = dataDimension.getGain();
         }
 
         Rectangle r = g.getClipBounds();
@@ -33,6 +33,7 @@ public class YAxisPainter {
         double minValueStep = minPointStep * gain / zoom;
         int exponent = (int) Math.log10(minValueStep);
         int[] steps = {1, 2, 5, 10};
+
 
         String stringFormat = "%.0f";
         if(Math.log10(minValueStep) < 0) {
@@ -49,21 +50,19 @@ public class YAxisPainter {
             }
         }
         int pointStep = (int) (valueStep * zoom / gain);
-        if(pointStep < 1) {
-            pointStep = 1;
-        }
-        int numberOfColumns = (int) (height / pointStep);
+
+        int numberOfColumns = height / pointStep;
         Graphics2D g2d = (Graphics2D) g;
 
         g2d.transform(AffineTransform.getScaleInstance(1.0, -1.0)); // flip transformation
 
         for (int i = 1; i < numberOfColumns; i++) {
-            double gridValue = i*valueStep;
+            double gridValue = i * valueStep;
             int position = i*pointStep;
-            g.setColor(GRID_COLOR);
+            g.setColor(gridColor);
             g.drawLine(0, -position, width, -position);
             String valueText = "+"+String.format(stringFormat, gridValue)+" "+physicalDimension;
-            g.setColor(AXIS_COLOR);
+            g.setColor(axisColor);
             g.drawString(valueText, -(xIndent - 5), - position - 1);
         }
 
@@ -71,16 +70,15 @@ public class YAxisPainter {
             for (int i = 1; i < numberOfColumns; i++) {
                 double gridValue = i*valueStep;
                 int position = -(i*pointStep);
-                g.setColor(GRID_COLOR);
+                g.setColor(gridColor);
                 g.drawLine(0, -position, width, -position);
                 String valueText = "-"+String.format(stringFormat, gridValue)+" "+physicalDimension;
-                g.setColor(AXIS_COLOR);
+                g.setColor(axisColor);
                 g.drawString(valueText, -(xIndent - 5), - position - 1);
             }
         }
 
         g2d.transform(AffineTransform.getScaleInstance(1.0, -1.0)); // flip transformation
     }
-
 
 }

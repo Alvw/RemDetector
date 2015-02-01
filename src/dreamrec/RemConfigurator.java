@@ -14,7 +14,7 @@ public class RemConfigurator {
     private int eogRemCutoffPeriod;
     // real max sps (Samples per seconds) is about 2000...
     // rps(records per seconds) <= sps
-    private final int RPS_MAX = 10000;
+    private final int RPS_MAX = 20000;
 
 
     public RemConfigurator(int eogRemFrequency, int accelerometerRemFrequency, int eogRemCutoffPeriod) {

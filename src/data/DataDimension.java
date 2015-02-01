@@ -7,6 +7,10 @@ public class DataDimension {
     private double physicalMax = Integer.MAX_VALUE;
     private String physicalDimension = "";
 
+    public double getGain() {
+        return (physicalMax - physicalMin) / ((long)digitalMax - (long)digitalMin);
+    }
+
     public int getDigitalMin() {
         return digitalMin;
     }

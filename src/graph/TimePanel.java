@@ -33,13 +33,13 @@ public class TimePanel extends JPanel{
         this.frequency = frequency;
     }
 
-    protected void transformCoordinate(Graphics g) {
+    public  void transformCoordinate(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
         g2d.translate(indentX, g.getClipBounds().getHeight()); // move XY origin to the left bottom point
         g2d.transform(AffineTransform.getScaleInstance(1, -1)); // flip Y-axis
     }
 
-    protected void restoreCoordinate(Graphics g) {
+    public void restoreCoordinate(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
         g2d.translate(-indentX, g.getClipBounds().getHeight()); // move XY origin to the left top point
         g2d.transform(AffineTransform.getScaleInstance(1, -1)); // flip Y-axis and zoom it

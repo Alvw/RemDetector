@@ -7,6 +7,6 @@ package graph;
  * Time: 20:29
  * To change this template use File | Settings | File Templates.
  */
-interface SlotListener {
+public interface SlotListener {
       void moveSlot(int newSlotIndex);
 }
