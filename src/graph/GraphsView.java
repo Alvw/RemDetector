@@ -7,10 +7,7 @@ import org.apache.commons.logging.LogFactory;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
 import java.util.ArrayList;
 
 /**
@@ -71,13 +68,11 @@ public class GraphsView extends JPanel implements SlotListener {
                 super.keyPressed(e);
                 int key = e.getKeyCode();
                 if (key == KeyEvent.VK_RIGHT) {
-                    graphsModel.moveForward();
-                    update();
+                    moveSlotForward();
                 }
 
                 if (key == KeyEvent.VK_LEFT) {
-                    graphsModel.moveBackward();
-                    update();
+                    moveSlotBackward();
                 }
             }
         });
@@ -86,77 +81,16 @@ public class GraphsView extends JPanel implements SlotListener {
             @Override
             public void componentResized(ComponentEvent e) {
                 super.componentResized(e);
-                graphsModel.setDrawingAreaWidth(getWidth() - X_INDENT);
-                setPanelsSizes();
-                update();
+                setDrawingAreaWidth(getWidth() - X_INDENT);
             }
         });
 
-        scrollBar.setModel(new DefaultBoundedRangeModel() {
+        scrollBar.addAdjustmentListener(new AdjustmentListener() {
             @Override
-            public int getMinimum() {
-                return 0;
-            }
-
-            @Override
-            public int getMaximum() {
-                return graphsModel.getPreviewsSize();
-            }
-
-            @Override
-            public int getValue() {
-                return graphsModel.getScrollPosition();
-            }
-
-            @Override
-            public void setValue(int newValue) {
-                // super.setValue(newValue);
-                graphsModel.setScrollPosition(newValue);
-                update();
-            }
-
-            @Override
-            public int getExtent() {
-                return graphsModel.getDrawingAreaWidth();
+            public void adjustmentValueChanged(AdjustmentEvent e) {
+                moveScroll(e.getValue());
             }
         });
-    }
-
-    private int getTimePanelHeight(Font font) {
-        FontMetrics fm = getFontMetrics(font);
-        return fm.getHeight() + 4;
-    }
-
-    private void addGraphTimePanel() {
-        graphsTimePanel.setPreferredSize(new Dimension(getWidth(), getTimePanelHeight(graphsTimePanel.getFont())));
-        graphsTimePanel.setIndentX(X_INDENT);
-        graphsTimePanel.setBackground(BG_COLOR);
-        graphsMainPanel.add(graphsTimePanel, BorderLayout.NORTH);
-    }
-
-    private void addPreviewTimePanel() {
-        previewsTimePanel.setPreferredSize(new Dimension(getWidth(), getTimePanelHeight(previewsTimePanel.getFont())));
-        previewsTimePanel.setIndentX(X_INDENT);
-        previewsTimePanel.setBackground(PREVIEW_BG_COLOR);
-        previewsMainPanel.add(previewsTimePanel, BorderLayout.SOUTH);
-    }
-
-    private void update() {
-        for (GraphPanel graphPanel : graphPanelList) {
-            graphPanel.setStartIndex(graphsModel.getStartIndex());
-        }
-        for (GraphPanel previewPanel : previewPanelList) {
-            previewPanel.setStartIndex(graphsModel.getScrollPosition());
-            previewPanel.setSlotPosition(graphsModel.getSlotPosition());
-            previewPanel.setSlotWidth(graphsModel.getSlotWidth());
-        }
-        graphsTimePanel.setStartIndex(graphsModel.getStartIndex());
-        graphsTimePanel.setFrequency(graphsModel.getTimeFrequency());
-        graphsTimePanel.setStartTime(graphsModel.getStartTime());
-        previewsTimePanel.setStartIndex(graphsModel.getScrollPosition());
-        previewsTimePanel.setFrequency(graphsModel.getPreviewTimeFrequency());
-        previewsTimePanel.setStartTime(graphsModel.getStartTime());
-        repaint();
     }
 
     public void synchronize() {
@@ -164,6 +98,87 @@ public class GraphsView extends JPanel implements SlotListener {
             graphsModel.autoScroll();
         }
         update();
+    }
+
+    public int getStartIndex() {
+        return graphsModel.getStartIndex();
+    }
+
+    public void setTimeFrequency(double timeFrequency) {
+        graphsModel.setTimeFrequency(timeFrequency);
+        updatePanelsGraphs();
+    }
+
+    public void setPreviewTimeFrequency(double previewTimeFrequency) {
+        graphsModel.setPreviewTimeFrequency(previewTimeFrequency);
+        updatePanelsGraphs();
+    }
+
+
+    public void setCompression(int compression) {
+        graphsModel.setCompression(compression);
+        updatePanelsGraphs();
+    }
+
+    public void addGraphPanel(int weight, boolean isXCentered) {
+        graphsModel.addGraphCluster();
+        GraphPanel panel = new GraphPanel(weight, isXCentered);
+        panel.setIndentX(X_INDENT);
+        panel.setIndentY(Y_INDENT);
+        panel.setBackground(BG_COLOR);
+        TimeAxisPainter timeAxisPainter = new TimeAxisPainter();
+        timeAxisPainter.isValuesPaint(false);
+        panel.setTimeAxisPainter(timeAxisPainter);
+        if (graphPanelList.size() == 0) {
+            addGraphTimePanel();
+        }
+        graphPanelList.add(panel);
+        graphsPaintingPanel.add(panel);
+        setPanelsSizes();
+    }
+
+    public void addPreviewPanel(int weight, boolean isXCentered) {
+        graphsModel.addPreviewCluster();
+        GraphPanel panel = new GraphPanel(weight, isXCentered);
+        panel.setIndentX(X_INDENT);
+        panel.setIndentY(Y_INDENT);
+        panel.setBackground(PREVIEW_BG_COLOR);
+        panel.addSlotListener(this);
+        TimeAxisPainter timeAxisPainter = new TimeAxisPainter();
+        timeAxisPainter.isValuesPaint(false);
+        panel.setTimeAxisPainter(timeAxisPainter);
+        if (previewPanelList.size() == 0) {
+            addPreviewTimePanel();
+        }
+        previewPanelList.add(panel);
+        previewsPaintingPanel.add(panel);
+        setPanelsSizes();
+    }
+
+    /*
+    * Add Graph to the last graph panel. If there is no graph panel create one
+    */
+    public void addGraph(DataSet graph) {
+        graphsModel.addGraph(graph);
+        if (graphPanelList.size() == 0) {
+            addGraphPanel(DEFAULT_GRAPH_PANEL_WEIGHT, IS_GRAPH_X_CENTERED_DEFAULT);
+        }
+        updatePanelsGraphs();
+    }
+
+    /*
+     * Add Previews to the last preview panel. If there is no preview panel create one
+     */
+    public void addPreview(DataSet preview) {
+        addPreview(CompressionType.AVERAGE, preview);
+    }
+
+    public void addPreview(CompressionType compressionType, DataSet preview) {
+        graphsModel.addPreview(preview);
+        if (previewPanelList.size() == 0) {
+            addPreviewPanel(DEFAULT_PREVIEW_PANEL_WEIGHT, IS_PREVIEW_X_CENTERED_DEFAULT);
+        }
+        updatePanelsGraphs();
     }
 
 
@@ -192,65 +207,42 @@ public class GraphsView extends JPanel implements SlotListener {
         }
     }
 
-
-    public int getStartIndex() {
-        return graphsModel.getStartIndex();
-    }
-
-    public void setTimeFrequency(double timeFrequency) {
-        graphsModel.setTimeFrequency(timeFrequency);
-        setPanelsGraphs();
-        setPanelsPreviews();
-    }
-
-    public void setPreviewTimeFrequency(double previewTimeFrequency) {
-        graphsModel.setPreviewTimeFrequency(previewTimeFrequency);
-        setPanelsPreviews();
-    }
-
-
-    public void setCompression(int compression) {
-        graphsModel.setCompression(compression);
-        setPanelsPreviews();
-    }
-
-    public void addGraphPanel(int weight, boolean isXCentered) {
-        graphsModel.addGraphList();
-        GraphPanel panel = new GraphPanel(weight, isXCentered);
-        panel.setIndentX(X_INDENT);
-        panel.setIndentY(Y_INDENT);
-        panel.setBackground(BG_COLOR);
-        TimeAxisPainter timeAxisPainter = new TimeAxisPainter();
-        timeAxisPainter.isValuesPaint(false);
-        panel.setTimeAxisPainter(timeAxisPainter);
-        if (graphPanelList.size() == 0) {
-            addGraphTimePanel();
+    private void updateScroll() {
+        int newScrollValue = graphsModel.getScrollPosition();
+        int newScrollMaximum = graphsModel.getPreviewsSize();
+        int newScrollExtent = graphsModel.getDrawingAreaWidth();
+        BoundedRangeModel scrollModel = scrollBar.getModel();
+        if(scrollModel.getExtent() != newScrollExtent) {
+            scrollModel.setExtent(newScrollExtent);
         }
-        graphPanelList.add(panel);
-        graphsPaintingPanel.add(panel);
-        setPanelsSizes();
-
-    }
-
-    public void addPreviewPanel(int weight, boolean isXCentered) {
-        graphsModel.addPreviewList();
-        GraphPanel panel = new GraphPanel(weight, isXCentered);
-        panel.setIndentX(X_INDENT);
-        panel.setIndentY(Y_INDENT);
-        panel.setBackground(PREVIEW_BG_COLOR);
-        panel.addSlotListener(this);
-        TimeAxisPainter timeAxisPainter = new TimeAxisPainter();
-        timeAxisPainter.isValuesPaint(false);
-        panel.setTimeAxisPainter(timeAxisPainter);
-        if (previewPanelList.size() == 0) {
-            addPreviewTimePanel();
+        if(scrollModel.getMaximum() != newScrollMaximum) {
+            scrollModel.setMaximum(newScrollMaximum);
         }
-        previewPanelList.add(panel);
-        previewsPaintingPanel.add(panel);
-        setPanelsSizes();
+        if(scrollModel.getValue() != newScrollValue) {
+            scrollModel.setValue(newScrollValue);
+        }
     }
 
-    private void setPanelsGraphs() {
+    private void update() {
+        updateScroll();
+        for (GraphPanel graphPanel : graphPanelList) {
+            graphPanel.setStartIndex(graphsModel.getStartIndex());
+        }
+        for (GraphPanel previewPanel : previewPanelList) {
+            previewPanel.setStartIndex(graphsModel.getScrollPosition());
+            previewPanel.setSlotPosition(graphsModel.getSlotPosition());
+            previewPanel.setSlotWidth(graphsModel.getSlotWidth());
+        }
+        graphsTimePanel.setStartIndex(graphsModel.getStartIndex());
+        graphsTimePanel.setFrequency(graphsModel.getTimeFrequency());
+        graphsTimePanel.setStartTime(graphsModel.getStartTime());
+        previewsTimePanel.setStartIndex(graphsModel.getScrollPosition());
+        previewsTimePanel.setFrequency(graphsModel.getPreviewTimeFrequency());
+        previewsTimePanel.setStartTime(graphsModel.getStartTime());
+        repaint();
+    }
+
+    private void updatePanelsGraphs() {
         double timeFrequency = graphsModel.getTimeFrequency();
         for (int i = 0; i < graphPanelList.size(); i++) {
             java.util.List<DataSet> inputGraphs = graphsModel.getGraphList(i);
@@ -260,9 +252,6 @@ public class GraphsView extends JPanel implements SlotListener {
             }
             graphPanelList.get(i).setGraphs(resultingGraphs);
         }
-    }
-
-    private void setPanelsPreviews() {
         double previewTimeFrequency = graphsModel.getPreviewTimeFrequency();
         for (int i = 0; i < previewPanelList.size(); i++) {
             java.util.List<DataSet> inputPreviews = graphsModel.getPreviewList(i);
@@ -273,35 +262,8 @@ public class GraphsView extends JPanel implements SlotListener {
             }
             previewPanelList.get(i).setGraphs(resultingPreviews);
         }
-
+        update();
     }
-
-    /*
-    * Add Graphs to the last graph panel. If there is no graph panel create one
-    */
-    public void addGraphs(DataSet... graphs) {
-        graphsModel.addGraphs(graphs);
-        if (graphPanelList.size() == 0) {
-            addGraphPanel(DEFAULT_GRAPH_PANEL_WEIGHT, IS_GRAPH_X_CENTERED_DEFAULT);
-        }
-        setPanelsGraphs();
-    }
-
-    /*
-     * Add Previews to the last preview panel. If there is no preview panel create one
-     */
-    public void addPreviews(DataSet... previews) {
-        addPreviews(CompressionType.AVERAGE, previews);
-    }
-
-    public void addPreviews(CompressionType compressionType, DataSet... previews) {
-        graphsModel.addPreviews(previews);
-        if (previewPanelList.size() == 0) {
-            addPreviewPanel(DEFAULT_PREVIEW_PANEL_WEIGHT, IS_PREVIEW_X_CENTERED_DEFAULT);
-        }
-        setPanelsPreviews();
-    }
-
 
     private void setPanelsSizes() {
         int width = graphsPaintingPanel.getWidth();
@@ -323,9 +285,44 @@ public class GraphsView extends JPanel implements SlotListener {
         previewsPaintingPanel.revalidate();
     }
 
+    private void addGraphTimePanel() {
+        int panelHeight = getFontMetrics(graphsTimePanel.getFont()).getHeight() + 4;
+        graphsTimePanel.setPreferredSize(new Dimension(getWidth(), panelHeight));
+        graphsTimePanel.setIndentX(X_INDENT);
+        graphsTimePanel.setBackground(BG_COLOR);
+        graphsMainPanel.add(graphsTimePanel, BorderLayout.NORTH);
+    }
+
+    private void addPreviewTimePanel() {
+        int panelHeight = getFontMetrics(previewsTimePanel.getFont()).getHeight() + 4;
+        previewsTimePanel.setPreferredSize(new Dimension(getWidth(), panelHeight));
+        previewsTimePanel.setIndentX(X_INDENT);
+        previewsTimePanel.setBackground(PREVIEW_BG_COLOR);
+        previewsMainPanel.add(previewsTimePanel, BorderLayout.SOUTH);
+    }
+
+    private void moveSlotForward() {
+        graphsModel.moveSlotForward();
+        update();
+    }
+    private void moveSlotBackward() {
+        graphsModel.moveSlotBackward();
+        update();
+    }
+    private void setDrawingAreaWidth(int drawingAreaWidth) {
+        graphsModel.setDrawingAreaWidth(drawingAreaWidth);
+        setPanelsSizes();
+        update();
+    }
+
+    private void moveScroll(int scrollPosition) {
+        graphsModel.setScrollPosition(scrollPosition);
+        update();
+    }
+
     @Override
-    public void moveSlot(int newSlotIndex) {
-        graphsModel.moveSlot(newSlotIndex);
+    public void moveSlot(int slotPosition) {
+        graphsModel.moveSlot(slotPosition);
         update();
     }
 }

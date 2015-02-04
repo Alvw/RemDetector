@@ -20,20 +20,20 @@ class GraphsModel {
     private int scrollPosition;
     private int drawingAreaWidth;
 
-    // graphs list for every graph panel
-    private List<List<DataSet>> listOfGraphLists = new ArrayList<List<DataSet>>();
-    // previews list for every preview panel
-    private List<List<DataSet>> listOfPreviewLists = new ArrayList<List<DataSet>>();
+    // graph clusters corresponds to graph panels
+    private List<List<DataSet>> graphClusterList = new ArrayList<List<DataSet>>();
+    // preview clusters correspond to preview panels
+    private List<List<DataSet>> previewClusterList = new ArrayList<List<DataSet>>();
 
 
     public long getStartTime() {
         long startTime = 0;
-        for(List<DataSet> graphList : listOfGraphLists) {
+        for(List<DataSet> graphList : graphClusterList) {
             for(DataSet graph : graphList) {
                 startTime = graph.getStartTime();
             }
         }
-        for(List<DataSet> previewList : listOfPreviewLists) {
+        for(List<DataSet> previewList : previewClusterList) {
             for(DataSet preview : previewList) {
                 startTime = preview.getStartTime();
             }
@@ -41,33 +41,27 @@ class GraphsModel {
         return startTime;
     }
 
-    public void addGraphList() {
-        listOfGraphLists.add(new ArrayList<DataSet>());
+    public void addGraphCluster() {
+        graphClusterList.add(new ArrayList<DataSet>());
     }
 
-    public void addGraphs(DataSet... graphs) {
-        if(listOfGraphLists.size() == 0) {
-            addGraphList();
-        }
-        List<DataSet> lastGraphList = listOfGraphLists.get(listOfGraphLists.size() - 1);
-        for(DataSet graph : graphs) {
-            lastGraphList.add(graph);
-            setTimeFrequency(Math.max(timeFrequency, graph.getFrequency()));
-        }
+    public void addPreviewCluster() {
+        previewClusterList.add(new ArrayList<DataSet>());
     }
 
-    public void addPreviewList() {
-        listOfPreviewLists.add(new ArrayList<DataSet>());
+    public void addGraph(DataSet graph) {
+        if(graphClusterList.size() == 0) {
+            addGraphCluster();
+        }
+        graphClusterList.get(graphClusterList.size() - 1).add(graph);
+        setTimeFrequency(Math.max(timeFrequency, graph.getFrequency()));
     }
 
-    public void addPreviews(DataSet... previews) {
-        if(listOfPreviewLists.size() == 0) {
-            addPreviewList();
+    public void addPreview(DataSet preview) {
+        if(previewClusterList.size() == 0) {
+            addPreviewCluster();
         }
-        List<DataSet> lastPreviewList = listOfPreviewLists.get(listOfPreviewLists.size() - 1);
-        for(DataSet preview : previews) {
-            lastPreviewList.add(preview);
-        }
+        previewClusterList.get(previewClusterList.size() - 1).add(preview);
     }
 
     public double getPreviewTimeFrequency() {
@@ -100,11 +94,11 @@ class GraphsModel {
     }
 
     public List<DataSet> getGraphList(int listNumber) {
-        return listOfGraphLists.get(listNumber);
+        return graphClusterList.get(listNumber);
     }
 
     public List<DataSet> getPreviewList(int listNumber) {
-        return listOfPreviewLists.get(listNumber);
+        return previewClusterList.get(listNumber);
     }
 
     public int getSlotPosition() {
@@ -120,7 +114,7 @@ class GraphsModel {
 
     public int getGraphsSize() {
         int graphsSize = 0;
-        for (List<DataSet> graphsList : listOfGraphLists) {
+        for (List<DataSet> graphsList : graphClusterList) {
             for (DataSet graph : graphsList) {
                 int size = graph.size();
                 if(timeFrequency > 0 && graph.getFrequency() > 0) {
@@ -132,7 +126,7 @@ class GraphsModel {
 
         int previewsSize = 0;
         double frequency = timeFrequency/getCompression();
-        for (List<DataSet> previewList : listOfPreviewLists) {
+        for (List<DataSet> previewList : previewClusterList) {
             for (DataSet preview : previewList) {
                 int size = preview.size();
                 if(frequency > 0 && preview.getFrequency() > 0) {
@@ -256,13 +250,13 @@ class GraphsModel {
         }
     }
 
-    public void moveForward() {
+    public void moveSlotForward() {
         int shift = (int)(getDrawingAreaWidth() * 0.25);  //прокрутка
         int newStartIndex = getStartIndex() + shift;
         setStartIndex(newStartIndex);
     }
 
-   public  void moveBackward() {
+   public  void moveSlotBackward() {
         if (isAutoScroll()) {
             int newSlotPosition = getSlotPosition() - AUTO_SCROLL_GAP - 1; //to stop autoScroll
             if(newSlotPosition < 0) {
@@ -290,12 +284,12 @@ class GraphsModel {
     public int getCompression() {
         int graphsNumber = 0;
         int previewsNumber = 0;
-        for (List<DataSet> graphsList : listOfGraphLists) {
+        for (List<DataSet> graphsList : graphClusterList) {
             for (DataSet graph : graphsList) {
                 graphsNumber++;
             }
         }
-        for (List<DataSet> previewList : listOfPreviewLists) {
+        for (List<DataSet> previewList : previewClusterList) {
             for (DataSet preview : previewList) {
                 previewsNumber++;
             }

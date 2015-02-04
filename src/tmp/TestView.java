@@ -38,12 +38,12 @@ public class TestView extends JFrame {
 
      //   DataSet compressedFilteredData = new CompressorMaximizing(filteredData, graphsView.getCompression());
 
-/*        graphsViewer.addGraphs(0, testData);
-        graphsViewer.addGraphs(0, data.getPeriodStream());
+/*        graphsViewer.addGraph(0, testData);
+        graphsViewer.addGraph(0, data.getPeriodStream());
 
-        graphsViewer.addGraphs(1, filteredData);
+        graphsViewer.addGraph(1, filteredData);
 
-        graphsViewer.addPreviews(0, compressedFilteredData);
+        graphsViewer.addPreview(0, compressedFilteredData);
 
         add(graphsViewer, BorderLayout.CENTER);*/
 
