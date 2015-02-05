@@ -16,14 +16,14 @@ public class GraphsConfigurator {
         if(dataStore.getNumberOfChannels() > 0) {
             DataSet channel_1 = dataStore.getChannelData(0);
             view.addGraphPanel(1, true);
-            //view.addGraph(new FilterOffset_1(channel_1, view));
+            //view.addGraphs(new FilterOffset_1(channel_1, view));
             view.addGraph(channel_1);
 
 
           //  view.addPreviewPanel(1, false);
             DataSet velocityRem =  new FilterAbs(new FilterDerivativeRem(channel_1));
             //DataSet compressedVelocityRem =  new CompressorMaximizing(velocityRem, view.getCompression());
-           // view.addPreview(velocityRem);
+            view.addPreview(velocityRem);
         }
 
     }
@@ -33,10 +33,11 @@ public class GraphsConfigurator {
         DataSet channel_2 = dataStore.getAccelerometerXData();
 
         view.addGraphPanel(2, true);
-        //view.addGraph(new FilterOffset_1(channel_1, view));
+        //view.addGraphs(new FilterOffset_1(channel_1, view));
         view.addGraph(channel_1);
-     //   view.addGraphPanel(1, true);
-      //  view.addGraph(new FilterDerivative(channel_1));
+
+        view.addGraphPanel(2, true);
+        view.addGraph(new FilterDerivative(channel_1));
         view.addGraphPanel(2, true);
         view.addGraph(new FilterDerivative(channel_2));
 
