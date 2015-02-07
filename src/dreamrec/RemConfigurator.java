@@ -62,10 +62,13 @@ public class RemConfigurator {
         for(int i = 0; i < preFilters.length; i++) {
             if(eogRemFrequency != 0 && i == remChannels.getEog() ) {
                 if ((frequencies[i] % eogRemFrequency) == 0) {
+                    int bufferSize = eogRemFrequency * eogRemCutoffPeriod;
                     int divider = frequencies[i] / eogRemFrequency;
                     if(divider > 1) {
-                        int bufferSize = eogRemFrequency * eogRemCutoffPeriod;
                         preFilters[i] = new FrequencyDividingPreFilter(new HiPassPreFilter(bufferSize), divider);
+                    }
+                    if(divider == 1) {
+                        preFilters[i] = new HiPassPreFilter(bufferSize);
                     }
                 } else {
                     String errorMsg = "Eog Frequency= " + frequencies[i] + " is not divisible by EogRemFrequency=" + eogRemFrequency;
