@@ -6,6 +6,7 @@ import org.apache.commons.logging.LogFactory;
 
 abstract class FrameDecoderDorokhov implements FrameDecoder{
 
+    private static final Log log = LogFactory.getLog(FrameDecoder.class);
     public static final byte START_FRAME_MARKER = (byte)(0xAA & 0xFF);
     public static final byte STOP_FRAME_MARKER = (byte)(0x55 & 0xFF);
     private int frameIndex;
@@ -13,14 +14,12 @@ abstract class FrameDecoderDorokhov implements FrameDecoder{
     private int numberOf3ByteSamples;
     private int decodedFrameSize;
     private byte[] rawFrame;
-    AdsConfiguration adsConfiguration;
-    private static final Log log = LogFactory.getLog(FrameDecoder.class);
+    private AdsConfiguration adsConfiguration;
+    private int previousFrameCounter = -1;
 
 
 
     public FrameDecoderDorokhov(AdsConfiguration configuration) {
-        //  decodedFrameSize = 25;
-//        rawFrameSize = 71;
         adsConfiguration = configuration;
         numberOf3ByteSamples = getNumberOf3ByteSamples(configuration);
         rawFrameSize = getRawFrameSize(configuration);
@@ -41,21 +40,18 @@ abstract class FrameDecoderDorokhov implements FrameDecoder{
             frameIndex++;
         } else if (frameIndex == (rawFrameSize - 1)) {
             rawFrame[frameIndex] = inByte;
-            if (inByte != STOP_FRAME_MARKER) {
-               log.warn("Lost Stop Frame Marker");
+            if (inByte == STOP_FRAME_MARKER) {
+               onFrameReceived();
             }
             frameIndex = 0;
-            onFrameReceived();
         } else {
-           // log.warn("Lost Frame. Frame index = " + frameIndex + " inByte = " + inByte);
+            log.warn("Lost Frame. Frame index = " + frameIndex + " inByte = " + inByte);
             frameIndex = 0;
         }
     }
 
     private void onFrameReceived() {
-
         int counter = BdfParser.bytesToUnsignedInt(rawFrame[2],rawFrame[3]);
-
         byte[] decodedFrame = new byte[decodedFrameSize];
         int rawFrameOffset = 4;
         int decodedFrameOffset = 0;
@@ -74,7 +70,16 @@ abstract class FrameDecoderDorokhov implements FrameDecoder{
         for (int i = 0; i < 3; i++) {
             decodedFrame[decodedFrameOffset++] = 0;
         }
-
+        int numberOfLostFrames = getNumberOfLostFrames(counter);
+        if(numberOfLostFrames > 0){
+            log.info(numberOfLostFrames + " lost frames");
+        }
+        for (int i = 0; i < numberOfLostFrames; i++) {
+            byte[] lostFrame = new byte[decodedFrameSize];
+            System.arraycopy( decodedFrame, 0, lostFrame, 0, decodedFrameSize);
+            decodedFrame[decodedFrameSize - 1] = 1;
+            notifyListeners(lostFrame);
+        }
         notifyListeners(decodedFrame);
     }
 
@@ -112,6 +117,17 @@ abstract class FrameDecoderDorokhov implements FrameDecoder{
             }
         }
         return result;
+    }
+
+    private int getNumberOfLostFrames(int frameCounter){
+        if(previousFrameCounter == -1){
+            previousFrameCounter = frameCounter;
+            return 0;
+        }
+        int result = frameCounter - previousFrameCounter;
+        result = result > 0 ? result : (result + 256);
+        previousFrameCounter = frameCounter;
+        return result - 1;
     }
 
     public abstract void notifyListeners(byte[] decodedFrame);

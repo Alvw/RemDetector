@@ -2,6 +2,7 @@ package dreamrec;
 
 import data.DataSet;
 import filters.FilterAbs;
+import filters.FilterBandPass_Alfa;
 import filters.FilterDerivative;
 import filters.FilterDerivativeRem;
 import graph.CompressionType;
@@ -33,12 +34,12 @@ public class GraphsConfigurator {
         DataSet channel_2 = dataStore.getAccelerometerXData();
 
         view.addGraphPanel(2, true);
-        //view.addGraph(new FilterOffset_1(channel_1, view));
         view.addGraph(channel_1);
-     //   view.addGraphPanel(1, true);
-      //  view.addGraph(new FilterDerivative(channel_1));
+
         view.addGraphPanel(2, true);
-        view.addGraph(new FilterDerivative(channel_2));
+        view.addGraph(new FilterBandPass_Alfa(channel_1));
+
+
 
 
         view.addPreviewPanel(1, false);
