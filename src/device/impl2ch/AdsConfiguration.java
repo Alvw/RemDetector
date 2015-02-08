@@ -19,6 +19,14 @@ public class AdsConfiguration {
     public boolean isHighResolutionMode() {
         return isHighResolutionMode;
     }
+    public boolean isLoffEnabled() {
+        for (AdsChannelConfiguration adsChannel : adsChannels) {
+           if(adsChannel.isLoffEnable()){
+               return true;
+           }
+        }
+        return false;
+    }
 
     public DeviceType getDeviceType() {
         return deviceType;

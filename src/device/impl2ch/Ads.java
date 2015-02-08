@@ -32,7 +32,7 @@ public class Ads implements BdfProvider{
     public void startReading() throws ApplicationException {
         String failConnectMessage = "Connection failed. Check com port settings.\nReset power on the target amplifier. Restart the application.";
         try {
-            FrameDecoder frameDecoder = new FrameDecoder(getNumberOfDataSamples(), NUMBER_OF_BYTES_IN_DATA_FORMAT) {
+            FrameDecoder2ch frameDecoder2ch = new FrameDecoder2ch(getNumberOfDataSamples(), NUMBER_OF_BYTES_IN_DATA_FORMAT) {
                 @Override
                 public void notifyListeners(byte[] decodedFrame) {
                     notifyAdsDataListeners(decodedFrame);
@@ -40,7 +40,7 @@ public class Ads implements BdfProvider{
             };
             comPort = new ComPort();
             comPort.connect(adsConfiguration);
-            comPort.setFrameDecoder(frameDecoder);
+            comPort.setFrameDecoder(frameDecoder2ch);
             comPort.writeToPort(adsConfiguration.getDeviceType().getAdsConfigurator().writeAdsConfiguration(adsConfiguration));
             isRecording = true;
         } catch (NoSuchPortException e) {

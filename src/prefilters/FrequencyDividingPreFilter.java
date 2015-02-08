@@ -20,6 +20,7 @@ public class FrequencyDividingPreFilter extends AbstractPreFilter {
             sum += value;
         }
         else {
+            sum += value;
             notifyListeners((int)(sum / divider));
             counter = 0;
             sum = 0;
