@@ -134,7 +134,7 @@ public class Controller {
         }
         dataStore.addListener(dataView);
         dataStore.setStartTime(recordingBdfConfig.getStartTime());
-        dataView.setPreviewTimeFrequency(PREVIEW_TIME_FREQUENCY);
+        dataView.setPreviewFrequency(PREVIEW_TIME_FREQUENCY);
         bdfProvider.startReading();
         isRecording = true;
         return dataView;

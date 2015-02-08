@@ -1,7 +1,6 @@
 // public class FilterTest {
 package filters;
 
-import data.Converter;
 import data.DataSet;
 
 /**
@@ -9,7 +8,7 @@ import data.DataSet;
  */
 // Максимальное значение  модуля за 8 периодов  (32 точки)
 // Максимальное значение  модуля за 2 периодов  (8 точки)
-public class FilterTest_3 extends Converter {
+public class FilterTest_3 extends Filter {
     private int period = 1;
     private int bufferHalf = period * 4;
 

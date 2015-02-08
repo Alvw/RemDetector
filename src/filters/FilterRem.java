@@ -1,13 +1,12 @@
 package filters;
 
-import data.Converter;
 import data.DataSet;
 
 /**
  *
  */
 
-public class FilterRem extends Converter {
+public class FilterRem extends Filter {
     int stopTimeMscec = 80;
     int derivativeMin = 400;
     int derivativeMax = 2000;

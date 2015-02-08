@@ -1,12 +1,11 @@
 package filters;
 
-import data.Converter;
 import data.DataSet;
 
 /**
  *
  */
-public class FilterThresholdMax extends Converter {
+public class FilterThresholdMax extends Filter {
     int bufferSize;
  
     public FilterThresholdMax(DataSet inputData) {

@@ -1,13 +1,12 @@
 package filters;
 
-import data.Converter;
 import data.DataList;
 import data.DataSet;
 
 /**
  *
  */
-public abstract class FilterBuffered extends Converter {
+public abstract class FilterBuffered extends Filter {
     DataList filteredList = new DataList();
 
 

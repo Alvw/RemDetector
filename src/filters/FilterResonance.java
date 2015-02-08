@@ -1,13 +1,12 @@
 package filters;
 
-import data.Converter;
 import data.DataSet;
 import tmp.Functions;
 
 /**
  *
  */
-public class FilterResonance extends Converter {
+public class FilterResonance extends Filter {
     private int period = 5;
     private int bufferHalf = period * 2;
 

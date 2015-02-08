@@ -33,6 +33,10 @@ public class TimePanel extends JPanel{
         this.frequency = frequency;
     }
 
+    public double getFrequency() {
+        return frequency;
+    }
+
     public  void transformCoordinate(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
         g2d.translate(indentX, g.getClipBounds().getHeight()); // move XY origin to the left bottom point

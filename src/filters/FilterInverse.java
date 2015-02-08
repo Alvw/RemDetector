@@ -1,13 +1,12 @@
 package filters;
 
-import data.Converter;
 import data.DataSet;
 
 /**
  *
  */
 
-public class FilterInverse extends Converter {
+public class FilterInverse extends Filter {
 
     private int derivative = 0;
 

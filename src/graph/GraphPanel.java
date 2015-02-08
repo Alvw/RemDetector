@@ -68,8 +68,8 @@ public class GraphPanel extends JPanel {
     }
 
 
-    public void setGraphs(List<DataSet> graphs) {
-        graphList = graphs;
+    public void setGraphs(List<DataSet> graphList) {
+        this.graphList = graphList;
     }
 
     public void setStartIndex(int startIndex) {

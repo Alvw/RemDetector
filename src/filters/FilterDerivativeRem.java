@@ -1,13 +1,12 @@
 package filters;
 
-import data.Converter;
 import data.DataSet;
 
 /**
  *
  */
 
-public class FilterDerivativeRem extends Converter {
+public class FilterDerivativeRem extends Filter {
     int bufferSize;
     private int distance = 4;
     

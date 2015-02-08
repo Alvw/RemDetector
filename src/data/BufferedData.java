@@ -1,18 +1,13 @@
 package data;
 
-public class BufferedConverter implements DataSet {
-    protected DataSet converter;
+public class BufferedData implements DataSet {
+    protected DataSet inputData;
     protected DataList outputData = new DataList();
 
-    public BufferedConverter(DataSet converter) {
-        this.converter = converter;
+    public BufferedData(DataSet inputData) {
+        this.inputData = inputData;
     }
 
-
-    @Override
-    public int size() {
-        return converter.size();
-    }
 
     @Override
     public int get(int index) {
@@ -21,24 +16,31 @@ public class BufferedConverter implements DataSet {
         }
         if (outputData.size() <= index) {
             for (int i = outputData.size(); i <= index; i++) {
-                outputData.add(converter.get(i));
+                outputData.add(inputData.get(i));
             }
         }
         return outputData.get(index);
     }
 
+
+    @Override
+    public int size() {
+        return inputData.size();
+    }
+
+
     @Override
     public double getFrequency() {
-        return converter.getFrequency();
+        return inputData.getFrequency();
     }
 
     @Override
     public DataDimension getDataDimension() {
-        return converter.getDataDimension();
+        return inputData.getDataDimension();
     }
 
     @Override
     public long getStartTime() {
-        return converter.getStartTime();
+        return inputData.getStartTime();
     }
 }

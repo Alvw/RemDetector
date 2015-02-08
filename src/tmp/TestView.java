@@ -2,7 +2,7 @@ package tmp;
 
 import data.DataSet;
 import filters.*;
-import graph.GraphsView;
+import graph.GraphViewer;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,7 +12,7 @@ import java.awt.*;
  */
 public class TestView extends JFrame {
     private String title = "Dream Recorder";
-    private GraphsView graphsView;
+    private GraphViewer graphViewer;
     private  JMenuBar menu = new JMenuBar();
     private int COMPRESSION = 50;
 
@@ -20,15 +20,15 @@ public class TestView extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setTitle(title);
 
-        graphsView = new GraphsView();
-        graphsView.setPreferredSize(getWorkspaceDimention());
+        graphViewer = new GraphViewer();
+      //  graphViewer.setPreferredSize(getWorkspaceDimention());
 
-        graphsView.addGraphPanel(1, true);
-        graphsView.addGraphPanel(1, true);
+        graphViewer.addGraphPanel(1, true);
+        graphViewer.addGraphPanel(1, true);
 //        graphsViewer.addGraphPanel(1, true);
 
-        graphsView.addPreviewPanel(1, false);
-        graphsView.setCompression(COMPRESSION);
+        graphViewer.addPreviewPanel(1, false);
+     //   graphViewer.setCompression(COMPRESSION);
 
         TestData data = new TestData();
         DataSet testData = data.getCosStream();
@@ -36,14 +36,14 @@ public class TestView extends JFrame {
         DataSet filteredData = new FilterBandPass_Alfa(testData);
 //        DataStream filteredData = new FilterBandPass_Delta_1(testData);
 
-     //   DataSet compressedFilteredData = new CompressorMaximizing(filteredData, graphsView.getCompression());
+     //   DataSet compressedFilteredData = new CompressorMaximizing(filteredData, graphViewer.getCompression());
 
-/*        graphsViewer.addGraphs(0, testData);
-        graphsViewer.addGraphs(0, data.getPeriodStream());
+/*        graphsViewer.addGraph(0, testData);
+        graphsViewer.addGraph(0, data.getPeriodStream());
 
-        graphsViewer.addGraphs(1, filteredData);
+        graphsViewer.addGraph(1, filteredData);
 
-        graphsViewer.addPreviews(0, compressedFilteredData);
+        graphsViewer.addPreview(0, compressedFilteredData);
 
         add(graphsViewer, BorderLayout.CENTER);*/
 
@@ -53,7 +53,7 @@ public class TestView extends JFrame {
     }
 
     public void syncView() {
-       // graphsView.syncView();
+       // graphViewer.syncView();
     }
 
     public void showMessage(String s) {

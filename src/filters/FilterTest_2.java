@@ -1,14 +1,13 @@
 // public class FilterTest {
 package filters;
 
-import data.Converter;
 import data.DataSet;
 
 /**
  *
  */
  // Среднее значение модуля за 8 периодов  (32 точки)
-public class FilterTest_2 extends Converter {
+public class FilterTest_2 extends Filter {
     private int period = 4;
     private int bufferHalf = period * 4;
 

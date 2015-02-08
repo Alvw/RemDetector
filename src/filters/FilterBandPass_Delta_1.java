@@ -1,13 +1,12 @@
 package filters;
 
-import data.Converter;
 import data.DataSet;
 import tmp.Functions;
 
 /**
  *
  */
-public class FilterBandPass_Delta_1 extends Converter {
+public class FilterBandPass_Delta_1 extends Filter {
     private int bufferHalf_1 =  64;
     private int bufferHalf_2 =   4;
     private int bufferHalf_Max = Math.max(bufferHalf_1, bufferHalf_2);

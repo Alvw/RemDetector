@@ -1,13 +1,12 @@
 package filters;
 
-import data.Converter;
 import data.DataSet;
 
 /**
  *
  */
 
-public class FilterPower extends Converter {
+public class FilterPower extends Filter {
 
     private int  distance = 1;
 

@@ -1,8 +1,7 @@
 package filters;
 
-import data.Converter;
 import data.DataSet;
-import graph.GraphsView;
+import graph.GraphViewer;
 
 /**
  * Created with IntelliJ IDEA.
@@ -11,13 +10,13 @@ import graph.GraphsView;
  * Time: 22:59
  * To change this template use File | Settings | File Templates.
  */
-public class FilterOffset_1 extends Converter {
-    private GraphsView graphsView;
+public class FilterOffset_1 extends Filter {
+    private GraphViewer graphViewer;
     private int offset = 640;
 
-    public FilterOffset_1(DataSet inputData, GraphsView graphsView) {
+    public FilterOffset_1(DataSet inputData, GraphViewer graphViewer) {
         super(inputData);
-        this.graphsView = graphsView;
+        this.graphViewer = graphViewer;
     }
 
     // @Override
@@ -26,7 +25,7 @@ public class FilterOffset_1 extends Converter {
             return 0;
         }
 
-        int offsetLevel = graphsView.getStartIndex() + offset;
+        int offsetLevel = 0; //graphViewer.getStartIndex() + offset;
         if(inputData.get(offsetLevel)== UNDEFINED ) {
             return UNDEFINED;
         }

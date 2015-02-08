@@ -3,7 +3,7 @@ package gui;
 import dreamrec.ApplicationException;
 import dreamrec.Controller;
 import dreamrec.RecordingSettings;
-import graph.GraphsView;
+import graph.GraphViewer;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -17,7 +17,7 @@ public class MainWindow extends JFrame {
     private final Color MENU_BG_COLOR = Color.LIGHT_GRAY;
     private final Color MENU_TEXT_COLOR = Color.BLACK;
 
-    protected GraphsView graphsView;
+    protected GraphViewer graphViewer;
     private JMenuBar menu = new JMenuBar();
     private Controller controller;
     private String currentDirToRead = System.getProperty("user.dir"); // current working directory ("./")
@@ -60,12 +60,12 @@ public class MainWindow extends JFrame {
     }
 
     public void setDataView(DataView dataView) {
-        if (graphsView != null) {
-            remove(graphsView);
+        if (graphViewer != null) {
+            remove(graphViewer);
         }
-        graphsView = dataView;
-        add(graphsView, BorderLayout.CENTER);
-        graphsView.requestFocusInWindow();
+        graphViewer = dataView;
+        add(graphViewer, BorderLayout.CENTER);
+        graphViewer.requestFocusInWindow();
         validate();
     }
 

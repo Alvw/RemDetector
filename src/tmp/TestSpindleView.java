@@ -1,14 +1,14 @@
 package tmp;
 
 
-import graph.GraphsView;
+import graph.GraphViewer;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class TestSpindleView extends JFrame {
     private String title = "Spindle Test";
-    private GraphsView graphsView;
+    private GraphViewer graphViewer;
     private  JMenuBar menu = new JMenuBar();
 
 
@@ -16,20 +16,20 @@ public class TestSpindleView extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setTitle(title);
 
-        graphsView = new GraphsView();
-        graphsView.setPreferredSize(getWorkspaceDimention());
+        graphViewer = new GraphViewer();
+    //    graphViewer.setPreferredSize(getWorkspaceDimention());
 
-        graphsView.addGraphPanel(8, true);
-        graphsView.addGraphPanel(8, true);
-        graphsView.addPreviewPanel(1, true);
+        graphViewer.addGraphPanel(8, true);
+        graphViewer.addGraphPanel(8, true);
+        graphViewer.addPreviewPanel(1, true);
 
 
 /*        DataSet testData = new TestSpindle().getDataStream();
         DataSet filteredData = new FilterBandPass_Alfa(testData);
-        graphsViewer.addGraphs(0, testData);
-        graphsViewer.addGraphs(1, filteredData);
+        graphsViewer.addGraph(0, testData);
+        graphsViewer.addGraph(1, filteredData);
 
-        graphsViewer.addPreviews(0, new CompressorMaximizing(filteredData, graphsViewer.getCompression()));
+        graphsViewer.addPreview(0, new CompressorMaximizing(filteredData, graphsViewer.getCompression()));
 
         add(graphsViewer, BorderLayout.CENTER);*/
 
@@ -38,7 +38,7 @@ public class TestSpindleView extends JFrame {
     }
 
     public void syncView() {
-       // graphsView.syncView();
+       // graphViewer.syncView();
     }
 
     public void showMessage(String s) {

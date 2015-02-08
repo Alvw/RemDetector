@@ -1,14 +1,13 @@
 // public class FilterTest {
 package filters;
 
-import data.Converter;
 import data.DataSet;
 
 /**
  *
  */
 
-public class FilterTest extends Converter {
+public class FilterTest extends Filter {
     private int period = 4;
     private int bufferHalf = period * 2;
 

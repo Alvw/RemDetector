@@ -1,12 +1,11 @@
 package filters;
 
-import data.Converter;
 import data.DataSet;
 
 /**
  *
  */
-public class FilterThreshold extends Converter {
+public class FilterThreshold extends Filter {
     private int bufferSize = 10;
     private int shift = 2; // points
     private int indexBefore = -10;
