@@ -110,9 +110,9 @@ class GraphModel {
     }
 
 
-    public void addPreview(DataSet preview, int previewClusterNumber) {
+    public void addPreview(DataSet preview, int previewClusterNumber, CompressionType compressionType) {
         if (previewClusterNumber < previewClusterList.size()) {
-            FrequencyConverter resultingPreview = new FrequencyConverterBuffered(new FrequencyConverterRuntime(preview, CompressionType.AVERAGE));
+            FrequencyConverter resultingPreview = new FrequencyConverterBuffered(new FrequencyConverterRuntime(preview, compressionType));
             if (preview.getFrequency() == 0) {
                 resultingPreview.setCompression(compression);
             } else {

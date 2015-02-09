@@ -4,6 +4,7 @@ import data.DataSet;
 import filters.FilterAbs;
 import filters.FilterDerivative;
 import filters.FilterDerivativeRem;
+import graph.CompressionType;
 import gui.DataView;
 
 /**
@@ -43,7 +44,7 @@ public class GraphsConfigurator {
         view.addPreviewPanel(1, false);
         DataSet velocityRem =  new FilterAbs(new FilterDerivativeRem(channel_1));
         // DataSet compressedVelocityRem =  new CompressorMaximizing(velocityRem, view.getCompression());
-        view.addPreview(velocityRem);
+        view.addPreview(velocityRem, CompressionType.MAX);
 
     }
 }

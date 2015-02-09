@@ -8,5 +8,5 @@ package graph;
  * To change this template use File | Settings | File Templates.
  */
 public interface SlotListener {
-      void moveSlot(int newSlotPosition);
+      void moveSlot(int slotPosition);
 }

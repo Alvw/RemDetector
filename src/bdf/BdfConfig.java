@@ -6,6 +6,5 @@ package bdf;
 public interface BdfConfig {
     public double getDurationOfDataRecord();
     public int getNumberOfBytesInDataFormat();
-
     public SignalConfig[] getSignalConfigs();
 }

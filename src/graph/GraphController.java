@@ -85,8 +85,8 @@ public class GraphController implements ViewEventHandler {
     }
 
 
-    public void addPreview(DataSet preview, int previewClusterNumber) {
-        graphModel.addPreview(preview, previewClusterNumber);
+    public void addPreview(DataSet preview, int previewClusterNumber, CompressionType compressionType) {
+        graphModel.addPreview(preview, previewClusterNumber, compressionType);
         fireDataUpdated();
     }
 

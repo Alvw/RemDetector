@@ -64,8 +64,8 @@ public class GraphViewer extends JPanel{
         graphController.addGraph(graph, panelNumber);
     }
 
-    public void addPreview(DataSet preview, int panelNumber) {
-        graphController.addPreview(preview, panelNumber);
+    public void addPreview(DataSet preview, int panelNumber, CompressionType compressionType) {
+        graphController.addPreview(preview, panelNumber, compressionType);
     }
 
 /*
@@ -83,13 +83,13 @@ public class GraphViewer extends JPanel{
 /*
 * Add Preview to the last preview panel. If there is no preview panel create one
 */
-    public void addPreview(DataSet preview) {
+    public void addPreview(DataSet preview, CompressionType compressionType) {
         int panelNumber = graphView.getNumberOfPreviewPanels() - 1;
         if(panelNumber < 0) {
             addPreviewPanel(DEFAULT_PREVIEW_PANEL_WEIGHT, IS_PREVIEW_X_CENTERED_DEFAULT);
             panelNumber = 0;
         }
-        addPreview(preview, panelNumber);
+        addPreview(preview, panelNumber, compressionType);
     }
 
     public void setGraphFrequency(double graphFrequency) {

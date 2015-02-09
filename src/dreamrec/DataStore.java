@@ -115,7 +115,7 @@ public class DataStore implements BdfListener {
 
     private void start() {
         updateTimer.start();
-        if (getStartTime() == 0) {
+        if (getStartTime() <= 0) {
             long startTime = System.currentTimeMillis() - (long) bdfConfig.getDurationOfDataRecord(); //1 second (1000 msec) duration of a data record
             setStartTime(startTime);
         }
