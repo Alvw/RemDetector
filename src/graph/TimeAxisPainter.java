@@ -36,9 +36,9 @@ public class TimeAxisPainter {
 
     private void paintValueMark(Graphics g, int i) {
         // Paint Stroke 2-3 times
-        g.drawLine(i, -4, i, +4);
-        g.drawLine(i + 1, -4, i + 1, +4);
-        g.drawLine(i - 1, -4, i - 1, +4);
+        g.drawLine(i, -3, i, +3);
+        g.drawLine(i + 1, -3, i + 1, +3);
+        g.drawLine(i - 1, -3, i - 1, +3);
     }
 
     private void paintGridMark(Graphics g, int i) {

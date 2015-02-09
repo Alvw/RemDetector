@@ -19,7 +19,7 @@ public class GraphViewer extends JPanel{
     private static final boolean IS_PREVIEW_X_CENTERED_DEFAULT = true;
 
     private int xIndent = 50;
-    private int yIndent = 2;
+    private int yIndent = 4;
     private Color bgColor = Color.BLACK;
     private Color previewBgColor = new Color(25, 25, 25);
 

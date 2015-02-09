@@ -124,9 +124,13 @@ public class Controller {
                 prefilters = remConfigurator.getPreFilters(recordingBdfConfig, remChannels);
             }
             dataStore = new RemDataStore(bdfProvider, remChannels);
+            DataStore dataStorePapa = new DataStore(bdfProvider);
+            boolean[] mask = {true, false, false, false, false};
+            dataStorePapa.setChannelsMask(mask);
+            dataStorePapa.setStartTime(recordingBdfConfig.getStartTime());
             dataStore.setPreFilters(prefilters);
             dataStore.setChannelsMask(recordingSettings.getActiveChannels());
-            GraphsConfigurator.configureRem(dataView, (RemDataStore) dataStore);
+            GraphsConfigurator.configureRem(dataView, (RemDataStore) dataStore, dataStorePapa);
         } else {
             dataStore = new DataStore(bdfProvider);
             dataStore.setChannelsMask(recordingSettings.getActiveChannels());

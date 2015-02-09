@@ -26,9 +26,10 @@ public class GraphsConfigurator {
 
     }
 
-    public static void configureRem(DataView view, RemDataStore dataStore) {
+    public static void configureRem(DataView view, RemDataStore dataStore, DataStore dataStorePapa) {
         DataSet channel_1 = dataStore.getEogData();
-        DataSet channel_2 = dataStore.getAccelerometerXData();
+        DataSet channel_origin = dataStorePapa.getChannelData(0);
+
 
         view.addGraphPanel(2, true);
         //view.addGraph(new FilterOffset_1(channel_1, view));
@@ -40,6 +41,7 @@ public class GraphsConfigurator {
         view.addGraph(dataStore.getAccMovement());
         view.addGraph(dataStore.getAccLimit());
 
+
         DataSet accLimit = new FilterMovementTreshhold(dataStore.getAccelerometerXData(),dataStore.getAccelerometerYData(), dataStore.getAccelerometerZData(), 0.15);
 
         view.addPreviewPanel(1, false);
@@ -48,5 +50,8 @@ public class GraphsConfigurator {
         DataSet limit = new FilterLimit(new FilterDerivativeRemTreshhold(channel_1, 400), accLimit);
         DataSet velocityClean = new Multiplexer(velocityRem, limit);
         view.addPreview(velocityClean, CompressionType.MAX);
+
+        view.addPreviewPanel(1, true);
+        view.addPreview(channel_origin, CompressionType.AVERAGE);
     }
 }
