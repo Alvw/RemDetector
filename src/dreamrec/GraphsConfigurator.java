@@ -1,9 +1,7 @@
 package dreamrec;
 
 import data.DataSet;
-import filters.FilterAbs;
-import filters.FilterDerivative;
-import filters.FilterDerivativeRem;
+import filters.*;
 import graph.CompressionType;
 import gui.DataView;
 
@@ -35,16 +33,20 @@ public class GraphsConfigurator {
         view.addGraphPanel(2, true);
         //view.addGraph(new FilterOffset_1(channel_1, view));
         view.addGraph(channel_1);
-     //   view.addGraphPanel(1, true);
-      //  view.addGraph(new FilterDerivative(channel_1));
-        view.addGraphPanel(2, true);
-        view.addGraph(new FilterDerivative(channel_2));
+        view.addGraphPanel(1, false);
+        view.addGraph(new FilterAbs(new FilterDerivativeRem(channel_1)));
+        view.addGraph(new FilterConstant(channel_1, 400));
+        view.addGraphPanel(1, false);
+        view.addGraph(dataStore.getAccMovement());
+        view.addGraph(dataStore.getAccLimit());
 
+        DataSet accLimit = new FilterMovementTreshhold(dataStore.getAccelerometerXData(),dataStore.getAccelerometerYData(), dataStore.getAccelerometerZData(), 0.15);
 
         view.addPreviewPanel(1, false);
         DataSet velocityRem =  new FilterAbs(new FilterDerivativeRem(channel_1));
-        // DataSet compressedVelocityRem =  new CompressorMaximizing(velocityRem, view.getCompression());
-        view.addPreview(velocityRem, CompressionType.MAX);
-
+       // view.addPreview(velocityRem, CompressionType.MAX);
+        DataSet limit = new FilterLimit(new FilterDerivativeRemTreshhold(channel_1, 400), accLimit);
+        DataSet velocityClean = new Multiplexer(velocityRem, limit);
+        view.addPreview(velocityClean, CompressionType.MAX);
     }
 }

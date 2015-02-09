@@ -161,7 +161,7 @@ class GraphModel {
     }
 
     public int getSlotPosition() {
-        int slotIndex = (int)(startIndex / getCompression());
+        int slotIndex = Math.round((float)(startIndex / getCompression()));
         int slotPosition = slotIndex - scrollPosition;
         return slotPosition;
     }
@@ -207,7 +207,7 @@ class GraphModel {
 
     public int getSlotWidth() {
         if (getCompression() > 1 && getDrawingAreaWidth() > 0 && getGraphsSize() > 0) {
-            return Math.max(1, (getDrawingAreaWidth() / getGraphsSize()));
+            return Math.max(1, (int)(getDrawingAreaWidth() / getCompression()));
         }
         return 0;
     }

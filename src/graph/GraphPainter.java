@@ -16,14 +16,24 @@ public class GraphPainter {
         g.setColor(graphColor);
         if (graph != null && startIndex >= 0 && startIndex < graph.size()) {
             int width = g.getClipBounds().width;
+            int height = g.getClipBounds().height;
             int value = graph.get(startIndex);
             int y = (int) Math.round(zoom * value);
             int endPoint = Math.min(width, (graph.size() - startIndex));
             VerticalLine vLine = new VerticalLine(y);
             for (int x = 0; x < endPoint; x++) {
                 value = graph.get(x + startIndex);
-                y = (int) Math.round(zoom * value);
-                drawVerticalLine(g, x, y, vLine);
+                if(value == DataSet.UNDEFINED) {
+                    g.setColor(new Color(0,150, 250));
+                    //drawVerticalLine(g, x, 0, vLine);
+                    g.drawLine(x, 0, x, height);
+                }
+                else{
+                    g.setColor(graphColor);
+                    y = (int) Math.round(zoom * value);
+                    drawVerticalLine(g, x, y, vLine);
+                }
+
             }
         }
     }

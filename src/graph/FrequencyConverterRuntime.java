@@ -29,9 +29,12 @@ public class FrequencyConverterRuntime implements FrequencyConverter {
                 value = inputData.get(index);
             }
             else {
-                int indexStart = (int)((index-1) * compression);
-                int indexEnd = (int)(index * compression);
+                int indexStart = (int)((index) * compression);
+                int indexEnd = (int)((index+1) * compression);
                 for(int i = indexStart; i < indexEnd; i++) {
+                    if(inputData.get(i) == UNDEFINED) {
+                        return UNDEFINED;
+                    }
                     if(compressionType == CompressionType.AVERAGE) {
                         value += inputData.get(i);
                     }

@@ -151,7 +151,7 @@ public class TimeAxisPainter {
                 int index = startIndex + i;
                 if(index % 100 == 0) {
                     valueIndexes.add(index);
-                    valueStamps.put(i, String.valueOf(index));
+                    valueStamps.put(index, String.valueOf(index));
                 }
                 if(index % 20 == 0) {
                     gridIndexes.add(index);

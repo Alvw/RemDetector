@@ -27,7 +27,7 @@ public class GraphPanel extends JPanel {
     private static final Color DEFAULT_BG_COLOR = Color.black;
 
     private Color graphColors[] = {Color.YELLOW, Color.RED, Color.CYAN};
-    private Color slotColor = Color.MAGENTA.darker();
+    private Color slotColor = new Color(255, 0, 100);
     private java.util.List<SlotListener> slotListeners = new ArrayList<SlotListener>();
 
     private List<DataSet> graphList = new ArrayList<DataSet>();
@@ -155,7 +155,9 @@ public class GraphPanel extends JPanel {
             g.fillRect(slotPosition, -height, slotWidth, 2 * height);
         }
         if (slotWidth > 0 && slotWidth <= 2) {
-            g.fillRect(slotPosition - 2, -height, slotWidth + 2, 2 * height);
+            g.drawLine(slotPosition, -height, slotPosition, 2 * height);
+            g.drawLine(slotPosition - 1, -height, slotPosition - 1, 2 * height);
+            g.drawLine(slotPosition + 1, -height, slotPosition + 1, 2 * height);
         }
     }
 
@@ -173,7 +175,6 @@ public class GraphPanel extends JPanel {
             dataDimension = graphList.get(0).getDataDimension();
             timeAxisPainter.paint(g, startTime, startIndex, frequency);
             yAxisPainter.paint(g, zoom, dataDimension);
-            paintSlot(g);
         }
 
         int graph_number = 0;
@@ -183,6 +184,8 @@ public class GraphPanel extends JPanel {
             graphPainter.setColor(graphColor);
             graphPainter.paint(g, zoom, startIndex, graph);
         }
+        paintSlot(g);
         restoreCoordinate(g);
+
     }
 }
