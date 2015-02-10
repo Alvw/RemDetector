@@ -2,6 +2,7 @@ package graph;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
 import java.awt.geom.AffineTransform;
 
 public class TimePanel extends JPanel{
@@ -11,11 +12,28 @@ public class TimePanel extends JPanel{
     private double frequency;
     private TimeAxisPainter timePainter = new TimeAxisPainter();
 
+    JButton plusButton = new JButton("+");
+    JButton minusButton = new JButton("-");
+
     public TimePanel() {
         timePainter.isAxisPaint(false);
         timePainter.isGridPaint(false);
         setBackground(Color.black);
+        setLayout(new FlowLayout(0));
+        plusButton.setMargin(new Insets(0,4,0,4));
+        minusButton.setMargin(new Insets(0,4,0,4));
+        add(minusButton);
+        add(plusButton);
     }
+
+    public void addPlusButtonListener(ActionListener listener) {
+        plusButton.addActionListener(listener);
+    }
+
+    public void addMinusButtonListener(ActionListener listener) {
+        minusButton.addActionListener(listener);
+    }
+
 
     public void setIndentX(int indentX) {
         this.indentX = indentX;

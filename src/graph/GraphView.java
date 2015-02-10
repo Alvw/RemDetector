@@ -37,8 +37,8 @@ public class GraphView extends JPanel {
 
     private ViewEventHandler viewEventHandler;
 
-    public GraphView(ViewEventHandler viewEventHandler) {
-        this.viewEventHandler = viewEventHandler;
+    public GraphView(ViewEventHandler controller) {
+        this.viewEventHandler = controller;
         setLayout(new BorderLayout());
         add(mainPanel, BorderLayout.CENTER);
         add(scrollBar, BorderLayout.SOUTH);
@@ -64,11 +64,11 @@ public class GraphView extends JPanel {
                 super.keyPressed(e);
                 int key = e.getKeyCode();
                 if (key == KeyEvent.VK_RIGHT) {
-                    moveSlotForward();
+                    viewEventHandler.moveSlotForward();
                 }
 
                 if (key == KeyEvent.VK_LEFT) {
-                    moveSlotBackward();
+                    viewEventHandler.moveSlotBackward();
                 }
             }
         });
@@ -77,14 +77,15 @@ public class GraphView extends JPanel {
             @Override
             public void componentResized(ComponentEvent e) {
                 super.componentResized(e);
-                setDrawingAreaWidth(getWidth() - xIndent);
+                setPanelsSizes();
+                viewEventHandler.setDrawingAreaWidth(getWidth() - xIndent);
             }
         });
 
         scrollBar.addAdjustmentListener(new AdjustmentListener() {
             @Override
             public void adjustmentValueChanged(AdjustmentEvent e) {
-                moveScroll(e.getValue());
+                viewEventHandler.moveScroll(e.getValue());
             }
         });
     }
@@ -236,21 +237,6 @@ public class GraphView extends JPanel {
         return previewPanelList.size();
     }
 
-    private void moveSlotForward() {
-        viewEventHandler.moveSlotForward();
-    }
-    private void moveSlotBackward() {
-        viewEventHandler.moveSlotBackward();
-    }
-    private void setDrawingAreaWidth(int drawingAreaWidth) {
-        viewEventHandler.setDrawingAreaWidth(drawingAreaWidth);
-        setPanelsSizes();
-    }
-
-    private void moveScroll(int scrollPosition) {
-        viewEventHandler.moveScroll(scrollPosition);
-    }
-
     private void setPanelsSizes() {
         int width = graphsPaintingPanel.getWidth();
         int height = graphsPaintingPanel.getHeight() + previewsPaintingPanel.getHeight();
@@ -277,16 +263,45 @@ public class GraphView extends JPanel {
     }
 
     private void addGraphTimePanel() {
-        graphTimePanel.setPreferredSize(new Dimension(getWidth(), getTimePanelHeight(graphTimePanel.getFont())));
+        // graphTimePanel.setPreferredSize(new Dimension(getWidth(), getTimePanelHeight(graphTimePanel.getFont())));
         graphTimePanel.setIndentX(xIndent);
         graphTimePanel.setBackground(bgColor);
+        graphTimePanel.addMinusButtonListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                double frequencyNew = graphTimePanel.getFrequency() / 2;
+                viewEventHandler.setGraphFrequency(frequencyNew);
+            }
+        });
+        graphTimePanel.addPlusButtonListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                double frequencyNew = graphTimePanel.getFrequency() * 2;
+                viewEventHandler.setGraphFrequency(frequencyNew);
+            }
+        });
         graphsMainPanel.add(graphTimePanel, BorderLayout.NORTH);
     }
 
     private void addPreviewTimePanel() {
-        previewTimePanel.setPreferredSize(new Dimension(getWidth(), getTimePanelHeight(previewTimePanel.getFont())));
+       // previewTimePanel.setPreferredSize(new Dimension(getWidth(), getTimePanelHeight(previewTimePanel.getFont())));
         previewTimePanel.setIndentX(xIndent);
         previewTimePanel.setBackground(previewBgColor);
+        previewTimePanel.addMinusButtonListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                double frequencyNew = previewTimePanel.getFrequency() / 2;
+                viewEventHandler.setPreviewFrequency(frequencyNew);
+            }
+        });
+        previewTimePanel.addPlusButtonListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                double frequencyNew = previewTimePanel.getFrequency() * 2;
+                viewEventHandler.setPreviewFrequency(frequencyNew);
+            }
+        });
+
         previewsMainPanel.add(previewTimePanel, BorderLayout.SOUTH);
     }
 
