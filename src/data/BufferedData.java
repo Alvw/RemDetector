@@ -12,7 +12,7 @@ public class BufferedData implements DataSet {
     @Override
     public int get(int index) {
         if(outputData.size() > size()) {
-            outputData.clear();
+            outputData = new DataList();
         }
         if (outputData.size() <= index) {
             for (int i = outputData.size(); i <= index; i++) {

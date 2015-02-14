@@ -1,6 +1,7 @@
 package data;
 
 
+import fft.prinston.Complex;
 import gnu.trove.list.array.TIntArrayList;
 import prefilters.AbstractPreFilter;
 
@@ -41,8 +42,24 @@ public class DataList extends AbstractPreFilter implements DataSet  {
         return new DataList(arrayList);
     }
 
-    public static DataSet wrap(int[] array) {
+    public static DataList wrap(int[] array) {
         return new DataList(array);
+    }
+
+    public static DataList wrap(double[] array) {
+        int[] intArray = new int[array.length] ;
+        for(int i = 0; i < intArray.length; i++) {
+            intArray[i] = (int) array[i];
+        }
+        return new DataList(intArray);
+    }
+
+    public static DataList wrap(Complex[] array) {
+        int[] intArray = new int[array.length] ;
+        for(int i = 0; i < intArray.length; i++) {
+            intArray[i] = (int) Math.sqrt(array[i].re()*array[i].re() + array[i].im()*array[i].im());
+        }
+        return new DataList(intArray);
     }
 
     public void add(int value) {
@@ -64,17 +81,6 @@ public class DataList extends AbstractPreFilter implements DataSet  {
         }
     }
 
-
-    public void clear() {
-        if(intArrayList != null) {
-            intArrayList.clear();
-        }
-        else{
-            arrayList.clear();
-        }
-
-    }
-
     public void setFrequency(double frequency) {
         this.frequency = frequency;
     }
@@ -87,6 +93,8 @@ public class DataList extends AbstractPreFilter implements DataSet  {
     public void setStartTime(long startTime) {
         this.startTime = startTime;
     }
+
+
 
     @Override
     public long getStartTime() {
@@ -118,5 +126,4 @@ public class DataList extends AbstractPreFilter implements DataSet  {
     public double getFrequency() {
         return frequency;
     }
-
 }

@@ -149,14 +149,14 @@ public class TimeAxisPainter {
         if (timeFrequency == 0) {
             for(int i = 0; i <= width; i++) {
                 int index = startIndex + i;
-                if(index % 100 == 0) {
+                if(index % 50 == 0) {
                     valueIndexes.add(index);
                     valueStamps.put(index, String.valueOf(index));
                 }
-                if(index % 20 == 0) {
+                if(index % 10 == 0) {
                     gridIndexes.add(index);
                 }
-                if(index % 10 == 0) {
+                if(index % 5 == 0) {
                     interGridIndexes.add(index);
                 }
 

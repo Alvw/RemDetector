@@ -6,7 +6,7 @@ import data.DataSet;
 public class FrequencyConverterRuntime implements FrequencyConverter {
     private DataSet inputData;
     private CompressionType compressionType;
-    private double compression;
+    private double compression = 1;
 
 
     public FrequencyConverterRuntime(DataSet inputData, CompressionType compressionType) {
