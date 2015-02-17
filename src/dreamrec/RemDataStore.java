@@ -1,36 +1,125 @@
 package dreamrec;
 
+import bdf.BdfConfig;
 import bdf.BdfProvider;
+import bdf.BdfRecordsJoiner;
+import bdf.SignalConfig;
 import data.DataDimension;
+import data.DataList;
 import data.DataSet;
+import prefilters.PreFilter;
 
-public class RemDataStore extends DataStore {
+import javax.swing.*;
+import java.util.ArrayList;
+
+/**
+ * Created by mac on 17/02/15.
+ */
+public class RemDataStore  implements DataStoreListener {
+    private DataStore dataStore;
     private RemChannels remChannels;
+    private BdfProvider bdfProvider;
     private int movementLimit;
 
+    private ArrayList<DataStoreListener> updateListeners = new ArrayList<DataStoreListener>();
+
     public RemDataStore(BdfProvider bdfProvider, RemChannels remChannels) throws ApplicationException {
-        super(bdfProvider);
         this.remChannels = remChannels;
+        this.bdfProvider = bdfProvider;
+        dataStore = new DataStore(bdfProvider);
+        dataStore.addListener(this);
         int numberOfSignals = bdfProvider.getBdfConfig().getSignalConfigs().length;
         if(remChannels.getEog() >= numberOfSignals) {
-            String msg = "EOG rem channel number should be less then total number of channels";
+            String msg = "EOG channel number should be less then total number of channels";
             throw new ApplicationException(msg);
         }
         if(remChannels.getAccelerometerX() >= numberOfSignals) {
-            String msg = "AccelerometerX rem channel number should be less then total number of channels";
+            String msg = "AccelerometerX channel number should be less then total number of channels";
             throw new ApplicationException(msg);
         }
         if(remChannels.getAccelerometerY() >= numberOfSignals) {
-            String msg = "AccelerometerY rem channel number should be less then total number of channels";
+            String msg = "AccelerometerY channel number should be less then total number of channels";
             throw new ApplicationException(msg);
         }
         if(remChannels.getAccelerometerZ() >= numberOfSignals) {
-            String msg = "AccelerometerZ rem channel number should be less then total number of channels";
+            String msg = "AccelerometerZ channel number should be less then total number of channels";
             throw new ApplicationException(msg);
         }
+
         movementLimit = (int)(0.15 / getAccelerometerXData().getDataDimension().getGain());
     }
 
+    public void setChannelsMask(boolean[] channelsMask) {
+        boolean[] resultingMask = new boolean[channelsMask.length];
+        for(int i = 0; i < channelsMask.length; i++) {
+            if(i == remChannels.getEog() || i == remChannels.getAccelerometerX() || i == remChannels.getAccelerometerY() || i == remChannels.getAccelerometerZ()) {
+                resultingMask[i] = true;
+            }
+            else {
+                resultingMask[i] = channelsMask[i];
+            }
+        }
+        dataStore.setChannelsMask(resultingMask);
+    }
+
+
+   public void configure(RemConfigurator remConfigurator) throws ApplicationException {
+       if (remConfigurator != null) {
+           BdfConfig bdfConfig = bdfProvider.getBdfConfig();
+           int numberOfRecordsToJoin = remConfigurator.getNumberOfRecordsToJoin(bdfConfig);
+           BdfProvider bdfProviderNew = new BdfRecordsJoiner(bdfProvider, numberOfRecordsToJoin);
+           PreFilter[] prefilters = remConfigurator.getPreFilters(bdfConfig, remChannels);
+           dataStore = new DataStore(bdfProviderNew);
+           dataStore.setPreFilters(prefilters);
+           dataStore.addListener(this);
+       }
+   }
+
+
+    public int getNumberOfChannels() {
+        return dataStore.getNumberOfChannels();
+    }
+
+    public void addListener(DataStoreListener dataStoreListener) {
+        updateListeners.add(dataStoreListener);
+    }
+
+    public DataList getChannelData(int channelNumber) {
+        return dataStore.getChannelData(channelNumber);
+    }
+
+    private void fireDataUpdated() {
+        for (DataStoreListener listener : updateListeners) {
+            listener.onDataUpdate();
+        }
+    }
+
+
+    public void setStartTime(long startTime) {
+       dataStore.setStartTime(startTime);
+    }
+
+
+    @Override
+    public void onDataUpdate() {
+        fireDataUpdated();
+    }
+
+    public DataSet getEogData() {
+        return dataStore.getSignalData(remChannels.getEog());
+    }
+
+    public DataSet getAccelerometerXData() {
+        return dataStore.getSignalData(remChannels.getAccelerometerX());
+    }
+
+    public DataSet getAccelerometerYData() {
+        return dataStore.getSignalData(remChannels.getAccelerometerY());
+    }
+
+    public DataSet getAccelerometerZData() {
+        return dataStore.getSignalData(remChannels.getAccelerometerZ());
+    }
 
     /**
      * Определяем величину пропорциональную движению головы
@@ -134,24 +223,6 @@ public class RemDataStore extends DataStore {
             return true;
         }
         return false;
-    }
-
-
-
-    public DataSet getEogData() {
-        return channelsList[remChannels.getEog()];
-    }
-
-    public DataSet getAccelerometerXData() {
-        return channelsList[remChannels.getAccelerometerX()];
-    }
-
-    public DataSet getAccelerometerYData() {
-        return channelsList[remChannels.getAccelerometerY()];
-    }
-
-    public DataSet getAccelerometerZData() {
-        return channelsList[remChannels.getAccelerometerZ()];
     }
 
 }

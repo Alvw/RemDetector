@@ -67,9 +67,7 @@ public class DataStore implements BdfListener {
             public void actionPerformed(ActionEvent evt) {
                 processBufferedData();
 
-                for (DataStoreListener listener : updateListeners) {
-                    listener.onDataUpdate();
-                }
+                fireDataUpdated();
 
                 if (isReadingStopped) {
                     updateTimer.stop();
@@ -113,6 +111,34 @@ public class DataStore implements BdfListener {
         return numberOfChannels;
     }
 
+
+    public DataList getChannelData(int channelNumber) {
+        int signalNumber = channelToSignal(channelNumber);
+        return channelsList[signalNumber];
+    }
+
+    public DataList getSignalData(int signalNumber) {
+        return channelsList[signalNumber];
+    }
+
+
+    public void setStartTime(long startTime) {
+        for (int i = 0; i < channelsList.length; i++) {
+            channelsList[i].setStartTime(startTime);
+        }
+    }
+
+    public void addListener(DataStoreListener dataStoreListener) {
+        updateListeners.add(dataStoreListener);
+    }
+
+    private void fireDataUpdated() {
+        for (DataStoreListener listener : updateListeners) {
+            listener.onDataUpdate();
+        }
+    }
+
+
     private void start() {
         updateTimer.start();
         if (getStartTime() <= 0) {
@@ -152,22 +178,6 @@ public class DataStore implements BdfListener {
     @Override
     public void onStopReading() {
         isReadingStopped = true;
-    }
-
-    public void addListener(DataStoreListener dataStoreListener) {
-        updateListeners.add(dataStoreListener);
-    }
-
-    public DataList getChannelData(int channelNumber) {
-        int signalNumber = channelToSignal(channelNumber);
-        return channelsList[signalNumber];
-    }
-
-
-    public void setStartTime(long startTime) {
-        for (int i = 0; i < channelsList.length; i++) {
-            channelsList[i].setStartTime(startTime);
-        }
     }
 
 

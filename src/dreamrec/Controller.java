@@ -114,30 +114,27 @@ public class Controller {
         recordingBdfConfig.setSignalsLabels(recordingSettings.getChannelsLabels());
         saveToFile(recordingSettings.getFile());
         DataView dataView = new DataView();
-        PreFilter[] prefilters = new PreFilter[recordingBdfConfig.getNumberOfSignals()];
-        DataStore dataStore;
         if (isRemMode) {
             RemChannels remChannels = new RemChannels(recordingBdfConfig.getSignalsLabels());
-            if (remConfigurator != null) {
-                int numberOfRecordsToJoin = remConfigurator.getNumberOfRecordsToJoin(recordingBdfConfig);
-                bdfProvider = new BdfRecordsJoiner(bdfProvider, numberOfRecordsToJoin);
-                prefilters = remConfigurator.getPreFilters(recordingBdfConfig, remChannels);
-            }
-            dataStore = new RemDataStore(bdfProvider, remChannels);
+            RemDataStore dataStore  = new RemDataStore(bdfProvider, remChannels);
+            dataStore.configure(remConfigurator);
+            dataStore.setChannelsMask(recordingSettings.getActiveChannels());
             DataStore dataStorePapa = new DataStore(bdfProvider);
             boolean[] mask = {true, false, false, false, false};
             dataStorePapa.setChannelsMask(mask);
             dataStorePapa.setStartTime(recordingBdfConfig.getStartTime());
-            dataStore.setPreFilters(prefilters);
-            dataStore.setChannelsMask(recordingSettings.getActiveChannels());
-            GraphsConfigurator.configureRem(dataView, (RemDataStore) dataStore, dataStorePapa);
+            GraphsConfigurator.configureRem(dataView, dataStore, dataStorePapa);
+            dataStore.addListener(dataView);
+            dataStore.setStartTime(recordingBdfConfig.getStartTime());
+
         } else {
-            dataStore = new DataStore(bdfProvider);
+            DataStore dataStore = new DataStore(bdfProvider);
             dataStore.setChannelsMask(recordingSettings.getActiveChannels());
             GraphsConfigurator.configure(dataView, dataStore);
+            dataStore.addListener(dataView);
+            dataStore.setStartTime(recordingBdfConfig.getStartTime());
         }
-        dataStore.addListener(dataView);
-        dataStore.setStartTime(recordingBdfConfig.getStartTime());
+
         dataView.setPreviewFrequency(PREVIEW_TIME_FREQUENCY);
         bdfProvider.startReading();
         isRecording = true;

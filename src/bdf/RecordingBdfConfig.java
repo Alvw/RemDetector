@@ -82,33 +82,8 @@ public class RecordingBdfConfig extends BdfConfigWrapper {
         return  signalsLabels;
     }
 
-    /*
-  * we suppose:
-  * 1)  that "ideal/theoretical" number of records per seconds(rps) = 1/durationOfDataRecord is integer. Or durationOfDataRecord is already integer
-  * 2) Real durationOfDataRecord is only slightly different from its supposed theoretical value
-  * So for example instead of 500 Hz real frequency will be 503 Hz or so on
-  *
-  * Here we calculate that theoretical normalized DurationOfData record on the base of its real value
-  */
-    public double getNormalizedDurationOfDataRecord() {
-        double durationOfDataRecord = getDurationOfDataRecord();
-        double normalizedDurationOfDataRecord;
-        if(durationOfDataRecord > 3.0/4) { // case durationOfDataRecord is integer
-            normalizedDurationOfDataRecord = Math.round(durationOfDataRecord);
-        }
-        else { // duration of data record is 1/2, 1/3, 1/4 ....
-            long rps = Math.round(1 / durationOfDataRecord);
-            normalizedDurationOfDataRecord = (1.0 / rps);
-        }
-        return normalizedDurationOfDataRecord;
-    }
 
     public int[] getNormalizedSignalsFrequencies() {
-        double normalizedDurationOfDataRecord = getNormalizedDurationOfDataRecord();
-        int[] normalizedFrequencies = new int[getNumberOfSignals()];
-        for(int i = 0; i < getNumberOfSignals(); i++) {
-            normalizedFrequencies[i] = (int) (getSignalConfigs()[i].getNumberOfSamplesInEachDataRecord() / normalizedDurationOfDataRecord);
-        }
-        return normalizedFrequencies;
+        return BdfNormalizer.getNormalizedSignalsFrequencies(this);
     }
 }

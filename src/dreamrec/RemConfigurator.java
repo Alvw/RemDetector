@@ -1,5 +1,7 @@
 package dreamrec;
 
+import bdf.BdfConfig;
+import bdf.BdfNormalizer;
 import bdf.RecordingBdfConfig;
 import prefilters.FrequencyDividingPreFilter;
 import prefilters.HiPassPreFilter;
@@ -28,8 +30,8 @@ public class RemConfigurator {
       * final duration Of joined data record should be or 1 or 1/RPS_MIN (if rps and all frequencies are divisible by RPS_MIN)
       * if durationOfDataRecord >= 1 we don´t change it
       */
-    public int getNumberOfRecordsToJoin(RecordingBdfConfig bdfConfig) {
-        double normalizedDurationOfDataRecord = bdfConfig.getNormalizedDurationOfDataRecord();
+    public int getNumberOfRecordsToJoin(BdfConfig bdfConfig) {
+        double normalizedDurationOfDataRecord = BdfNormalizer.getNormalizedDurationOfDataRecord(bdfConfig);
         int RPS_MIN = 5;
         if(eogRemFrequency == 0 && accelerometerRemFrequency == 0) {
             return 1;
@@ -41,7 +43,7 @@ public class RemConfigurator {
         if((rps % RPS_MIN) != 0 || (eogRemFrequency % RPS_MIN) != 0 || (accelerometerRemFrequency % RPS_MIN) != 0) {
             return rps;
         }
-        int[] frequencies = bdfConfig.getNormalizedSignalsFrequencies();
+        int[] frequencies = BdfNormalizer.getNormalizedSignalsFrequencies(bdfConfig);
         for(int i = 0; i < frequencies.length; i++) {
             if((frequencies[i] % RPS_MIN) != 0) {
                 return rps;
@@ -51,13 +53,13 @@ public class RemConfigurator {
     }
 
 
-    public PreFilter[] getPreFilters(RecordingBdfConfig bdfConfig, RemChannels remChannels) throws ApplicationException {
+    public PreFilter[] getPreFilters(BdfConfig bdfConfig, RemChannels remChannels) throws ApplicationException {
         int rps = (int) (1/bdfConfig.getDurationOfDataRecord());
         if(rps > RPS_MAX) { // something wrong and we just do nothing
             String errorMsg = "Frequencies are too high for REM mode";
             throw new ApplicationException(errorMsg);
         }
-        int[] frequencies = bdfConfig.getNormalizedSignalsFrequencies();
+        int[] frequencies = BdfNormalizer.getNormalizedSignalsFrequencies(bdfConfig);
         PreFilter[] preFilters = new PreFilter[frequencies.length];
         for(int i = 0; i < preFilters.length; i++) {
             if(eogRemFrequency != 0 && i == remChannels.getEog() ) {
