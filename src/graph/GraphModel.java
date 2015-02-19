@@ -135,14 +135,17 @@ class GraphModel {
     }
 
     public void setGraphFrequency(double graphFrequency) {
+        int slotPosition = getSlotPosition();
         if(timeFrequency != 0) {
             compression = graphFrequency * compression / timeFrequency;
         }
         timeFrequency = graphFrequency;
         setGraphsFrequency(graphFrequency);
+        moveSlot(slotPosition);
     }
 
     public void setPreviewFrequency(double previewFrequency) {
+        int startIndex = getStartIndex();
         if(timeFrequency != 0) {
             compression = timeFrequency / previewFrequency;
         }
@@ -150,6 +153,8 @@ class GraphModel {
             timeFrequency = previewFrequency * compression;
         }
         setPreviewsFrequency(previewFrequency);
+        scrollPosition = 0;
+        setStartIndex(startIndex);
     }
 
     public List<DataSet> getGraphCluster(int listNumber) {
@@ -193,18 +198,6 @@ class GraphModel {
     }
 
 
-    public void moveSlot(int slotPosition) {
-        if (slotPosition < 0) {
-            slotPosition = 0;
-        }
-        if (slotPosition > getMaxSlotPosition()) {
-            slotPosition = getMaxSlotPosition();
-        }
-        int newStartIndex = (int)((slotPosition + scrollPosition) * getCompression());
-        setStartIndex(newStartIndex);
-    }
-
-
     public int getSlotWidth() {
         if (getCompression() > 1 && getDrawingAreaWidth() > 0 && getGraphsSize() > 0) {
             return Math.max(1, (int)(getDrawingAreaWidth() / getCompression()));
@@ -238,6 +231,17 @@ class GraphModel {
         return maxScrollPosition;
     }
 
+    public void moveSlot(int slotPosition) {
+        if (slotPosition < 0) {
+            slotPosition = 0;
+        }
+        if (slotPosition > getMaxSlotPosition()) {
+            slotPosition = getMaxSlotPosition();
+        }
+        int newStartIndex = (int)((slotPosition + scrollPosition) * getCompression());
+        setStartIndex(newStartIndex);
+    }
+
     public void setScrollPosition(int scrollPosition) {
         if (scrollPosition > getMaxScrollPosition()) {
             scrollPosition = getMaxScrollPosition();
@@ -266,11 +270,11 @@ class GraphModel {
         this.startIndex = startIndex;
         if (getSlotPosition() < 0) {
             //adjust slotPosition to 0
-            setScrollPosition((int)(startIndex / getCompression()));
+            scrollPosition = ((int)(startIndex / getCompression()));
         }
         if (getSlotPosition() > getMaxSlotPosition()) {
             //adjust slotPosition to slotMaxPosition
-            setScrollPosition((int)(startIndex / getCompression()) - getMaxSlotPosition());
+            scrollPosition = ((int)(startIndex / getCompression()) - getMaxSlotPosition());
         }
     }
 

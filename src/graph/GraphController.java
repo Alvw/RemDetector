@@ -56,8 +56,10 @@ public class GraphController implements GraphEventHandler {
 
     @Override
     public void moveScroll(int scrollPosition) {
-        graphModel.setScrollPosition(scrollPosition);
-        fireDataUpdated();
+        if(scrollPosition != graphModel.getScrollPosition()) {
+            graphModel.setScrollPosition(scrollPosition);
+            fireDataUpdated();
+        }
     }
 
     @Override

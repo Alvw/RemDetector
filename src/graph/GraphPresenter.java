@@ -32,6 +32,7 @@ public class GraphPresenter implements GraphControllerListener{
         int newScrollMaximum = graphModel.getPreviewsSize();
         int newScrollExtent = graphModel.getDrawingAreaWidth();
         int newScrollValue = graphModel.getScrollPosition();
+
         graphView.setScrollData(newScrollMaximum, newScrollExtent, newScrollValue);
         graphView.setGraphStartIndex(graphModel.getStartIndex());
         graphView.setPreviewStartIndex(graphModel.getScrollPosition());
@@ -48,7 +49,6 @@ public class GraphPresenter implements GraphControllerListener{
         for (int i = 0; i < graphView.getNumberOfPreviewPanels(); i++) {
             graphView.setPanelPreviews(graphModel.getPreviewCluster(i), i);
         }
-
         graphView.repaint();
     }
 }

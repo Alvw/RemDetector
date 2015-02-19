@@ -25,7 +25,7 @@ class SettingsDialog extends JDialog {
     private final int DIRNAME_LENGTH = 40;
     private final int CHANNEL_NAME_LENGTH = 16;
 
-    private final String TITLE = "Settings";
+    private final String TITLE = "Settings: ";
 
     private JButton startButton = new JButton(START_BUTTON_LABEL);
     private JButton cancelButton = new JButton(CANCEL_BUTTON_LABEL);

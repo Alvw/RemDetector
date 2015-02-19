@@ -118,14 +118,8 @@ public class GraphView extends JPanel {
 
     public void setScrollData(int scrollMaximum, int scrollExtent, int scrollValue) {
         BoundedRangeModel scrollModel = scrollBar.getModel();
-        if(scrollModel.getExtent() != scrollExtent) {
-            scrollModel.setExtent(scrollExtent);
-        }
-        if(scrollModel.getMaximum() != scrollMaximum) {
-            scrollModel.setMaximum(scrollMaximum);
-        }
-        if(scrollModel.getValue() != scrollValue) {
-            scrollModel.setValue(scrollValue);
+        if(scrollModel.getMaximum() != scrollMaximum || scrollModel.getExtent() != scrollExtent || scrollModel.getValue() != scrollValue) {
+            scrollModel.setRangeProperties(scrollValue, scrollExtent, 0, scrollMaximum, true);
         }
     }
 
