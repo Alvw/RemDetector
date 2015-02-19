@@ -22,6 +22,8 @@ public class TimePanel extends JPanel{
         setLayout(new FlowLayout(0));
         plusButton.setMargin(new Insets(0,4,0,4));
         minusButton.setMargin(new Insets(0,4,0,4));
+        plusButton.setFocusable(false);
+        minusButton.setFocusable(false);
         add(minusButton);
         add(plusButton);
     }

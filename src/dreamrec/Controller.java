@@ -1,24 +1,28 @@
 package dreamrec;
 
 import bdf.*;
-import gui.DataView;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import prefilters.PreFilter;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
-public class Controller {
-
+/**
+ * Created by mac on 17/02/15.
+ */
+public class Controller  implements InputEventHandler {
     private static final Log log = LogFactory.getLog(Controller.class);
-    private final double PREVIEW_TIME_FREQUENCY = 50.0 / 750;
-    private boolean isRecording = false;
+
+    private List<ControllerListener> listenerList = new ArrayList<ControllerListener>();
+
     private DeviceFabric deviceFabric;
     private String[] deviceSignalsLabels;
     private BdfProvider bdfProvider;
     private RecordingBdfConfig recordingBdfConfig;
     private boolean isFrequencyAutoAdjustment;
-    private File fileToRead;
     private BdfWriter bdfWriter;
     private RemConfigurator remConfigurator;
     private boolean isRemMode;
@@ -43,113 +47,141 @@ public class Controller {
         this.isFrequencyAutoAdjustment = isFrequencyAutoAdjustment;
     }
 
-    public void stopRecording() throws ApplicationException {
-        System.out.println("stopRecording ");
-        if (isRecording) {
-            bdfProvider.stopReading();
-            bdfProvider = null;
-            isRecording = false;
-            System.out.println("stop finished ");
+    public void addListener(ControllerListener listener) {
+        listenerList.add(listener);
+    }
+
+    public void removeListener(ControllerListener listener) {
+        listenerList.remove(listener);
+    }
+
+
+    private void fireDataStoreUpdated(Object dataStore) {
+        for (ControllerListener listener : listenerList) {
+            listener.dataStoreUpdated(dataStore);
         }
     }
 
-    private void saveToFile(File file) throws ApplicationException {
-        if (file == null) {
-            throw new ApplicationException("File to save is not specified");
+    @Override
+    public void startRecording(RecordingSettings recordingSettings, File file) throws ApplicationException {
+        stopRecording();
+
+        if(file == null) { // device
+            BdfProvider bdfDevice = deviceFabric.getDeviceImplementation();
+            bdfProvider = bdfDevice;
+            recordingBdfConfig = new RecordingBdfConfig(bdfDevice.getBdfConfig());
         }
-        if (fileToRead != null && fileToRead.equals(file)) {
-            System.out.println("write header");
-            //BdfHeaderWriter.writeBdfHeader(recordingBdfConfig, file);
-        } else {
-            System.out.println("write file");
-            bdfWriter = new BdfWriter(recordingBdfConfig, file);
+        else if (file.isFile()) { // file
+            BdfReader bdfReader = new BdfReader(file);
+            bdfProvider = bdfReader;
+            recordingBdfConfig = bdfReader.getBdfConfig();
+        }
+        else {
+            throw new ApplicationException("File: " + file + " is not valid");
+        }
+
+        String dirToSave = recordingSettings.getDirectoryToSave();
+        if(dirToSave == null || ! new File(dirToSave).isDirectory()) {
+            dirToSave = System.getProperty("user.dir"); // current working directory ("./");
+        }
+
+        String filenameToSave = recordingSettings.getFilename();
+        filenameToSave = normalizeFilename(filenameToSave);
+        File fileToSave = new File(dirToSave, filenameToSave);
+        if( ! fileToSave.equals(file)) { // fileToSave does not equal to fileToRead
+            System.out.println("write file: "+fileToSave.getAbsolutePath());
+            bdfWriter = new BdfWriter(recordingBdfConfig, fileToSave);
             bdfWriter.setFrequencyAutoAdjustment(isFrequencyAutoAdjustment);
             bdfProvider.addBdfDataListener(bdfWriter);
         }
 
-    }
 
-    public void closeApplication() {
-        try {
-            stopRecording();
-        } catch (ApplicationException e) {
-            log.error(e);
-        }
-        System.exit(0);
-    }
-
-
-    public RecordingSettings setFileBdfProvider(File file) throws ApplicationException {
-        if (isRecording) {
-            stopRecording();
-        }
-        if (file != null && file.exists() && file.isFile()) {
-            BdfReader bdfReader = new BdfReader(file);
-            bdfProvider = bdfReader;
-            recordingBdfConfig = bdfReader.getBdfConfig();
-            fileToRead = file;
-            return getRecordingSettings();
-        } else {
-            throw new ApplicationException("File: " + file + " is not valid");
-        }
-    }
-
-    public RecordingSettings setDeviceBdfProvider() throws ApplicationException {
-        if (!isRecording) {
-            BdfProvider bdfDevice = deviceFabric.getDeviceImplementation();
-            bdfProvider = bdfDevice;
-            recordingBdfConfig = new RecordingBdfConfig(bdfDevice.getBdfConfig());
-            recordingBdfConfig.setSignalsLabels(deviceSignalsLabels);
-            fileToRead = null;
-            return getRecordingSettings();
-        } else {
-            throw new ApplicationException("Recording is already start");
-        }
-    }
-
-
-    public DataView startDataReading(RecordingSettings recordingSettings) throws ApplicationException {
         recordingBdfConfig.setPatientIdentification(recordingSettings.getPatientIdentification());
         recordingBdfConfig.setRecordingIdentification(recordingSettings.getRecordingIdentification());
         recordingBdfConfig.setSignalsLabels(recordingSettings.getChannelsLabels());
-        saveToFile(recordingSettings.getFile());
-        DataView dataView = new DataView();
+
+
         if (isRemMode) {
             RemChannels remChannels = new RemChannels(recordingBdfConfig.getSignalsLabels());
             RemDataStore dataStore  = new RemDataStore(bdfProvider, remChannels);
             dataStore.configure(remConfigurator);
             dataStore.setChannelsMask(recordingSettings.getActiveChannels());
-            DataStore dataStorePapa = new DataStore(bdfProvider);
-            boolean[] mask = {true, false, false, false, false};
-            dataStorePapa.setChannelsMask(mask);
-            dataStorePapa.setStartTime(recordingBdfConfig.getStartTime());
-            GraphsConfigurator.configureRem(dataView, dataStore, dataStorePapa);
-            dataStore.addListener(dataView);
             dataStore.setStartTime(recordingBdfConfig.getStartTime());
+
+            fireDataStoreUpdated(dataStore);
 
         } else {
             DataStore dataStore = new DataStore(bdfProvider);
             dataStore.setChannelsMask(recordingSettings.getActiveChannels());
-            GraphsConfigurator.configure(dataView, dataStore);
-            dataStore.addListener(dataView);
             dataStore.setStartTime(recordingBdfConfig.getStartTime());
+
+            fireDataStoreUpdated(dataStore);
         }
 
-        dataView.setPreviewFrequency(PREVIEW_TIME_FREQUENCY);
         bdfProvider.startReading();
-        isRecording = true;
-        return dataView;
+
     }
 
+    @Override
+    public void stopRecording() throws ApplicationException {
+        if(bdfProvider != null) {
+            bdfProvider.stopReading();
+            bdfProvider = null;
+        }
+    }
 
-    private RecordingSettings getRecordingSettings() {
-        RecordingSettings recordingSettings = new RecordingSettings(recordingBdfConfig);
+    @Override
+    public RecordingSettings getRecordingSettings(File file) throws ApplicationException {
+        RecordingSettings recordingSettings;
+        if(file == null) { // device
+            BdfConfig deviceBdfConfig = deviceFabric.getDeviceImplementation().getBdfConfig();
+            RecordingBdfConfig recordingBdfConfig = new RecordingBdfConfig(deviceBdfConfig);
+            recordingSettings = new RecordingSettings(recordingBdfConfig);
+            recordingBdfConfig.setSignalsLabels(deviceSignalsLabels);
+        }
+        else if (file.isFile()) { // file
+            RecordingBdfConfig recordingBdfConfig = BdfHeaderReader.readBdfHeader(file);
+            recordingSettings = new RecordingSettings(recordingBdfConfig);
+            recordingSettings.setFilename(file.getName());
+            recordingSettings.setDirectoryToSave(file.getParent());
+        }
+        else {
+            throw new ApplicationException("File: " + file + " is not valid");
+        }
+
         if (isRemMode) {
-            boolean[] isChannelsActive = RemChannels.isRemLabels(recordingBdfConfig.getSignalsLabels());
+            boolean[] isChannelsActive = RemChannels.isRemLabels(recordingSettings.getChannelsLabels());
             recordingSettings.setActiveChannels(isChannelsActive);
         }
-        recordingSettings.setFile(fileToRead);
         return recordingSettings;
     }
 
+    @Override
+    public String normalizeFilename(String filename) {
+        String[] extensionList = {"bdf", "edf"};
+        String defaultFilename = new SimpleDateFormat("dd-MM-yyyy_HH-mm").format(new Date(System.currentTimeMillis()))
+                + "." + extensionList[0];
+
+        // if filename is default filename
+        if (filename == null || filename.isEmpty()) {
+            return defaultFilename;
+        }
+        filename = filename.trim();
+
+        // if filename has no extension
+        if (filename.lastIndexOf('.') == -1) {
+            filename = filename.concat(".").concat(extensionList[0]);
+            return filename;
+        }
+        // if  extension  match with one from given extensionList
+        // (?i) makes it case insensitive (catch BDF as well as bdf)
+        for (String ext : extensionList) {
+            if (filename.matches("(?i).*\\." + ext)) {
+                return filename;
+            }
+        }
+        // If the extension match with NONE from given extensionList. We need to replace it
+        filename = filename.substring(0, filename.lastIndexOf(".") + 1).concat(extensionList[0]);
+        return filename;
+    }
 }

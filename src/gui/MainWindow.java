@@ -1,7 +1,7 @@
 package gui;
 
 import dreamrec.ApplicationException;
-import dreamrec.Controller;
+import dreamrec.InputEventHandler;
 import dreamrec.RecordingSettings;
 import graph.GraphViewer;
 
@@ -19,26 +19,18 @@ public class MainWindow extends JFrame {
 
     protected GraphViewer graphViewer;
     private JMenuBar menu = new JMenuBar();
-    private Controller controller;
-    private String currentDirToRead = System.getProperty("user.dir"); // current working directory ("./")
-    private String currentDirToSave = System.getProperty("user.dir"); // current working directory ("./")
-    private GuiConfig guiConfig;
 
-    public MainWindow(Controller controller, GuiConfig guiConfig) {
-        this.controller = controller;
+    private GuiConfig guiConfig;
+    private InputEventHandler eventHandler;
+
+    public MainWindow(InputEventHandler eventHandler, GuiConfig guiConfig) {
+        this.eventHandler = eventHandler;
         this.guiConfig = guiConfig;
-        String dirToRead = guiConfig.getDirectoryToRead();
-        if(dirToRead != null && new File(dirToRead).exists()) {
-            currentDirToRead = dirToRead;
-        }
-        String dirToSave = guiConfig.getDirectoryToSave();
-        if(dirToSave != null && new File(dirToSave).exists()) {
-            currentDirToSave = dirToSave;
-        }
+
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-               // super.windowClosing(e);
+                // super.windowClosing(e);
                 close();
             }
         });
@@ -54,32 +46,28 @@ public class MainWindow extends JFrame {
     }
 
     private void close() {
-            guiConfig.setDirectoryToRead(currentDirToRead);
-            guiConfig.setDirectoryToSave(currentDirToSave);
-            controller.closeApplication();
+        try {
+            eventHandler.stopRecording();
+        } catch (ApplicationException e) {
+            showMessage(e.getMessage());
+        }
+        System.exit(0);
     }
 
-    public void setDataView(DataView dataView) {
+    public void setGraphViewer(GraphViewer graphViewer) {
         if (graphViewer != null) {
             remove(graphViewer);
         }
-        graphViewer = dataView;
+        graphViewer = graphViewer;
         add(graphViewer, BorderLayout.CENTER);
         graphViewer.requestFocusInWindow();
         validate();
     }
 
-    public void showMessage(String s) {
+    private void showMessage(String s) {
         JOptionPane.showMessageDialog(this, s);
     }
 
-    public String getCurrentDirToSave() {
-        return currentDirToSave;
-    }
-
-    public void setCurrentDirToSave(String currentDirToSave) {
-        this.currentDirToSave = currentDirToSave;
-    }
 
     private Dimension getWorkspaceDimension() {
         // To get the effective screen size (the size of the screen without the taskbar and etc)
@@ -105,13 +93,7 @@ public class MainWindow extends JFrame {
             public void actionPerformed(ActionEvent event) {
                 File file = chooseFileToRead();
                 if (file != null) {
-                    try {
-                        RecordingSettings recordingSettings = controller.setFileBdfProvider(file);
-                        new SettingsWindow(MainWindow.this, recordingSettings);
-                    } catch (ApplicationException e) {
-                        showMessage(e.getMessage());
-                    }
-
+                   prepareRecord(file);
                 }
             }
         });
@@ -128,13 +110,7 @@ public class MainWindow extends JFrame {
         start.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
-                try {
-                    RecordingSettings recordingSettings = controller.setDeviceBdfProvider();
-                    new SettingsWindow(MainWindow.this, recordingSettings);
-                } catch (ApplicationException e) {
-                    showMessage(e.getMessage());
-                }
-
+                prepareRecord(null);
             }
         });
 
@@ -142,7 +118,7 @@ public class MainWindow extends JFrame {
             @Override
             public void actionPerformed(ActionEvent event) {
                 try {
-                    controller.stopRecording();
+                    eventHandler.stopRecording();
                 } catch (ApplicationException e) {
                     showMessage(e.getMessage());
                 }
@@ -153,26 +129,71 @@ public class MainWindow extends JFrame {
         add(menu, BorderLayout.NORTH);
     }
 
-    public File chooseFileToRead() {
+    private File chooseFileToRead() {
         String[] extensionList = {"bdf", "edf"};
         String extensionDescription = extensionList[0];
         for (int i = 1; i < extensionList.length; i++) {
             extensionDescription = extensionDescription.concat(", ").concat(extensionList[i]);
         }
         JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setCurrentDirectory(new File(currentDirToRead));
+
+        fileChooser.setCurrentDirectory(getDirectoryToRead());
         fileChooser.setFileFilter(new FileNameExtensionFilter(extensionDescription, extensionList));
         int fileChooserState = fileChooser.showOpenDialog(this);
         if (fileChooserState == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
-            currentDirToRead = file.getParent();
+            setDirectoryToRead(file.getParent());
             return file;
         }
         return null;
     }
 
-    public void startReading(RecordingSettings recordingSettings) throws ApplicationException {
-        DataView dataView = controller.startDataReading(recordingSettings);
-        setDataView(dataView);
+    private File getDirectoryToRead() {
+        String directoryToRead = guiConfig.getDirectoryToRead();
+        if(directoryToRead == null || ! new File(directoryToRead).isDirectory()) {
+            directoryToRead = System.getProperty("user.dir"); // current working directory ("./");
+        }
+        return new File(directoryToRead);
+    }
+
+    private void setDirectoryToRead(String directoryToRead) {
+        guiConfig.setDirectoryToRead(directoryToRead);
+    }
+
+// methods used by SettingsDialog
+
+    File getDirectoryToSave() {
+        String directoryToSave = guiConfig.getDirectoryToSave();
+        if(directoryToSave == null || ! new File(directoryToSave).isDirectory()) {
+            directoryToSave = System.getProperty("user.dir"); // current working directory ("./");
+        }
+        return new File(directoryToSave);
+    }
+
+    void setDirectoryToSave(String directoryToSave) {
+        guiConfig.setDirectoryToSave(directoryToSave);
+    }
+
+    void startRecording(RecordingSettings recordingSettings, File file) throws ApplicationException {
+        if(recordingSettings.getDirectoryToSave() != file.getParent()) {
+            guiConfig.setDirectoryToSave(recordingSettings.getDirectoryToSave());
+            eventHandler.startRecording(recordingSettings, file);
+        }
+    }
+
+    String normalizeFilename(String filename) {
+        return eventHandler.normalizeFilename(filename);
+    }
+
+    private void prepareRecord(File file) {
+        try{
+            RecordingSettings recordingSettings = eventHandler.getRecordingSettings(file);
+            if(recordingSettings.getDirectoryToSave() == null) {
+                recordingSettings.setDirectoryToSave(guiConfig.getDirectoryToSave());
+            }
+            new SettingsDialog(this, recordingSettings);
+        } catch (ApplicationException e) {
+            showMessage(e.getMessage());
+        }
     }
 }

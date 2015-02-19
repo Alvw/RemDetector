@@ -7,11 +7,12 @@ import properties.GuiProperties;
 import properties.RemProperties;
 
 import javax.swing.*;
+import java.io.File;
 
 /**
- *
+ * Created by mac on 19/02/15.
  */
-public class DreamRec {
+public class RemDetector {
     public static void main(String[] args) {
         try {
             String lookAndFeelClassName = UIManager.getCrossPlatformLookAndFeelClassName();
@@ -33,6 +34,7 @@ public class DreamRec {
             boolean isFrequencyAutoAdjustment = applicationProperties.isFrequencyAutoAdjustment();
             RemConfigurator remConfigurator = new RemConfigurator(remProperties.getEogRemFrequency(),
                     remProperties.getAccelerometerRemFrequency(), remProperties.getEogRemCutoffPeriod());
+
             Controller controller = new Controller(deviceFabric);
             controller.setDeviceSignalsLabels(deviceSignalsLabels);
             controller.setRemConfigurator(remConfigurator);
@@ -40,6 +42,9 @@ public class DreamRec {
             controller.setRemMode(true);
 
             MainWindow mainWindow = new MainWindow(controller, guiConfig);
+
+            Presenter presenter = new Presenter(mainWindow);
+            controller.addListener(presenter);
 
         } catch (ApplicationException e) {
             showMessage(e.getMessage());
@@ -50,4 +55,5 @@ public class DreamRec {
     public static void showMessage(String s) {
         JOptionPane.showMessageDialog(null, s);
     }
+
 }

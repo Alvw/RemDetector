@@ -12,7 +12,7 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-class SettingsWindow extends JDialog {
+class SettingsDialog extends JDialog {
 
     private final String PATIENT_IDENTIFICATION_LABEL = "Patient";
     private final String RECORD_IDENTIFICATION_LABEL = "Record";
@@ -25,8 +25,7 @@ class SettingsWindow extends JDialog {
     private final int DIRNAME_LENGTH = 40;
     private final int CHANNEL_NAME_LENGTH = 16;
 
-    private final String DEFAULT_FILENAME = "date-time.bdf";
-    private final String TITLE = "Recording Settings";
+    private final String TITLE = "Settings";
 
     private JButton startButton = new JButton(START_BUTTON_LABEL);
     private JButton cancelButton = new JButton(CANCEL_BUTTON_LABEL);
@@ -42,28 +41,35 @@ class SettingsWindow extends JDialog {
     private JTextField filenameToSaveField;
     private JTextField dirToSaveField;
 
+
     private JComponent[] headersForChannelsSettings = {new JLabel("Number"), new JLabel("Name"),
             new JLabel("Frequency (Hz)"), new JLabel("Enable")};
 
     private JPanel saveAsBorderPanel;
 
-    private RecordingSettings recordingSettings;
-    private MainWindow mainWindow;
 
-    public SettingsWindow(MainWindow mainWindow, RecordingSettings recordingSettings) {
-        super(mainWindow, ModalityType.APPLICATION_MODAL);
-        this.recordingSettings = recordingSettings;
-        this.mainWindow = mainWindow;
-        setTitle(TITLE);
-        init();
-        arrangeForm();
-        setActions();
-        loadData();
-        setVisible(true);
-    }
+    private RecordingSettings resultSettings;
+    private MainWindow parent;
+    private File fileToRead;
 
 
-    private void init() {
+    public SettingsDialog(MainWindow parent,  RecordingSettings initialSettings) {
+        super(parent, ModalityType.APPLICATION_MODAL);
+        this.parent = parent;
+
+        String title = TITLE;
+        int numberOfChannels = 0;
+
+        if (initialSettings != null) {
+            numberOfChannels = initialSettings.getChannelsLabels().length;
+            String filename = initialSettings.getFilename();
+            if( filename != null) {
+                fileToRead = new File(initialSettings.getDirectoryToSave(), filename);
+                title = TITLE + filename;
+            }
+        }
+        setTitle(title);
+
         patientIdentificationField = new JTextField(IDENTIFICATION_LENGTH);
         recordIdentificationField = new JTextArea(2, IDENTIFICATION_LENGTH);
         patientIdentificationField.setDocument(new FixSizeDocument(IDENTIFICATION_LENGTH * 2));
@@ -71,8 +77,6 @@ class SettingsWindow extends JDialog {
         filenameToSaveField = new JTextField(FILENAME_LENGTH);
         dirToSaveField = new JTextField(DIRNAME_LENGTH);
         dirToSaveField.setEnabled(false);
-
-        int numberOfChannels = recordingSettings.getChannelsLabels().length;
 
         channelsFrequenciesFields = new JLabel[numberOfChannels];
         isChannelsActiveFields = new JCheckBox[numberOfChannels];
@@ -85,137 +89,51 @@ class SettingsWindow extends JDialog {
             isChannelsActiveFields[i] = new JCheckBox();
             isChannelsActiveFields[i].addItemListener(new setChannelActiveListener(i));
         }
+        arrangeForm();
+        setActions();
+        loadData(initialSettings);
+        setVisible(true);
+    }
+
+    public static RecordingSettings showDialog(MainWindow parent,  RecordingSettings initialSettings) {
+        SettingsDialog settingsDialog = new SettingsDialog(parent, initialSettings);
+        return settingsDialog.getResultSettings();
     }
 
 
-    private void loadData() {
-        patientIdentificationField.setText(recordingSettings.getPatientIdentification());
-        recordIdentificationField.setText(recordingSettings.getRecordingIdentification());
+    private RecordingSettings getResultSettings() {
+        return resultSettings;
+    }
 
-        int[] frequencies = recordingSettings.getChannelsFrequencies();
-        String[] labels = recordingSettings.getChannelsLabels();
-        boolean[] isActives = recordingSettings.getActiveChannels();
 
-        int numberOfChannels = labels.length;
 
-        for (int i = 0; i < numberOfChannels; i++) {
-            channelsFrequenciesFields[i].setText(String.valueOf(frequencies[i]));
-            channelsLabelsFields[i].setText(labels[i]);
-            isChannelsActiveFields[i].setSelected(true);
-            isChannelsActiveFields[i].setSelected(isActives[i]);
-        }
+    private void loadData(RecordingSettings initialSettings) {
+        if (initialSettings != null) {
+            patientIdentificationField.setText(initialSettings.getPatientIdentification());
+            recordIdentificationField.setText(initialSettings.getRecordingIdentification());
 
-        File file = recordingSettings.getFile();
-        if (file != null) {
-            filenameToSaveField.setText(file.getName());
-            dirToSaveField.setText(file.getParent());
-            setTitle(file.getName());
-           // saveAsBorderPanel.setVisible(false);
+            int[] frequencies = initialSettings.getChannelsFrequencies();
+            String[] labels = initialSettings.getChannelsLabels();
+            boolean[] isActives = initialSettings.getActiveChannels();
+
+            int numberOfChannels = labels.length;
+            for (int i = 0; i < numberOfChannels; i++) {
+                channelsFrequenciesFields[i].setText(String.valueOf(frequencies[i]));
+                channelsLabelsFields[i].setText(labels[i]);
+                isChannelsActiveFields[i].setSelected(true);
+                isChannelsActiveFields[i].setSelected(isActives[i]);
+            }
+
+            filenameToSaveField.setText(initialSettings.getFilename());
+            String dirToSave = initialSettings.getDirectoryToSave();
+            if(dirToSave == null || ! new File(dirToSave).isDirectory()) {
+                dirToSave = System.getProperty("user.dir"); // current working directory ("./");
+            }
+            dirToSaveField.setText(dirToSave);
+            // saveAsBorderPanel.setVisible(false);
             pack();
-        } else {
-            filenameToSaveField.setText(DEFAULT_FILENAME);
-            dirToSaveField.setText(mainWindow.getCurrentDirToSave());
-        }
-    }
-
-    private RecordingSettings getRecordingSettings() {
-        RecordingSettings resultingSettings = new RecordingSettings(getChannelsLabels());
-        resultingSettings.setRecordingIdentification(getRecordIdentification());
-        resultingSettings.setPatientIdentification(getPatientIdentification());
-        resultingSettings.setActiveChannels(getActiveChannels());
-        resultingSettings.setFile(new File(getDirToSave(), getFileToSave()));
-        return resultingSettings;
-    }
-
-
-    private void arrangeForm() {
-        int hgap = 10;
-        int vgap = 0;
-        JPanel patientPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, hgap, vgap));
-        patientPanel.add(new JLabel(PATIENT_IDENTIFICATION_LABEL));
-        patientPanel.add(patientIdentificationField);
-        patientIdentificationField.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
-
-        JPanel recordingPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, hgap, vgap));
-        recordingPanel.add(new JLabel(RECORD_IDENTIFICATION_LABEL));
-        recordingPanel.add(recordIdentificationField);
-        recordIdentificationField.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
-
-
-        hgap = 5;
-        vgap = 5;
-        JPanel identificationPanel = new JPanel(new BorderLayout(hgap, vgap));
-        identificationPanel.add(patientPanel, BorderLayout.NORTH);
-        identificationPanel.add(recordingPanel, BorderLayout.CENTER);
-        hgap = 20;
-        vgap = 20;
-        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, hgap, vgap));
-        topPanel.add(identificationPanel);
-
-
-        hgap = 20;
-        vgap = 5;
-        JPanel channelsPanel = new JPanel(new TableLayout(headersForChannelsSettings.length, new TableOption(TableOption.CENTRE, TableOption.CENTRE), hgap, vgap));
-        for (JComponent component : headersForChannelsSettings) {
-            channelsPanel.add(component);
-        }
-        int numberOfChannels = channelsLabelsFields.length;
-        for (int i = 0; i < numberOfChannels; i++) {
-            channelsPanel.add(new JLabel(" " + (i + 1) + " "));
-            channelsPanel.add(channelsLabelsFields[i]);
-            channelsPanel.add(channelsFrequenciesFields[i]);
-            channelsPanel.add(isChannelsActiveFields[i]);
         }
 
-        hgap = 0;
-        vgap = 10;
-        JPanel channelsBorderPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, hgap, vgap));
-        channelsBorderPanel.setBorder(BorderFactory.createTitledBorder("Channels"));
-        channelsBorderPanel.add(channelsPanel);
-
-
-        hgap = 5;
-        vgap = 0;
-        JPanel filePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, hgap, vgap));
-        filePanel.add(new JLabel("File Name  "));
-        filePanel.add(filenameToSaveField);
-
-        JPanel dirPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, hgap, vgap));
-        dirPanel.add(changeDirButton);
-        dirPanel.add(dirToSaveField);
-
-        hgap = 15;
-        vgap = 5;
-        JPanel saveAsPanel = new JPanel(new BorderLayout(hgap, vgap));
-        saveAsPanel.add(filePanel, BorderLayout.NORTH);
-        saveAsPanel.add(dirPanel, BorderLayout.CENTER);
-
-        hgap = 5;
-        vgap = 10;
-        saveAsBorderPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, hgap, vgap));
-        saveAsBorderPanel.setBorder(BorderFactory.createTitledBorder("Save As"));
-        saveAsBorderPanel.add(saveAsPanel);
-
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.add(cancelButton);
-        buttonPanel.add(startButton);
-
-        hgap = 0;
-        vgap = 5;
-        JPanel bottomPanel = new JPanel(new BorderLayout(hgap, vgap));
-        bottomPanel.add(saveAsBorderPanel, BorderLayout.NORTH);
-        bottomPanel.add(buttonPanel, BorderLayout.CENTER);
-
-
-        // Root Panel of the SettingsWindow
-        add(topPanel, BorderLayout.NORTH);
-        add(channelsBorderPanel, BorderLayout.CENTER);
-        add(bottomPanel, BorderLayout.SOUTH);
-
-
-        pack();
-        // place the window to the screen center
-        setLocationRelativeTo(null);
     }
 
     private void setActions() {
@@ -246,88 +164,168 @@ class SettingsWindow extends JDialog {
         cancelButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                close();
+                dispose();
             }
         });
 
         startButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                File file = new File(getDirToSave(), getFileToSave());
-                if(recordingSettings.getFile() == null && file != null && file.exists()) {
+                String filename = getFileToSave();
+                filename = parent.normalizeFilename(filename);
+                File fileToSave = new File(getDirToSave(), filename);
+                if ( ! fileToSave.equals(fileToRead) && fileToSave.isFile()) {
                     int dialogButton = JOptionPane.YES_NO_OPTION;
                     String dialogTitle = "Choose option";
-                    String dialogMsg = "The file: "+file.getName() + " is already exists! \nAre you sure you want to change it?";
-                    int dialogResult = JOptionPane.showConfirmDialog(SettingsWindow.this, dialogMsg, dialogTitle, dialogButton);
-                    if(dialogResult == JOptionPane.NO_OPTION) {
+                    String dialogMsg = "The file: " + fileToSave.getAbsolutePath() + " is already exists! \nAre you sure you want to change it?";
+                    int dialogResult = JOptionPane.showConfirmDialog(SettingsDialog.this, dialogMsg, dialogTitle, dialogButton);
+                    if (dialogResult == JOptionPane.NO_OPTION) {
                         return;
                     }
                 }
-                try {
-                    mainWindow.startReading(getRecordingSettings());
-                    close();
+
+                getRecordingSettings();
+
+                try{
+                    parent.startRecording(resultSettings, fileToRead);
+                    dispose();
                 } catch (ApplicationException e) {
                     showMessage(e.getMessage());
-                    //  System.exit(0);
                 }
             }
         });
     }
 
-    public void close() {
-        SettingsWindow.this.dispose();
+
+    private void getRecordingSettings() {
+        resultSettings = new RecordingSettings(getChannelsLabels());
+        resultSettings.setRecordingIdentification(getRecordIdentification());
+        resultSettings.setPatientIdentification(getPatientIdentification());
+        resultSettings.setActiveChannels(getActiveChannels());
+        resultSettings.setChannelsFrequencies(getChannelsFrequencies());
+        resultSettings.setFilename(getFileToSave());
+        resultSettings.setDirectoryToSave(getDirToSave());
+        getChannelsFrequencies();
     }
+
+
+    private void arrangeForm() {
+        int hgap = 10;
+        int vgap = 0;
+
+        JPanel patientPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, hgap, vgap));
+        patientPanel.add(new JLabel(PATIENT_IDENTIFICATION_LABEL));
+        patientPanel.add(patientIdentificationField);
+        patientIdentificationField.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+
+        JPanel recordingPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, hgap, vgap));
+        recordingPanel.add(new JLabel(RECORD_IDENTIFICATION_LABEL));
+        recordingPanel.add(recordIdentificationField);
+        recordIdentificationField.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+
+        hgap = 5;
+        vgap = 5;
+        JPanel identificationPanel = new JPanel(new BorderLayout(hgap, vgap));
+        identificationPanel.add(patientPanel, BorderLayout.CENTER);
+        identificationPanel.add(recordingPanel, BorderLayout.SOUTH);
+
+        hgap = 20;
+        vgap = 0;
+        JPanel topPanel = new JPanel(new BorderLayout(hgap, vgap));
+        topPanel.add(identificationPanel,BorderLayout.CENTER);
+
+        JPanel channelsBorderPanel = new JPanel();
+
+        hgap = 20;
+        vgap = 5;
+        JPanel channelsPanel = new JPanel(new TableLayout(headersForChannelsSettings.length, new TableOption(TableOption.CENTRE, TableOption.CENTRE), hgap, vgap));
+        for (JComponent component : headersForChannelsSettings) {
+            channelsPanel.add(component);
+        }
+        int numberOfChannels = channelsLabelsFields.length;
+        for (int i = 0; i < numberOfChannels; i++) {
+            channelsPanel.add(new JLabel(" " + (i + 1) + " "));
+            channelsPanel.add(channelsLabelsFields[i]);
+            channelsPanel.add(channelsFrequenciesFields[i]);
+            channelsPanel.add(isChannelsActiveFields[i]);
+        }
+
+        if (numberOfChannels > 0) {
+            hgap = 0;
+            vgap = 10;
+            channelsBorderPanel.setLayout(new FlowLayout(FlowLayout.LEFT, hgap, vgap));
+            channelsBorderPanel.setBorder(BorderFactory.createTitledBorder("Channels"));
+            channelsBorderPanel.add(channelsPanel);
+        }
+
+        hgap = 5;
+        vgap = 0;
+        JPanel filePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, hgap, vgap));
+        filePanel.add(new JLabel("File Name  "));
+        filePanel.add(filenameToSaveField);
+
+        JPanel dirPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, hgap, vgap));
+        dirPanel.add(changeDirButton);
+        dirPanel.add(dirToSaveField);
+
+        hgap = 15;
+        vgap = 5;
+        JPanel saveAsPanel = new JPanel(new BorderLayout(hgap, vgap));
+        saveAsPanel.add(filePanel, BorderLayout.NORTH);
+        saveAsPanel.add(dirPanel, BorderLayout.CENTER);
+
+        hgap = 5;
+        vgap = 10;
+        saveAsBorderPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, hgap, vgap));
+        saveAsBorderPanel.setBorder(BorderFactory.createTitledBorder("Save As"));
+        saveAsBorderPanel.add(saveAsPanel);
+
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(startButton);
+        buttonPanel.add(cancelButton);
+
+
+        hgap = 0;
+        vgap = 5;
+        JPanel bottomPanel = new JPanel(new BorderLayout(hgap, vgap));
+        bottomPanel.add(saveAsBorderPanel, BorderLayout.NORTH);
+        bottomPanel.add(buttonPanel, BorderLayout.CENTER);
+
+
+        // Root Panel of the SettingsWindow
+        add(topPanel, BorderLayout.NORTH);
+        add(channelsBorderPanel, BorderLayout.CENTER);
+        add(bottomPanel, BorderLayout.SOUTH);
+
+
+        pack();
+        // place the window to the screen center
+        setLocationRelativeTo(null);
+    }
+
+
 
     public String chooseDirToSave() {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Specify a directory to save");
-        fileChooser.setCurrentDirectory(new File(mainWindow.getCurrentDirToSave()));
+        fileChooser.setCurrentDirectory(parent.getDirectoryToSave());
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         int fileChooserState = fileChooser.showOpenDialog(this);
         if (fileChooserState == JFileChooser.APPROVE_OPTION) {
             String dir = fileChooser.getSelectedFile().getAbsolutePath();
-            mainWindow.setCurrentDirToSave(dir);
+            parent.setDirectoryToSave(dir);
             return dir;
         }
         return null;
     }
 
-    public String getDirToSave() {
+   private String getDirToSave() {
         return dirToSaveField.getText();
     }
 
-    public String getFileToSave() {
-        String[] extensionList = {"bdf", "edf"};
-        String filename = filenameToSaveField.getText();
-        String defaultFilename = new SimpleDateFormat("dd-MM-yyyy_HH-mm").format(new Date(System.currentTimeMillis()))
-                + "." + extensionList[0];
-
-        // if filename is default filename
-        if (filename == null) {
-            return defaultFilename;
-        }
-        filename = filename.trim();
-        if (filename.isEmpty() || filename.equals(DEFAULT_FILENAME)) {
-            return defaultFilename;
-        }
-
-        // if filename has no extension
-        if (filename.lastIndexOf('.') == -1) {
-            filename = filename.concat(".").concat(extensionList[0]);
-            return filename;
-        }
-        // if  extension  match with one from given extensionList
-        // (?i) makes it case insensitive (catch BDF as well as bdf)
-        for (String ext : extensionList) {
-            if (filename.matches("(?i).*\\." + ext)) {
-                return filename;
-            }
-        }
-        // If the extension match with NONE from given extensionList. We need to replace it
-        filename = filename.substring(0, filename.lastIndexOf(".") + 1).concat(extensionList[0]);
-        return filename;
+   private String getFileToSave() {
+        return filenameToSaveField.getText();
     }
-
 
     private boolean[] getActiveChannels() {
         boolean[] isActives = new boolean[isChannelsActiveFields.length];
@@ -335,6 +333,15 @@ class SettingsWindow extends JDialog {
             isActives[i] = isChannelsActiveFields[i].isSelected();
         }
         return isActives;
+    }
+
+    private int[] getChannelsFrequencies() {
+
+        int[] frequencies = new int[channelsFrequenciesFields.length];
+        for (int i = 0; i < channelsFrequenciesFields.length; i++) {
+            frequencies[i] = Integer.parseInt(channelsFrequenciesFields[i].getText());
+        }
+        return frequencies;
     }
 
     private String[] getChannelsLabels() {
@@ -353,7 +360,7 @@ class SettingsWindow extends JDialog {
         return recordIdentificationField.getText();
     }
 
-    public void showMessage(String s) {
+    private void showMessage(String s) {
         JOptionPane.showMessageDialog(this, s);
     }
 

@@ -8,7 +8,7 @@ package graph;
  * Через этот интерфейс View связывается с конкретным обработчиком Controller
  */
 
-public interface ViewEventHandler extends SlotListener {
+public interface GraphEventHandler extends SlotListener {
     public void moveSlotForward();
     public void moveSlotBackward();
     public void setDrawingAreaWidth(int drawingAreaWidth);

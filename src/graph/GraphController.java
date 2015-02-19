@@ -13,7 +13,7 @@ import java.util.List;
  * Поэтому !!! контроллер принципиально не может иметь зависимость от View !!!
  * как это имеет место в патерне MVC
  */
-public class GraphController implements ViewEventHandler {
+public class GraphController implements GraphEventHandler {
     private GraphModel graphModel;
     private List<GraphControllerListener> listenerList = new ArrayList<GraphControllerListener>();
 

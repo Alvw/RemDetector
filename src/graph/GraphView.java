@@ -35,10 +35,10 @@ public class GraphView extends JPanel {
     private TimePanel previewTimePanel = new TimePanel();
     private JScrollBar scrollBar = new JScrollBar(JScrollBar.HORIZONTAL);
 
-    private ViewEventHandler viewEventHandler;
+    private GraphEventHandler eventHandler;
 
-    public GraphView(ViewEventHandler controller) {
-        this.viewEventHandler = controller;
+    public GraphView(GraphEventHandler eventHandler) {
+        this.eventHandler = eventHandler;
         setLayout(new BorderLayout());
         add(mainPanel, BorderLayout.CENTER);
         add(scrollBar, BorderLayout.SOUTH);
@@ -64,11 +64,11 @@ public class GraphView extends JPanel {
                 super.keyPressed(e);
                 int key = e.getKeyCode();
                 if (key == KeyEvent.VK_RIGHT) {
-                    viewEventHandler.moveSlotForward();
+                    GraphView.this.eventHandler.moveSlotForward();
                 }
 
                 if (key == KeyEvent.VK_LEFT) {
-                    viewEventHandler.moveSlotBackward();
+                    GraphView.this.eventHandler.moveSlotBackward();
                 }
             }
         });
@@ -78,14 +78,14 @@ public class GraphView extends JPanel {
             public void componentResized(ComponentEvent e) {
                 super.componentResized(e);
                 setPanelsSizes();
-                viewEventHandler.setDrawingAreaWidth(getWidth() - xIndent);
+                GraphView.this.eventHandler.setDrawingAreaWidth(getWidth() - xIndent);
             }
         });
 
         scrollBar.addAdjustmentListener(new AdjustmentListener() {
             @Override
             public void adjustmentValueChanged(AdjustmentEvent e) {
-                viewEventHandler.moveScroll(e.getValue());
+                GraphView.this.eventHandler.moveScroll(e.getValue());
             }
         });
     }
@@ -205,7 +205,7 @@ public class GraphView extends JPanel {
         panel.setIndentX(xIndent);
         panel.setIndentY(yIndent);
         panel.setBackground(previewBgColor);
-        panel.addSlotListener(viewEventHandler);
+        panel.addSlotListener(eventHandler);
         TimeAxisPainter timeAxisPainter = new TimeAxisPainter();
         timeAxisPainter.isValuesPaint(false);
         panel.setTimeAxisPainter(timeAxisPainter);
@@ -270,14 +270,14 @@ public class GraphView extends JPanel {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 double frequencyNew = graphTimePanel.getFrequency() / 2;
-                viewEventHandler.setGraphFrequency(frequencyNew);
+                eventHandler.setGraphFrequency(frequencyNew);
             }
         });
         graphTimePanel.addPlusButtonListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 double frequencyNew = graphTimePanel.getFrequency() * 2;
-                viewEventHandler.setGraphFrequency(frequencyNew);
+                eventHandler.setGraphFrequency(frequencyNew);
             }
         });
         graphsMainPanel.add(graphTimePanel, BorderLayout.NORTH);
@@ -291,14 +291,14 @@ public class GraphView extends JPanel {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 double frequencyNew = previewTimePanel.getFrequency() / 2;
-                viewEventHandler.setPreviewFrequency(frequencyNew);
+                eventHandler.setPreviewFrequency(frequencyNew);
             }
         });
         previewTimePanel.addPlusButtonListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 double frequencyNew = previewTimePanel.getFrequency() * 2;
-                viewEventHandler.setPreviewFrequency(frequencyNew);
+                eventHandler.setPreviewFrequency(frequencyNew);
             }
         });
 

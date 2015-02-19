@@ -13,11 +13,13 @@ public class RecordingSettings {
     private String patientIdentification;
     private String recordingIdentification;
     private boolean[] activeChannels;
-    private File file;
+    private String directoryToSave;
+    private String filename;
 
     public RecordingSettings(String[] channelsLabels) {
         this.channelsLabels = channelsLabels;
         activeChannels = new boolean[channelsLabels.length];
+        channelsFrequencies = new int[channelsLabels.length];
     }
 
     public RecordingSettings(RecordingBdfConfig recordingBdfConfig) {
@@ -27,12 +29,46 @@ public class RecordingSettings {
         channelsFrequencies = recordingBdfConfig.getNormalizedSignalsFrequencies();
     }
 
+    public String getDirectoryToSave() {
+        return directoryToSave;
+    }
+
+    public void setDirectoryToSave(String directoryToSave) {
+        this.directoryToSave = directoryToSave;
+    }
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
+
     public String[] getChannelsLabels() {
         return channelsLabels;
     }
 
+    public boolean[] getActiveChannels() {
+        return activeChannels;
+    }
+
     public int[] getChannelsFrequencies() {
         return channelsFrequencies;
+    }
+
+    public void setActiveChannels(boolean[] activeChannels) {
+        int length = Math.min(this.activeChannels.length, activeChannels.length);
+        for (int i = 0; i < length; i++) {
+            this.activeChannels[i] = activeChannels[i];
+        }
+    }
+
+    public void setChannelsFrequencies(int[] channelsFrequencies) {
+        int length = Math.min(this.channelsFrequencies.length, channelsFrequencies.length);
+        for (int i = 0; i < length; i++) {
+            this.channelsFrequencies[i] = channelsFrequencies[i];
+        }
     }
 
     public String getPatientIdentification() {
@@ -49,24 +85,5 @@ public class RecordingSettings {
 
     public void setRecordingIdentification(String recordingIdentification) {
         this.recordingIdentification = recordingIdentification;
-    }
-
-    public boolean[] getActiveChannels() {
-        return activeChannels;
-    }
-
-    public void setActiveChannels(boolean[] activeChannels) {
-        int length = Math.min(this.activeChannels.length, activeChannels.length);
-        for (int i = 0; i < length; i++) {
-            this.activeChannels[i] = activeChannels[i];
-        }
-    }
-
-    public File getFile() {
-        return file;
-    }
-
-    public void setFile(File file) {
-        this.file = file;
     }
 }
