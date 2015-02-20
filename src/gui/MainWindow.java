@@ -130,15 +130,15 @@ public class MainWindow extends JFrame {
     }
 
     private File chooseFileToRead() {
-        String[] extensionList = {"bdf", "edf"};
-        String extensionDescription = extensionList[0];
-        for (int i = 1; i < extensionList.length; i++) {
-            extensionDescription = extensionDescription.concat(", ").concat(extensionList[i]);
+        String[] fileExtensions = eventHandler.getFileExtensions();
+        String extensionDescription = fileExtensions[0];
+        for (int i = 1; i < fileExtensions.length; i++) {
+            extensionDescription = extensionDescription.concat(", ").concat(fileExtensions[i]);
         }
         JFileChooser fileChooser = new JFileChooser();
 
         fileChooser.setCurrentDirectory(getDirectoryToRead());
-        fileChooser.setFileFilter(new FileNameExtensionFilter(extensionDescription, extensionList));
+        fileChooser.setFileFilter(new FileNameExtensionFilter(extensionDescription, fileExtensions));
         int fileChooserState = fileChooser.showOpenDialog(this);
         if (fileChooserState == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();

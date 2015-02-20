@@ -49,17 +49,25 @@ public class RemDataStore  implements DataStoreListener {
         movementLimit = (int)(0.15 / getAccelerometerXData().getDataDimension().getGain());
     }
 
-    public void setChannelsMask(boolean[] channelsMask) {
-        boolean[] resultingMask = new boolean[channelsMask.length];
-        for(int i = 0; i < channelsMask.length; i++) {
-            if(i == remChannels.getEog() || i == remChannels.getAccelerometerX() || i == remChannels.getAccelerometerY() || i == remChannels.getAccelerometerZ()) {
-                resultingMask[i] = true;
-            }
-            else {
-                resultingMask[i] = channelsMask[i];
-            }
+    public void setChannelsMask(boolean[] channelsMask) throws ApplicationException {
+        if((remChannels.getEog() < channelsMask.length) && channelsMask[remChannels.getEog()] == false) {
+            String errorMsg = "EOG channel should be enable";
+            throw new ApplicationException(errorMsg);
         }
-        dataStore.setChannelsMask(resultingMask);
+        if((remChannels.getAccelerometerX() < channelsMask.length) && channelsMask[remChannels.getAccelerometerX()] == false) {
+            String errorMsg = "AccelerometerX channel should be enable";
+            throw new ApplicationException(errorMsg);
+        }
+        if((remChannels.getAccelerometerY() < channelsMask.length) && channelsMask[remChannels.getAccelerometerY()] == false) {
+            String errorMsg = "AccelerometerY channel should be enable";
+            throw new ApplicationException(errorMsg);
+        }
+        if((remChannels.getAccelerometerZ() < channelsMask.length) && channelsMask[remChannels.getAccelerometerZ()] == false) {
+            String errorMsg = "AccelerometerZ channel should be enable";
+            throw new ApplicationException(errorMsg);
+        }
+
+        dataStore.setChannelsMask(channelsMask);
     }
 
 

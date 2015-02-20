@@ -18,6 +18,7 @@ public class Controller  implements InputEventHandler {
 
     private List<ControllerListener> listenerList = new ArrayList<ControllerListener>();
 
+    private static final String[] FILE_EXTENSIONS = {"bdf", "edf"};
     private DeviceFabric deviceFabric;
     private String[] deviceSignalsLabels;
     private BdfProvider bdfProvider;
@@ -158,9 +159,8 @@ public class Controller  implements InputEventHandler {
 
     @Override
     public String normalizeFilename(String filename) {
-        String[] extensionList = {"bdf", "edf"};
         String defaultFilename = new SimpleDateFormat("dd-MM-yyyy_HH-mm").format(new Date(System.currentTimeMillis()))
-                + "." + extensionList[0];
+                + "." + FILE_EXTENSIONS[0];
 
         // if filename is default filename
         if (filename == null || filename.isEmpty()) {
@@ -170,18 +170,23 @@ public class Controller  implements InputEventHandler {
 
         // if filename has no extension
         if (filename.lastIndexOf('.') == -1) {
-            filename = filename.concat(".").concat(extensionList[0]);
+            filename = filename.concat(".").concat(FILE_EXTENSIONS[0]);
             return filename;
         }
-        // if  extension  match with one from given extensionList
+        // if  extension  match with one from given FILE_EXTENSIONS
         // (?i) makes it case insensitive (catch BDF as well as bdf)
-        for (String ext : extensionList) {
+        for (String ext : FILE_EXTENSIONS) {
             if (filename.matches("(?i).*\\." + ext)) {
                 return filename;
             }
         }
-        // If the extension match with NONE from given extensionList. We need to replace it
-        filename = filename.substring(0, filename.lastIndexOf(".") + 1).concat(extensionList[0]);
+        // If the extension match with NONE from given FILE_EXTENSIONS. We need to replace it
+        filename = filename.substring(0, filename.lastIndexOf(".") + 1).concat(FILE_EXTENSIONS[0]);
         return filename;
+    }
+
+    @Override
+    public String[] getFileExtensions() {
+        return FILE_EXTENSIONS;
     }
 }

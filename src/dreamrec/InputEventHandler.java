@@ -10,4 +10,5 @@ public interface InputEventHandler {
     public void stopRecording()throws ApplicationException;
     public RecordingSettings getRecordingSettings(File file) throws ApplicationException;
     public String normalizeFilename(String filename);
+    public String[] getFileExtensions();
 }
