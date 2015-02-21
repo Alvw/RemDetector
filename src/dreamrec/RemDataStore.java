@@ -3,23 +3,27 @@ package dreamrec;
 import bdf.BdfConfig;
 import bdf.BdfProvider;
 import bdf.BdfRecordsJoiner;
-import bdf.SignalConfig;
+import data.BufferedData;
 import data.DataDimension;
 import data.DataList;
 import data.DataSet;
+import filters.FilterHiPass;
 import prefilters.PreFilter;
 
-import javax.swing.*;
 import java.util.ArrayList;
 
 /**
  * Created by mac on 17/02/15.
  */
 public class RemDataStore  implements DataStoreListener {
+
+    private double accMovementLimit = 0.15;
+    private double eogDerivativeLimit = 400;
+
     private DataStore dataStore;
     private RemChannels remChannels;
     private BdfProvider bdfProvider;
-    private int movementLimit;
+    private DataSet eogFilteredData;
 
     private ArrayList<DataStoreListener> updateListeners = new ArrayList<DataStoreListener>();
 
@@ -45,8 +49,7 @@ public class RemDataStore  implements DataStoreListener {
             String msg = "AccelerometerZ channel number should be less then total number of channels";
             throw new ApplicationException(msg);
         }
-
-        movementLimit = (int)(0.15 / getAccelerometerXData().getDataDimension().getGain());
+        eogFilteredData = new FilterHiPass(getEogFullData(), 0);
     }
 
     public void setChannelsMask(boolean[] channelsMask) throws ApplicationException {
@@ -77,12 +80,25 @@ public class RemDataStore  implements DataStoreListener {
            int numberOfRecordsToJoin = remConfigurator.getNumberOfRecordsToJoin(bdfConfig);
            BdfProvider bdfProviderNew = new BdfRecordsJoiner(bdfProvider, numberOfRecordsToJoin);
            PreFilter[] prefilters = remConfigurator.getPreFilters(bdfConfig, remChannels);
+
+           int bufferSize = remConfigurator.getEogRemFrequency() * remConfigurator.getEogRemCutoffPeriod();
+
            dataStore = new DataStore(bdfProviderNew);
            dataStore.setPreFilters(prefilters);
            dataStore.addListener(this);
+
+           eogFilteredData = new BufferedData(new FilterHiPass(getEogFullData(), bufferSize));
        }
    }
 
+    public double getAccMovementLimit() {
+        // movementLimit = (int)(0.15 / getAccXData().getDataDimension().getGain());
+        return accMovementLimit;
+    }
+
+    public double getEogDerivativeLimit() {
+        return eogDerivativeLimit;
+    }
 
     public int getNumberOfChannels() {
         return dataStore.getNumberOfChannels();
@@ -113,124 +129,88 @@ public class RemDataStore  implements DataStoreListener {
         fireDataUpdated();
     }
 
-    public DataSet getEogData() {
+    public DataSet getEogFullData() {
         return dataStore.getSignalData(remChannels.getEog());
     }
 
-    public DataSet getAccelerometerXData() {
+    public DataSet getEogData() {
+        return eogFilteredData;
+    }
+
+    public DataSet getAccXData() {
         return dataStore.getSignalData(remChannels.getAccelerometerX());
     }
 
-    public DataSet getAccelerometerYData() {
+    public DataSet getAccYData() {
         return dataStore.getSignalData(remChannels.getAccelerometerY());
     }
 
-    public DataSet getAccelerometerZData() {
+    public DataSet getAccZData() {
         return dataStore.getSignalData(remChannels.getAccelerometerZ());
     }
 
-    /**
-     * Определяем величину пропорциональную движению головы
-     * (дельта между текущим и предыдущим значением сигналов акселерометра).
-     * Суммируем амплитуды движений по трем осям.
-     * За ноль принят шумовой уровень.
-     */
-
-    private int getAccMovement(int index) {
-        int step = 2;
-        int dX, dY, dZ;
-        int maxX = Integer.MIN_VALUE;
-        int minX = Integer.MAX_VALUE;
-        int maxY = Integer.MIN_VALUE;
-        int minY = Integer.MAX_VALUE;
-        int maxZ = Integer.MIN_VALUE;
-        int minZ = Integer.MAX_VALUE;
-        if (index > step) {
-            for (int i = 0; i <= step; i++) {
-                maxX = Math.max(maxX, getAccelerometerXData().get(index - i));
-                minX = Math.min(minX, getAccelerometerXData().get(index - i));
-                maxY = Math.max(maxY, getAccelerometerYData().get(index - i));
-                minY = Math.min(minY, getAccelerometerYData().get(index - i));
-                maxZ = Math.max(maxZ, getAccelerometerZData().get(index - i));
-                minZ = Math.min(minZ, getAccelerometerZData().get(index - i));
-            }
-            dX = maxX - minX;
-            dY = maxY - minY;
-            dZ = maxZ - minZ;
-        } else {
-            dX = 0;
-            dY = 0;
-            dZ = 0;
-        }
-
-        int dXYZ = Math.abs(dX) + Math.abs(dY) + Math.abs(dZ);
-        return dXYZ;
-    }
-
-    public DataSet getAccMovement() {
+    public DataSet getAccMovementData() {
         return new DataSet() {
-            @Override
-            public int size() {
-                return getAccelerometerXData().size();
-            }
-
+            /**
+             * Определяем величину пропорциональную движению головы
+             * (дельта между текущим и предыдущим значением сигналов акселерометра).
+             * Суммируем амплитуды движений по трем осям.
+             * За ноль принят шумовой уровень.
+             */
             @Override
             public int get(int index) {
-                return getAccMovement(index);
+                int step = 2;
+                int dX, dY, dZ;
+                int maxX = Integer.MIN_VALUE;
+                int minX = Integer.MAX_VALUE;
+                int maxY = Integer.MIN_VALUE;
+                int minY = Integer.MAX_VALUE;
+                int maxZ = Integer.MIN_VALUE;
+                int minZ = Integer.MAX_VALUE;
+                if (index > step) {
+                    for (int i = 0; i <= step; i++) {
+                        maxX = Math.max(maxX, getAccXData().get(index - i));
+                        minX = Math.min(minX, getAccXData().get(index - i));
+                        maxY = Math.max(maxY, getAccYData().get(index - i));
+                        minY = Math.min(minY, getAccYData().get(index - i));
+                        maxZ = Math.max(maxZ, getAccZData().get(index - i));
+                        minZ = Math.min(minZ, getAccZData().get(index - i));
+                    }
+                    dX = maxX - minX;
+                    dY = maxY - minY;
+                    dZ = maxZ - minZ;
+                } else {
+                    dX = 0;
+                    dY = 0;
+                    dZ = 0;
+                }
+
+                int dXYZ = Math.abs(dX) + Math.abs(dY) + Math.abs(dZ);
+                return dXYZ;
+
             }
+
+            @Override
+            public int size() {
+                return getAccXData().size();
+            }
+
 
             @Override
             public double getFrequency() {
-                return getAccelerometerXData().getFrequency();
+                return getAccXData().getFrequency();
             }
 
             @Override
             public DataDimension getDataDimension() {
-                return getAccelerometerXData().getDataDimension();
+                return getAccXData().getDataDimension();
             }
 
             @Override
             public long getStartTime() {
-                return getAccelerometerXData().getStartTime();
+                return getAccXData().getStartTime();
             }
         };
-    }
-
-    public DataSet getAccLimit() {
-        return new DataSet() {
-            @Override
-            public int size() {
-                return getAccelerometerXData().size();
-            }
-
-            @Override
-            public int get(int index) {
-                return movementLimit;
-            }
-
-            @Override
-            public double getFrequency() {
-                return getAccelerometerXData().getFrequency();
-            }
-
-            @Override
-            public DataDimension getDataDimension() {
-                return getAccelerometerXData().getDataDimension();
-            }
-
-            @Override
-            public long getStartTime() {
-                return getAccelerometerXData().getStartTime();
-            }
-        };
-    }
-
-
-    private boolean isMoved(int index) {
-        if (getAccMovement(index) > movementLimit) {
-            return true;
-        }
-        return false;
     }
 
 }

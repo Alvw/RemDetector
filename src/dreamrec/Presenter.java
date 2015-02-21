@@ -49,33 +49,42 @@ public class Presenter implements  ControllerListener {
         }
     }
 
-
     private void configureRemGraphViewer(RemDataStore remDataStore) {
-        DataSet channel_1 = remDataStore.getEogData();
-        DataSet channel_origin = remDataStore.getChannelData(0);
+        DataSet eog = remDataStore.getEogData();
+        DataSet eogFull = remDataStore.getEogFullData();
+        DataSet accMovement = remDataStore.getAccMovementData();
 
+
+        double accMovementLimit = remDataStore.getAccMovementLimit();
+        double eogDerivativeLimit = remDataStore.getEogDerivativeLimit();
+
+        DataSet eogDerivativeRem =  new FilterAbs(new FilterDerivativeRem(eog));
 
         graphViewer.addGraphPanel(2, true);
-        graphViewer.addGraph(channel_1);
+        graphViewer.addGraph(eog);
         graphViewer.addGraphPanel(1, false);
-        graphViewer.addGraph(new FilterAbs(new FilterDerivativeRem(channel_1)));
-        graphViewer.addGraph(new FilterConstant(channel_1, 400));
+        graphViewer.addGraph(eogDerivativeRem);
+        graphViewer.addGraph(new FilterConstant(eog, eogDerivativeLimit));
         graphViewer.addGraphPanel(1, false);
-        graphViewer.addGraph(remDataStore.getAccMovement());
-        graphViewer.addGraph(remDataStore.getAccLimit());
+        graphViewer.addGraph(accMovement);
+        graphViewer.addGraph(new FilterConstant(accMovement, accMovementLimit));
 
 
-        DataSet accLimit = new FilterMovementTreshhold(remDataStore.getAccelerometerXData(),remDataStore.getAccelerometerYData(), remDataStore.getAccelerometerZData(), 0.15);
+        DataSet accThreshold = new FilterThreshold(accMovement, accMovementLimit);
+        DataSet eogDerivativeRemThreshold = new FilterThreshold(eogDerivativeRem, eogDerivativeLimit);
+
+        DataSet mixedThreshold = new FilterMixer(eogDerivativeRemThreshold, accThreshold);
+
 
         graphViewer.addPreviewPanel(1, false);
-        DataSet velocityRem =  new FilterAbs(new FilterDerivativeRem(channel_1));
-        // graphViewer.addPreview(velocityRem, CompressionType.MAX);
-        DataSet limit = new FilterLimit(new FilterDerivativeRemTreshhold(channel_1, 400), accLimit);
-        DataSet velocityClean = new Multiplexer(velocityRem, limit);
-        graphViewer.addPreview(velocityClean, CompressionType.MAX);
+
+
+
+        DataSet eogDerivativeRemClean = new Multiplexer(eogDerivativeRem, mixedThreshold);
+        graphViewer.addPreview(eogDerivativeRemClean, CompressionType.MAX);
 
         graphViewer.addPreviewPanel(1, true);
-        graphViewer.addPreview(channel_origin, CompressionType.AVERAGE);
+        graphViewer.addPreview(eogFull, CompressionType.AVERAGE);
 
     }
 

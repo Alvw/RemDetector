@@ -25,11 +25,18 @@ public class RemConfigurator {
         this.eogRemCutoffPeriod = eogRemCutoffPeriod;
     }
 
+    public int getEogRemCutoffPeriod() {
+        return eogRemCutoffPeriod;
+    }
 
-     /*
-      * final duration Of joined data record should be or 1 or 1/RPS_MIN (if rps and all frequencies are divisible by RPS_MIN)
-      * if durationOfDataRecord >= 1 we don´t change it
-      */
+    public int getEogRemFrequency() {
+        return eogRemFrequency;
+    }
+
+    /*
+              * final duration Of joined data record should be or 1 or 1/RPS_MIN (if rps and all frequencies are divisible by RPS_MIN)
+              * if durationOfDataRecord >= 1 we don´t change it
+              */
     public int getNumberOfRecordsToJoin(BdfConfig bdfConfig) {
         double normalizedDurationOfDataRecord = BdfNormalizer.getNormalizedDurationOfDataRecord(bdfConfig);
         int RPS_MIN = 5;
@@ -67,10 +74,13 @@ public class RemConfigurator {
                     int bufferSize = eogRemFrequency * eogRemCutoffPeriod;
                     int divider = frequencies[i] / eogRemFrequency;
                     if(divider > 1) {
-                        preFilters[i] = new FrequencyDividingPreFilter(new HiPassPreFilter(bufferSize), divider);
+                       preFilters[i] = new FrequencyDividingPreFilter(divider);
+                      // preFilters[i] = new FrequencyDividingPreFilter(new HiPassPreFilter(bufferSize), divider);
+
+
                     }
                     if(divider == 1) {
-                        preFilters[i] = new HiPassPreFilter(bufferSize);
+                       // preFilters[i] = new HiPassPreFilter(bufferSize);
                     }
                 } else {
                     String errorMsg = "Eog Frequency= " + frequencies[i] + " is not divisible by EogRemFrequency=" + eogRemFrequency;

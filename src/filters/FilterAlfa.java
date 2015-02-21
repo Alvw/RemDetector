@@ -12,7 +12,7 @@ public class FilterAlfa extends Filter {
 
     public FilterAlfa(DataSet inputData) {
         super(inputData);
-        alfaData = new FilterHiPass(new FilterBandPass_Alfa(inputData), 2);
+        alfaData = new FilterHiPassSymmetric(new FilterBandPass_Alfa(inputData), 2);
     }
 
     @Override

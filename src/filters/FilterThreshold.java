@@ -1,55 +1,31 @@
 package filters;
 
+import data.DataDimension;
 import data.DataSet;
 
 /**
- *
+ * Created by mac on 20/02/15.
  */
 public class FilterThreshold extends Filter {
-    private int bufferSize = 10;
-    private int shift = 2; // points
-    private int indexBefore = -10;
-    private int sumBefore = 0;
+    int digitalLimit;
 
 
-    public FilterThreshold(DataSet inputData, int bufferSize, int shift) {
+    public FilterThreshold(DataSet inputData, double physLimit) {
         super(inputData);
-        this.bufferSize = bufferSize;
-        this.shift = shift;
-    }
-
-    public FilterThreshold(DataSet inputData, int bufferSize) {
-        super(inputData);
-        this.bufferSize = bufferSize;
-    }
-
-    public FilterThreshold(DataSet inputData) {
-        super(inputData);
+        digitalLimit = (int)(physLimit / inputData.getDataDimension().getGain());
     }
 
     @Override
     public int get(int index) {
-        int sum = 0;
-        int indexShifted = index - shift;
+        if(Math.abs(inputData.get(index)) >= digitalLimit) {
+            return 0;
+        }
+        return 1;
+    }
 
-        if (indexShifted <= bufferSize) {
-            for (int i = 0; i <= index; i++) {
-                sum += Math.abs(inputData.get(i));
-            }
-            return sum/(index+1);
-        }
-
-        if(index == (indexBefore +1)) {
-            sum = sumBefore + Math.abs(inputData.get(indexShifted-1)) - Math.abs(inputData.get(indexShifted - bufferSize-1));
-            sumBefore = sum;
-            indexBefore = index;
-        }
-        else {
-            for (int i = (indexShifted - bufferSize); i < indexShifted; i++) {
-                sum += Math.abs(inputData.get(i));
-                //sum += inputData.get(i);
-            }
-        }
-        return sum/bufferSize;
+    @Override
+    public DataDimension getDataDimension() {
+        return new DataDimension();
     }
 }
+

@@ -14,7 +14,7 @@ public class BufferedData implements DataSet {
         if(outputData.size() > size()) {
             outputData = new DataList();
         }
-        if (outputData.size() <= index) {
+        if (outputData.size()  <= index) {
             for (int i = outputData.size(); i <= index; i++) {
                 outputData.add(inputData.get(i));
             }

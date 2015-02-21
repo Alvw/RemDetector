@@ -2,12 +2,12 @@ package filters;
 
 import data.DataSet;
 
+import javax.swing.*;
+
 /**
- *
+ * Created by mac on 20/02/15.
  */
-public class FilterHiPass extends FilterBuffered {
-    private int indexBefore = -10;
-    private long sumBefore = 0;
+public class FilterHiPass extends Filter {
     int bufferSize;
 
     public FilterHiPass(DataSet inputData, int bufferSize) {
@@ -15,40 +15,22 @@ public class FilterHiPass extends FilterBuffered {
         this.bufferSize = bufferSize;
     }
 
-   // @Override
-    protected int getData_new(int index) {
-        if (index < bufferSize) {
-            return 0;
-        }
-        if (index >= size()- bufferSize) {
-            return 0;
-        }
+    @Override
+    public int get(int index) {
         long sum = 0;
-        if(index == (indexBefore +1)) {
-           sum = sumBefore + inputData.get(index + bufferSize) - inputData.get(index - bufferSize);
-           sumBefore = sum;
-           indexBefore = index;
+        if(index == 0 || bufferSize == 0) {
+            return inputData.get(index);
         }
-        else {
-            for (int i = (index - bufferSize); i < (index + bufferSize); i++) {
+        if (index <= bufferSize) {
+            for (int i = 0; i < index; i++) {
                 sum += inputData.get(i);
             }
+            return inputData.get(index) - (int) (sum / index);
         }
-        return inputData.get(index) - (int)(sum/(2*bufferSize));
-    }
 
-    public int get(int index) {
-        if (index < bufferSize) {
-            return 0;
-        }
-        if (index >= size()-bufferSize) {
-            return 0;
-        }
-        long sum = 0;
-        for (int i = (index - bufferSize); i < (index + bufferSize); i++) {
+        for (int i = index - bufferSize; i < index; i++) {
             sum += inputData.get(i);
         }
-        return inputData.get(index) - (int)(sum/(2*bufferSize));
+        return inputData.get(index) - (int) (sum / bufferSize);
     }
-
 }

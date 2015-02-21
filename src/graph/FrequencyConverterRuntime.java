@@ -21,7 +21,7 @@ public class FrequencyConverterRuntime implements FrequencyConverter {
             value = inputData.get(index);
         }
         else if(compression < 1) {
-            int indexNew = (int)(compression * index);
+            int indexNew = Math.min(inputData.size() - 1, (int) (compression * index));
             value = inputData.get(indexNew);
         }
         else if(compression > 1) {
@@ -29,8 +29,8 @@ public class FrequencyConverterRuntime implements FrequencyConverter {
                 value = inputData.get(index);
             }
             else {
-                int indexStart = (int)((index) * compression);
-                int indexEnd = (int)((index+1) * compression);
+                int indexStart =  (int)((index) * compression);
+                int indexEnd = Math.min(inputData.size(), (int)((index+1) * compression));
                 for(int i = indexStart; i < indexEnd; i++) {
                     if(inputData.get(i) == UNDEFINED) {
                         return UNDEFINED;

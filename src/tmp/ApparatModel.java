@@ -466,8 +466,8 @@ public class ApparatModel {
         SpindleDetector(DataSet inputData) {
             this.inputData = inputData;
             alfaData = new FilterAlfa(inputData);
-            thresholdData = new FilterThreshold(alfaData, THRESHOLD_PERIOD_POINTS, THRESHOLD_SHIFT_POINTS);
-            thresholdData1 = new FilterThreshold(alfaData, THRESHOLD_PERIOD_POINTS*2, THRESHOLD_SHIFT_POINTS);
+            thresholdData = new FilterThresholdAvg(alfaData, THRESHOLD_PERIOD_POINTS, THRESHOLD_SHIFT_POINTS);
+            thresholdData1 = new FilterThresholdAvg(alfaData, THRESHOLD_PERIOD_POINTS*2, THRESHOLD_SHIFT_POINTS);
         }
 
         private void setThresholds(int index) {
@@ -579,8 +579,8 @@ public class ApparatModel {
             this.inputData = inputData;
             velocityData = new FilterDerivative(inputData);
             accelerationData =  new FilterDerivative_N(inputData, 1);
-            velocityThresholdData = new FilterThreshold(velocityData, THRESHOLD_PERIOD_POINTS);
-            accelerationThresholdData = new FilterThreshold(accelerationData, THRESHOLD_PERIOD_POINTS);
+            velocityThresholdData = new FilterThresholdAvg(velocityData, THRESHOLD_PERIOD_POINTS);
+            accelerationThresholdData = new FilterThresholdAvg(accelerationData, THRESHOLD_PERIOD_POINTS);
 
         }
 
