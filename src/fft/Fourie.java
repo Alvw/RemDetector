@@ -5,6 +5,8 @@ import data.DataSet;
 import fft.jtransform.DoubleFFT_1D;
 import fft.prinston.Complex;
 
+import javax.swing.*;
+
 public class Fourie {
 
     public FFTData fft(DataSet inputData, int startIndex, int time) {
@@ -156,12 +158,16 @@ public class Fourie {
     }
 
     public static void main(String[] args) {
+
         double signalFr = 512; //HZ
         double signalTime = 2; // sec
         double sin1Fr = 8; // HZ
         double sin2Fr = 128; // HZ
+        double sin3Fr = 1; // HZ
         double sin1Am = 100;
         double sin2Am = 50;
+        double sin3Am = 40;
+
 
         int  N = 512; //(int)(signalFr * signalTime);
         double[] x = new double[2*N];
@@ -169,7 +175,7 @@ public class Fourie {
 
         for (int i = 0; i < N; i++) {
             double t =  i / signalFr;
-            x[i] = 100 +(int)(sin1Am * Math.sin(t * sin1Fr * Math.PI * 2) + sin2Am * Math.sin(t * sin2Fr * Math.PI * 2));
+            x[i] = 100 + sin1Am * Math.sin(t * sin1Fr * Math.PI * 2) + sin2Am * Math.sin(t * sin2Fr * Math.PI * 2) + sin3Am * Math.sin(t * sin3Fr * Math.PI * 2) ;
             //x[i] = (int)(N * Math.sin(t * sin1Fr * Math.PI * 2));
             c[i] = new Complex(x[i], 0);
         }
@@ -192,8 +198,8 @@ public class Fourie {
 
 
         view.addGraph(result);
-        view.addGraph(jtransformSet);
-        view.addGraph(prinstonSet);
+     //   view.addGraph(jtransformSet);
+     //   view.addGraph(prinstonSet);
         for(int i= 0; i < result.size(); i++) {
             if(result.getAmplitude(i) > 5) {
                 System.out.println("frequency: "+result.getFrequency(i) +"  Ampl: "+(int)result.getAmplitude(i));

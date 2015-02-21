@@ -7,6 +7,7 @@ import data.BufferedData;
 import data.DataDimension;
 import data.DataList;
 import data.DataSet;
+import filters.Filter;
 import filters.FilterHiPass;
 import prefilters.PreFilter;
 
@@ -150,7 +151,7 @@ public class RemDataStore  implements DataStoreListener {
     }
 
     public DataSet getAccMovementData() {
-        return new DataSet() {
+        return new Filter(getAccXData()) {
             /**
              * Определяем величину пропорциональную движению головы
              * (дельта между текущим и предыдущим значением сигналов акселерометра).
@@ -187,30 +188,7 @@ public class RemDataStore  implements DataStoreListener {
 
                 int dXYZ = Math.abs(dX) + Math.abs(dY) + Math.abs(dZ);
                 return dXYZ;
-
-            }
-
-            @Override
-            public int size() {
-                return getAccXData().size();
-            }
-
-
-            @Override
-            public double getFrequency() {
-                return getAccXData().getFrequency();
-            }
-
-            @Override
-            public DataDimension getDataDimension() {
-                return getAccXData().getDataDimension();
-            }
-
-            @Override
-            public long getStartTime() {
-                return getAccXData().getStartTime();
             }
         };
     }
-
 }

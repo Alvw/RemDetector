@@ -7,9 +7,10 @@ import javax.swing.*;
 import java.awt.*;
 
 public class View extends JFrame {
-    protected GraphViewer graphViewer = new GraphViewer();
+    protected GraphViewer graphViewer;
 
-    public View() throws HeadlessException {
+    public View()  {
+        graphViewer = new GraphViewer();
         add(graphViewer, BorderLayout.CENTER);
         graphViewer.requestFocusInWindow();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

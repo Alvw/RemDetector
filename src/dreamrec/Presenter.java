@@ -94,7 +94,6 @@ public class Presenter implements  ControllerListener {
             graphViewer.addGraphPanel(1, true);
             graphViewer.addGraph(channel_1);
 
-
             graphViewer.addPreviewPanel(1, false);
             DataSet velocityRem =  new FilterAbs(new FilterDerivativeRem(channel_1));
             graphViewer.addPreview(velocityRem, CompressionType.MAX);

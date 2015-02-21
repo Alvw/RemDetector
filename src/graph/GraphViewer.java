@@ -18,7 +18,7 @@ public class GraphViewer extends JPanel{
     private static final boolean IS_GRAPH_X_CENTERED_DEFAULT = true;
     private static final boolean IS_PREVIEW_X_CENTERED_DEFAULT = true;
 
-    private int xIndent = 50;
+    private int xIndent =50;
     private int yIndent = 4;
     private Color bgColor = Color.BLACK;
     private Color previewBgColor = new Color(25, 25, 25);
@@ -44,67 +44,167 @@ public class GraphViewer extends JPanel{
         graphView.requestFocusInWindow();
     }
 
-    @Override
-    public boolean requestFocusInWindow() {
-        return graphView.requestFocusInWindow();
+
+
+    public void addGraphPanel(final int weight, final boolean isXCentered) {
+        if(SwingUtilities.isEventDispatchThread()) {
+            graphView.addGraphPanel(weight, isXCentered);
+            graphController.addGraphCluster();
+        }
+        else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    graphView.addGraphPanel(weight, isXCentered);
+                    graphController.addGraphCluster();
+                }
+            });
+        }
     }
 
-    public void addGraphPanel(int weight, boolean isXCentered) {
-        graphView.addGraphPanel(weight, isXCentered);
-        graphController.addGraphCluster();
+    public void addPreviewPanel(final int weight, final boolean isXCentered) {
+        if(SwingUtilities.isEventDispatchThread()) {
+            graphView.addPreviewPanel(weight, isXCentered);
+            graphController.addPreviewCluster();
+        }
+        else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    graphView.addPreviewPanel(weight, isXCentered);
+                    graphController.addPreviewCluster();
+
+                }
+            });
+        }
     }
 
-    public void addPreviewPanel(int weight, boolean isXCentered) {
-        graphView.addPreviewPanel(weight, isXCentered);
-        graphController.addPreviewCluster();
+
+    public void addGraph(final DataSet graph, final int panelNumber) {
+        if(SwingUtilities.isEventDispatchThread()) {
+            graphController.addGraph(graph, panelNumber);
+        }
+        else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    graphController.addGraph(graph, panelNumber);
+                }
+            });
+        }
     }
 
-
-    public void addGraph(DataSet graph, int panelNumber) {
-        graphController.addGraph(graph, panelNumber);
-    }
-
-    public void addPreview(DataSet preview, int panelNumber, CompressionType compressionType) {
-        graphController.addPreview(preview, panelNumber, compressionType);
+    public void addPreview(final DataSet preview, final int panelNumber, final CompressionType compressionType) {
+        if(SwingUtilities.isEventDispatchThread()) {
+            graphController.addPreview(preview, panelNumber, compressionType);
+        }
+        else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    graphController.addPreview(preview, panelNumber, compressionType);
+                }
+            });
+        }
     }
 
 /*
 * Add Graph to the last graph panel. If there is no graph panel create one
 */
-    public void addGraph(DataSet graph) {
-        int panelNumber = graphView.getNumberOfGraphPanels() - 1;
-        if(panelNumber < 0) {
-            addGraphPanel(DEFAULT_GRAPH_PANEL_WEIGHT, IS_GRAPH_X_CENTERED_DEFAULT);
-            panelNumber = 0;
+    public void addGraph(final DataSet graph) {
+        if(SwingUtilities.isEventDispatchThread()) {
+            int panelNumber = graphView.getNumberOfGraphPanels() - 1;
+            if(panelNumber < 0) {
+                addGraphPanel(DEFAULT_GRAPH_PANEL_WEIGHT, IS_GRAPH_X_CENTERED_DEFAULT);
+                panelNumber = 0;
+            }
+            addGraph(graph, panelNumber);
         }
-        addGraph(graph, panelNumber);
+        else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    int panelNumber = graphView.getNumberOfGraphPanels() - 1;
+                    if(panelNumber < 0) {
+                        addGraphPanel(DEFAULT_GRAPH_PANEL_WEIGHT, IS_GRAPH_X_CENTERED_DEFAULT);
+                        panelNumber = 0;
+                    }
+                    addGraph(graph, panelNumber);
+                }
+            });
+        }
     }
 
 /*
 * Add Preview to the last preview panel. If there is no preview panel create one
 */
-    public void addPreview(DataSet preview, CompressionType compressionType) {
-        int panelNumber = graphView.getNumberOfPreviewPanels() - 1;
-        if(panelNumber < 0) {
-            addPreviewPanel(DEFAULT_PREVIEW_PANEL_WEIGHT, IS_PREVIEW_X_CENTERED_DEFAULT);
-            panelNumber = 0;
+    public void addPreview(final DataSet preview, final CompressionType compressionType) {
+        if(SwingUtilities.isEventDispatchThread()) {
+            int panelNumber = graphView.getNumberOfPreviewPanels() - 1;
+            if(panelNumber < 0) {
+                addPreviewPanel(DEFAULT_PREVIEW_PANEL_WEIGHT, IS_PREVIEW_X_CENTERED_DEFAULT);
+                panelNumber = 0;
+            }
+            addPreview(preview, panelNumber, compressionType);
         }
-        addPreview(preview, panelNumber, compressionType);
+        else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    int panelNumber = graphView.getNumberOfPreviewPanels() - 1;
+                    if(panelNumber < 0) {
+                        addPreviewPanel(DEFAULT_PREVIEW_PANEL_WEIGHT, IS_PREVIEW_X_CENTERED_DEFAULT);
+                        panelNumber = 0;
+                    }
+                    addPreview(preview, panelNumber, compressionType);
+                }
+            });
+        }
     }
 
-    public void setGraphFrequency(double graphFrequency) {
-        graphController.setGraphFrequency(graphFrequency);
+    public void setGraphFrequency(final double graphFrequency) {
+        if(SwingUtilities.isEventDispatchThread()) {
+            graphController.setGraphFrequency(graphFrequency);
+        }
+        else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    graphController.setGraphFrequency(graphFrequency);
+                }
+            });
+        }
     }
 
-    public void setPreviewFrequency(double previewFrequency) {
-        graphController.setPreviewFrequency(previewFrequency);
+    public void setPreviewFrequency(final double previewFrequency) {
+        if(SwingUtilities.isEventDispatchThread()) {
+            graphController.setPreviewFrequency(previewFrequency);
+        }
+        else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    graphController.setPreviewFrequency(previewFrequency);
+                }
+            });
+        }
     }
 
-    public void setCompression(int compression) {
-        graphController.setCompression(compression);
+    public void setCompression(final int compression) {
+        if(SwingUtilities.isEventDispatchThread()) {
+            graphController.setCompression(compression);
+        }
+        else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    graphController.setCompression(compression);
+                }
+            });
+        }
     }
 
     public void autoScroll() {
-        graphController.autoScroll();
+        if(SwingUtilities.isEventDispatchThread()) {
+            graphController.autoScroll();
+        }
+        else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    graphController.autoScroll();
+                }
+            });
+        }
     }
 }

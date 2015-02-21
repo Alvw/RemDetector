@@ -17,20 +17,24 @@ public class FFTData implements DataSet{
     }
 
     public double getFrequency(int i) {
-        return frequency * i / (fftResult.length);
+        if(i == 0) {
+            return 0;
+        }
+        return frequency * (i - 1) / (fftResult.length);
     }
 
     public double getAmplitude(int i) {
-        double amplitude = 2 * fftResult[i] / fftResult.length;
+        double amplitude = 2 * fftResult[i] / (fftResult.length);
         if(i > 0) {
             amplitude = amplitude * 2;
         }
+
         return Math.abs(amplitude);
     }
 
     @Override
     public int get(int index) {
-        return (int)getAmplitude(index);
+        return (int) getAmplitude(index);
     }
 
     @Override
