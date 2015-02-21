@@ -44,7 +44,10 @@ public class GraphViewer extends JPanel{
         graphView.requestFocusInWindow();
     }
 
-
+    @Override
+    public boolean requestFocusInWindow() {
+        return graphView.requestFocusInWindow();
+    }
 
     public void addGraphPanel(final int weight, final boolean isXCentered) {
         if(SwingUtilities.isEventDispatchThread()) {
