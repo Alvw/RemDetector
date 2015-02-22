@@ -18,19 +18,19 @@ public class FilterHiPass extends Filter {
     @Override
     public int get(int index) {
         long sum = 0;
-        if(index == 0 || bufferSize == 0) {
+        if( bufferSize == 0) {
             return inputData.get(index);
         }
         if (index <= bufferSize) {
-            for (int i = 0; i < index; i++) {
+            for (int i = 0; i <= index; i++) {
                 sum += inputData.get(i);
             }
-            return inputData.get(index) - (int) (sum / index);
+            return inputData.get(index) - (int) (sum / (index + 1));
         }
 
-        for (int i = index - bufferSize; i < index; i++) {
+        for (int i = index - bufferSize; i <=index; i++) {
             sum += inputData.get(i);
         }
-        return inputData.get(index) - (int) (sum / bufferSize);
+        return inputData.get(index) - (int) (sum / (bufferSize + 1));
     }
 }

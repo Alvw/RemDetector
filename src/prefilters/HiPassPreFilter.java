@@ -27,16 +27,13 @@ public class HiPassPreFilter extends AbstractPreFilter{
         else{
             bufferedValues.add(value);
             sum += value;
-            int resultValue;
-            if(counter < bufferSize) {
+            if(counter <= bufferSize) {
                 counter++;
-                resultValue = value - (int)(sum / counter);
-                notifyListeners(resultValue);
+                notifyListeners(value - (int)(sum / counter));
             }
             else {
                 sum -= bufferedValues.poll();
-                resultValue = value - (int)(sum / bufferSize);
-                notifyListeners(resultValue);
+                notifyListeners(value - (int)(sum / (bufferSize + 1)));
             }
         }
     }

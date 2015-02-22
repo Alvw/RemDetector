@@ -11,6 +11,7 @@ import filters.Filter;
 import filters.FilterHiPass;
 import prefilters.PreFilter;
 
+import javax.swing.*;
 import java.util.ArrayList;
 
 /**
@@ -24,7 +25,9 @@ public class RemDataStore  implements DataStoreListener {
     private DataStore dataStore;
     private RemChannels remChannels;
     private BdfProvider bdfProvider;
-    private DataSet eogFilteredData;
+
+    private DataList eogFilteredData;
+    private EogFilter eogFilter;
 
     private ArrayList<DataStoreListener> updateListeners = new ArrayList<DataStoreListener>();
 
@@ -50,7 +53,6 @@ public class RemDataStore  implements DataStoreListener {
             String msg = "AccelerometerZ channel number should be less then total number of channels";
             throw new ApplicationException(msg);
         }
-        eogFilteredData = new FilterHiPass(getEogFullData(), 0);
     }
 
     public void setChannelsMask(boolean[] channelsMask) throws ApplicationException {
@@ -75,22 +77,25 @@ public class RemDataStore  implements DataStoreListener {
     }
 
 
-   public void configure(RemConfigurator remConfigurator) throws ApplicationException {
-       if (remConfigurator != null) {
-           BdfConfig bdfConfig = bdfProvider.getBdfConfig();
-           int numberOfRecordsToJoin = remConfigurator.getNumberOfRecordsToJoin(bdfConfig);
-           BdfProvider bdfProviderNew = new BdfRecordsJoiner(bdfProvider, numberOfRecordsToJoin);
-           PreFilter[] prefilters = remConfigurator.getPreFilters(bdfConfig, remChannels);
+    public void configure(final RemConfigurator remConfigurator) throws ApplicationException {
+        if (remConfigurator != null) {
+            BdfConfig bdfConfig = bdfProvider.getBdfConfig();
+            int numberOfRecordsToJoin = remConfigurator.getNumberOfRecordsToJoin(bdfConfig);
+            BdfProvider bdfProviderNew = new BdfRecordsJoiner(bdfProvider, numberOfRecordsToJoin);
+            PreFilter[] prefilters = remConfigurator.getPreFilters(bdfConfig, remChannels);
+            int bufferSize = remConfigurator.getEogRemFrequency() * remConfigurator.getEogRemCutoffPeriod();
+            if(bufferSize > 0) {
+                eogFilteredData = new DataList();
+                eogFilteredData.setFrequency(getEogFullData().getFrequency());
+                eogFilteredData.setDataDimension(getEogFullData().getDataDimension());
+                eogFilter = new EogFilter(bufferSize);
+            }
+            dataStore = new DataStore(bdfProviderNew);
+            dataStore.setPreFilters(prefilters);
+            dataStore.addListener(this);
 
-           int bufferSize = remConfigurator.getEogRemFrequency() * remConfigurator.getEogRemCutoffPeriod();
-
-           dataStore = new DataStore(bdfProviderNew);
-           dataStore.setPreFilters(prefilters);
-           dataStore.addListener(this);
-
-           eogFilteredData = new BufferedData(new FilterHiPass(getEogFullData(), bufferSize));
-       }
-   }
+        }
+    }
 
     public double getAccMovementLimit() {
         // movementLimit = (int)(0.15 / getAccXData().getDataDimension().getGain());
@@ -121,12 +126,22 @@ public class RemDataStore  implements DataStoreListener {
 
 
     public void setStartTime(long startTime) {
-       dataStore.setStartTime(startTime);
+        dataStore.setStartTime(startTime);
+    }
+
+    private void updateEogFilteredData() {
+        if( eogFilter != null) {
+            while(eogFilteredData.size() < getEogFullData().size()) {
+                eogFilteredData.add(eogFilter.getNext());
+            }
+            eogFilteredData.setStartTime(getEogFullData().getStartTime());
+        }
     }
 
 
     @Override
     public void onDataUpdate() {
+        updateEogFilteredData();
         fireDataUpdated();
     }
 
@@ -135,7 +150,10 @@ public class RemDataStore  implements DataStoreListener {
     }
 
     public DataSet getEogData() {
-        return eogFilteredData;
+        if(eogFilteredData != null) {
+            return eogFilteredData;
+        }
+        return getEogFullData();
     }
 
     public DataSet getAccXData() {
@@ -191,4 +209,37 @@ public class RemDataStore  implements DataStoreListener {
             }
         };
     }
+
+    private class EogFilter  {
+        private int index;
+        private long sum;
+        int bufferSize;
+
+        public EogFilter(int bufferSize) {
+            this.bufferSize = bufferSize;
+        }
+
+        public int getNext() {
+            if(bufferSize == 0) {
+                return getEogFullData().get(index++);
+            }
+            if (index <= bufferSize) {
+                sum += getEogFullData().get(index);
+                return getEogFullData().get(index++) - (int) (sum / (index));
+            }
+            else {
+                sum += getEogFullData().get(index) - getEogFullData().get(index - bufferSize - 1);
+            }
+
+            return getEogFullData().get(index++) - (int) (sum / (bufferSize+1));
+        }
+    }
+
+
 }
+
+
+
+
+
+

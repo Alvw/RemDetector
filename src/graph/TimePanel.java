@@ -92,7 +92,7 @@ public class TimePanel extends JPanel {
 
     private class SmallButton extends JButton {
         Color baseBg = new Color(220, 220, 240);
-        Color highlightBg = new Color(180, 200, 240);
+        Color highlightBg = new Color(180, 200, 250);
         public SmallButton(String s) {
             super(s);
             setFocusable(false);
