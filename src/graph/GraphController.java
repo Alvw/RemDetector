@@ -1,6 +1,9 @@
 package graph;
 
 import data.DataSet;
+import fft.FFTNormalizer;
+import fft.Fourie;
+import fft.FourieView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +38,10 @@ public class GraphController implements GraphEventHandler {
         }
     }
 
+    @Override
+    public void doFourie(DataSet graph, int startIndex, int time) {
+        new FourieView(Fourie.fft(graph, startIndex, time));
+    }
 
     @Override
     public void moveSlotForward() {

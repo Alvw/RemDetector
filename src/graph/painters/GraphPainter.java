@@ -1,4 +1,4 @@
-package graph;
+package graph.painters;
 
 import data.DataSet;
 

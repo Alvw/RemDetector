@@ -1,5 +1,7 @@
 package graph;
 
+import data.DataSet;
+
 /**
  * Интерфейс определяющий методы для обработки входных системных событий
  * Системное событие (system event) — это событие высокого уровня,
@@ -8,11 +10,12 @@ package graph;
  * Через этот интерфейс View связывается с конкретным обработчиком Controller
  */
 
-public interface GraphEventHandler extends SlotListener {
+public interface GraphEventHandler extends SlotListener, FourieListener {
     public void moveSlotForward();
     public void moveSlotBackward();
     public void setDrawingAreaWidth(int drawingAreaWidth);
     public void moveScroll(int scrollPosition);
     public void setGraphFrequency(double graphFrequency);
     public void setPreviewFrequency(double previewFrequency);
+    public void doFourie(DataSet graph, int startIndex, int time);
 }

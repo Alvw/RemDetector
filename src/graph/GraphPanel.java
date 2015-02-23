@@ -2,6 +2,9 @@ package graph;
 
 import data.DataDimension;
 import data.DataSet;
+import graph.painters.GraphPainter;
+import graph.painters.XAxisPainter;
+import graph.painters.YAxisPainter;
 
 import javax.swing.*;
 import java.awt.*;
@@ -29,6 +32,7 @@ public class GraphPanel extends JPanel {
     private Color graphColors[] = {Color.YELLOW, Color.RED, Color.CYAN};
     private Color slotColor = new Color(255, 0, 100);
     private java.util.List<SlotListener> slotListeners = new ArrayList<SlotListener>();
+    private java.util.List<FourieListener> fourieListeners = new ArrayList<FourieListener>();
 
     private List<DataSet> graphList = new ArrayList<DataSet>();
     private double zoom = 0.5;
@@ -40,7 +44,7 @@ public class GraphPanel extends JPanel {
     private int indentX;
     private int indentY;
     private GraphPainter graphPainter = new GraphPainter();
-    private TimeAxisPainter timeAxisPainter = new TimeAxisPainter();
+    private XAxisPainter xAxisPainter = new XAxisPainter(true);
     private YAxisPainter yAxisPainter = new YAxisPainter();
 
 
@@ -61,8 +65,16 @@ public class GraphPanel extends JPanel {
             @Override
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
-                int slotPosition = e.getX() - indentX;
-                notifySlotListeners(slotPosition);
+                if (SwingUtilities.isLeftMouseButton(e)) {
+                    int slotPosition = e.getX() - indentX;
+                    notifySlotListeners(slotPosition);
+                }
+                if (SwingUtilities.isRightMouseButton(e)) {
+                    if(graphList.size() > 0) {
+                        int time = 30; // sec
+                        notifyFourieListeners(graphList.get(0), startIndex, time);
+                    }
+                }
             }
         });
     }
@@ -88,8 +100,8 @@ public class GraphPanel extends JPanel {
         this.slotColor = slotColor;
     }
 
-    public void setTimeAxisPainter(TimeAxisPainter timeAxisPainter) {
-        this.timeAxisPainter = timeAxisPainter;
+    public void setxAxisPainter(XAxisPainter xAxisPainter) {
+        this.xAxisPainter = xAxisPainter;
     }
 
     public void setYAxisPainter(YAxisPainter yAxisPainter) {
@@ -111,6 +123,16 @@ public class GraphPanel extends JPanel {
     private void notifySlotListeners(int newSlotPosition) {
         for (SlotListener listener : slotListeners) {
             listener.moveSlot(newSlotPosition);
+        }
+    }
+
+    void addFourieListener(FourieListener fourieListener) {
+        fourieListeners.add(fourieListener);
+    }
+
+    private void notifyFourieListeners(DataSet graph, int startIndex, int time) {
+        for (FourieListener listener : fourieListeners) {
+            listener.doFourie(graph, startIndex, time);
         }
     }
 
@@ -173,7 +195,7 @@ public class GraphPanel extends JPanel {
             frequency = graphList.get(0).getFrequency();
             startTime = graphList.get(0).getStartTime();
             dataDimension = graphList.get(0).getDataDimension();
-            timeAxisPainter.paint(g, startTime, startIndex, frequency);
+            xAxisPainter.paint(g, startIndex, frequency, startTime);
             yAxisPainter.paint(g, zoom, dataDimension);
         }
 

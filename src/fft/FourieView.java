@@ -6,22 +6,24 @@ import graph.GraphViewer;
 import javax.swing.*;
 import java.awt.*;
 
-public class View extends JFrame {
+/**
+ * Created by mac on 23/02/15.
+ */
+
+public class FourieView extends JFrame {
     protected GraphViewer graphViewer;
 
-    public View()  {
+    public FourieView(DataSet graph)  {
         graphViewer = new GraphViewer(false, false);
+        graphViewer.setyIndent(20);
         add(graphViewer, BorderLayout.CENTER);
         graphViewer.requestFocusInWindow();
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setPreferredSize(getWorkspaceDimension());
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setPreferredSize(new Dimension(500, 500));
+        graphViewer.addGraphPanel(1, false);
+        graphViewer.addGraph(graph);
         pack();
         setVisible(true);
-    }
-
-    public void addGraph(DataSet graph) {
-        graphViewer.addGraphPanel(1, true);
-        graphViewer.addGraph(graph);
     }
 
     private Dimension getWorkspaceDimension() {

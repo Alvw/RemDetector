@@ -1,6 +1,7 @@
 package graph;
 
 import data.DataSet;
+import graph.painters.XAxisPainter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -18,6 +19,9 @@ import java.util.ArrayList;
 public class GraphView extends JPanel {
     private static final Log log = LogFactory.getLog(GraphView.class);
 
+
+    private boolean isTimeAxis;
+
     private int xIndent;
     private int yIndent;
     private Color bgColor = Color.BLACK;
@@ -31,14 +35,17 @@ public class GraphView extends JPanel {
     private JPanel previewsMainPanel = new JPanel();
     private JPanel graphsPaintingPanel = new JPanel();
     private JPanel previewsPaintingPanel = new JPanel();
-    private TimePanel graphTimePanel = new TimePanel();
-    private TimePanel previewTimePanel = new TimePanel();
+    private ScalePanel graphScalePanel;
+    private ScalePanel previewScalePanel;
     private JScrollBar scrollBar = new JScrollBar(JScrollBar.HORIZONTAL);
+    private boolean showScalesSeparate = true;
 
     private GraphEventHandler eventHandler;
 
-    public GraphView(GraphEventHandler eventHandler) {
-        this.eventHandler = eventHandler;
+    public GraphView(GraphEventHandler controller, boolean isTimeAxis, boolean showScalesSeparate) {
+        this.eventHandler = controller;
+        this.isTimeAxis = isTimeAxis;
+        this.showScalesSeparate = showScalesSeparate;
         setLayout(new BorderLayout());
         add(mainPanel, BorderLayout.CENTER);
         add(scrollBar, BorderLayout.SOUTH);
@@ -53,6 +60,9 @@ public class GraphView extends JPanel {
         previewsPaintingPanel.setLayout(new BoxLayout(previewsPaintingPanel, BoxLayout.Y_AXIS));
         graphsPaintingPanel.setBackground(bgColor);
         previewsPaintingPanel.setBackground(previewBgColor);
+
+        createGraphScalePanel();
+        createPreviewScalePanel();
 
         setFocusable(true); //only that way KeyListeners work
         requestFocusInWindow();
@@ -108,11 +118,11 @@ public class GraphView extends JPanel {
                 panel.repaint();
             }
         }
-        if (graphTimePanel != null) {
-            graphTimePanel.repaint();
+        if (graphScalePanel != null) {
+            graphScalePanel.repaint();
         }
-        if (previewTimePanel != null) {
-            previewTimePanel.repaint();
+        if (previewScalePanel != null) {
+            previewScalePanel.repaint();
         }
     }
 
@@ -125,32 +135,54 @@ public class GraphView extends JPanel {
 
     public void setXIndent(int xIndent) {
         this.xIndent = xIndent;
+        graphScalePanel.setIndentX(xIndent);
+        previewScalePanel.setIndentX(xIndent);
+        for(GraphPanel panel : graphPanelList) {
+            panel.setIndentX(xIndent);
+        }
+        for(GraphPanel panel : previewPanelList) {
+            panel.setIndentX(xIndent);
+        }
     }
 
     public void setYIndent(int yIndent) {
         this.yIndent = yIndent;
+        for(GraphPanel panel : graphPanelList) {
+            panel.setIndentY(yIndent);
+        }
+        for(GraphPanel panel : previewPanelList) {
+            panel.setIndentY(yIndent);
+        }
     }
 
     public void setBgColor(Color bgColor) {
         this.bgColor = bgColor;
+        graphScalePanel.setBackground(bgColor);
+        for(GraphPanel panel : graphPanelList) {
+            panel.setBackground(bgColor);
+        }
     }
 
     public void setPreviewBgColor(Color previewBgColor) {
         this.previewBgColor = previewBgColor;
+        previewScalePanel.setBackground(previewBgColor);
+        for(GraphPanel panel : previewPanelList) {
+            panel.setBackground(previewBgColor);
+        }
     }
 
     public void setGraphStartIndex(int graphStartIndex) {
         for (GraphPanel graphPanel : graphPanelList) {
             graphPanel.setStartIndex(graphStartIndex);
         }
-        graphTimePanel.setStartIndex(graphStartIndex);
+        graphScalePanel.setStartIndex(graphStartIndex);
     }
 
     public void setPreviewStartIndex(int previewStartIndex) {
         for (GraphPanel previewPanel : previewPanelList) {
             previewPanel.setStartIndex(previewStartIndex);
         }
-        previewTimePanel.setStartIndex(previewStartIndex);
+        previewScalePanel.setStartIndex(previewStartIndex);
     }
 
     public void setSlotPosition(int slotPosition) {
@@ -166,16 +198,16 @@ public class GraphView extends JPanel {
     }
 
     public void setStartTime(long startTime) {
-        graphTimePanel.setStartTime(startTime);
-        previewTimePanel.setStartTime(startTime);
+        graphScalePanel.setStartTime(startTime);
+        previewScalePanel.setStartTime(startTime);
     }
 
     public void setGraphTimeFrequency(double graphTimeFrequency) {
-        graphTimePanel.setFrequency(graphTimeFrequency);
+        graphScalePanel.setFrequency(graphTimeFrequency);
     }
 
     public void setPreviewTimeFrequency(double previewTimeFrequency) {
-        previewTimePanel.setFrequency(previewTimeFrequency);
+        previewScalePanel.setFrequency(previewTimeFrequency);
     }
 
     public void addGraphPanel(int weight, boolean isXCentered) {
@@ -183,11 +215,12 @@ public class GraphView extends JPanel {
         panel.setIndentX(xIndent);
         panel.setIndentY(yIndent);
         panel.setBackground(bgColor);
-        TimeAxisPainter timeAxisPainter = new TimeAxisPainter();
-        timeAxisPainter.isValuesPaint(false);
-        panel.setTimeAxisPainter(timeAxisPainter);
+        panel.addFourieListener(eventHandler);
+        XAxisPainter xAxisPainter = new XAxisPainter(isTimeAxis);
+        xAxisPainter.isValuesPaint(!showScalesSeparate);
+        panel.setxAxisPainter(xAxisPainter);
         if (graphPanelList.size() == 0) {
-            addGraphTimePanel();
+            graphsMainPanel.add(graphScalePanel, BorderLayout.NORTH);
         }
         graphPanelList.add(panel);
         graphsPaintingPanel.add(panel);
@@ -200,11 +233,11 @@ public class GraphView extends JPanel {
         panel.setIndentY(yIndent);
         panel.setBackground(previewBgColor);
         panel.addSlotListener(eventHandler);
-        TimeAxisPainter timeAxisPainter = new TimeAxisPainter();
-        timeAxisPainter.isValuesPaint(false);
-        panel.setTimeAxisPainter(timeAxisPainter);
+        XAxisPainter xAxisPainter = new XAxisPainter(isTimeAxis);
+        xAxisPainter.isValuesPaint(!showScalesSeparate);
+        panel.setxAxisPainter(xAxisPainter);
         if (previewPanelList.size() == 0) {
-            addPreviewTimePanel();
+            previewsMainPanel.add(previewScalePanel, BorderLayout.SOUTH);
         }
         previewPanelList.add(panel);
         previewsPaintingPanel.add(panel);
@@ -251,52 +284,59 @@ public class GraphView extends JPanel {
         previewsPaintingPanel.revalidate();
     }
 
-    private int getTimePanelHeight(Font font) {
-        FontMetrics fm = getFontMetrics(font);
-        return fm.getHeight() + 4;
-    }
-
-    private void addGraphTimePanel() {
-        // graphTimePanel.setPreferredSize(new Dimension(getWidth(), getTimePanelHeight(graphTimePanel.getFont())));
-        graphTimePanel.setIndentX(xIndent);
-        graphTimePanel.setBackground(bgColor);
-        graphTimePanel.addMinusButtonListener(new ActionListener() {
+    private void createGraphScalePanel() {
+        XAxisPainter scalePainter= new XAxisPainter(isTimeAxis);
+        scalePainter.isAxisPaint(false);
+        scalePainter.isGridPaint(false);
+        graphScalePanel = new ScalePanel(scalePainter);
+        graphScalePanel.setIndentX(xIndent);
+        graphScalePanel.setBackground(bgColor);
+        graphScalePanel.addMinusButtonListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                double frequencyNew = graphTimePanel.getFrequency() / 2;
+                double frequencyNew = graphScalePanel.getFrequency() / 2;
                 eventHandler.setGraphFrequency(frequencyNew);
             }
         });
-        graphTimePanel.addPlusButtonListener(new ActionListener() {
+        graphScalePanel.addPlusButtonListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                double frequencyNew = graphTimePanel.getFrequency() * 2;
+                double frequencyNew = graphScalePanel.getFrequency() * 2;
                 eventHandler.setGraphFrequency(frequencyNew);
             }
         });
-        graphsMainPanel.add(graphTimePanel, BorderLayout.NORTH);
+
+        if( ! isTimeAxis) {
+            graphScalePanel.setButtonsVisible(false);
+        }
+        graphScalePanel.setVisible(showScalesSeparate);
     }
 
-    private void addPreviewTimePanel() {
-       // previewTimePanel.setPreferredSize(new Dimension(getWidth(), getTimePanelHeight(previewTimePanel.getFont())));
-        previewTimePanel.setIndentX(xIndent);
-        previewTimePanel.setBackground(previewBgColor);
-        previewTimePanel.addMinusButtonListener(new ActionListener() {
+    private void createPreviewScalePanel() {
+        XAxisPainter scalePainter= new XAxisPainter(isTimeAxis);
+        scalePainter.isAxisPaint(false);
+        scalePainter.isGridPaint(false);
+        previewScalePanel = new ScalePanel(scalePainter);
+        previewScalePanel.setIndentX(xIndent);
+        previewScalePanel.setBackground(previewBgColor);
+        previewScalePanel.addMinusButtonListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                double frequencyNew = previewTimePanel.getFrequency() / 2;
+                double frequencyNew = previewScalePanel.getFrequency() / 2;
                 eventHandler.setPreviewFrequency(frequencyNew);
             }
         });
-        previewTimePanel.addPlusButtonListener(new ActionListener() {
+        previewScalePanel.addPlusButtonListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                double frequencyNew = previewTimePanel.getFrequency() * 2;
+                double frequencyNew = previewScalePanel.getFrequency() * 2;
                 eventHandler.setPreviewFrequency(frequencyNew);
             }
         });
 
-        previewsMainPanel.add(previewTimePanel, BorderLayout.SOUTH);
+        if( ! isTimeAxis) {
+            previewScalePanel.setButtonsVisible(false);
+        }
+        previewScalePanel.setVisible(showScalesSeparate);
     }
-
 }

@@ -1,33 +1,36 @@
 package graph;
 
+import graph.painters.XAxisPainter;
+
 import javax.swing.*;
-import javax.swing.border.AbstractBorder;
 import javax.swing.border.BevelBorder;
-import javax.swing.border.Border;
-import javax.swing.border.EtchedBorder;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 
-public class TimePanel extends JPanel {
+public class ScalePanel extends JPanel {
     private int indentX;
     private int startIndex;
     private long startTime;
     private double frequency;
-    private TimeAxisPainter timePainter = new TimeAxisPainter();
+    private XAxisPainter scalePainter;
 
     JButton plusButton = new SmallButton("+");
     JButton minusButton = new SmallButton("-");
 
-    public TimePanel() {
-        timePainter.isAxisPaint(false);
-        timePainter.isGridPaint(false);
+    public ScalePanel(XAxisPainter scalePainter) {
+        this.scalePainter = scalePainter;
         setBackground(Color.black);
         setLayout(new FlowLayout(0));
         add(minusButton);
         add(plusButton);
+    }
+
+    public void setButtonsVisible(boolean isVisible) {
+        minusButton.setVisible(isVisible);
+        plusButton.setVisible(isVisible);
     }
 
     public void addPlusButtonListener(ActionListener listener) {
@@ -61,13 +64,15 @@ public class TimePanel extends JPanel {
 
     public void transformCoordinate(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
-        g2d.translate(indentX, g.getClipBounds().getHeight()); // move XY origin to the left bottom point
+        g2d.translate(indentX, 0);
+       // g2d.translate(indentX, g.getClipBounds().getHeight()); // move XY origin to the left bottom point
         g2d.transform(AffineTransform.getScaleInstance(1, -1)); // flip Y-axis
     }
 
     public void restoreCoordinate(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
-        g2d.translate(-indentX, g.getClipBounds().getHeight()); // move XY origin to the left top point
+        g2d.translate(-indentX, 0);
+        // g2d.translate(-indentX, g.getClipBounds().getHeight()); // move XY origin to the left top point
         g2d.transform(AffineTransform.getScaleInstance(1, -1)); // flip Y-axis and zoom it
     }
 
@@ -75,7 +80,7 @@ public class TimePanel extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         transformCoordinate(g);
-        timePainter.paint(g, startTime, startIndex, frequency);
+        scalePainter.paint(g, startIndex, frequency, startTime);
         restoreCoordinate(g);
     }
 

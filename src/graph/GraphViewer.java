@@ -12,14 +12,15 @@ import java.awt.*;
  */
 public class GraphViewer extends JPanel{
     private static final Log log = LogFactory.getLog(GraphViewer.class);
+
     private static final int DEFAULT_GRAPH_PANEL_WEIGHT = 1;
     private static final int DEFAULT_PREVIEW_PANEL_WEIGHT = 1;
 
     private static final boolean IS_GRAPH_X_CENTERED_DEFAULT = true;
     private static final boolean IS_PREVIEW_X_CENTERED_DEFAULT = true;
 
-    private int xIndent =50;
-    private int yIndent = 4;
+    private static final int X_INDENT_DEFAULT =50;
+    private static final int Y_INDENT_DEFAULT = 4;
     private Color bgColor = Color.BLACK;
     private Color previewBgColor = new Color(25, 25, 25);
 
@@ -29,19 +30,31 @@ public class GraphViewer extends JPanel{
     private GraphPresenter graphPresenter;
 
     public GraphViewer() {
+        this(true, true);
+    }
+
+    public GraphViewer(boolean isTimeAxis, boolean showScalesSeparate) {
         graphModel = new GraphModel();
         graphController = new GraphController(graphModel);
-        graphView = new GraphView(graphController);
+        graphView = new GraphView(graphController, isTimeAxis, showScalesSeparate);
         graphPresenter = new GraphPresenter(graphModel, graphView);
         graphController.addListener(graphPresenter);
-
         graphView.setBgColor(bgColor);
         graphView.setPreviewBgColor(previewBgColor);
-        graphView.setXIndent(xIndent);
-        graphView.setYIndent(yIndent);
+        graphView.setXIndent(X_INDENT_DEFAULT);
+        graphView.setYIndent(Y_INDENT_DEFAULT);
         setLayout(new BorderLayout());
         add(graphView, BorderLayout.CENTER);
         graphView.requestFocusInWindow();
+    }
+
+    public void setxIndent(int xIndent) {
+        graphView.setXIndent(xIndent);
+
+    }
+
+    public void setyIndent(int yIndent) {
+        graphView.setYIndent(yIndent);
     }
 
     @Override
