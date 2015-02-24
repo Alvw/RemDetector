@@ -20,9 +20,8 @@ public class Fourie {
 
         DoubleFFT_1D jfft = new DoubleFFT_1D(N);
         jfft.realForwardFull(dataArray);
-        double[] result = FFTNormalizer.normalize(dataArray, inputData.getFrequency());
 
-        return DataList.wrap(result);
+        return FFTNormalizer.normalize(dataArray, inputData.getFrequency());
     }
 
     /*
@@ -73,7 +72,7 @@ public class Fourie {
         DoubleFFT_1D jfft = new DoubleFFT_1D(N);
         jfft.realForwardFull(x);
         time = System.currentTimeMillis() - time;
-        System.out.println("jtransform "+time);
+        System.out.println("jtransform " + time);
 
         time = System.currentTimeMillis();
         Complex[] prinstonResult = fft.prinston.FFT.fft(c);
@@ -86,19 +85,17 @@ public class Fourie {
         DataSet jtransformSet = DataList.wrap(x);
         DataSet prinstonSet = DataList.wrap(prinstonResult);
 
-        double[] result = FFTNormalizer.normalize(x, signalFr);
+        DataSet result = FFTNormalizer.normalize(x, signalFr);
 
 
 
-        view.addGraph(DataList.wrap(result));
+        view.addGraph(result);
      //   view.addGraph(jtransformSet);
      //   view.addGraph(prinstonSet);
-        for(int i= 0; i < result.length; i++) {
-            if(result[i] > 5) {
-                System.out.println("frequency: "+i +"  Ampl: "+(int)result[i]);
+        for(int i= 0; i < result.size(); i++) {
+            if(result.get(i) > 5) {
+                System.out.println("frequency: "+i +"  Ampl: "+(int)result.get(i));
             }
         }
-
-
     }
 }

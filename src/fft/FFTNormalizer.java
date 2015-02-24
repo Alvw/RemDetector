@@ -1,13 +1,13 @@
 package fft;
 
-import data.DataDimension;
+import data.DataList;
 import data.DataSet;
 
 public class FFTNormalizer {
     double[] fftResult;
     double frequency;
 
-    public static double[] normalize(double[] fftResult, double frequency) {
+    public static DataSet normalize(double[] fftResult, double frequency) {
         return new FFTNormalizer(fftResult, frequency).getResultAmplitudes();
 
     }
@@ -38,15 +38,18 @@ public class FFTNormalizer {
         return Math.abs(amplitude);
     }
 
-    public double[] getResultAmplitudes() {
-        int maxFrequency = (int)(frequency / 2);
-        double[] resultAmplitudes = new double[maxFrequency + 1];
-
+    public DataSet getResultAmplitudes() {
+        double step = 0.05;
+        double maxFrequency = (frequency / 2);
+        int maxIndex = (int)(maxFrequency/step +1);
+        double[] resultAmplitudes = new double[maxIndex];
         for(int i = 0; i < size(); i++) {
-           int index = (int) getFrequency(i);
+           int index = (int) (getFrequency(i) / step);
             resultAmplitudes[index] += getAmplitude(i);
         }
-        return resultAmplitudes;
+        DataList result = DataList.wrap(resultAmplitudes);
+        result.setFrequency(1/step);
+        return result;
     }
 
 }

@@ -44,8 +44,60 @@ public class XAxisPainter  {
     }
 
 
-    private void prepareSimpleAxis(Graphics g, int startIndex) {
+    private void prepareSimpleAxis(Graphics g, int startIndex, double frequency) {
         int width = g.getClipBounds().width;
+        double step = 1;
+        if(frequency > 0) {
+            step = 1 / frequency;
+        }
+        valueStamps = new HashMap<Integer, String>();
+        valueIndexes = new ArrayList<Integer>();
+        gridIndexes = new ArrayList<Integer>();
+        interGridIndexes = new ArrayList<Integer>();
+
+        for(int i = 0; i <= width; i++) {
+            int index = startIndex + i;
+            if(index % 100 == 0) {
+                valueIndexes.add(index);
+                valueStamps.put(index, String.valueOf(index * step));
+            }
+            if(index % 20 == 0) {
+                gridIndexes.add(index);
+            }
+            if(index % 10 == 0) {
+                interGridIndexes.add(index);
+            }
+        }
+    }
+
+    private void prepareSimpleAxis1(Graphics g, int startIndex, double frequency) {
+        int width = g.getClipBounds().width;
+        double step = 1;
+        if(frequency > 0) {
+            step = 1 / frequency;
+        }
+
+        int minPointStep = 50;
+        double minValueStep = minPointStep * step;
+
+        int exponent = (int) Math.log10(step);
+        int[] steps = {1, 2, 5, 10};
+        String stringFormat = "%.0f";
+        if(Math.log10(step) < 0) {
+            exponent = exponent - 1;
+            stringFormat = "%."+Math.abs(exponent)+"f";
+        }
+        double valueStep = 0;
+        int j=0;
+        while(valueStep == 0 && j < steps.length) {
+            double value = steps[j] * Math.pow(10, exponent);
+            j++;
+            if (value >= minValueStep) {
+                valueStep = value;
+            }
+        }
+        int pointStep = (int) (valueStep / step);
+
 
         valueStamps = new HashMap<Integer, String>();
         valueIndexes = new ArrayList<Integer>();
@@ -54,17 +106,16 @@ public class XAxisPainter  {
 
         for(int i = 0; i <= width; i++) {
             int index = startIndex + i;
-            if(index % 50 == 0) {
+            if(index % pointStep == 0) {
                 valueIndexes.add(index);
-                valueStamps.put(index, String.valueOf(index));
+                valueStamps.put(index, String.valueOf(index * step));
             }
-            if(index % 10 == 0) {
+            if(index % 20 == 0) {
                 gridIndexes.add(index);
             }
-            if(index % 5 == 0) {
+            if(index % 10 == 0) {
                 interGridIndexes.add(index);
             }
-
         }
     }
 
@@ -207,7 +258,7 @@ public class XAxisPainter  {
             prepareTimeAxis(g, startIndex, frequency, startTime);
         }
         else {
-            prepareSimpleAxis(g, startIndex);
+            prepareSimpleAxis(g, startIndex, frequency);
         }
         paint(g, startIndex);
     }
