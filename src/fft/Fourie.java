@@ -41,31 +41,8 @@ public class Fourie {
 
 
     public static void main(String[] args) {
-        double value = 21;
-        int exponent = (int) Math.log10(value);
-        if(Math.log10(value) < 0) {
-            exponent = exponent - 1;
-        }
-        int number = (int) (value / Math.pow(10, exponent));
-        System.out.println(value + " " + exponent+" "+number);
 
-        value = 0.21;
-        exponent = (int) Math.log10(value);
-        if(Math.log10(value) < 0) {
-            exponent = exponent - 1;
-        }
-        number = (int) (value / Math.pow(10, exponent));
-        System.out.println(value + " " + exponent+" "+number);
-
-        value = 98888;
-        exponent = (int) Math.log10(value);
-        if(Math.log10(value) < 0) {
-            exponent = exponent - 1;
-        }
-        number = (int) (value / Math.pow(10, exponent));
-        System.out.println(value + " " + exponent+" "+number);
-
-        double signalFr = 1024; //HZ
+        double signalFr = 512; //HZ
         double signalTime = 2; // sec
         double sin1Fr = 10; // HZ
         double sin2Fr = 128; // HZ
@@ -75,7 +52,7 @@ public class Fourie {
         double sin3Am = 40;
 
 
-        int  N = 1024; //(int)(signalFr * signalTime);
+        int  N = 512; //(int)(signalFr * signalTime);
         double[] x = new double[2*N];
         Complex[] c = new Complex[N];
 
