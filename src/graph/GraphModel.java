@@ -250,6 +250,9 @@ class GraphModel {
             scrollPosition = 0;
         }
         this.scrollPosition = scrollPosition;
+        if(getCompression() == 1) {
+            startIndex = scrollPosition;
+        }
         if (getSlotPosition() < 0) {
             //adjust slotPosition to 0
             startIndex = (int)(scrollPosition * getCompression());

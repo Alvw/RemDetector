@@ -71,7 +71,7 @@ public class GraphPanel extends JPanel {
                 }
                 if (SwingUtilities.isRightMouseButton(e)) {
                     if(graphList.size() > 0) {
-                        int time = 30; // sec
+                        int time = 90; // sec
                         notifyFourieListeners(graphList.get(0), startIndex, time);
                     }
                 }

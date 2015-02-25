@@ -1,7 +1,6 @@
 package graph;
 
 import data.DataSet;
-import fft.FFTNormalizer;
 import fft.Fourie;
 import fft.FourieView;
 
