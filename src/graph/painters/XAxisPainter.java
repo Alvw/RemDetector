@@ -44,12 +44,9 @@ public class XAxisPainter  {
     }
 
 
-    private void prepareSimpleAxis(Graphics g, int startIndex, double frequency) {
+    private void prepareSimpleAxis_(Graphics g, int startIndex, double frequency) {
         int width = g.getClipBounds().width;
-        double step = 1;
-        if(frequency > 0) {
-            step = 1 / frequency;
-        }
+
         valueStamps = new HashMap<Integer, String>();
         valueIndexes = new ArrayList<Integer>();
         gridIndexes = new ArrayList<Integer>();
@@ -57,63 +54,80 @@ public class XAxisPainter  {
 
         for(int i = 0; i <= width; i++) {
             int index = startIndex + i;
-            if(index % 100 == 0) {
+            if(index % 50 == 0) {
                 valueIndexes.add(index);
-                valueStamps.put(index, String.valueOf(index * step));
-            }
-            if(index % 20 == 0) {
-                gridIndexes.add(index);
+                valueStamps.put(index, String.valueOf(index));
             }
             if(index % 10 == 0) {
+                gridIndexes.add(index);
+            }
+            if(index % 5 == 0) {
                 interGridIndexes.add(index);
             }
         }
     }
 
-    private void prepareSimpleAxis1(Graphics g, int startIndex, double frequency) {
+    private void prepareSimpleAxis(Graphics g, int startIndex, double frequency) {
         int width = g.getClipBounds().width;
-        double step = 1;
+        double pointDistance = 1;
         if(frequency > 0) {
-            step = 1 / frequency;
+            pointDistance = 1 / frequency;
         }
 
-        int minPointStep = 50;
-        double minValueStep = minPointStep * step;
+        int minPointsNumber = 50;
+        double minStep = minPointsNumber * pointDistance;
 
-        int exponent = (int) Math.log10(step);
-        int[] steps = {1, 2, 5, 10};
-        String stringFormat = "%.0f";
-        if(Math.log10(step) < 0) {
+        int exponent = (int) Math.log10(minStep);
+        if(Math.log10(minStep) < 0) {
             exponent = exponent - 1;
+        }
+
+
+        double minStepNormalized = minStep / Math.pow(10, exponent);
+        int firstFigure = (int) (minStep / Math.pow(10, exponent));
+
+        int[] steps = {2, 5, 10};
+        double step = 0;
+        int j=0;
+        while(step == 0 && j < steps.length) {
+            if (minStepNormalized == steps[j] || firstFigure < steps[j]) {
+                step = steps[j];
+            }
+            if(step == 10){
+                step = 1;
+                exponent = exponent + 1;
+            }
+            j++;
+        }
+
+        step = step * Math.pow(10, exponent);
+        String stringFormat = "%.0f";
+        if(exponent < 0) {
             stringFormat = "%."+Math.abs(exponent)+"f";
         }
-        double valueStep = 0;
-        int j=0;
-        while(valueStep == 0 && j < steps.length) {
-            double value = steps[j] * Math.pow(10, exponent);
-            j++;
-            if (value >= minValueStep) {
-                valueStep = value;
-            }
-        }
-        int pointStep = (int) (valueStep / step);
-
 
         valueStamps = new HashMap<Integer, String>();
         valueIndexes = new ArrayList<Integer>();
         gridIndexes = new ArrayList<Integer>();
         interGridIndexes = new ArrayList<Integer>();
 
+        double stepPointsNumber = step/pointDistance;
         for(int i = 0; i <= width; i++) {
             int index = startIndex + i;
-            if(index % pointStep == 0) {
+            int divider = (int)(index / stepPointsNumber);
+            double value = step * divider;
+            if(index - divider * stepPointsNumber < 1) {
                 valueIndexes.add(index);
-                valueStamps.put(index, String.valueOf(index * step));
+                valueStamps.put(index, String.format(stringFormat, value));
             }
-            if(index % 20 == 0) {
+            double fifthStepPointsNumber = stepPointsNumber / 5;
+            divider =  (int)(index / fifthStepPointsNumber);
+            if(index - divider * fifthStepPointsNumber < 1) {
                 gridIndexes.add(index);
             }
-            if(index % 10 == 0) {
+            double tenthStepPointsNumber = stepPointsNumber / 10;
+            divider =  (int)(index / tenthStepPointsNumber);
+            if(index - divider * tenthStepPointsNumber < 1) {
                 interGridIndexes.add(index);
             }
         }

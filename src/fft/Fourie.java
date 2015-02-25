@@ -41,6 +41,29 @@ public class Fourie {
 
 
     public static void main(String[] args) {
+        double value = 21;
+        int exponent = (int) Math.log10(value);
+        if(Math.log10(value) < 0) {
+            exponent = exponent - 1;
+        }
+        int number = (int) (value / Math.pow(10, exponent));
+        System.out.println(value + " " + exponent+" "+number);
+
+        value = 0.21;
+        exponent = (int) Math.log10(value);
+        if(Math.log10(value) < 0) {
+            exponent = exponent - 1;
+        }
+        number = (int) (value / Math.pow(10, exponent));
+        System.out.println(value + " " + exponent+" "+number);
+
+        value = 98888;
+        exponent = (int) Math.log10(value);
+        if(Math.log10(value) < 0) {
+            exponent = exponent - 1;
+        }
+        number = (int) (value / Math.pow(10, exponent));
+        System.out.println(value + " " + exponent+" "+number);
 
         double signalFr = 1024; //HZ
         double signalTime = 2; // sec
@@ -76,8 +99,8 @@ public class Fourie {
 
         time = System.currentTimeMillis();
         Complex[] prinstonResult = fft.prinston.FFT.fft(c);
-        for(Complex value : prinstonResult) {
-             Math.sqrt(value.re()*value.re() + value.im()*value.im());
+        for(Complex complex : prinstonResult) {
+             Math.sqrt(complex.re()*complex.re() + complex.im()*complex.im());
         }
         time = System.currentTimeMillis() - time;
         System.out.println("prinston "+time);

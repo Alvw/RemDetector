@@ -39,14 +39,16 @@ public class FFTNormalizer {
     }
 
     public DataSet getResultAmplitudes() {
-        double step = 0.05;
+        double step = frequency / fftResult.length;
         double maxFrequency = (frequency / 2);
         int maxIndex = (int)(maxFrequency/step +1);
         double[] resultAmplitudes = new double[maxIndex];
         for(int i = 0; i < size(); i++) {
            int index = (int) (getFrequency(i) / step);
             resultAmplitudes[index] += getAmplitude(i);
+            resultAmplitudes[i] += getAmplitude(i);
         }
+
         DataList result = DataList.wrap(resultAmplitudes);
         result.setFrequency(1/step);
         return result;
