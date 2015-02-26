@@ -71,7 +71,7 @@ public class RemConfigurator {
         for(int i = 0; i < preFilters.length; i++) {
             if(eogRemFrequency != 0 && i == remChannels.getEog() ) {
                 if ((frequencies[i] % eogRemFrequency) == 0) {
-                    int bufferSize = eogRemFrequency * eogRemCutoffPeriod;
+
                     int divider = frequencies[i] / eogRemFrequency;
                     if(divider > 1) {
                        preFilters[i] = new FrequencyDividingPreFilter(divider);

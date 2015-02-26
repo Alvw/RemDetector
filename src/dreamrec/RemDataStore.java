@@ -90,7 +90,11 @@ public class RemDataStore  implements DataStoreListener {
             dataStore.setPreFilters(prefilters);
             dataStore.addListener(this);
 
-            int bufferSize = remConfigurator.getEogRemFrequency() * remConfigurator.getEogRemCutoffPeriod();
+            int bufferSize = (int)(getEogFullData().getFrequency() * remConfigurator.getEogRemCutoffPeriod());
+            if(remConfigurator.getEogRemFrequency() > 0) {
+                bufferSize = remConfigurator.getEogRemFrequency() * remConfigurator.getEogRemCutoffPeriod();
+            }
+
             if(bufferSize > 0) {
                 eogFilteredData = new DataList();
                 eogFilteredData.setFrequency(getEogFullData().getFrequency());

@@ -7,21 +7,21 @@ import data.DataSet;
  */
 
 public class FilterDerivativeRem extends Filter {
-    int bufferSize;
-    private int distance = 4;
+    private int DISTANCE_MSEC = 80;
+    private int distance_point;
     
     public FilterDerivativeRem(DataSet inputData) {
         super(inputData);
-        bufferSize=4;
+        distance_point = (int)(DISTANCE_MSEC * inputData.getFrequency() / 1000);
     }
 
     @Override
     public int get(int index) {
-        if (index < distance) {
+        if (index < distance_point) {
             return 0;
         }
-        return Math.abs(inputData.get(index)) - Math.abs(inputData.get(index - distance));
-        //return Math.abs(inputData.get(index) - inputData.get(index - distance));
+        return Math.abs(inputData.get(index)) - Math.abs(inputData.get(index - distance_point));
+        //return Math.abs(inputData.get(index) - inputData.get(index - distance_point));
     }
 }
 
