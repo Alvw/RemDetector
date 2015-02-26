@@ -83,6 +83,13 @@ public class RemDataStore  implements DataStoreListener {
             int numberOfRecordsToJoin = remConfigurator.getNumberOfRecordsToJoin(bdfConfig);
             BdfProvider bdfProviderNew = new BdfRecordsJoiner(bdfProvider, numberOfRecordsToJoin);
             PreFilter[] prefilters = remConfigurator.getPreFilters(bdfConfig, remChannels);
+
+            bdfProvider.removeBdfDataListener(dataStore);
+
+            dataStore = new DataStore(bdfProviderNew);
+            dataStore.setPreFilters(prefilters);
+            dataStore.addListener(this);
+
             int bufferSize = remConfigurator.getEogRemFrequency() * remConfigurator.getEogRemCutoffPeriod();
             if(bufferSize > 0) {
                 eogFilteredData = new DataList();
@@ -90,9 +97,6 @@ public class RemDataStore  implements DataStoreListener {
                 eogFilteredData.setDataDimension(getEogFullData().getDataDimension());
                 eogFilter = new EogFilter(bufferSize);
             }
-            dataStore = new DataStore(bdfProviderNew);
-            dataStore.setPreFilters(prefilters);
-            dataStore.addListener(this);
 
         }
     }
