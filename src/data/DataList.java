@@ -19,48 +19,19 @@ public class DataList extends AbstractPreFilter implements DataSet  {
     private DataDimension dataDimension = new DataDimension();
 
 
-    private DataList(TIntArrayList intArrayList) {
-        this.intArrayList = intArrayList;
-    }
-    private DataList(int[] array) {
-        intArrayList = TIntArrayList.wrap(array);
-    }
-    private DataList(ArrayList<Integer> arrayList) {
-        this.arrayList = arrayList;
-    }
-
-
     public DataList() {
         intArrayList = new TIntArrayList();
     }
-
-    public static DataSet wrap(TIntArrayList intArrayList) {
-        return new DataList(intArrayList);
+    public DataList(TIntArrayList intArrayList) {
+        this.intArrayList = intArrayList;
+    }
+    public DataList(int[] array) {
+        intArrayList = TIntArrayList.wrap(array);
+    }
+    public DataList(ArrayList<Integer> arrayList) {
+        this.arrayList = arrayList;
     }
 
-    public static DataSet wrap(ArrayList<Integer> arrayList) {
-        return new DataList(arrayList);
-    }
-
-    public static DataList wrap(int[] array) {
-        return new DataList(array);
-    }
-
-    public static DataList wrap(double[] array) {
-        int[] intArray = new int[array.length] ;
-        for(int i = 0; i < intArray.length; i++) {
-            intArray[i] = (int) array[i];
-        }
-        return new DataList(intArray);
-    }
-
-    public static DataList wrap(Complex[] array) {
-        int[] intArray = new int[array.length] ;
-        for(int i = 0; i < intArray.length; i++) {
-            intArray[i] = (int) Math.sqrt(array[i].re()*array[i].re() + array[i].im()*array[i].im());
-        }
-        return new DataList(intArray);
-    }
 
     public void add(int value) {
         if(intArrayList != null) {

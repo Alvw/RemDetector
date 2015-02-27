@@ -108,7 +108,7 @@ public class Controller  implements InputEventHandler {
             dataStore.configure(remConfigurator);
             dataStore.setChannelsMask(recordingSettings.getActiveChannels());
             dataStore.setStartTime(recordingBdfConfig.getStartTime());
-
+            System.out.println("acc fr "+dataStore.getAccXData().getFrequency());
             fireDataStoreUpdated(dataStore);
 
         } else {
