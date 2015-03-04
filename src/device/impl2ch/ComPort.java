@@ -1,5 +1,6 @@
 package device.impl2ch;
 
+import device.ads2ch_v1.AdsConfiguration;
 import gnu.io.CommPort;
 import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPort;
@@ -12,7 +13,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-class ComPort {
+public class ComPort {
 
     private static Log log = LogFactory.getLog(ComPort.class);
     private InputStream inputStream;
@@ -35,8 +36,7 @@ class ComPort {
             commPort = portIdentifier.open(this.getClass().getName(), 2000);
             if (commPort instanceof SerialPort) {
                 SerialPort serialPort = (SerialPort) commPort;
-                ComPortParams comPortParams = adsConfiguration.getDeviceType().getComPortParams();
-                serialPort.setSerialPortParams(comPortParams.getSpeed(), SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
+                serialPort.setSerialPortParams(460800, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
                 inputStream = serialPort.getInputStream();
                 outputStream = serialPort.getOutputStream();
                 isConnected = true;
@@ -81,14 +81,14 @@ class ComPort {
         }
     }
 
-    public void setFrameDecoder(FrameDecoder frameDecoder) {
-        serialReader.setFrameDecoder(frameDecoder);
+    public void setFrameDecoder(ComPortListener comPortListener) {
+        serialReader.setComPortListener(comPortListener);
     }
 
     public static class SerialReader implements Runnable {
         private boolean isConnected = true;
         private InputStream in;
-        private FrameDecoder frameDecoder;
+        private ComPortListener comPortListener;
 
         public SerialReader(InputStream in) {
             this.in = in;
@@ -99,8 +99,8 @@ class ComPort {
         }
 
 
-        public void setFrameDecoder(FrameDecoder frameDecoder) {
-            this.frameDecoder = frameDecoder;
+        public void setComPortListener(ComPortListener comPortListener) {
+            this.comPortListener = comPortListener;
         }
 
         public void run() {
@@ -111,8 +111,8 @@ class ComPort {
                     len = this.in.read(buf);
                     while (isConnected && (len = this.in.read(buf)) > -1) {
                         for (int i = 0; i < len; i++) {
-                            if (frameDecoder != null) {
-                                frameDecoder.onByteReceived((buf[i]));
+                            if (comPortListener != null) {
+                                comPortListener.onByteReceived((buf[i]));
                             }
                         }
                     }

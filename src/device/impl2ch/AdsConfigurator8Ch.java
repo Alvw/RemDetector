@@ -1,19 +1,21 @@
 package device.impl2ch;
 
+
+import device.ads2ch_v1.AdsConfiguration;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  *
  */
-public class AdsConfigurator8Ch extends AdsConfigurator {
+public class AdsConfigurator8Ch  {
     public static final int NUMBER_OF_ADS_CHANNELS = 8;
     public static final int NUMBER_OF_ACCELEROMETER_CHANNELS = 3;
 
-    @Override
     public List<Byte> writeAdsConfiguration(AdsConfiguration adsConfiguration) {
         List<Byte> result = new ArrayList<Byte>();
-        result.addAll(startPinLo());
+        /*result.addAll(startPinLo());
         result.addAll(writeCommand(0x11));  //stop continious
         for (int i = 0; i < NUMBER_OF_ADS_CHANNELS; i++) {
             AdsChannelConfiguration adsChannelConfiguration = adsConfiguration.getAdsChannels().get(i);
@@ -46,7 +48,7 @@ public class AdsConfigurator8Ch extends AdsConfigurator {
         result.addAll(writeRegister(0x4F, loffSensBits));  //loff sens positive
         result.addAll(writeRegister(0x50, loffSensBits));  //loff sens negative
 
-        result.addAll(writeConfigDataReceivedCode());
+        result.addAll(writeConfigDataReceivedCode());*/
         return result;
     }
 

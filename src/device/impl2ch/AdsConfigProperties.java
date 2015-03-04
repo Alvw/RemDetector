@@ -35,10 +35,6 @@ class AdsConfigProperties {
         }
     }
 
-    public DeviceType getDeviceType(){
-            return DeviceType.valueOf(config.getString(DEVICE_TYPE));
-    }
-
     public String getComPortName() {
         return config.getString(COM_PORT_NAME);
     }
