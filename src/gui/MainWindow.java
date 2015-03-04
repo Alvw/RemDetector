@@ -175,7 +175,7 @@ public class MainWindow extends JFrame {
     }
 
     void startRecording(RecordingSettings recordingSettings, File file) throws ApplicationException {
-        if(recordingSettings.getDirectoryToSave() != file.getParent()) {
+        if(file == null || recordingSettings.getDirectoryToSave() != file.getParent()) {
             guiConfig.setDirectoryToSave(recordingSettings.getDirectoryToSave());
             eventHandler.startRecording(recordingSettings, file);
         }

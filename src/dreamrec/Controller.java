@@ -137,8 +137,8 @@ public class Controller  implements InputEventHandler {
         if(file == null) { // device
             BdfConfig deviceBdfConfig = deviceFabric.getDeviceImplementation().getBdfConfig();
             RecordingBdfConfig recordingBdfConfig = new RecordingBdfConfig(deviceBdfConfig);
-            recordingSettings = new RecordingSettings(recordingBdfConfig);
             recordingBdfConfig.setSignalsLabels(deviceSignalsLabels);
+            recordingSettings = new RecordingSettings(recordingBdfConfig);
         }
         else if (file.isFile()) { // file
             RecordingBdfConfig recordingBdfConfig = BdfHeaderReader.readBdfHeader(file);

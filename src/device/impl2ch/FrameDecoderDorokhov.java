@@ -4,44 +4,56 @@ import bdf.BdfParser;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-abstract class FrameDecoderDorokhov implements FrameDecoder{
+abstract class FrameDecoderDorokhov implements FrameDecoder {
 
     private static final Log log = LogFactory.getLog(FrameDecoder.class);
-    public static final byte START_FRAME_MARKER = (byte)(0xAA & 0xFF);
-    public static final byte STOP_FRAME_MARKER = (byte)(0x55 & 0xFF);
+    public static final byte START_FRAME_MARKER = (byte) (0xAA & 0xFF);
+    public static final byte STOP_FRAME_MARKER = (byte) (0x55 & 0xFF);
     private int frameIndex;
-    private int rawFrameSize;
+    private int dataRecordSize;
+    private int frameSize;//todo refactor names
     private int numberOf3ByteSamples;
     private int decodedFrameSize;
     private byte[] rawFrame;
     private AdsConfiguration adsConfiguration;
     private int previousFrameCounter = -1;
-
+    private byte[] lostFrame;
 
 
     public FrameDecoderDorokhov(AdsConfiguration configuration) {
         adsConfiguration = configuration;
         numberOf3ByteSamples = getNumberOf3ByteSamples(configuration);
-        rawFrameSize = getRawFrameSize(configuration);
+        dataRecordSize = getRawFrameSize(configuration);
         decodedFrameSize = getDecodedFrameSize(configuration);
-        rawFrame = new byte[rawFrameSize];
-        log.info("Com port frame size: " + rawFrameSize + " bytes");
+        lostFrame = new byte[decodedFrameSize];
+        rawFrame = new byte[dataRecordSize];
+        log.info("Com port frame size: " + dataRecordSize + " bytes");
     }
 
     public void onByteReceived(byte inByte) {
         if (frameIndex == 0 && inByte == START_FRAME_MARKER) {
             rawFrame[frameIndex] = inByte;
             frameIndex++;
-        } else if (frameIndex == 1 && inByte == START_FRAME_MARKER) {
+        } else if (frameIndex == 1 && inByte == START_FRAME_MARKER) {  //receiving data record
+            rawFrame[frameIndex] = inByte;
+            frameSize = dataRecordSize;
+            frameIndex++;
+        } else if (frameIndex == 1 && inByte == STOP_FRAME_MARKER) {  //receiving message
             rawFrame[frameIndex] = inByte;
             frameIndex++;
-        } else if (frameIndex > 1 && frameIndex < (rawFrameSize - 1)) {
+        } else if (frameIndex == 2) {
             rawFrame[frameIndex] = inByte;
             frameIndex++;
-        } else if (frameIndex == (rawFrameSize - 1)) {
+            if (rawFrame[1] == STOP_FRAME_MARKER) {   //message length
+                frameSize = inByte;
+            }
+        } else if (frameIndex > 2 && frameIndex < (frameSize - 1)) {
+            rawFrame[frameIndex] = inByte;
+            frameIndex++;
+        } else if (frameIndex == (frameSize - 1)) {
             rawFrame[frameIndex] = inByte;
             if (inByte == STOP_FRAME_MARKER) {
-               onFrameReceived();
+                onFrameReceived();
             }
             frameIndex = 0;
         } else {
@@ -51,11 +63,20 @@ abstract class FrameDecoderDorokhov implements FrameDecoder{
     }
 
     private void onFrameReceived() {
-        int counter = BdfParser.bytesToUnsignedInt(rawFrame[2],rawFrame[3]);
+        if (rawFrame[1] == START_FRAME_MARKER) {
+            onDataRecordReceived();
+        }
+        if (rawFrame[1] == STOP_FRAME_MARKER) {
+            onMessageReceived();
+        }
+    }
+
+    private void onDataRecordReceived() {
+        int counter = BdfParser.bytesToUnsignedInt(rawFrame[2], rawFrame[3]);
         byte[] decodedFrame = new byte[decodedFrameSize];
         int rawFrameOffset = 4;
         int decodedFrameOffset = 0;
-        for (int i = 0; i < numberOf3ByteSamples*3; i++) {
+        for (int i = 0; i < numberOf3ByteSamples * 3; i++) {
             decodedFrame[decodedFrameOffset++] = rawFrame[rawFrameOffset++];
         }
 
@@ -71,16 +92,22 @@ abstract class FrameDecoderDorokhov implements FrameDecoder{
             decodedFrame[decodedFrameOffset++] = 0;
         }
         int numberOfLostFrames = getNumberOfLostFrames(counter);
-        if(numberOfLostFrames > 0){
+        if (numberOfLostFrames > 0) {
             log.info(numberOfLostFrames + " lost frames");
         }
         for (int i = 0; i < numberOfLostFrames; i++) {
-            byte[] lostFrame = new byte[decodedFrameSize];
-            System.arraycopy( decodedFrame, 0, lostFrame, 0, decodedFrameSize);
-            decodedFrame[decodedFrameSize - 1] = 1;
+            // byte[] lostFrame = new byte[decodedFrameSize];
+            // System.arraycopy( decodedFrame, 0, lostFrame, 0, decodedFrameSize);
+            // decodedFrame[decodedFrameSize - 1] = 1;
             notifyListeners(lostFrame);
         }
         notifyListeners(decodedFrame);
+    }
+
+    private void onMessageReceived() {
+        if (rawFrame[3] == (byte) (0xA0 & 0xFF)) {
+            log.info("Hello message received");
+        }
     }
 
     private int getRawFrameSize(AdsConfiguration adsConfiguration) {
@@ -119,8 +146,8 @@ abstract class FrameDecoderDorokhov implements FrameDecoder{
         return result;
     }
 
-    private int getNumberOfLostFrames(int frameCounter){
-        if(previousFrameCounter == -1){
+    private int getNumberOfLostFrames(int frameCounter) {
+        if (previousFrameCounter == -1) {
             previousFrameCounter = frameCounter;
             return 0;
         }
