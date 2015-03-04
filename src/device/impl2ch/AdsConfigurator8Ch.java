@@ -89,7 +89,7 @@ public class AdsConfigurator8Ch  {
     }
     //--------------------------------
 
-    private int getChanelRegisterValue(AdsChannelConfiguration channelConfiguration) {
+/*    private int getChanelRegisterValue(AdsChannelConfiguration channelConfiguration) {
         int result = 0x80;   //channel disabled
         if (channelConfiguration.isEnabled()) {
             result = 0x00;
@@ -132,5 +132,5 @@ public class AdsConfigurator8Ch  {
             result += adsChannelConfiguration.isRldSenseEnabled() ? Math.pow(2, i) : 0;
         }
         return result;
-    }
+    }*/
 }

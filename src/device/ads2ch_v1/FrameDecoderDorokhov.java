@@ -1,14 +1,19 @@
 package device.ads2ch_v1;
 
+
 import bdf.BdfParser;
-import device.impl2ch.AdsChannelConfiguration;
-import device.impl2ch.ComPortListener;
+import comport.ComPortListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-abstract class FrameDecoderDorokhov implements ComPortListener {
+import java.util.ArrayList;
+import java.util.List;
 
+class  FrameDecoderDorokhov implements ComPortListener {
     private static final Log log = LogFactory.getLog(ComPortListener.class);
+
+    private List<FrameListener> listeners = new ArrayList<FrameListener>();
+
     public static final byte START_FRAME_MARKER = (byte) (0xAA & 0xFF);
     public static final byte STOP_FRAME_MARKER = (byte) (0x55 & 0xFF);
     private int frameIndex;
@@ -101,9 +106,9 @@ abstract class FrameDecoderDorokhov implements ComPortListener {
             // byte[] lostFrame = new byte[decodedFrameSize];
             // System.arraycopy( decodedFrame, 0, lostFrame, 0, decodedFrameSize);
             // decodedFrame[decodedFrameSize - 1] = 1;
-            notifyListeners(lostFrame);
+            notifyFrameListeners(lostFrame);
         }
-        notifyListeners(decodedFrame);
+        notifyFrameListeners(decodedFrame);
     }
 
     private void onMessageReceived() {
@@ -138,9 +143,9 @@ abstract class FrameDecoderDorokhov implements ComPortListener {
 
     private int getNumberOf3ByteSamples(AdsConfiguration adsConfiguration) {
         int result = 0;
-        for (AdsChannelConfiguration adsChannelConfiguration : adsConfiguration.getAdsChannels()) {
-            if (adsChannelConfiguration.isEnabled()) {
-                int divider = adsChannelConfiguration.getDivider().getValue();
+        for (int i = 0; i < adsConfiguration.NUMBER_OF_CHANNELS; i++) {
+            if (adsConfiguration.isChannelEnabled(i)) {
+                int divider = adsConfiguration.getChannelDivider(i).getValue();
                 int maxDiv = AdsConfiguration.MAX_DIVIDER.getValue();
                 result += (maxDiv / divider);
             }
@@ -159,5 +164,18 @@ abstract class FrameDecoderDorokhov implements ComPortListener {
         return result - 1;
     }
 
-    public abstract void notifyListeners(byte[] decodedFrame);
+    private void notifyFrameListeners(byte[] frame) {
+        for (FrameListener listener : listeners) {
+            listener.onFrameReceived(frame);
+        }
+    }
+
+    public void addFrameListener(FrameListener frameListener) {
+        listeners.add(frameListener);
+    }
+
+    public void removeFrameListener(FrameListener frameListener) {
+        listeners.remove(frameListener);
+    }
+
 }

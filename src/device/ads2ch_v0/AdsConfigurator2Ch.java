@@ -1,8 +1,6 @@
 package device.ads2ch_v0;
 
-import device.ads2ch_v0.AdsConfigurator;
 import device.ads2ch_v1.AdsConfiguration;
-import device.impl2ch.AdsChannelConfiguration;
 import device.impl2ch.CommutatorState;
 
 import java.util.ArrayList;
@@ -21,7 +19,7 @@ public class AdsConfigurator2Ch extends AdsConfigurator {
         List<Byte> result = new ArrayList<Byte>();
         result.addAll(startPinLo());
         result.addAll(writeCommand(0x11));  //stop continious
-        for (int i = 0; i < NUMBER_OF_ADS_CHANNELS; i++) {
+  /*      for (int i = 0; i < NUMBER_OF_ADS_CHANNELS; i++) {
             AdsChannelConfiguration adsChannelConfiguration = adsConfiguration.getAdsChannels().get(i);
             int divider = adsChannelConfiguration.isEnabled() ? adsChannelConfiguration.getDivider().getValue() : 0;
             result.addAll(writeDividerForChannel(i, divider));
@@ -60,11 +58,11 @@ public class AdsConfigurator2Ch extends AdsConfigurator {
         }
         result.addAll(writeRegister(0x47, loffSensRegisterValue));
 
-        result.addAll(writeConfigDataReceivedCode());
+        result.addAll(writeConfigDataReceivedCode());*/
         return result;
     }
 
-    private int getChanelRegisterValue(AdsChannelConfiguration channelConfiguration) {
+/*    private int getChanelRegisterValue(AdsChannelConfiguration channelConfiguration) {
         int result = 0x80;   //channel disabled
         if (channelConfiguration.isEnabled()) {
             result = 0x00;
@@ -90,5 +88,5 @@ public class AdsConfigurator2Ch extends AdsConfigurator {
             }
         }
         return result;
-    }
+    } */
 }

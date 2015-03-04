@@ -1,6 +1,7 @@
 package device.ads2ch_v0;
 
 import bdf.*;
+import comport.ComPort;
 import data.DataDimension;
 import device.ads2ch_v1.AdsConfiguration;
 import device.impl2ch.*;
@@ -41,9 +42,9 @@ public class Ads implements BdfProvider{
                     notifyAdsDataListeners(decodedFrame);
                 }
             };
-            comPort = new ComPort();
-            comPort.connect(adsConfiguration);
-            comPort.setFrameDecoder(frameDecoder2ch);
+            comPort = new ComPort(null, 0);
+          //  comPort.connect(adsConfiguration);
+            comPort.setComPortListener(frameDecoder2ch);
             comPort.writeToPort(adsConfiguration.getAdsConfigurator().writeAdsConfiguration(adsConfiguration));
             isRecording = true;
         } catch (NoSuchPortException e) {
@@ -93,11 +94,11 @@ public class Ads implements BdfProvider{
 
     @Override
     public DeviceBdfConfig getBdfConfig() {
-        return createBdfConfig();
+        return null; //createBdfConfig();
     }
 
 
-    private DeviceBdfConfig createBdfConfig() {
+ /*   private DeviceBdfConfig createBdfConfig() {
         List<SignalConfig> signalConfigList = new ArrayList<SignalConfig>();
         int n = 0;
         for (AdsChannelConfiguration channelConfiguration : adsConfiguration.getAdsChannels()) {
@@ -152,7 +153,7 @@ public class Ads implements BdfProvider{
         SignalConfig[] signalConfigArray = signalConfigList.toArray(new SignalConfig[signalConfigList.size()]);
         DeviceBdfConfig bdfConfig = new DeviceBdfConfig(DurationOfDataRecord, NUMBER_OF_BYTES_IN_DATA_FORMAT, signalConfigArray);
         return bdfConfig;
-    }
+    }*/
 
     private int getNumberOfDataSamples() {
         int numberOfDataSamples = 0;

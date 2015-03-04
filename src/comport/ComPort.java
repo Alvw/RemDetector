@@ -1,4 +1,4 @@
-package device.impl2ch;
+package comport;
 
 import device.ads2ch_v1.AdsConfiguration;
 import gnu.io.CommPort;
@@ -25,18 +25,18 @@ public class ComPort {
     SerialWriter serialWriter;
     Thread serialWriterThread;
 
-    public void connect(AdsConfiguration adsConfiguration) throws Exception {
+    public ComPort(String comPortName, int speed) throws Exception {
         if (isConnected) {
             return;
         }
-        CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(adsConfiguration.getComPortName());
+        CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(comPortName);
         if (portIdentifier.isCurrentlyOwned()) {
             log.error("Error: Port is currently in use");
         } else {
             commPort = portIdentifier.open(this.getClass().getName(), 2000);
             if (commPort instanceof SerialPort) {
                 SerialPort serialPort = (SerialPort) commPort;
-                serialPort.setSerialPortParams(460800, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
+                serialPort.setSerialPortParams(speed, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
                 inputStream = serialPort.getInputStream();
                 outputStream = serialPort.getOutputStream();
                 isConnected = true;
@@ -81,7 +81,7 @@ public class ComPort {
         }
     }
 
-    public void setFrameDecoder(ComPortListener comPortListener) {
+    public void setComPortListener(ComPortListener comPortListener) {
         serialReader.setComPortListener(comPortListener);
     }
 

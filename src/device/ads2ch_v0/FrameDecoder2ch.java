@@ -1,6 +1,6 @@
 package device.ads2ch_v0;
 
-import device.impl2ch.ComPortListener;
+import comport.ComPortListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

@@ -1,9 +1,9 @@
 package device.ads2ch_v1;
 
 import bdf.*;
+import comport.ComPort;
 import data.DataDimension;
 import device.ads2ch_v0.Ads;
-import device.impl2ch.*;
 import dreamrec.ApplicationException;
 import gnu.io.NoSuchPortException;
 import gnu.io.PortInUseException;
@@ -13,33 +13,30 @@ import org.apache.commons.logging.LogFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AdsDorokhov implements BdfProvider {
+public class AdsDorokhov implements BdfProvider, FrameListener {
+
+    private List<BdfListener> bdfListeners = new ArrayList<BdfListener>();
 
     private static final Log log = LogFactory.getLog(Ads.class);
     private final int NUMBER_OF_BYTES_IN_DATA_FORMAT = 3;
-    private List<BdfListener> bdfListeners = new ArrayList<BdfListener>();
+    private static final int SPEED = 460800;
     private ComPort comPort;
     private boolean isRecording;
     private AdsConfiguration adsConfiguration;
 
 
     public AdsDorokhov() {
-        adsConfiguration = new AdsConfigProperties2ch_v1().readConfiguration();
+        adsConfiguration = new AdsConfiguration();
     }
 
     @Override
     public void startReading() throws ApplicationException {
         String failConnectMessage = "Connection failed. Check com port settings.\nReset power on the target amplifier. Restart the application.";
         try {
-            ComPortListener comPortListener = new FrameDecoderDorokhov(adsConfiguration) {
-                @Override
-                public void notifyListeners(byte[] decodedFrame) {
-                    notifyAdsDataListeners(decodedFrame);
-                }
-            };
-            comPort = new ComPort();
-            comPort.connect(adsConfiguration);
-            comPort.setFrameDecoder(comPortListener);
+            FrameDecoderDorokhov comPortListener = new FrameDecoderDorokhov(adsConfiguration);
+            comPortListener.addFrameListener(this);
+            comPort = new ComPort(adsConfiguration.getComPortName(), SPEED);
+            comPort.setComPortListener(comPortListener);
             comPort.writeToPort(adsConfiguration.getAdsConfigurator().writeAdsConfiguration(adsConfiguration));
             isRecording = true;
         } catch (NoSuchPortException e) {
@@ -52,12 +49,6 @@ public class AdsDorokhov implements BdfProvider {
         } catch (Throwable e) {
             log.error(failConnectMessage, e);
             throw new ApplicationException(failConnectMessage, e);
-        }
-    }
-
-    private void notifyAdsDataListeners(byte[] bdfDataRecord) {
-        for (BdfListener bdfListener : bdfListeners) {
-            bdfListener.onDataRecordReceived(bdfDataRecord);
         }
     }
 
@@ -78,6 +69,11 @@ public class AdsDorokhov implements BdfProvider {
     }
 
     @Override
+    public void onFrameReceived(byte[] frame) {
+        notifyAdsDataListeners(frame);
+    }
+
+    @Override
     public void addBdfDataListener(BdfListener bdfBdfListener) {
         bdfListeners.add(bdfBdfListener);
     }
@@ -85,6 +81,12 @@ public class AdsDorokhov implements BdfProvider {
     @Override
     public void removeBdfDataListener(BdfListener bdfListener) {
         bdfListeners.remove(bdfListener);
+    }
+
+    private void notifyAdsDataListeners(byte[] bdfDataRecord) {
+        for (BdfListener bdfListener : bdfListeners) {
+            bdfListener.onDataRecordReceived(bdfDataRecord);
+        }
     }
 
     @Override
@@ -96,10 +98,10 @@ public class AdsDorokhov implements BdfProvider {
     private DeviceBdfConfig createBdfConfig() {
         List<SignalConfig> signalConfigList = new ArrayList<SignalConfig>();
         int n = 0;
-        for (AdsChannelConfiguration channelConfiguration : adsConfiguration.getAdsChannels()) {
-            if (channelConfiguration.isEnabled()) {
-                int physicalMax = 2400000 / channelConfiguration.getGain().getValue();
-                int numberOfSamplesInEachDataRecord = AdsConfiguration.MAX_DIVIDER.getValue() / channelConfiguration.getDivider().getValue();
+        for (int i = 0; i < adsConfiguration.NUMBER_OF_CHANNELS; i++) {
+            if (adsConfiguration.isChannelEnabled(i)) {
+                int physicalMax = 2400000 / adsConfiguration.getChannelGain(i).getValue();
+                int numberOfSamplesInEachDataRecord = AdsConfiguration.MAX_DIVIDER.getValue() / adsConfiguration.getChannelDivider(i).getValue();
                 DataDimension dataDimension = new DataDimension();
                 dataDimension.setDigitalMax(8388607);
                 dataDimension.setDigitalMin(-8388608);
