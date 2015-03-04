@@ -37,10 +37,6 @@ public class GraphController implements GraphEventHandler {
         }
     }
 
-    @Override
-    public void doFourie(DataSet graph, int startIndex, int time) {
-        new FourieView(Fourie.fft(graph, startIndex, time));
-    }
 
     @Override
     public void moveSlotForward() {

@@ -1,5 +1,7 @@
 package prefilters;
 
+import data.DataList;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +20,6 @@ public abstract class AbstractPreFilter implements PreFilter {
             listenersList.add(output);
         }
     }
-
 
     @Override
     public void addListener(PreFilter listener) {

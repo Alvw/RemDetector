@@ -6,11 +6,11 @@ package data;
 public class DataSetAdapter {
 
     public static DataSet wrap(int[] dataArray) {
-        return new DataSetIntArrayWrapper(dataArray);
+        return new DataSetIntArrayAdapter(dataArray);
     }
 
     public static DataSet wrap(double[] dataArray) {
-        return new DataSetDoubleArrayWrapper(dataArray);
+        return new DataSetDoubleArrayAdapter(dataArray);
     }
 
 }

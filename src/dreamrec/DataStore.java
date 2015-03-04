@@ -5,6 +5,7 @@ import data.DataList;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import prefilters.PreFilter;
+import prefilters.PreFilterAdapter;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -92,7 +93,7 @@ public class DataStore implements BdfListener {
                 if (signalConfigs[i].getNumberOfSamplesInEachDataRecord() % preFilters[i].getDivider() == 0) {
                     preFiltersList[i] = preFilters[i];
                     channelsList[i].setFrequency(channelsList[i].getFrequency() / preFilters[i].getDivider());
-                    preFiltersList[i].addListener(channelsList[i]);
+                    preFiltersList[i].addListener(new PreFilterAdapter(channelsList[i]));
                 } else {
                     String errorMsg = "Prefilters frequency dividers are not compatible with BdfProvider in DataStore";
                     throw new ApplicationException(errorMsg);

@@ -41,9 +41,15 @@ public class GraphView extends JPanel {
     private boolean showScalesSeparate = true;
 
     private GraphEventHandler eventHandler;
+    private FourierListener fourierHandler;
 
-    public GraphView(GraphEventHandler controller, boolean isTimeAxis, boolean showScalesSeparate) {
-        this.eventHandler = controller;
+    public GraphView(GraphEventHandler eventHandler,  boolean isTimeAxis, boolean showScalesSeparate) {
+        this(eventHandler, null, isTimeAxis, showScalesSeparate);
+    }
+
+    public GraphView(GraphEventHandler eventHandler, FourierListener fourierHandler, boolean isTimeAxis, boolean showScalesSeparate) {
+        this.eventHandler = eventHandler;
+        this.fourierHandler = fourierHandler;
         this.isTimeAxis = isTimeAxis;
         this.showScalesSeparate = showScalesSeparate;
         setLayout(new BorderLayout());
@@ -215,7 +221,9 @@ public class GraphView extends JPanel {
         panel.setIndentX(xIndent);
         panel.setIndentY(yIndent);
         panel.setBackground(bgColor);
-        panel.addFourieListener(eventHandler);
+        if(fourierHandler != null) {
+            panel.addFourierListener(fourierHandler);
+        }
         XAxisPainter xAxisPainter = new XAxisPainter(isTimeAxis);
         xAxisPainter.isValuesPaint(!showScalesSeparate);
         panel.setxAxisPainter(xAxisPainter);
@@ -226,6 +234,7 @@ public class GraphView extends JPanel {
         graphsPaintingPanel.add(panel);
         setPanelsSizes();
     }
+
 
     public void addPreviewPanel(int weight, boolean isXCentered) {
         GraphPanel panel = new GraphPanel(weight, isXCentered);

@@ -48,12 +48,12 @@ public class GraphViewer extends JPanel{
         graphView.requestFocusInWindow();
     }
 
-    public void setxIndent(int xIndent) {
+    public void setXIndent(int xIndent) {
         graphView.setXIndent(xIndent);
 
     }
 
-    public void setyIndent(int yIndent) {
+    public void setYIndent(int yIndent) {
         graphView.setYIndent(yIndent);
     }
 

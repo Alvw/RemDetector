@@ -32,7 +32,7 @@ public class GraphPanel extends JPanel {
     private Color graphColors[] = {Color.YELLOW, Color.RED, Color.CYAN};
     private Color slotColor = new Color(255, 0, 100);
     private java.util.List<SlotListener> slotListeners = new ArrayList<SlotListener>();
-    private java.util.List<FourieListener> fourieListeners = new ArrayList<FourieListener>();
+    private java.util.List<FourierListener> fourierListeners = new ArrayList<FourierListener>();
 
     private List<DataSet> graphList = new ArrayList<DataSet>();
     private double zoom = 0.5;
@@ -71,13 +71,7 @@ public class GraphPanel extends JPanel {
                 }
                 if (SwingUtilities.isRightMouseButton(e)) {
                     if(graphList.size() > 0) {
-                        int time = 90; // sec
-                        DataSet graph = graphList.get(0);
-                        if(graph.getFrequency() >= 500) {
-                            time = 9;
-                        }
-                        notifyFourieListeners(graph, startIndex, time);
-                        notifyFourieListeners(graph, startIndex, time);
+                        notifyFourierListeners(graphList.get(0), startIndex);
                     }
                 }
             }
@@ -131,13 +125,13 @@ public class GraphPanel extends JPanel {
         }
     }
 
-    void addFourieListener(FourieListener fourieListener) {
-        fourieListeners.add(fourieListener);
+    void addFourierListener(FourierListener fourierListener) {
+        fourierListeners.add(fourierListener);
     }
 
-    private void notifyFourieListeners(DataSet graph, int startIndex, int time) {
-        for (FourieListener listener : fourieListeners) {
-            listener.doFourie(graph, startIndex, time);
+    private void notifyFourierListeners(DataSet graph, int startIndex) {
+        for (FourierListener listener : fourierListeners) {
+            listener.doFourier(graph, startIndex);
         }
     }
 

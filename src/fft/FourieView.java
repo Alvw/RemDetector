@@ -15,7 +15,7 @@ public class FourieView extends JFrame {
 
     public FourieView(DataSet graph)  {
         graphViewer = new GraphViewer(false, false);
-        graphViewer.setyIndent(20);
+        graphViewer.setYIndent(20);
         add(graphViewer, BorderLayout.CENTER);
         graphViewer.requestFocusInWindow();
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
