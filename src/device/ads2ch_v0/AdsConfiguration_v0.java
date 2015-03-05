@@ -1,10 +1,7 @@
 package device.ads2ch_v0;
 
-import device.impl2ch.Divider;
-import device.impl2ch.Sps;
-
-import java.util.ArrayList;
-import java.util.List;
+import device.Divider;
+import device.Sps;
 
 /**
  *

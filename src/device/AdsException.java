@@ -1,4 +1,4 @@
-package com.crostec.ads;
+package device;
 
 public class AdsException extends RuntimeException{
     public AdsException(String message, Throwable cause) {

@@ -1,13 +1,14 @@
 package device.ads2ch_v1;
 
-import device.impl2ch.*;
+import device.CommutatorState;
+import device.Divider;
+import device.Gain;
+import device.Sps;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  *
@@ -16,21 +17,6 @@ public class AdsConfiguration {
 
     private static final Log log = LogFactory.getLog(AdsConfiguration.class);
 
-    private Sps sps = Sps.S500;     // samples per second (sample rate)
-
-    private boolean isAccelerometerEnabled = true;
-    private Divider accelerometerDivider = Divider.D10;
-    private String comPortName = "COM1";
-    private boolean isHighResolutionMode = true;
-    final static Divider MAX_DIVIDER = Divider.D10;
-
-
-    protected Divider adsChannelDivider = Divider.D1;
-    protected boolean isEnabled = true;
-    private Gain gain = Gain.G2;
-    private CommutatorState commutatorState = CommutatorState.INPUT;
-    protected boolean isLoffEnable = true;
-    private boolean isRldSenseEnabled = false;
 
     private static final String PROPERTIES_FILE_NAME = "ads2ch_v1_config.properties";
 
@@ -40,12 +26,14 @@ public class AdsConfiguration {
     public static final String CHANNEL_GAIN = "gainChannel";
     public static final String CHANNEL_COMMUTATOR_STATE = "commutatorStateChannel";
     public static final String CHANNEL_IS_ENABLED = "isEnabledChannel";
-    public static final String CHANNEL_LOFF_ENABLED = "loffEnabledChannel";
-    public static final String CHANNEL_RLD_SENSE_ENABLED = "rldSenseEnabledChannel";
-    public static final String ACCELEROMETER_DIVIDER = "dividerAccelerometer";
+    public static final String CHANNEL_IS_LOFF_ENABLED = "isLoffEnabledChannel";
+    public static final String CHANNEL_IS_RLD_SENSE_ENABLED = "isRldSenseEnabledChannel";
     public static final String ACCELEROMETER_IS_ENABLED = "isEnabledAccelerometer";
 
     public static final int NUMBER_OF_CHANNELS = 2;
+    private boolean isHighResolutionMode = true;
+    private  Divider accelerometerDivider = Divider.D10;
+    final static Divider MAX_DIVIDER = Divider.D10;
 
     private PropertiesConfiguration config;
 
@@ -81,7 +69,7 @@ public class AdsConfiguration {
 
     public Divider getAccelerometerDivider() {
         try {
-            return Divider.D10;
+            return accelerometerDivider;
         } catch (IllegalArgumentException e) {
             String msg = "ads_config.properties file: " + e.getMessage();
             log.error(msg);
@@ -145,19 +133,19 @@ public class AdsConfiguration {
 
 
     public boolean isChannelLoffEnable(int channelNumber) {
-        return config.getBoolean(CHANNEL_LOFF_ENABLED + channelNumber);
+        return config.getBoolean(CHANNEL_IS_LOFF_ENABLED + channelNumber);
     }
 
     public boolean isChannelRldSenseEnable(int channelNumber) {
-        return config.getBoolean(CHANNEL_RLD_SENSE_ENABLED + channelNumber);
+        return config.getBoolean(CHANNEL_IS_RLD_SENSE_ENABLED + channelNumber);
     }
 
     public void setChannelRldSenseEnabled(int channelNumber, boolean isRldEnabled) {
-        config.setProperty(CHANNEL_RLD_SENSE_ENABLED + channelNumber, isRldEnabled);
+        config.setProperty(CHANNEL_IS_RLD_SENSE_ENABLED + channelNumber, isRldEnabled);
     }
 
     public void setChannelLoffEnabled(int channelNumber, boolean isLoffEnabled) {
-        config.setProperty(CHANNEL_LOFF_ENABLED + channelNumber, isLoffEnabled);
+        config.setProperty(CHANNEL_IS_LOFF_ENABLED + channelNumber, isLoffEnabled);
     }
 
     public void save() {
@@ -199,16 +187,12 @@ public class AdsConfiguration {
             sb.append("\r");
         }
         return "AdsConfiguration{" +
-                "sps=" + sps +
-                ", isAccelerometerEnabled=" + isAccelerometerEnabled +
-                ", accelerometerDivider=" + accelerometerDivider +
-                ", comPortName='" + comPortName + '\'' +
+                "sps=" + getSps() +
+                ", isAccelerometerEnabled=" + isAccelerometerEnabled() +
+                ", accelerometerDivider=" + getAccelerometerDivider() +
+                ", comPortName='" + getComPortName() + '\'' +
                 ", isHighResolutionMode=" + isHighResolutionMode +
                 '}' + sb.toString();
-    }
 
-
-    public AdsConfiguratorDorokhov getAdsConfigurator() {
-        return new AdsConfiguratorDorokhov();
     }
 }

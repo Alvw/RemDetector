@@ -45,7 +45,7 @@ public class Ads implements BdfProvider{
             comPort = new ComPort(null, 0);
           //  comPort.connect(adsConfiguration);
             comPort.setComPortListener(frameDecoder2ch);
-            comPort.writeToPort(adsConfiguration.getAdsConfigurator().writeAdsConfiguration(adsConfiguration));
+          //  comPort.writeToPort(adsConfiguration.getAdsConfigurator().writeAdsConfiguration(adsConfiguration));
             isRecording = true;
         } catch (NoSuchPortException e) {
             String msg = "No port with the name " + adsConfiguration.getComPortName() + "\n" + failConnectMessage;

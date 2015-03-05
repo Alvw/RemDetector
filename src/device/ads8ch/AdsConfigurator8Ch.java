@@ -1,4 +1,4 @@
-package device.impl2ch;
+package device.ads8ch;
 
 
 import device.ads2ch_v1.AdsConfiguration;

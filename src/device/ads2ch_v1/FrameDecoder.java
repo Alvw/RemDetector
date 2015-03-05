@@ -9,7 +9,7 @@ import org.apache.commons.logging.LogFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-class  FrameDecoderDorokhov implements ComPortListener {
+class FrameDecoder implements ComPortListener {
     private static final Log log = LogFactory.getLog(ComPortListener.class);
 
     private List<FrameListener> listeners = new ArrayList<FrameListener>();
@@ -27,7 +27,7 @@ class  FrameDecoderDorokhov implements ComPortListener {
     private byte[] lostFrame;
 
 
-    public FrameDecoderDorokhov(AdsConfiguration configuration) {
+    public FrameDecoder(AdsConfiguration configuration) {
         adsConfiguration = configuration;
         numberOf3ByteSamples = getNumberOf3ByteSamples(configuration);
         dataRecordSize = getRawFrameSize(configuration);

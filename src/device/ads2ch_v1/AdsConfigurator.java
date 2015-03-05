@@ -1,11 +1,11 @@
 package device.ads2ch_v1;
 
-import device.impl2ch.CommutatorState;
+import device.CommutatorState;
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class AdsConfiguratorDorokhov {
+public class AdsConfigurator {
 
     public List<Byte> writeAdsConfiguration(AdsConfiguration adsConfiguration) {
         List<Byte> result = new ArrayList<Byte>();
@@ -36,7 +36,7 @@ public class AdsConfiguratorDorokhov {
 
         //reg 0x07
         int loffSensRegisterValue = 0;
-         if(adsConfiguration.isChannelLoffEnable(0)){
+        if(adsConfiguration.isChannelLoffEnable(0)){
             loffSensRegisterValue += 0x03;
         }
         if(adsConfiguration.isChannelLoffEnable(1)){

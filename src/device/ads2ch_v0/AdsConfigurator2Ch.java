@@ -1,7 +1,6 @@
 package device.ads2ch_v0;
 
 import device.ads2ch_v1.AdsConfiguration;
-import device.impl2ch.CommutatorState;
 
 import java.util.ArrayList;
 import java.util.List;

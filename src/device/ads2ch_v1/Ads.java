@@ -3,7 +3,6 @@ package device.ads2ch_v1;
 import bdf.*;
 import comport.ComPort;
 import data.DataDimension;
-import device.ads2ch_v0.Ads;
 import dreamrec.ApplicationException;
 import gnu.io.NoSuchPortException;
 import gnu.io.PortInUseException;
@@ -13,19 +12,19 @@ import org.apache.commons.logging.LogFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AdsDorokhov implements BdfProvider, FrameListener {
+public class Ads implements BdfProvider, FrameListener {
 
     private List<BdfListener> bdfListeners = new ArrayList<BdfListener>();
 
-    private static final Log log = LogFactory.getLog(Ads.class);
+    private static final Log log = LogFactory.getLog(device.ads2ch_v0.Ads.class);
     private final int NUMBER_OF_BYTES_IN_DATA_FORMAT = 3;
-    private static final int SPEED = 460800;
+    private static final int COM_PORT_SPEED = 460800;
     private ComPort comPort;
     private boolean isRecording;
     private AdsConfiguration adsConfiguration;
 
 
-    public AdsDorokhov() {
+    public Ads() {
         adsConfiguration = new AdsConfiguration();
     }
 
@@ -33,11 +32,12 @@ public class AdsDorokhov implements BdfProvider, FrameListener {
     public void startReading() throws ApplicationException {
         String failConnectMessage = "Connection failed. Check com port settings.\nReset power on the target amplifier. Restart the application.";
         try {
-            FrameDecoderDorokhov comPortListener = new FrameDecoderDorokhov(adsConfiguration);
+            FrameDecoder comPortListener = new FrameDecoder(adsConfiguration);
             comPortListener.addFrameListener(this);
-            comPort = new ComPort(adsConfiguration.getComPortName(), SPEED);
+            AdsConfigurator adsConfigurator = new AdsConfigurator();
+            comPort = new ComPort(adsConfiguration.getComPortName(), COM_PORT_SPEED);
             comPort.setComPortListener(comPortListener);
-            comPort.writeToPort(adsConfiguration.getAdsConfigurator().writeAdsConfiguration(adsConfiguration));
+            comPort.writeToPort(adsConfigurator.writeAdsConfiguration(adsConfiguration));
             isRecording = true;
         } catch (NoSuchPortException e) {
             String msg = "No port with the name " + adsConfiguration.getComPortName() + "\n" + failConnectMessage;
@@ -58,7 +58,7 @@ public class AdsDorokhov implements BdfProvider, FrameListener {
             adsBdfListener.onStopReading();
         }
         if (!isRecording) return;
-        comPort.writeToPort(new AdsConfiguratorDorokhov().startPinLo());
+        comPort.writeToPort(new AdsConfigurator().startPinLo());
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
@@ -150,18 +150,5 @@ public class AdsDorokhov implements BdfProvider, FrameListener {
         SignalConfig[] signalConfigArray = signalConfigList.toArray(new SignalConfig[signalConfigList.size()]);
         DeviceBdfConfig bdfConfig = new DeviceBdfConfig(DurationOfDataRecord, NUMBER_OF_BYTES_IN_DATA_FORMAT, signalConfigArray);
         return bdfConfig;
-    }
-
-    private int getNumberOfDataSamples() {
-        int numberOfDataSamples = 0;
-        BdfConfig bdfConfig = getBdfConfig();
-        // the last channel is virtual channel for device specific information (loff status and so on)
-        // so we do not take it into consideration
-        SignalConfig[] signalConfigs = bdfConfig.getSignalConfigs();
-        int numberOfRealChannels = signalConfigs.length - 1;
-        for (int i = 0; i < numberOfRealChannels; i++) {
-            numberOfDataSamples += signalConfigs[i].getNumberOfSamplesInEachDataRecord();
-        }
-        return numberOfDataSamples;
     }
 }

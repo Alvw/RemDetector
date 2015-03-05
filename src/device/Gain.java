@@ -1,4 +1,4 @@
-package device.impl2ch;
+package device;
 /**
  *
  */
