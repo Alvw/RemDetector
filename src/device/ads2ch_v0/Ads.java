@@ -2,9 +2,7 @@ package device.ads2ch_v0;
 
 import bdf.*;
 import comport.ComPort;
-import data.DataDimension;
-import device.ads2ch_v1.AdsConfiguration;
-import device.impl2ch.*;
+import device.AdsConfiguration;
 import dreamrec.ApplicationException;
 import gnu.io.NoSuchPortException;
 import gnu.io.PortInUseException;

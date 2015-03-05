@@ -1,4 +1,4 @@
-package device.ads2ch_v1;
+package device;
 
 /**
  * Created by mac on 04/03/15.

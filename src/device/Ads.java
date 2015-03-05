@@ -1,8 +1,9 @@
-package device.ads2ch_v1;
+package device;
 
 import bdf.*;
 import comport.ComPort;
 import data.DataDimension;
+import device.ads2ch_v1.AdsConfiguratorCh2V1;
 import dreamrec.ApplicationException;
 import gnu.io.NoSuchPortException;
 import gnu.io.PortInUseException;
@@ -12,32 +13,36 @@ import org.apache.commons.logging.LogFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Ads implements BdfProvider, FrameListener {
+public class Ads implements BdfProvider {
 
     private List<BdfListener> bdfListeners = new ArrayList<BdfListener>();
 
     private static final Log log = LogFactory.getLog(device.ads2ch_v0.Ads.class);
     private final int NUMBER_OF_BYTES_IN_DATA_FORMAT = 3;
-    private static final int COM_PORT_SPEED = 460800;
     private ComPort comPort;
     private boolean isRecording;
-    private AdsConfiguration adsConfiguration;
+    private AdsConfigurator adsConfigurator;
 
 
-    public Ads() {
-        adsConfiguration = new AdsConfiguration();
+    public Ads(AdsConfigurator adsConfigurator) {
+        this.adsConfigurator = adsConfigurator;
     }
 
     @Override
     public void startReading() throws ApplicationException {
         String failConnectMessage = "Connection failed. Check com port settings.\nReset power on the target amplifier. Restart the application.";
+        AdsConfiguration adsConfiguration = adsConfigurator.getAdsConfiguration();
         try {
-            FrameDecoder comPortListener = new FrameDecoder(adsConfiguration);
-            comPortListener.addFrameListener(this);
-            AdsConfigurator adsConfigurator = new AdsConfigurator();
-            comPort = new ComPort(adsConfiguration.getComPortName(), COM_PORT_SPEED);
-            comPort.setComPortListener(comPortListener);
-            comPort.writeToPort(adsConfigurator.writeAdsConfiguration(adsConfiguration));
+            FrameDecoder frameDecoder = adsConfigurator.getFrameDecoder();
+            frameDecoder.addFrameListener(new FrameListener() {
+                @Override
+                public void onFrameReceived(byte[] frame) {
+                    notifyAdsDataListeners(frame);
+                }
+            });
+            comPort = new ComPort(adsConfiguration.getComPortName(), adsConfiguration.getComPortSpeed());
+            comPort.setComPortListener(frameDecoder);
+            comPort.writeToPort(adsConfigurator.writeAdsConfiguration());
             isRecording = true;
         } catch (NoSuchPortException e) {
             String msg = "No port with the name " + adsConfiguration.getComPortName() + "\n" + failConnectMessage;
@@ -58,7 +63,7 @@ public class Ads implements BdfProvider, FrameListener {
             adsBdfListener.onStopReading();
         }
         if (!isRecording) return;
-        comPort.writeToPort(new AdsConfigurator().startPinLo());
+        comPort.writeToPort(new AdsConfiguratorCh2V1().startPinLo());
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
@@ -68,10 +73,6 @@ public class Ads implements BdfProvider, FrameListener {
         log.debug("Stop Reading finished");
     }
 
-    @Override
-    public void onFrameReceived(byte[] frame) {
-        notifyAdsDataListeners(frame);
-    }
 
     @Override
     public void addBdfDataListener(BdfListener bdfBdfListener) {
@@ -96,12 +97,13 @@ public class Ads implements BdfProvider, FrameListener {
 
 
     private DeviceBdfConfig createBdfConfig() {
+        AdsConfiguration adsConfiguration = adsConfigurator.getAdsConfiguration();
         List<SignalConfig> signalConfigList = new ArrayList<SignalConfig>();
         int n = 0;
-        for (int i = 0; i < adsConfiguration.NUMBER_OF_CHANNELS; i++) {
+        for (int i = 0; i < adsConfiguration.getNumberOfAdsChannels(); i++) {
             if (adsConfiguration.isChannelEnabled(i)) {
                 int physicalMax = 2400000 / adsConfiguration.getChannelGain(i).getValue();
-                int numberOfSamplesInEachDataRecord = AdsConfiguration.MAX_DIVIDER.getValue() / adsConfiguration.getChannelDivider(i).getValue();
+                int numberOfSamplesInEachDataRecord = AdsConfiguration.getMaxDivider().getValue() / adsConfiguration.getChannelDivider(i).getValue();
                 DataDimension dataDimension = new DataDimension();
                 dataDimension.setDigitalMax(8388607);
                 dataDimension.setDigitalMin(-8388608);
@@ -116,7 +118,7 @@ public class Ads implements BdfProvider, FrameListener {
             }
         }
         for (int i = 0; i < 3; i++) {
-            int numberOfSamplesInEachDataRecord = AdsConfiguration.MAX_DIVIDER.getValue()  / adsConfiguration.getAccelerometerDivider().getValue();
+            int numberOfSamplesInEachDataRecord = AdsConfiguration.getMaxDivider().getValue()  / adsConfiguration.getAccelerometerDivider().getValue();
             if (adsConfiguration.isAccelerometerEnabled()) {
                 DataDimension dataDimension = new DataDimension();
                 dataDimension.setDigitalMax(30800);
@@ -146,7 +148,7 @@ public class Ads implements BdfProvider, FrameListener {
         signalConfig.setPrefiltering("None");
         signalConfigList.add(signalConfig);
 
-        double DurationOfDataRecord = (double) (AdsConfiguration.MAX_DIVIDER.getValue() ) / adsConfiguration.getSps().getValue();
+        double DurationOfDataRecord = (double) (AdsConfiguration.getMaxDivider().getValue() ) / adsConfiguration.getSps().getValue();
         SignalConfig[] signalConfigArray = signalConfigList.toArray(new SignalConfig[signalConfigList.size()]);
         DeviceBdfConfig bdfConfig = new DeviceBdfConfig(DurationOfDataRecord, NUMBER_OF_BYTES_IN_DATA_FORMAT, signalConfigArray);
         return bdfConfig;

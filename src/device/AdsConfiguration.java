@@ -1,9 +1,5 @@
-package device.ads2ch_v1;
+package device;
 
-import device.CommutatorState;
-import device.Divider;
-import device.Gain;
-import device.Sps;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.logging.Log;
@@ -17,9 +13,6 @@ public class AdsConfiguration {
 
     private static final Log log = LogFactory.getLog(AdsConfiguration.class);
 
-
-    private static final String PROPERTIES_FILE_NAME = "ads2ch_v1_config.properties";
-
     public static final String COM_PORT_NAME = "comPort";
     public static final String SPS = "sps";
     public static final String CHANNEL_DIVIDER = "dividerChannel";
@@ -30,19 +23,35 @@ public class AdsConfiguration {
     public static final String CHANNEL_IS_RLD_SENSE_ENABLED = "isRldSenseEnabledChannel";
     public static final String ACCELEROMETER_IS_ENABLED = "isEnabledAccelerometer";
 
-    public static final int NUMBER_OF_CHANNELS = 2;
+    private String fileName;
+    private int numberOfAdsChannels;
     private boolean isHighResolutionMode = true;
     private  Divider accelerometerDivider = Divider.D10;
-    final static Divider MAX_DIVIDER = Divider.D10;
+    private int comPortSpeed;
+    private final static Divider MAX_DIVIDER = Divider.D10;
 
     private PropertiesConfiguration config;
 
-    public AdsConfiguration() {
+    public AdsConfiguration(String propertiesFileName, int numberOfAdsChannels, int comPortSpeed) {
+        this.numberOfAdsChannels = numberOfAdsChannels;
+        fileName = propertiesFileName;
         try {
-            config = new PropertiesConfiguration(PROPERTIES_FILE_NAME);
+            config = new PropertiesConfiguration(propertiesFileName);
         } catch (ConfigurationException e) {
             log.error(e);
         }
+    }
+
+    public static Divider getMaxDivider() {
+        return MAX_DIVIDER;
+    }
+
+    public int getComPortSpeed() {
+        return comPortSpeed;
+    }
+
+    public int getNumberOfAdsChannels() {
+        return numberOfAdsChannels;
     }
 
     public String getComPortName() {
@@ -150,7 +159,7 @@ public class AdsConfiguration {
 
     public void save() {
         try {
-            config.save(PROPERTIES_FILE_NAME);
+            config.save(fileName);
         } catch (ConfigurationException e) {
             log.error(e);
         }
@@ -161,7 +170,7 @@ public class AdsConfiguration {
         return isHighResolutionMode;
     }
     public boolean isLoffEnabled() {
-        for (int i = 0; i < NUMBER_OF_CHANNELS; i++) {
+        for (int i = 0; i < numberOfAdsChannels; i++) {
            if(isChannelLoffEnable(i)){
                return true;
            }
@@ -174,7 +183,7 @@ public class AdsConfiguration {
     @Override
     public String toString() {
         StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < NUMBER_OF_CHANNELS; i++) {
+        for (int i = 0; i < numberOfAdsChannels; i++) {
             sb.append( "AdsChannelConfiguration_"+i+
                     " {divider=" +getChannelDivider(i) +
                     ", isEnabled=" + isChannelEnabled(i) +

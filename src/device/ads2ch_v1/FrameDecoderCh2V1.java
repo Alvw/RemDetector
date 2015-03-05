@@ -3,13 +3,16 @@ package device.ads2ch_v1;
 
 import bdf.BdfParser;
 import comport.ComPortListener;
+import device.AdsConfiguration;
+import device.FrameDecoder;
+import device.FrameListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
-class FrameDecoder implements ComPortListener {
+class FrameDecoderCh2V1 implements FrameDecoder {
     private static final Log log = LogFactory.getLog(ComPortListener.class);
 
     private List<FrameListener> listeners = new ArrayList<FrameListener>();
@@ -27,7 +30,7 @@ class FrameDecoder implements ComPortListener {
     private byte[] lostFrame;
 
 
-    public FrameDecoder(AdsConfiguration configuration) {
+    public FrameDecoderCh2V1(AdsConfiguration configuration) {
         adsConfiguration = configuration;
         numberOf3ByteSamples = getNumberOf3ByteSamples(configuration);
         dataRecordSize = getRawFrameSize(configuration);
@@ -143,10 +146,10 @@ class FrameDecoder implements ComPortListener {
 
     private int getNumberOf3ByteSamples(AdsConfiguration adsConfiguration) {
         int result = 0;
-        for (int i = 0; i < adsConfiguration.NUMBER_OF_CHANNELS; i++) {
+        for (int i = 0; i < adsConfiguration.getNumberOfAdsChannels(); i++) {
             if (adsConfiguration.isChannelEnabled(i)) {
                 int divider = adsConfiguration.getChannelDivider(i).getValue();
-                int maxDiv = AdsConfiguration.MAX_DIVIDER.getValue();
+                int maxDiv = AdsConfiguration.getMaxDivider().getValue();
                 result += (maxDiv / divider);
             }
         }
@@ -170,12 +173,12 @@ class FrameDecoder implements ComPortListener {
         }
     }
 
+    @Override
     public void addFrameListener(FrameListener frameListener) {
         listeners.add(frameListener);
     }
-
+    @Override
     public void removeFrameListener(FrameListener frameListener) {
         listeners.remove(frameListener);
     }
-
 }

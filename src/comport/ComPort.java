@@ -1,6 +1,5 @@
 package comport;
 
-import device.ads2ch_v1.AdsConfiguration;
 import gnu.io.CommPort;
 import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPort;

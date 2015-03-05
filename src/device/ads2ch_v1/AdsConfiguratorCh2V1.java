@@ -1,13 +1,32 @@
 package device.ads2ch_v1;
 
+import device.AdsConfiguration;
+import device.AdsConfigurator;
 import device.CommutatorState;
+import device.FrameDecoder;
+
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class AdsConfigurator {
+public class AdsConfiguratorCh2V1 implements AdsConfigurator {
+    private static final String PROPERTIES_FILE_NAME = "ads2ch_v1_config.properties";
+    private static final int NUMBER_OF_CHANNELS = 2;
+    private static final int COM_PORT_SPEED = 460800;
+    private AdsConfiguration adsConfiguration = new AdsConfiguration(PROPERTIES_FILE_NAME, NUMBER_OF_CHANNELS, COM_PORT_SPEED);
 
-    public List<Byte> writeAdsConfiguration(AdsConfiguration adsConfiguration) {
+    @Override
+    public FrameDecoder getFrameDecoder() {
+        return new FrameDecoderCh2V1(adsConfiguration);
+    }
+
+    @Override
+    public AdsConfiguration getAdsConfiguration() {
+        return adsConfiguration;
+    }
+
+    @Override
+    public List<Byte> writeAdsConfiguration() {
         List<Byte> result = new ArrayList<Byte>();
         result.add((byte)29);       //длина пакета
         result.add((byte)0xFF);     //stop recording
@@ -22,15 +41,15 @@ public class AdsConfigurator {
         int config1RegisterValue = adsConfiguration.getSps().getRegisterBits();
         result.add((byte)config1RegisterValue);
 
-        int config2RegisterValue = 0xA0 + loffComparatorEnabledBit(adsConfiguration) + testSignalEnabledBits(adsConfiguration);
+        int config2RegisterValue = 0xA0 + loffComparatorEnabledBit() + testSignalEnabledBits();
         result.add((byte)config2RegisterValue);
 
          //reg 0x03
         result.add((byte)0x10);
          //reg 0x04
-        result.add((byte)getChanelRegisterValue(adsConfiguration, 0));      //reg 0x04 Set Channel 1 to test
+        result.add((byte)getChanelRegisterValue(0));      //reg 0x04 Set Channel 1 to test
          //reg 0x05
-        result.add((byte)getChanelRegisterValue(adsConfiguration, 1));     //reg 0x05 Set Channel 2 to Input Short and disable
+        result.add((byte)getChanelRegisterValue(1));     //reg 0x05 Set Channel 2 to Input Short and disable
         //reg 0x06 Turn on Drl.
         result.add((byte)0x20);
 
@@ -49,7 +68,7 @@ public class AdsConfigurator {
         result.add((byte)0x03);     //reg 0x0A Set RLDREF_INT
 
         result.add((byte)0xF2);     //делители частоты для 2х каналов ads1292  возможные значения 0,1,2,5,10;
-        for (int i = 0; i < adsConfiguration.NUMBER_OF_CHANNELS; i++) {
+        for (int i = 0; i < adsConfiguration.getNumberOfAdsChannels(); i++) {
             int divider = adsConfiguration.isChannelEnabled(i) ? adsConfiguration.getChannelDivider(i).getValue() : 0;
             result.add((byte)divider);
         }
@@ -73,7 +92,7 @@ public class AdsConfigurator {
         return result;
     }
 
-    private int getChanelRegisterValue(AdsConfiguration adsConfiguration, int channelNumber) {
+    private int getChanelRegisterValue(int channelNumber) {
         int result = 0x80;   //channel disabled
         if (adsConfiguration.isChannelEnabled(channelNumber)) {
             result = 0x00;
@@ -81,9 +100,9 @@ public class AdsConfigurator {
         return result + adsConfiguration.getChannelGain(channelNumber).getRegisterBits() + adsConfiguration.getChannelCommutatorState(channelNumber).getRegisterBits();
     }
 
-    private int loffComparatorEnabledBit(AdsConfiguration adsConfiguration) {
+    private int loffComparatorEnabledBit() {
         int result = 0x00;
-        for (int i = 0; i < adsConfiguration.NUMBER_OF_CHANNELS; i++) {
+        for (int i = 0; i < adsConfiguration.getNumberOfAdsChannels(); i++) {
             if (adsConfiguration.isChannelLoffEnable(i)) {
                 result = 0x40;
             }
@@ -91,9 +110,9 @@ public class AdsConfigurator {
         return result;
     }
 
-    private int testSignalEnabledBits(AdsConfiguration adsConfiguration) {
+    private int testSignalEnabledBits() {
         int result = 0x00;
-        for (int i = 0; i < adsConfiguration.NUMBER_OF_CHANNELS; i++) {
+        for (int i = 0; i < adsConfiguration.getNumberOfAdsChannels(); i++) {
             if (adsConfiguration.getChannelCommutatorState(i).equals(CommutatorState.TEST_SIGNAL)) {
                 result = 0x03;
             }
