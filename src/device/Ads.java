@@ -3,7 +3,6 @@ package device;
 import bdf.*;
 import comport.ComPort;
 import data.DataDimension;
-import device.ads2ch_v1.AdsConfiguratorCh2V1;
 import dreamrec.ApplicationException;
 import gnu.io.NoSuchPortException;
 import gnu.io.PortInUseException;
@@ -14,11 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Ads implements BdfProvider {
-
+    private static final Log log = LogFactory.getLog(Ads.class);
     private List<BdfListener> bdfListeners = new ArrayList<BdfListener>();
-
-    private static final Log log = LogFactory.getLog(device.ads2ch_v0.Ads.class);
-    private final int NUMBER_OF_BYTES_IN_DATA_FORMAT = 3;
     private ComPort comPort;
     private boolean isRecording;
     private AdsConfigurator adsConfigurator;
@@ -63,7 +59,7 @@ public class Ads implements BdfProvider {
             adsBdfListener.onStopReading();
         }
         if (!isRecording) return;
-        comPort.writeToPort(new AdsConfiguratorCh2V1().startPinLo());
+        comPort.writeToPort(adsConfigurator.startPinLo());
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
@@ -103,7 +99,7 @@ public class Ads implements BdfProvider {
         for (int i = 0; i < adsConfiguration.getNumberOfAdsChannels(); i++) {
             if (adsConfiguration.isChannelEnabled(i)) {
                 int physicalMax = 2400000 / adsConfiguration.getChannelGain(i).getValue();
-                int numberOfSamplesInEachDataRecord = AdsConfiguration.getMaxDivider().getValue() / adsConfiguration.getChannelDivider(i).getValue();
+                int numberOfSamplesInEachDataRecord = adsConfiguration.getMaxDivider().getValue() / adsConfiguration.getChannelDivider(i).getValue();
                 DataDimension dataDimension = new DataDimension();
                 dataDimension.setDigitalMax(8388607);
                 dataDimension.setDigitalMin(-8388608);
@@ -118,7 +114,7 @@ public class Ads implements BdfProvider {
             }
         }
         for (int i = 0; i < 3; i++) {
-            int numberOfSamplesInEachDataRecord = AdsConfiguration.getMaxDivider().getValue()  / adsConfiguration.getAccelerometerDivider().getValue();
+            int numberOfSamplesInEachDataRecord = adsConfiguration.getMaxDivider().getValue()  / adsConfiguration.getAccelerometerDivider().getValue();
             if (adsConfiguration.isAccelerometerEnabled()) {
                 DataDimension dataDimension = new DataDimension();
                 dataDimension.setDigitalMax(30800);
@@ -148,9 +144,9 @@ public class Ads implements BdfProvider {
         signalConfig.setPrefiltering("None");
         signalConfigList.add(signalConfig);
 
-        double DurationOfDataRecord = (double) (AdsConfiguration.getMaxDivider().getValue() ) / adsConfiguration.getSps().getValue();
+        double DurationOfDataRecord = (double) (adsConfiguration.getMaxDivider().getValue() ) / adsConfiguration.getSps().getValue();
         SignalConfig[] signalConfigArray = signalConfigList.toArray(new SignalConfig[signalConfigList.size()]);
-        DeviceBdfConfig bdfConfig = new DeviceBdfConfig(DurationOfDataRecord, NUMBER_OF_BYTES_IN_DATA_FORMAT, signalConfigArray);
+        DeviceBdfConfig bdfConfig = new DeviceBdfConfig(DurationOfDataRecord, adsConfiguration.getNumberOfBytesInDataFormat(), signalConfigArray);
         return bdfConfig;
     }
 }

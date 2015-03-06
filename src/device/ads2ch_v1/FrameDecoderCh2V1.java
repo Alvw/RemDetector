@@ -5,17 +5,11 @@ import bdf.BdfParser;
 import comport.ComPortListener;
 import device.AdsConfiguration;
 import device.FrameDecoder;
-import device.FrameListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-
-class FrameDecoderCh2V1 implements FrameDecoder {
+class FrameDecoderCh2V1 extends FrameDecoder {
     private static final Log log = LogFactory.getLog(ComPortListener.class);
-
-    private List<FrameListener> listeners = new ArrayList<FrameListener>();
 
     public static final byte START_FRAME_MARKER = (byte) (0xAA & 0xFF);
     public static final byte STOP_FRAME_MARKER = (byte) (0x55 & 0xFF);
@@ -149,7 +143,7 @@ class FrameDecoderCh2V1 implements FrameDecoder {
         for (int i = 0; i < adsConfiguration.getNumberOfAdsChannels(); i++) {
             if (adsConfiguration.isChannelEnabled(i)) {
                 int divider = adsConfiguration.getChannelDivider(i).getValue();
-                int maxDiv = AdsConfiguration.getMaxDivider().getValue();
+                int maxDiv = adsConfiguration.getMaxDivider().getValue();
                 result += (maxDiv / divider);
             }
         }
@@ -165,20 +159,5 @@ class FrameDecoderCh2V1 implements FrameDecoder {
         result = result > 0 ? result : (result + 256);
         previousFrameCounter = frameCounter;
         return result - 1;
-    }
-
-    private void notifyFrameListeners(byte[] frame) {
-        for (FrameListener listener : listeners) {
-            listener.onFrameReceived(frame);
-        }
-    }
-
-    @Override
-    public void addFrameListener(FrameListener frameListener) {
-        listeners.add(frameListener);
-    }
-    @Override
-    public void removeFrameListener(FrameListener frameListener) {
-        listeners.remove(frameListener);
     }
 }

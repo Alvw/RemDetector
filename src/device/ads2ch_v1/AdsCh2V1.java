@@ -1,7 +1,6 @@
 package device.ads2ch_v1;
 
 import device.Ads;
-import device.AdsConfigurator;
 
 /**
  * Created by mac on 06/03/15.

@@ -11,9 +11,9 @@ import java.util.List;
 
 public class AdsConfiguratorCh2V1 implements AdsConfigurator {
     private static final String PROPERTIES_FILE_NAME = "ads2ch_v1_config.properties";
-    private static final int NUMBER_OF_CHANNELS = 2;
+    private static final int NUMBER_OF_ADS_CHANNELS = 2;
     private static final int COM_PORT_SPEED = 460800;
-    private AdsConfiguration adsConfiguration = new AdsConfiguration(PROPERTIES_FILE_NAME, NUMBER_OF_CHANNELS, COM_PORT_SPEED);
+    private AdsConfiguration adsConfiguration = new AdsConfiguration(PROPERTIES_FILE_NAME, NUMBER_OF_ADS_CHANNELS, COM_PORT_SPEED);
 
     @Override
     public FrameDecoder getFrameDecoder() {
@@ -23,6 +23,13 @@ public class AdsConfiguratorCh2V1 implements AdsConfigurator {
     @Override
     public AdsConfiguration getAdsConfiguration() {
         return adsConfiguration;
+    }
+
+    @Override
+    public List<Byte> startPinLo() {
+        List<Byte> result = new ArrayList<Byte>();
+        result.add((byte)0xFF);     //stop recording
+        return result;
     }
 
     @Override
@@ -117,12 +124,6 @@ public class AdsConfiguratorCh2V1 implements AdsConfigurator {
                 result = 0x03;
             }
         }
-        return result;
-    }
-
-    public List<Byte> startPinLo() {
-        List<Byte> result = new ArrayList<Byte>();
-        result.add((byte)0xFF);     //stop recording
         return result;
     }
 }

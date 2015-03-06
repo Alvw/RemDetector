@@ -9,4 +9,5 @@ public interface AdsConfigurator {
     public List<Byte> writeAdsConfiguration();
     public AdsConfiguration getAdsConfiguration();
     public FrameDecoder getFrameDecoder();
+    public List<Byte> startPinLo();
 }

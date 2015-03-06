@@ -29,6 +29,7 @@ public class AdsConfiguration {
     private  Divider accelerometerDivider = Divider.D10;
     private int comPortSpeed;
     private final static Divider MAX_DIVIDER = Divider.D10;
+    public static final int NUMBER_OF_BYTES_IN_DATA_FORMAT = 3;
 
     private PropertiesConfiguration config;
 
@@ -43,7 +44,11 @@ public class AdsConfiguration {
         }
     }
 
-    public static Divider getMaxDivider() {
+    public int getNumberOfBytesInDataFormat() {
+        return NUMBER_OF_BYTES_IN_DATA_FORMAT;
+    }
+
+    public  Divider getMaxDivider() {
         return MAX_DIVIDER;
     }
 
@@ -156,6 +161,24 @@ public class AdsConfiguration {
 
     public void setChannelLoffEnabled(int channelNumber, boolean isLoffEnabled) {
         config.setProperty(CHANNEL_IS_LOFF_ENABLED + channelNumber, isLoffEnabled);
+    }
+
+    public int getTotalNumberOfDataSamplesInEachDataRecord() {
+        int totalNumberOfDataSamples = 0;
+        for (int i = 0; i < getNumberOfAdsChannels(); i++) {
+            if(isChannelEnabled(i)) {
+                int numberOfSamplesInEachDataRecord = getMaxDivider().getValue() / getChannelDivider(i).getValue();
+                totalNumberOfDataSamples += numberOfSamplesInEachDataRecord;
+            }
+
+        }
+        if(isAccelerometerEnabled()) {
+            for (int i = 0; i < 3; i++) {
+                int numberOfSamplesInEachDataRecord = getMaxDivider().getValue()  / getAccelerometerDivider().getValue();
+                totalNumberOfDataSamples += numberOfSamplesInEachDataRecord;
+            }
+        }
+        return totalNumberOfDataSamples;
     }
 
     public void save() {
