@@ -6,18 +6,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 public class ApplicationProperties extends FileProperties {
-    private static final String DEVICE_TYPE = "device.type";
     private static final String DEVICE_CLASSNAME = "device.classname";
     private static final String DEVICE_CHANNEL_NAME = "device.channel.name";
     private static final String IS_FREQUENCY_AUTO_ADJUSTMENT = "is_frequency_auto_adjustment";
 
     public ApplicationProperties(String file) throws ApplicationException {
         super(file);
-        String deviceType = config.getString(DEVICE_TYPE);
-        if(deviceType != null) {
-            String devicePropertiesFilename = deviceType.concat(".").concat("properties");
-            addPropertiesFile(devicePropertiesFilename);
-        }
+
     }
 
     public String getDeviceClassName()  {
