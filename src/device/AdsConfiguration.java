@@ -34,6 +34,7 @@ public class AdsConfiguration {
 
     public AdsConfiguration(String propertiesFileName, int numberOfAdsChannels, int comPortSpeed) {
         this.numberOfAdsChannels = numberOfAdsChannels;
+        this.comPortSpeed = comPortSpeed;
         fileName = propertiesFileName;
         try {
             config = new PropertiesConfiguration(propertiesFileName);
