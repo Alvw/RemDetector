@@ -14,7 +14,7 @@ public class FourieView extends JFrame {
     protected GraphViewer graphViewer;
 
     public FourieView(DataSet graph)  {
-        graphViewer = new GraphViewer(false, false);
+        graphViewer = new GraphViewer(false, false, false);
         graphViewer.setYIndent(20);
         add(graphViewer, BorderLayout.CENTER);
         graphViewer.requestFocusInWindow();

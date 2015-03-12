@@ -4,10 +4,9 @@ import gui.GuiConfig;
 import gui.MainWindow;
 import properties.ApplicationProperties;
 import properties.GuiProperties;
-import properties.RemProperties;
 
 import javax.swing.*;
-import java.io.File;
+
 
 /**
  * Created by mac on 19/02/15.
@@ -26,14 +25,13 @@ public class RemDetector {
 
         try {
             ApplicationProperties applicationProperties = new ApplicationProperties("application.properties");
-            RemProperties remProperties = new RemProperties("rem.properties");
             GuiConfig guiConfig = new GuiProperties("gui.properties");
             String deviceClass = applicationProperties.getDeviceClassName();
             DeviceFabric deviceFabric = new DeviceFabric(deviceClass);
             String[] deviceSignalsLabels = applicationProperties.getDeviceChannelsLabels();
             boolean isFrequencyAutoAdjustment = applicationProperties.isFrequencyAutoAdjustment();
-            RemConfigurator remConfigurator = new RemConfigurator(remProperties.getEogRemFrequency(),
-                    remProperties.getAccelerometerRemFrequency(), remProperties.getEogRemCutoffPeriod());
+            RemConfigurator remConfigurator = new RemConfigurator(applicationProperties.getEogRemFrequency(),
+                    applicationProperties.getAccelerometerRemFrequency(), applicationProperties.getEogRemCutoffPeriod());
 
             Controller controller = new Controller(deviceFabric);
             controller.setDeviceSignalsLabels(deviceSignalsLabels);

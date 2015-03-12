@@ -10,6 +10,10 @@ public class ApplicationProperties extends FileProperties {
     private static final String DEVICE_CHANNEL_NAME = "device.channel.name";
     private static final String IS_FREQUENCY_AUTO_ADJUSTMENT = "is_frequency_auto_adjustment";
 
+    private static final String ACCELEROMETER_REM_FREQUENCY = "rem.accelerometer_frequency";
+    private static final String EOG_REM_FREQUENCY = "rem.eog_frequency";
+    private static final String EOG_REM_CUTOFF_PERIOD = "rem.eog_cutoff_period";
+
     public ApplicationProperties(String file) throws ApplicationException {
         super(file);
 
@@ -50,5 +54,22 @@ public class ApplicationProperties extends FileProperties {
             return labels;
         }
         return null;
+    }
+
+    public int getAccelerometerRemFrequency() {
+        int defaultValue = -1;
+        return config.getInt(ACCELEROMETER_REM_FREQUENCY, defaultValue);
+    }
+
+
+    public int getEogRemFrequency() {
+        int defaultValue = -1;
+        return config.getInt(EOG_REM_FREQUENCY, defaultValue);
+    }
+
+
+    public int getEogRemCutoffPeriod() {
+        int defaultValue = 0;
+        return config.getInt(EOG_REM_CUTOFF_PERIOD, defaultValue);
     }
 }
