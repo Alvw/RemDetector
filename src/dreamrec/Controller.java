@@ -90,18 +90,13 @@ public class Controller  implements InputEventHandler {
         filenameToSave = normalizeFilename(filenameToSave);
         File fileToSave = new File(dirToSave, filenameToSave);
         if( ! fileToSave.equals(file)) { // fileToSave does not equal to fileToRead
-            System.out.println("write file: "+fileToSave.getAbsolutePath());
             bdfWriter = new BdfWriter(recordingBdfConfig, fileToSave);
             bdfWriter.setFrequencyAutoAdjustment(isFrequencyAutoAdjustment);
             bdfProvider.addBdfDataListener(bdfWriter);
         }
-
-
         recordingBdfConfig.setPatientIdentification(recordingSettings.getPatientIdentification());
         recordingBdfConfig.setRecordingIdentification(recordingSettings.getRecordingIdentification());
         recordingBdfConfig.setSignalsLabels(recordingSettings.getChannelsLabels());
-
-
         if (isRemMode) {
             RemChannels remChannels = new RemChannels(recordingBdfConfig.getSignalsLabels());
             RemDataStore dataStore  = new RemDataStore(bdfProvider, remChannels);

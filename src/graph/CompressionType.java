@@ -1,5 +1,5 @@
 package graph;
 
 public enum CompressionType {
-    AVERAGE, MAX
+    AVERAGE, MAX, SUM
 }

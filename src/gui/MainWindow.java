@@ -55,10 +55,10 @@ public class MainWindow extends JFrame {
     }
 
     public void setGraphViewer(GraphViewer graphViewer) {
-        if (graphViewer != null) {
-            remove(graphViewer);
+        if (this.graphViewer != null) {
+            remove(this.graphViewer);
         }
-        graphViewer = graphViewer;
+        this.graphViewer = graphViewer;
         add(graphViewer, BorderLayout.CENTER);
         graphViewer.requestFocusInWindow();
         validate();
@@ -122,7 +122,6 @@ public class MainWindow extends JFrame {
                 } catch (ApplicationException e) {
                     showMessage(e.getMessage());
                 }
-
             }
         });
 
@@ -178,6 +177,9 @@ public class MainWindow extends JFrame {
         if(file == null || recordingSettings.getDirectoryToSave() != file.getParent()) {
             guiConfig.setDirectoryToSave(recordingSettings.getDirectoryToSave());
             eventHandler.startRecording(recordingSettings, file);
+        }
+        if(file != null) {
+            setTitle(file.getName());
         }
     }
 

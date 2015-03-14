@@ -1,8 +1,6 @@
 package graph;
 
 import data.DataSet;
-import fft.Fourie;
-import fft.FourieView;
 
 import java.util.ArrayList;
 import java.util.List;

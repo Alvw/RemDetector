@@ -32,6 +32,7 @@ public class FFTNormalizer implements DataSet{
 
     public double getAmplitude(int i) {
         double amplitude =  Math.sqrt(fftResult[i].re() * fftResult[i].re() + fftResult[i].im() * fftResult[i].im())/ getN();
+
         if(i > 0) {
             amplitude = amplitude * 2;
         }

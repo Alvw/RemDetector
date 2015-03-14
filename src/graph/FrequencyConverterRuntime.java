@@ -35,7 +35,7 @@ public class FrequencyConverterRuntime implements FrequencyConverter {
                     if(inputData.get(i) == UNDEFINED) {
                         return UNDEFINED;
                     }
-                    if(compressionType == CompressionType.AVERAGE) {
+                    if(compressionType == CompressionType.AVERAGE || compressionType == CompressionType.SUM) {
                         value += inputData.get(i);
                     }
                     else if(compressionType == CompressionType.MAX) {

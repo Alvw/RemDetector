@@ -65,9 +65,10 @@ public class Presenter implements  ControllerListener {
         graphViewer.addGraphPanel(1, false);
         graphViewer.addGraph(eogDerivativeRem);
         graphViewer.addGraph(new FilterConstant(eog, eogDerivativeLimit));
-        graphViewer.addGraphPanel(1, false);
-        graphViewer.addGraph(accMovement);
-        graphViewer.addGraph(new FilterConstant(accMovement, accMovementLimit));
+        graphViewer.addGraphPanel(1, true);
+        graphViewer.addGraph(new FilterHiPass(new FilterBandPass_Alfa(eog), 2));
+     //   graphViewer.addGraph(accMovement);
+     //   graphViewer.addGraph(new FilterConstant(accMovement, accMovementLimit));
 
 
         DataSet accThreshold = new FilterThreshold(accMovement, accMovementLimit);

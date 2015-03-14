@@ -42,16 +42,18 @@ public class GraphView extends JPanel {
 
     private GraphEventHandler eventHandler;
     private FourierListener fourierHandler;
+    private GraphType graphType;
 
-    public GraphView(GraphEventHandler eventHandler,  boolean isTimeAxis, boolean showScalesSeparate) {
-        this(eventHandler, null, isTimeAxis, showScalesSeparate);
+    public GraphView(GraphEventHandler eventHandler, GraphType graphType, boolean isTimeAxis, boolean showScalesSeparate) {
+        this(eventHandler, null, graphType, isTimeAxis, showScalesSeparate);
     }
 
-    public GraphView(GraphEventHandler eventHandler, FourierListener fourierHandler, boolean isTimeAxis, boolean showScalesSeparate) {
+    public GraphView(GraphEventHandler eventHandler, FourierListener fourierHandler, GraphType graphType,  boolean isTimeAxis, boolean showScalesSeparate) {
         this.eventHandler = eventHandler;
         this.fourierHandler = fourierHandler;
         this.isTimeAxis = isTimeAxis;
         this.showScalesSeparate = showScalesSeparate;
+        this.graphType = graphType;
         setLayout(new BorderLayout());
         add(mainPanel, BorderLayout.CENTER);
         add(scrollBar, BorderLayout.SOUTH);
@@ -217,7 +219,7 @@ public class GraphView extends JPanel {
     }
 
     public void addGraphPanel(int weight, boolean isXCentered) {
-        GraphPanel panel = new GraphPanel(weight, isXCentered);
+        GraphPanel panel = new GraphPanel(weight,graphType, isXCentered);
         panel.setIndentX(xIndent);
         panel.setIndentY(yIndent);
         panel.setBackground(bgColor);
@@ -237,7 +239,7 @@ public class GraphView extends JPanel {
 
 
     public void addPreviewPanel(int weight, boolean isXCentered) {
-        GraphPanel panel = new GraphPanel(weight, isXCentered);
+        GraphPanel panel = new GraphPanel(weight, graphType, isXCentered);
         panel.setIndentX(xIndent);
         panel.setIndentY(yIndent);
         panel.setBackground(previewBgColor);

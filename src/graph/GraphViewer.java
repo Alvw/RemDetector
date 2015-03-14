@@ -30,17 +30,19 @@ public class GraphViewer extends JPanel{
     private GraphPresenter graphPresenter;
 
     public GraphViewer() {
-        this(true, true, true);
+        this(GraphType.PAPA, true, true, true);
     }
 
-    public GraphViewer(boolean isTimeAxis, boolean showScalesSeparate, boolean isFourierActive) {
+    public GraphViewer(GraphType graphType, boolean isTimeAxis, boolean showScalesSeparate, boolean isFourierActive) {
         graphModel = new GraphModel();
         graphController = new GraphController(graphModel);
         if(isFourierActive) {
-            graphView = new GraphView(graphController, new FourierHandler(), isTimeAxis, showScalesSeparate);
+            FourierHandler fourierHandler = new FourierHandler(graphModel);
+            graphController.addListener(fourierHandler);
+            graphView = new GraphView(graphController,fourierHandler , graphType, isTimeAxis, showScalesSeparate);
         }
         else {
-            graphView = new GraphView(graphController,  isTimeAxis, showScalesSeparate);
+            graphView = new GraphView(graphController, graphType, isTimeAxis, showScalesSeparate);
         }
 
         graphPresenter = new GraphPresenter(graphModel, graphView);

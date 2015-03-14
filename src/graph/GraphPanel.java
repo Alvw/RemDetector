@@ -43,14 +43,16 @@ public class GraphPanel extends JPanel {
     private int slotPosition;
     private int indentX;
     private int indentY;
-    private GraphPainter graphPainter = new GraphPainter();
+
+    private GraphPainter graphPainter;
     private XAxisPainter xAxisPainter = new XAxisPainter(true);
     private YAxisPainter yAxisPainter = new YAxisPainter();
 
 
-    public GraphPanel(int weight, boolean isXCentered) {
+    public GraphPanel(int weight, GraphType graphType, boolean isXCentered) {
         this.isXCentered = isXCentered;
         this.weight = weight;
+        graphPainter = new GraphPainter(graphType);
         setBackground(DEFAULT_BG_COLOR);
 
         // MouseListener to zoom Y_Axes
