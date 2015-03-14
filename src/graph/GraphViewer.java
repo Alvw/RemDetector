@@ -115,6 +115,19 @@ public class GraphViewer extends JPanel{
         }
     }
 
+    public void removeGraphs(final int panelNumber) {
+        if(SwingUtilities.isEventDispatchThread()) {
+            graphController.removeGraphs(panelNumber);
+        }
+        else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    graphController.removeGraphs(panelNumber);
+                }
+            });
+        }
+    }
+
     public void addPreview(final DataSet preview, final int panelNumber, final CompressionType compressionType) {
         if(SwingUtilities.isEventDispatchThread()) {
             graphController.addPreview(preview, panelNumber, compressionType);

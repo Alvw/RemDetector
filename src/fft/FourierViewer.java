@@ -17,21 +17,19 @@ public class FourierViewer extends JDialog {
     public FourierViewer(DataSet graph)  {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setPreferredSize(getDimension());
+        graphViewer = new GraphViewer(GraphType.PAPA, false, false, false);
+        graphViewer.setYIndent(20);
+        graphViewer.addGraphPanel(1, false);
+        graphViewer.addGraph(graph);
+        add(graphViewer, BorderLayout.CENTER);
         showGraph(graph);
         pack();
         setVisible(true);
     }
 
     public void showGraph(DataSet graph) {
-        if(graphViewer != null) {
-            remove(graphViewer);
-        }
-        graphViewer = new GraphViewer(GraphType.PAPA, false, false, false);
-        graphViewer.setYIndent(20);
-        graphViewer.addGraphPanel(1, false);
+        graphViewer.removeGraphs(0);
         graphViewer.addGraph(graph);
-        add(graphViewer, BorderLayout.CENTER);
-        validate();
     }
 
     private Dimension getDimension() {

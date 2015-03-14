@@ -109,6 +109,12 @@ class GraphModel {
         }
     }
 
+    public void removeGraphs(int graphClusterNumber) {
+        if (graphClusterNumber < graphClusterList.size()) {
+            graphClusterList.get(graphClusterNumber).clear();
+        }
+    }
+
 
     public void addPreview(DataSet preview, int previewClusterNumber, CompressionType compressionType) {
         if (previewClusterNumber < previewClusterList.size()) {

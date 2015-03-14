@@ -86,6 +86,11 @@ public class GraphController implements GraphEventHandler {
         fireDataUpdated();
     }
 
+    public void removeGraphs(int graphClusterNumber) {
+        graphModel.removeGraphs(graphClusterNumber);
+        fireDataUpdated();
+    }
+
 
     public void addPreview(DataSet preview, int previewClusterNumber, CompressionType compressionType) {
         graphModel.addPreview(preview, previewClusterNumber, compressionType);
