@@ -10,7 +10,7 @@ class FrameDecoderCh2V0 extends FrameDecoder {
     public static final byte START_FRAME_MARKER = (byte)(254 & 0xFF);
     private int index;
     private int inputFrameSize;
-    int outputFrameSize = 0;
+    int outputFrameSize;
     private byte[] inputFrame;
     private static final Log log = LogFactory.getLog(FrameDecoderCh2V0.class);
 
@@ -29,6 +29,8 @@ class FrameDecoderCh2V0 extends FrameDecoder {
         log.info("Com port inputFrame size: " + inputFrameSize + " bytes");
         log.info("Decoded inputFrame size: " + outputFrameSize);
     }
+
+
 
     public void onByteReceived(byte inByte) {
         if (index == 0 && inByte == START_FRAME_MARKER) {

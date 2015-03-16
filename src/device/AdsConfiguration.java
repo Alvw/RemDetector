@@ -28,14 +28,15 @@ public class AdsConfiguration {
     private boolean isHighResolutionMode = true;
     private  Divider accelerometerDivider = Divider.D10;
     private int comPortSpeed;
-    private final static Divider MAX_DIVIDER = Divider.D10;
+    private Divider maxDivider;
     public static final int NUMBER_OF_BYTES_IN_DATA_FORMAT = 3;
 
     private PropertiesConfiguration config;
 
-    public AdsConfiguration(String propertiesFileName, int numberOfAdsChannels, int comPortSpeed) {
+    public AdsConfiguration(String propertiesFileName, int numberOfAdsChannels, int comPortSpeed, Divider maxDivider) {
         this.numberOfAdsChannels = numberOfAdsChannels;
         this.comPortSpeed = comPortSpeed;
+        this.maxDivider = maxDivider;
         fileName = propertiesFileName;
         try {
             config = new PropertiesConfiguration(propertiesFileName);
@@ -49,7 +50,7 @@ public class AdsConfiguration {
     }
 
     public  Divider getMaxDivider() {
-        return MAX_DIVIDER;
+        return maxDivider;
     }
 
     public int getComPortSpeed() {
@@ -173,10 +174,8 @@ public class AdsConfiguration {
 
         }
         if(isAccelerometerEnabled()) {
-            for (int i = 0; i < 3; i++) {
-                int numberOfSamplesInEachDataRecord = getMaxDivider().getValue()  / getAccelerometerDivider().getValue();
-                totalNumberOfDataSamples += numberOfSamplesInEachDataRecord;
-            }
+            int numberOfSamplesInEachDataRecord = getMaxDivider().getValue()  / getAccelerometerDivider().getValue();
+            totalNumberOfDataSamples += 3 * numberOfSamplesInEachDataRecord;
         }
         return totalNumberOfDataSamples;
     }

@@ -22,9 +22,10 @@ public class AdsConfiguratorCh2V0 implements AdsConfigurator{
 
     public static final int NUMBER_OF_ADS_CHANNELS = 2;
     public static final int NUMBER_OF_ACCELEROMETER_CHANNELS = 3;
+    public static final Divider MAX_DIVIDER = Divider.D50;
     private static final String PROPERTIES_FILE_NAME = "ads2ch_v0_config.properties";
     private static final int COM_PORT_SPEED = 230400;
-    private AdsConfiguration adsConfiguration = new AdsConfiguration(PROPERTIES_FILE_NAME, NUMBER_OF_ADS_CHANNELS, COM_PORT_SPEED);
+    private AdsConfiguration adsConfiguration = new AdsConfiguration(PROPERTIES_FILE_NAME, NUMBER_OF_ADS_CHANNELS, COM_PORT_SPEED, MAX_DIVIDER);
 
     @Override
     public FrameDecoder getFrameDecoder() {

@@ -86,6 +86,7 @@ public class Ads implements BdfProvider {
         }
     }
 
+
     @Override
     public DeviceBdfConfig getBdfConfig() {
         return createBdfConfig();
