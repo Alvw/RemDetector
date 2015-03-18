@@ -1,8 +1,9 @@
 package filters;
 
 import data.DataSet;
+import functions.Function;
 
-public class FilterFourier extends Filter {
+public class FilterFourier extends Function {
 
     public FilterFourier(DataSet inputData) {
         super(inputData);

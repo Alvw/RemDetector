@@ -43,7 +43,6 @@ public class RemDetector {
 
             Presenter presenter = new Presenter(mainWindow);
             controller.addListener(presenter);
-
         } catch (ApplicationException e) {
             showMessage(e.getMessage());
         }

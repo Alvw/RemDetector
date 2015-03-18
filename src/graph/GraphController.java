@@ -1,5 +1,6 @@
 package graph;
 
+import data.CompressionType;
 import data.DataSet;
 
 import java.util.ArrayList;

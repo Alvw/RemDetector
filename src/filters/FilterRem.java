@@ -1,12 +1,13 @@
 package filters;
 
 import data.DataSet;
+import functions.Function;
 
 /**
  *
  */
 
-public class FilterRem extends Filter {
+public class FilterRem extends Function {
     int stopTimeMscec = 80;
     int derivativeMin = 400;
     int derivativeMax = 2000;

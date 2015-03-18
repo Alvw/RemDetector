@@ -2,13 +2,14 @@
 package filters;
 
 import data.DataSet;
+import functions.Function;
 
 /**
  *
  */
 // Максимальное значение  модуля за 8 периодов  (32 точки)
 // Максимальное значение  модуля за 2 периодов  (8 точки)
-public class FilterTest_3 extends Filter {
+public class FilterTest_3 extends Function {
     private int period = 1;
     private int bufferHalf = period * 4;
 

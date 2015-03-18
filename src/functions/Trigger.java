@@ -1,26 +1,23 @@
-package filters;
+package functions;
 
 import data.DataDimension;
 import data.DataSet;
 
-/**
- * Created by mac on 20/02/15.
- */
-public class FilterThreshold extends Filter {
+public class Trigger extends Function{
     int digitalLimit;
 
 
-    public FilterThreshold(DataSet inputData, double physLimit) {
+    public Trigger(DataSet inputData, double physLimit) {
         super(inputData);
         digitalLimit = (int)(physLimit / inputData.getDataDimension().getGain());
     }
 
     @Override
     public int get(int index) {
-        if(Math.abs(inputData.get(index)) >= digitalLimit) {
-            return 0;
+        if(Math.abs(inputData.get(index)) < digitalLimit) {
+            return DataSet.TRUE;
         }
-        return 1;
+        return DataSet.FALSE;
     }
 
     @Override
@@ -28,4 +25,3 @@ public class FilterThreshold extends Filter {
         return new DataDimension();
     }
 }
-

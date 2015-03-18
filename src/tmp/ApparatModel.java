@@ -293,7 +293,7 @@ public class ApparatModel {
                     thresholdIndex = index;
                 }
                 if((index-thresholdIndex < latency) && (index >= thresholdIndex)) {
-                    return UNDEFINED;
+                    return FALSE;
                 }
 
                 return chanel_1_data.get(index);

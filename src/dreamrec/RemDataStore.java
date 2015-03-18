@@ -3,15 +3,13 @@ package dreamrec;
 import bdf.BdfConfig;
 import bdf.BdfProvider;
 import bdf.BdfRecordsJoiner;
-import data.BufferedData;
-import data.DataDimension;
-import data.DataList;
-import data.DataSet;
-import filters.Filter;
-import filters.FilterHiPass;
+import data.*;
+import filters.FilterDerivativeRem;
+import functions.Composition;
+import functions.Rising;
+import functions.Trigger;
 import prefilters.PreFilter;
 
-import javax.swing.*;
 import java.util.ArrayList;
 
 /**
@@ -20,7 +18,7 @@ import java.util.ArrayList;
 public class RemDataStore  implements DataStoreListener {
 
     private double accMovementLimit = 0.15;
-    private double eogDerivativeLimit = 400;
+    private double eogRemDerivativeMax = 400;
 
     private DataStore dataStore;
     private RemChannels remChannels;
@@ -101,7 +99,6 @@ public class RemDataStore  implements DataStoreListener {
                 eogFilteredData.setDataDimension(getEogFullData().getDataDimension());
                 eogFilter = new EogFilter(bufferSize);
             }
-
         }
     }
 
@@ -110,8 +107,8 @@ public class RemDataStore  implements DataStoreListener {
         return accMovementLimit;
     }
 
-    public double getEogDerivativeLimit() {
-        return eogDerivativeLimit;
+    public double getEogRemDerivativeMax() {
+        return eogRemDerivativeMax;
     }
 
     public int getNumberOfChannels() {
@@ -176,46 +173,45 @@ public class RemDataStore  implements DataStoreListener {
         return dataStore.getSignalData(remChannels.getAccelerometerZ());
     }
 
+    /**
+     * Определяем величину пропорциональную движению головы
+     * (дельта между max и min значением сигналов акселерометра на 3 точках).
+     * Суммируем амплитуды движений по трем осям.
+     * За ноль принят шумовой уровень.
+     */
     public DataSet getAccMovementData() {
-        return new Filter(getAccXData()) {
-            /**
-             * Определяем величину пропорциональную движению головы
-             * (дельта между текущим и предыдущим значением сигналов акселерометра).
-             * Суммируем амплитуды движений по трем осям.
-             * За ноль принят шумовой уровень.
-             */
-            @Override
-            public int get(int index) {
-                int step = 2;
-                int dX, dY, dZ;
-                int maxX = Integer.MIN_VALUE;
-                int minX = Integer.MAX_VALUE;
-                int maxY = Integer.MIN_VALUE;
-                int minY = Integer.MAX_VALUE;
-                int maxZ = Integer.MIN_VALUE;
-                int minZ = Integer.MAX_VALUE;
-                if (index > step) {
-                    for (int i = 0; i <= step; i++) {
-                        maxX = Math.max(maxX, getAccXData().get(index - i));
-                        minX = Math.min(minX, getAccXData().get(index - i));
-                        maxY = Math.max(maxY, getAccYData().get(index - i));
-                        minY = Math.min(minY, getAccYData().get(index - i));
-                        maxZ = Math.max(maxZ, getAccZData().get(index - i));
-                        minZ = Math.min(minZ, getAccZData().get(index - i));
-                    }
-                    dX = maxX - minX;
-                    dY = maxY - minY;
-                    dZ = maxZ - minZ;
-                } else {
-                    dX = 0;
-                    dY = 0;
-                    dZ = 0;
-                }
+        Composition accMovement = new Composition();
+        try {
+            accMovement.add(new Rising(getAccXData()));
+            accMovement.add(new Rising(getAccYData()));
+            accMovement.add(new Rising(getAccZData()));
+        } catch (ApplicationException e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
 
-                int dXYZ = Math.abs(dX) + Math.abs(dY) + Math.abs(dZ);
-                return dXYZ;
-            }
-        };
+        return accMovement;
+    }
+
+    private DataSet isNotMove() {
+        return new Trigger(getAccMovementData(), accMovementLimit);
+    }
+
+    private DataSet isEogOk() {
+        return new Trigger(new FilterDerivativeRem(getEogData()), eogRemDerivativeMax);
+    }
+
+public DataSet isSleep() {
+        Composition isSleep = new Composition();
+        try {
+            FrequencyConverter isNotMove = new FrequencyConverterRuntime(isNotMove(), CompressionType.AVERAGE);
+            isNotMove.setFrequency(isEogOk().getFrequency());
+            isSleep.add(isEogOk());
+            isSleep.add(isNotMove);
+        } catch (ApplicationException e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
+
+        return isSleep;
     }
 
     private class EogFilter  {
@@ -242,8 +238,6 @@ public class RemDataStore  implements DataStoreListener {
             return getEogFullData().get(index++) - (int) (sum / (bufferSize+1));
         }
     }
-
-
 }
 
 

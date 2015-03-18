@@ -1,12 +1,13 @@
 package filters;
 
 import data.DataSet;
+import functions.Function;
 
 /**
  *
  */
 
-public class FilterPower extends Filter {
+public class FilterPower extends Function {
 
     private int  distance = 1;
 

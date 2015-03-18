@@ -1,5 +1,8 @@
 package graph;
 
+import data.CompressionType;
+import data.FrequencyConverter;
+import data.FrequencyConverterRuntime;
 import data.DataSet;
 import fft.Fourie;
 import fft.FourierViewer;

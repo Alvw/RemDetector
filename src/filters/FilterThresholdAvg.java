@@ -1,11 +1,12 @@
 package filters;
 
 import data.DataSet;
+import functions.Function;
 
 /**
  *
  */
-public class FilterThresholdAvg extends Filter {
+public class FilterThresholdAvg extends Function {
     private int bufferSize = 10;
     private int shift = 2; // points
     private int indexBefore = -10;

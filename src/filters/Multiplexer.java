@@ -1,9 +1,11 @@
 package filters;
 import data.DataSet;
+import functions.Function;
+
 /**
  *
  */
-public class Multiplexer extends Filter {
+public class Multiplexer extends Function {
     protected final DataSet selectorData;
     public Multiplexer(DataSet inputData, DataSet selectorData) {
         super(inputData);
@@ -15,7 +17,7 @@ public class Multiplexer extends Filter {
             return inputData.get(index);
         }
         else {
-            return UNDEFINED;
+            return FALSE;
         }
     }
 }

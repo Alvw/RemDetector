@@ -1,12 +1,13 @@
 package filters;
 
 import data.DataSet;
+import functions.Function;
 
 /**
  *
  */
 
-public class FilterDerivative_N extends Filter {
+public class FilterDerivative_N extends Function {
     private int n = 1;
     public FilterDerivative_N(DataSet inputData, int n) {
         super(inputData);

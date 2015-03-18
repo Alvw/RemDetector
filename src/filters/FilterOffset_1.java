@@ -1,6 +1,7 @@
 package filters;
 
 import data.DataSet;
+import functions.Function;
 import graph.GraphViewer;
 
 /**
@@ -10,7 +11,7 @@ import graph.GraphViewer;
  * Time: 22:59
  * To change this template use File | Settings | File Templates.
  */
-public class FilterOffset_1 extends Filter {
+public class FilterOffset_1 extends Function {
     private GraphViewer graphViewer;
     private int offset = 640;
 
@@ -26,8 +27,8 @@ public class FilterOffset_1 extends Filter {
         }
 
         int offsetLevel = 0; //graphViewer.getStartIndex() + offset;
-        if(inputData.get(offsetLevel)== UNDEFINED ) {
-            return UNDEFINED;
+        if(inputData.get(offsetLevel)== FALSE) {
+            return FALSE;
         }
         return inputData.get(index) - inputData.get(offsetLevel);
     }

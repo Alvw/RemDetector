@@ -1,8 +1,9 @@
 package filters;
 
 import data.DataSet;
+import functions.Function;
 
-public class FilterOffset_2 extends Filter {
+public class FilterOffset_2 extends Function {
     private static int offsetLevel = 0;
     private static int offsetLevel_1 = offsetLevel;
     private static int timerMin = 150;

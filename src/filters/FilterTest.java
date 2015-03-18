@@ -2,12 +2,13 @@
 package filters;
 
 import data.DataSet;
+import functions.Function;
 
 /**
  *
  */
 
-public class FilterTest extends Filter {
+public class FilterTest extends Function {
     private int period = 4;
     private int bufferHalf = period * 2;
 

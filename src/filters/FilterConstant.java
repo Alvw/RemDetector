@@ -1,8 +1,9 @@
 package filters;
 
 import data.DataSet;
+import functions.Function;
 
-public class FilterConstant extends Filter {
+public class FilterConstant extends Function {
     int digitalConstant;
     public FilterConstant(DataSet inputData, double physConstant) {
         super(inputData);

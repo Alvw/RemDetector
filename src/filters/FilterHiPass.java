@@ -1,13 +1,12 @@
 package filters;
 
 import data.DataSet;
-
-import javax.swing.*;
+import functions.Function;
 
 /**
  * Created by mac on 20/02/15.
  */
-public class FilterHiPass extends Filter {
+public class FilterHiPass extends Function {
     int bufferSize;
 
     public FilterHiPass(DataSet inputData, int bufferSize) {

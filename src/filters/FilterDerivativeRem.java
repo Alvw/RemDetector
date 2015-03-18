@@ -1,12 +1,13 @@
 package filters;
 
 import data.DataSet;
+import functions.Function;
 
 /**
  *
  */
 
-public class FilterDerivativeRem extends Filter {
+public class FilterDerivativeRem extends Function {
     private int DISTANCE_MSEC = 80;
     private int distance_point;
     

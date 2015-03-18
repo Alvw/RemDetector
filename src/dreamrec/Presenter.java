@@ -2,7 +2,7 @@ package dreamrec;
 
 import data.DataSet;
 import filters.*;
-import graph.CompressionType;
+import data.CompressionType;
 import graph.GraphViewer;
 
 import gui.MainWindow;
@@ -53,39 +53,29 @@ public class Presenter implements  ControllerListener {
         DataSet eog = remDataStore.getEogData();
         DataSet eogFull = remDataStore.getEogFullData();
         DataSet accMovement = remDataStore.getAccMovementData();
-
+        DataSet isSleep = remDataStore.isSleep();
 
         double accMovementLimit = remDataStore.getAccMovementLimit();
-        double eogDerivativeLimit = remDataStore.getEogDerivativeLimit();
+        double eogDerivativeLimit = remDataStore.getEogRemDerivativeMax();
 
         DataSet eogDerivativeRem =  new FilterAbs(new FilterDerivativeRem(eog));
 
         graphViewer.addGraphPanel(2, true);
         graphViewer.addGraph(eog);
-        graphViewer.addGraphPanel(1, false);
+        graphViewer.addGraphPanel(2, false);
         graphViewer.addGraph(eogDerivativeRem);
         graphViewer.addGraph(new FilterConstant(eog, eogDerivativeLimit));
-        graphViewer.addGraphPanel(1, true);
-        graphViewer.addGraph(new FilterHiPass(new FilterBandPass_Alfa(eog), 2));
-        graphViewer.addGraphPanel(1, false);
+        graphViewer.addGraphPanel(2, false);
         graphViewer.addGraph(accMovement);
         graphViewer.addGraph(new FilterConstant(accMovement, accMovementLimit));
+        graphViewer.addGraphPanel(2, true);
+        graphViewer.addGraph(new FilterHiPass(new FilterBandPass_Alfa(eog), 2));
 
+        graphViewer.addPreviewPanel(2, false);
+        graphViewer.addPreview(eogDerivativeRem, CompressionType.MAX);
+        graphViewer.addPreview(isSleep, CompressionType.MAX);
 
-        DataSet accThreshold = new FilterThreshold(accMovement, accMovementLimit);
-        DataSet eogDerivativeRemThreshold = new FilterThreshold(eogDerivativeRem, eogDerivativeLimit);
-
-        DataSet mixedThreshold = new FilterMixer(eogDerivativeRemThreshold, accThreshold);
-
-
-        graphViewer.addPreviewPanel(1, false);
-
-
-
-        DataSet eogDerivativeRemClean = new Multiplexer(eogDerivativeRem, mixedThreshold);
-        graphViewer.addPreview(eogDerivativeRemClean, CompressionType.MAX);
-
-        graphViewer.addPreviewPanel(1, true);
+        graphViewer.addPreviewPanel(2, true);
         graphViewer.addPreview(eogFull, CompressionType.AVERAGE);
 
     }

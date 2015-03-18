@@ -1,7 +1,4 @@
-package graph;
-
-import data.BufferedData;
-import data.DataList;
+package data;
 
 public class FrequencyConverterBuffered extends BufferedData implements FrequencyConverter {
     public FrequencyConverterBuffered(FrequencyConverterRuntime frequencyConverterRuntime) {

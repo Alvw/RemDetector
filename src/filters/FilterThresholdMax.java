@@ -1,11 +1,12 @@
 package filters;
 
 import data.DataSet;
+import functions.Function;
 
 /**
  *
  */
-public class FilterThresholdMax extends Filter {
+public class FilterThresholdMax extends Function {
     int bufferSize;
  
     public FilterThresholdMax(DataSet inputData) {

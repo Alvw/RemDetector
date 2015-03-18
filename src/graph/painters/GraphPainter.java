@@ -31,7 +31,7 @@ public class GraphPainter {
                 value = graph.get(x + startIndex);
                 y = (int) Math.round(zoom * value);
                 if(graphType == GraphType.PAPA) {
-                    if(value == DataSet.UNDEFINED) {
+                    if(value == DataSet.FALSE) {
                         g.setColor(undefinedColor);
                         //drawVerticalLine(g, x, 0, vLine);
                         g.drawLine(x, 0, x, height);
@@ -48,9 +48,12 @@ public class GraphPainter {
                     }
                     int valuePrevious = graph.get(xPrevious + startIndex);
                     int yPrevious = (int) Math.round(zoom * valuePrevious);
-                    if(value == DataSet.UNDEFINED) {
+                    if(value == DataSet.FALSE) {
                         g.setColor(undefinedColor);
                         g.drawLine(x, 0, x, height);
+                    }
+                    else if(value == DataSet.TRUE) {
+
                     }
                     else{
                         g.setColor(graphColor);
@@ -58,7 +61,7 @@ public class GraphPainter {
                     }
                 }
                 if(graphType == GraphType.BAR) {
-                    if(value == DataSet.UNDEFINED) {
+                    if(value == DataSet.FALSE) {
                         g.setColor(undefinedColor);
                         g.drawLine(x, 0, x, height);
                     }

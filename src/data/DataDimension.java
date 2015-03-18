@@ -50,5 +50,4 @@ public class DataDimension {
     public void setPhysicalDimension(String physicalDimension) {
         this.physicalDimension = physicalDimension;
     }
-
 }

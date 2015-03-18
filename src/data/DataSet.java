@@ -10,7 +10,8 @@ package data;
 
 public interface DataSet {
 
-    public static final int UNDEFINED = Integer.MIN_VALUE;
+    public static final int FALSE = Integer.MIN_VALUE;
+    public static final int TRUE = Integer.MAX_VALUE;
     public static final int REM = Integer.MAX_VALUE - 400;
     public static final int SLOW = Integer.MAX_VALUE - 300;
     public static final int STAND = Integer.MAX_VALUE - 100;

@@ -1,5 +1,6 @@
 package graph;
 
+import data.CompressionType;
 import data.DataSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

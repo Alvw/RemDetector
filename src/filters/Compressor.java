@@ -1,6 +1,7 @@
 package filters;
 
 import data.DataSet;
+import functions.Function;
 
 /**
  * Created with IntelliJ IDEA.
@@ -9,7 +10,7 @@ import data.DataSet;
  * Time: 0:12
  * To change this template use File | Settings | File Templates.
  */
-public class Compressor extends Filter {
+public class Compressor extends Function {
     protected int compression;
     public Compressor(DataSet inputData, int compression) {
         super(inputData);

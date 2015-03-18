@@ -1,17 +1,19 @@
-package graph;
-
-import data.DataDimension;
-import data.DataSet;
+package data;
 
 public class FrequencyConverterRuntime implements FrequencyConverter {
     private DataSet inputData;
     private CompressionType compressionType;
     private double compression = 1;
 
-
-    public FrequencyConverterRuntime(DataSet inputData, CompressionType compressionType) {
+    public FrequencyConverterRuntime(DataSet inputData, CompressionType compressionType, double compression) {
         this.inputData = inputData;
         this.compressionType = compressionType;
+        this.compression = compression;
+    }
+
+
+    public FrequencyConverterRuntime(DataSet inputData, CompressionType compressionType) {
+       this(inputData, compressionType, 1);
     }
 
     @Override
@@ -32,8 +34,8 @@ public class FrequencyConverterRuntime implements FrequencyConverter {
                 int indexStart =  (int)((index) * compression);
                 int indexEnd = Math.min(inputData.size(), (int)((index+1) * compression));
                 for(int i = indexStart; i < indexEnd; i++) {
-                    if(inputData.get(i) == UNDEFINED) {
-                        return UNDEFINED;
+                    if(inputData.get(i) == FALSE) {
+                        return FALSE;
                     }
                     if(compressionType == CompressionType.AVERAGE || compressionType == CompressionType.SUM) {
                         value += inputData.get(i);

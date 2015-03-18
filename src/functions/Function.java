@@ -1,4 +1,4 @@
-package filters;
+package functions;
 
 import data.DataDimension;
 import data.DataSet;
@@ -6,11 +6,11 @@ import data.DataSet;
 /**
  *
  */
-public abstract class Filter implements DataSet {
+public abstract class Function implements DataSet {
     protected DataSet inputData;
 
 
-    protected Filter(DataSet inputData) {
+    protected Function(DataSet inputData) {
         this.inputData = inputData;
     }
 

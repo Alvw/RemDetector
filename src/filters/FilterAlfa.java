@@ -1,11 +1,12 @@
 package filters;
 
 import data.DataSet;
+import functions.Function;
 
 /**
  *
  */
-public class FilterAlfa extends Filter {
+public class FilterAlfa extends Function {
     private int period = 4;
     private int bufferHalf = period * 4;
     private DataSet alfaData;

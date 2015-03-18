@@ -1,12 +1,13 @@
 package filters;
 
 import data.DataSet;
+import functions.Function;
 import tmp.Functions;
 
 /**
  *
  */
-public class FilterResonance extends Filter {
+public class FilterResonance extends Function {
     private int period = 5;
     private int bufferHalf = period * 2;
 

@@ -1,6 +1,6 @@
 package graph;
 
-import data.DataSet;
+import data.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

@@ -2,11 +2,12 @@ package filters;
 
 import data.DataList;
 import data.DataSet;
+import functions.Function;
 
 /**
  *
  */
-public abstract class FilterBuffered extends Filter {
+public abstract class FilterBuffered extends Function {
     DataList filteredList = new DataList();
 
 

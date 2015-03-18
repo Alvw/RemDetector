@@ -1,11 +1,12 @@
 package filters;
 
 import data.DataSet;
+import functions.Function;
 
 /**
  *
  */
-public class FilterThreshold_mod extends Filter {
+public class FilterThreshold_mod extends Function {
     private int bufferSize = 4;
     private int shift = 0; // points
   

@@ -1,11 +1,12 @@
 package filters;
 
 import data.DataSet;
+import functions.Function;
 
 /**
  *
  */
-public class FilterHiPassSymmetric extends Filter {
+public class FilterHiPassSymmetric extends Function {
     private int indexBefore = -10;
     private long sumBefore = 0;
     int bufferSize;

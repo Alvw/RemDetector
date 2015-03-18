@@ -2,12 +2,13 @@
 package filters;
 
 import data.DataSet;
+import functions.Function;
 
 /**
  *
  */
  // Среднее значение модуля за 8 периодов  (32 точки)
-public class FilterTest_2 extends Filter {
+public class FilterTest_2 extends Function {
     private int period = 4;
     private int bufferHalf = period * 4;
 

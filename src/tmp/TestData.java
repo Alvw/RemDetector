@@ -28,7 +28,7 @@ public class TestData {
                 if(i==0) {
                     periodList.add(DataSet.WORKSPACE + pointNumber_int);
                 } else {
-                    periodList.add(DataSet.UNDEFINED);
+                    periodList.add(DataSet.FALSE);
                 }
             }
             pointNumber = pointNumber *0.99;
