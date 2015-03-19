@@ -23,11 +23,9 @@ public class Composition implements DataSet {
             DataDimension dataDimension1 = getDataDimension();
             DataDimension dataDimension2 = inputData.getDataDimension();
             if(getStartTime() != inputData.getStartTime()){
-                System.out.println("start time ");
-                //throw new ApplicationException(errMsg);
+                throw new ApplicationException(errMsg);
             }
             if(getFrequency() != inputData.getFrequency()){
-                System.out.println(getFrequency()+" fr "+inputData.getFrequency());
                 throw new ApplicationException(errMsg);
             }
             if(!dataDimension1.getPhysicalDimension().equals(dataDimension2.getPhysicalDimension())){
@@ -69,15 +67,7 @@ public class Composition implements DataSet {
             if(index < inputDataList.get(i).size()) {
                 value = inputDataList.get(i).get(index);
             }
-            if(value == DataSet.FALSE)  {
-                return FALSE;
-            }
-            if(value == DataSet.TRUE || result == DataSet.TRUE) {
-                result = DataSet.TRUE;
-            }
-            else {
-                result += value;
-            }
+            result += value;
         }
         return result;
     }
@@ -111,6 +101,6 @@ public class Composition implements DataSet {
         if (inputDataList.size() > 0) {
             return inputDataList.get(0).getDataDimension();
         }
-        return new DataDimension();
+        return null;
     }
 }

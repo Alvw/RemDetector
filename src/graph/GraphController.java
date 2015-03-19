@@ -82,8 +82,8 @@ public class GraphController implements GraphEventHandler {
     }
 
 
-    public void addGraph(DataSet graph, int graphClusterNumber) {
-        graphModel.addGraph(graph, graphClusterNumber);
+    public void addGraph(DataSet graphData, GraphType graphType, CompressionType compressionType,  int graphClusterNumber) {
+        graphModel.addGraph(graphData, graphType, compressionType, graphClusterNumber);
         fireDataUpdated();
     }
 
@@ -93,8 +93,8 @@ public class GraphController implements GraphEventHandler {
     }
 
 
-    public void addPreview(DataSet preview, int previewClusterNumber, CompressionType compressionType) {
-        graphModel.addPreview(preview, previewClusterNumber, compressionType);
+    public void addPreview(DataSet preview,GraphType graphType , CompressionType compressionType, int previewClusterNumber) {
+        graphModel.addPreview(preview, graphType, compressionType, previewClusterNumber);
         fireDataUpdated();
     }
 

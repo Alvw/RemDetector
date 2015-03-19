@@ -27,9 +27,7 @@ public class FilterOffset_1 extends Function {
         }
 
         int offsetLevel = 0; //graphViewer.getStartIndex() + offset;
-        if(inputData.get(offsetLevel)== FALSE) {
-            return FALSE;
-        }
+
         return inputData.get(index) - inputData.get(offsetLevel);
     }
 }

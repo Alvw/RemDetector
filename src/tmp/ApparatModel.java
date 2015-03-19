@@ -67,9 +67,9 @@ public class ApparatModel {
     }
 
     private boolean isStand(int index) {
-        if (getAccPosition(index) == DataSet.STAND) {
+     /*   if (getAccPosition(index) == DataSet.STAND) {
             return true;
-        }
+        }   */
         return false;
     }
 
@@ -187,7 +187,7 @@ public class ApparatModel {
         int data_Z = getNormalizedDataAcc3(index);
 
         if (data_Z > DATA_SIN_45) {   // Если человек не лежит
-            return DataSet.STAND;
+          //  return DataSet.STAND;
         }
 
         double Z = (double) data_Z / Z_data_mod;
@@ -293,7 +293,7 @@ public class ApparatModel {
                     thresholdIndex = index;
                 }
                 if((index-thresholdIndex < latency) && (index >= thresholdIndex)) {
-                    return FALSE;
+                  //  return FALSE;
                 }
 
                 return chanel_1_data.get(index);

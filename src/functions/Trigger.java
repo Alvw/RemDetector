@@ -15,13 +15,13 @@ public class Trigger extends Function{
     @Override
     public int get(int index) {
         if(Math.abs(inputData.get(index)) < digitalLimit) {
-            return DataSet.TRUE;
+            return 1;
         }
-        return DataSet.FALSE;
+        return 0;
     }
 
     @Override
     public DataDimension getDataDimension() {
-        return new DataDimension();
+        return null;
     }
 }

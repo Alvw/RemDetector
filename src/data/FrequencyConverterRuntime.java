@@ -18,38 +18,38 @@ public class FrequencyConverterRuntime implements FrequencyConverter {
 
     @Override
     public int get(int index) {
-        long value = 0;
+
         if(compression == 1) {
-            value = inputData.get(index);
+            return inputData.get(index);
         }
-        else if(compression < 1) {
+        if(compression < 1) {
             int indexNew = Math.min(inputData.size() - 1, (int) (compression * index));
-            value = inputData.get(indexNew);
+            return inputData.get(indexNew);
         }
-        else if(compression > 1) {
-            if(index == 0) {
-                value = inputData.get(index);
-            }
-            else {
-                int indexStart =  (int)((index) * compression);
-                int indexEnd = Math.min(inputData.size(), (int)((index+1) * compression));
-                for(int i = indexStart; i < indexEnd; i++) {
-                    if(inputData.get(i) == FALSE) {
-                        return FALSE;
-                    }
-                    if(compressionType == CompressionType.AVERAGE || compressionType == CompressionType.SUM) {
-                        value += inputData.get(i);
-                    }
-                    else if(compressionType == CompressionType.MAX) {
-                        value = Math.max(value, inputData.get(i));
-                    }
-                }
-                if(compressionType == CompressionType.AVERAGE) {
-                    value = value/(indexEnd - indexStart);
+
+        long result = 0;
+        int indexStart =  (int)((index) * compression);
+        int indexEnd = Math.min(inputData.size(), (int)((index+1) * compression));
+        for(int i = indexStart; i < indexEnd; i++) {
+            if(compressionType == CompressionType.BOOLEAN) {
+                if(inputData.get(i) == 0) {
+                    return 0;
                 }
             }
+            else if(compressionType == CompressionType.MAX) {
+                result = Math.max(result, Math.abs(inputData.get(i)));
+            }
+            else if(compressionType == CompressionType.AVERAGE || compressionType == CompressionType.SUM) {
+                result += inputData.get(i);
+            }
         }
-        return (int)value;
+        if(compressionType == CompressionType.AVERAGE) {
+            result = result/(indexEnd - indexStart);
+        }
+        if(compressionType == CompressionType.BOOLEAN) {
+            result = 1;
+        }
+        return (int)result;
     }
 
 

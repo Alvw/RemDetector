@@ -1,6 +1,5 @@
 package graph;
 
-import data.DataSet;
 import graph.painters.XAxisPainter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,18 +41,16 @@ public class GraphView extends JPanel {
 
     private GraphEventHandler eventHandler;
     private FourierListener fourierHandler;
-    private GraphType graphType;
 
-    public GraphView(GraphEventHandler eventHandler, GraphType graphType, boolean isTimeAxis, boolean showScalesSeparate) {
-        this(eventHandler, null, graphType, isTimeAxis, showScalesSeparate);
+    public GraphView(GraphEventHandler eventHandler, boolean isTimeAxis, boolean showScalesSeparate) {
+        this(eventHandler, null, isTimeAxis, showScalesSeparate);
     }
 
-    public GraphView(GraphEventHandler eventHandler, FourierListener fourierHandler, GraphType graphType,  boolean isTimeAxis, boolean showScalesSeparate) {
+    public GraphView(GraphEventHandler eventHandler, FourierListener fourierHandler, boolean isTimeAxis, boolean showScalesSeparate) {
         this.eventHandler = eventHandler;
         this.fourierHandler = fourierHandler;
         this.isTimeAxis = isTimeAxis;
         this.showScalesSeparate = showScalesSeparate;
-        this.graphType = graphType;
         setLayout(new BorderLayout());
         add(mainPanel, BorderLayout.CENTER);
         add(scrollBar, BorderLayout.SOUTH);
@@ -219,7 +216,7 @@ public class GraphView extends JPanel {
     }
 
     public void addGraphPanel(int weight, boolean isXCentered) {
-        GraphPanel panel = new GraphPanel(weight,graphType, isXCentered);
+        GraphPanel panel = new GraphPanel(weight, isXCentered);
         panel.setIndentX(xIndent);
         panel.setIndentY(yIndent);
         panel.setBackground(bgColor);
@@ -239,7 +236,7 @@ public class GraphView extends JPanel {
 
 
     public void addPreviewPanel(int weight, boolean isXCentered) {
-        GraphPanel panel = new GraphPanel(weight, graphType, isXCentered);
+        GraphPanel panel = new GraphPanel(weight, isXCentered);
         panel.setIndentX(xIndent);
         panel.setIndentY(yIndent);
         panel.setBackground(previewBgColor);
@@ -255,13 +252,13 @@ public class GraphView extends JPanel {
         setPanelsSizes();
     }
 
-    public void setPanelGraphs(java.util.List<DataSet> graphList, int panelNumber) {
+    public void setPanelGraphs(java.util.List<Graph> graphList, int panelNumber) {
         if(panelNumber < graphPanelList.size()) {
             graphPanelList.get(panelNumber).setGraphs(graphList);
         }
     }
 
-    public void setPanelPreviews(java.util.List<DataSet> previewList, int panelNumber) {
+    public void setPanelPreviews(java.util.List<Graph> previewList, int panelNumber) {
         if(panelNumber < previewPanelList.size()) {
             previewPanelList.get(panelNumber).setGraphs(previewList);
         }

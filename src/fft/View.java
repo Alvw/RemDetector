@@ -1,7 +1,6 @@
 package fft;
 
 import data.DataSet;
-import graph.GraphType;
 import graph.GraphViewer;
 
 import javax.swing.*;
@@ -11,7 +10,7 @@ public class View extends JFrame {
     protected GraphViewer graphViewer;
 
     public View()  {
-        graphViewer = new GraphViewer(GraphType.LINE, false, false, false);
+        graphViewer = new GraphViewer(false, false, false);
         add(graphViewer, BorderLayout.CENTER);
         graphViewer.requestFocusInWindow();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

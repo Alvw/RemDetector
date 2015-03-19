@@ -5,6 +5,7 @@ import bdf.BdfProvider;
 import bdf.BdfRecordsJoiner;
 import data.*;
 import filters.FilterDerivativeRem;
+import functions.BooleanAND;
 import functions.Composition;
 import functions.Rising;
 import functions.Trigger;
@@ -18,7 +19,7 @@ import java.util.ArrayList;
 public class RemDataStore  implements DataStoreListener {
 
     private double accMovementLimit = 0.15;
-    private double eogRemDerivativeMax = 400;
+    private double eogRemDerivativeMax = 600;
 
     private DataStore dataStore;
     private RemChannels remChannels;
@@ -132,6 +133,7 @@ public class RemDataStore  implements DataStoreListener {
 
     public void setStartTime(long startTime) {
         dataStore.setStartTime(startTime);
+        eogFilteredData.setStartTime(startTime);
     }
 
     private void updateEogFilteredData() {
@@ -201,17 +203,16 @@ public class RemDataStore  implements DataStoreListener {
     }
 
 public DataSet isSleep() {
-        Composition isSleep = new Composition();
+        BooleanAND isSleep = new BooleanAND();
         try {
-            FrequencyConverter isNotMove = new FrequencyConverterRuntime(isNotMove(), CompressionType.AVERAGE);
+            FrequencyConverter isNotMove = new FrequencyConverterRuntime(isNotMove(), CompressionType.BOOLEAN);
             isNotMove.setFrequency(isEogOk().getFrequency());
             isSleep.add(isEogOk());
             isSleep.add(isNotMove);
+            return isSleep;
         } catch (ApplicationException e) {
             throw new IllegalArgumentException(e.getMessage());
         }
-
-        return isSleep;
     }
 
     private class EogFilter  {

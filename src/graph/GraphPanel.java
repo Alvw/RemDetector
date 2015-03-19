@@ -29,12 +29,12 @@ public class GraphPanel extends JPanel {
 
     private static final Color DEFAULT_BG_COLOR = Color.black;
 
-    private Color graphColors[] = {Color.YELLOW, Color.RED, Color.CYAN};
+    private Color graphColors[] = {Color.YELLOW, new Color(0,150, 250), Color.RED, Color.CYAN};
     private Color slotColor = new Color(255, 0, 100);
     private java.util.List<SlotListener> slotListeners = new ArrayList<SlotListener>();
     private java.util.List<FourierListener> fourierListeners = new ArrayList<FourierListener>();
 
-    private List<DataSet> graphList = new ArrayList<DataSet>();
+    private List<Graph> graphList = new ArrayList<Graph>();
     private double zoom = 0.5;
     private boolean isXCentered = true;
     private int weight = 1;
@@ -44,15 +44,14 @@ public class GraphPanel extends JPanel {
     private int indentX;
     private int indentY;
 
-    private GraphPainter graphPainter;
+    private GraphPainter graphPainter = new GraphPainter();
     private XAxisPainter xAxisPainter = new XAxisPainter(true);
     private YAxisPainter yAxisPainter = new YAxisPainter();
 
 
-    public GraphPanel(int weight, GraphType graphType, boolean isXCentered) {
+    public GraphPanel(int weight, boolean isXCentered) {
         this.isXCentered = isXCentered;
         this.weight = weight;
-        graphPainter = new GraphPainter(graphType);
         setBackground(DEFAULT_BG_COLOR);
 
         // MouseListener to zoom Y_Axes
@@ -73,7 +72,7 @@ public class GraphPanel extends JPanel {
                 }
                 if (SwingUtilities.isRightMouseButton(e)) {
                     if(graphList.size() > 0) {
-                        notifyFourierListeners(graphList.get(0), startIndex);
+                        notifyFourierListeners(graphList.get(0).getGraphData(), startIndex);
                     }
                 }
             }
@@ -81,7 +80,7 @@ public class GraphPanel extends JPanel {
     }
 
 
-    public void setGraphs(List<DataSet> graphList) {
+    public void setGraphs(List<Graph> graphList) {
         this.graphList = graphList;
     }
 
@@ -193,15 +192,15 @@ public class GraphPanel extends JPanel {
         DataDimension dataDimension = new DataDimension();
         long startTime = 0;
         if (graphList.size() > 0 && graphList.get(0) != null) {
-            frequency = graphList.get(0).getFrequency();
-            startTime = graphList.get(0).getStartTime();
-            dataDimension = graphList.get(0).getDataDimension();
+            frequency = graphList.get(0).getGraphData().getFrequency();
+            startTime = graphList.get(0).getGraphData().getStartTime();
+            dataDimension = graphList.get(0).getGraphData().getDataDimension();
             xAxisPainter.paint(g, startIndex, frequency, startTime);
             yAxisPainter.paint(g, zoom, dataDimension);
         }
 
         int graph_number = 0;
-        for (DataSet graph : graphList) {
+        for (Graph graph : graphList) {
             Color graphColor = graphColors[graph_number % graphColors.length];
             graph_number++;
             graphPainter.setColor(graphColor);

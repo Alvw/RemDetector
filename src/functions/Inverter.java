@@ -9,12 +9,6 @@ public class Inverter extends Function {
 
     @Override
     public int get(int index) {
-        if(inputData.get(index) == DataSet.TRUE) {
-            return DataSet.FALSE;
-        }
-        if(inputData.get(index) == DataSet.FALSE) {
-            return DataSet.TRUE;
-        }
         return -inputData.get(index);
     }
 }

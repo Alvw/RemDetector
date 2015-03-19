@@ -31,19 +31,19 @@ public class GraphViewer extends JPanel{
     private GraphPresenter graphPresenter;
 
     public GraphViewer() {
-        this(GraphType.PAPA, true, true, true);
+        this(true, true, true);
     }
 
-    public GraphViewer(GraphType graphType, boolean isTimeAxis, boolean showScalesSeparate, boolean isFourierActive) {
+    public GraphViewer(boolean isTimeAxis, boolean showScalesSeparate, boolean isFourierActive) {
         graphModel = new GraphModel();
         graphController = new GraphController(graphModel);
         if(isFourierActive) {
             FourierHandler fourierHandler = new FourierHandler(graphModel);
             graphController.addListener(fourierHandler);
-            graphView = new GraphView(graphController,fourierHandler , graphType, isTimeAxis, showScalesSeparate);
+            graphView = new GraphView(graphController,fourierHandler, isTimeAxis, showScalesSeparate);
         }
         else {
-            graphView = new GraphView(graphController, graphType, isTimeAxis, showScalesSeparate);
+            graphView = new GraphView(graphController, isTimeAxis, showScalesSeparate);
         }
 
         graphPresenter = new GraphPresenter(graphModel, graphView);
@@ -103,14 +103,14 @@ public class GraphViewer extends JPanel{
     }
 
 
-    public void addGraph(final DataSet graph, final int panelNumber) {
+    public void addGraph(final DataSet graph, final GraphType graphType, final CompressionType compressionType, final int panelNumber) {
         if(SwingUtilities.isEventDispatchThread()) {
-            graphController.addGraph(graph, panelNumber);
+            graphController.addGraph(graph, graphType, compressionType, panelNumber);
         }
         else {
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
-                    graphController.addGraph(graph, panelNumber);
+                    graphController.addGraph(graph, graphType, compressionType, panelNumber);
                 }
             });
         }
@@ -129,14 +129,14 @@ public class GraphViewer extends JPanel{
         }
     }
 
-    public void addPreview(final DataSet preview, final int panelNumber, final CompressionType compressionType) {
+    public void addPreview(final DataSet preview, final GraphType graphType, final CompressionType compressionType, final int panelNumber) {
         if(SwingUtilities.isEventDispatchThread()) {
-            graphController.addPreview(preview, panelNumber, compressionType);
+            graphController.addPreview(preview, graphType, compressionType, panelNumber);
         }
         else {
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
-                    graphController.addPreview(preview, panelNumber, compressionType);
+                    graphController.addPreview(preview, graphType, compressionType, panelNumber);
                 }
             });
         }
@@ -145,53 +145,34 @@ public class GraphViewer extends JPanel{
 /*
 * Add Graph to the last graph panel. If there is no graph panel create one
 */
-    public void addGraph(final DataSet graph) {
-        if(SwingUtilities.isEventDispatchThread()) {
-            int panelNumber = graphView.getNumberOfGraphPanels() - 1;
-            if(panelNumber < 0) {
-                addGraphPanel(DEFAULT_GRAPH_PANEL_WEIGHT, IS_GRAPH_X_CENTERED_DEFAULT);
-                panelNumber = 0;
-            }
-            addGraph(graph, panelNumber);
+    public void addGraph(final DataSet graph, final GraphType graphType, final CompressionType compressionType) {
+        int panelNumber = graphView.getNumberOfGraphPanels() - 1;
+        if(panelNumber < 0) {
+            addGraphPanel(DEFAULT_GRAPH_PANEL_WEIGHT, IS_GRAPH_X_CENTERED_DEFAULT);
+            panelNumber = 0;
         }
-        else {
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    int panelNumber = graphView.getNumberOfGraphPanels() - 1;
-                    if(panelNumber < 0) {
-                        addGraphPanel(DEFAULT_GRAPH_PANEL_WEIGHT, IS_GRAPH_X_CENTERED_DEFAULT);
-                        panelNumber = 0;
-                    }
-                    addGraph(graph, panelNumber);
-                }
-            });
-        }
+        addGraph(graph, graphType, compressionType, panelNumber);
     }
 
 /*
 * Add Preview to the last preview panel. If there is no preview panel create one
 */
-    public void addPreview(final DataSet preview, final CompressionType compressionType) {
-        if(SwingUtilities.isEventDispatchThread()) {
-            int panelNumber = graphView.getNumberOfPreviewPanels() - 1;
-            if(panelNumber < 0) {
-                addPreviewPanel(DEFAULT_PREVIEW_PANEL_WEIGHT, IS_PREVIEW_X_CENTERED_DEFAULT);
-                panelNumber = 0;
-            }
-            addPreview(preview, panelNumber, compressionType);
+    public void addPreview(final DataSet preview, final GraphType graphType, final CompressionType compressionType) {
+        int panelNumber = graphView.getNumberOfPreviewPanels() - 1;
+        if(panelNumber < 0) {
+            addPreviewPanel(DEFAULT_PREVIEW_PANEL_WEIGHT, IS_PREVIEW_X_CENTERED_DEFAULT);
+            panelNumber = 0;
         }
-        else {
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    int panelNumber = graphView.getNumberOfPreviewPanels() - 1;
-                    if(panelNumber < 0) {
-                        addPreviewPanel(DEFAULT_PREVIEW_PANEL_WEIGHT, IS_PREVIEW_X_CENTERED_DEFAULT);
-                        panelNumber = 0;
-                    }
-                    addPreview(preview, panelNumber, compressionType);
-                }
-            });
-        }
+        addPreview(preview, graphType, compressionType, panelNumber);
+    }
+
+
+    public void addGraph(final DataSet graph) {
+        addGraph(graph, GraphType.PAPA, CompressionType.AVERAGE);
+    }
+
+    public void addPreview(final DataSet preview,  final CompressionType compressionType) {
+        addPreview(preview, GraphType.PAPA, compressionType);
     }
 
     public void setGraphFrequency(final double graphFrequency) {

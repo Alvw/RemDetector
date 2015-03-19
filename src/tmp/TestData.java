@@ -26,9 +26,9 @@ public class TestData {
                 triangleList.add(Functions.getTriangle(i, pointNumber_int));
                 constantList.add(1000);
                 if(i==0) {
-                    periodList.add(DataSet.WORKSPACE + pointNumber_int);
+                   // periodList.add(DataSet.WORKSPACE + pointNumber_int);
                 } else {
-                    periodList.add(DataSet.FALSE);
+                   // periodList.add(DataSet.FALSE);
                 }
             }
             pointNumber = pointNumber *0.99;

@@ -3,6 +3,7 @@ package dreamrec;
 import data.DataSet;
 import filters.*;
 import data.CompressionType;
+import graph.GraphType;
 import graph.GraphViewer;
 
 import gui.MainWindow;
@@ -50,6 +51,23 @@ public class Presenter implements  ControllerListener {
     }
 
     private void configureRemGraphViewer(RemDataStore remDataStore) {
+       workRem(remDataStore);
+    }
+
+    private void configureGraphViewer(DataStore dataStore) {
+        if(dataStore.getNumberOfChannels() > 0) {
+            DataSet channel_1 = dataStore.getChannelData(0);
+            graphViewer.addGraphPanel(1, true);
+            graphViewer.addGraph(channel_1);
+
+            graphViewer.addPreviewPanel(1, false);
+            DataSet velocityRem =  new FilterAbs(new FilterDerivativeRem(channel_1));
+            graphViewer.addPreview(velocityRem, CompressionType.MAX);
+        }
+
+    }
+
+    private void workRem(RemDataStore remDataStore) {
         DataSet eog = remDataStore.getEogData();
         DataSet eogFull = remDataStore.getEogFullData();
         DataSet accMovement = remDataStore.getAccMovementData();
@@ -73,23 +91,10 @@ public class Presenter implements  ControllerListener {
 
         graphViewer.addPreviewPanel(2, false);
         graphViewer.addPreview(eogDerivativeRem, CompressionType.MAX);
-        graphViewer.addPreview(isSleep, CompressionType.MAX);
+        graphViewer.addPreview(isSleep, GraphType.BOOLEAN, CompressionType.BOOLEAN);
 
         graphViewer.addPreviewPanel(2, true);
         graphViewer.addPreview(eogFull, CompressionType.AVERAGE);
-
-    }
-
-    private void configureGraphViewer(DataStore dataStore) {
-        if(dataStore.getNumberOfChannels() > 0) {
-            DataSet channel_1 = dataStore.getChannelData(0);
-            graphViewer.addGraphPanel(1, true);
-            graphViewer.addGraph(channel_1);
-
-            graphViewer.addPreviewPanel(1, false);
-            DataSet velocityRem =  new FilterAbs(new FilterDerivativeRem(channel_1));
-            graphViewer.addPreview(velocityRem, CompressionType.MAX);
-        }
 
     }
 }
