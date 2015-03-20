@@ -70,7 +70,7 @@ public class GraphView extends JPanel {
         createPreviewScalePanel();
 
         setFocusable(true); //only that way KeyListeners work
-        requestFocusInWindow();
+       // requestFocusInWindow();
 
         // Key Listener to move Slot
         addKeyListener(new KeyAdapter() {

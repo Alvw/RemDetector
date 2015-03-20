@@ -31,10 +31,10 @@ public class GraphViewer extends JPanel{
     private GraphPresenter graphPresenter;
 
     public GraphViewer() {
-        this(true, true, true);
+        this(true, true, true, true);
     }
 
-    public GraphViewer(boolean isTimeAxis, boolean showScalesSeparate, boolean isFourierActive) {
+    public GraphViewer(boolean isTimeAxis, boolean showScalesSeparate, boolean isFourierActive, boolean isRequestfocus) {
         graphModel = new GraphModel();
         graphController = new GraphController(graphModel);
         if(isFourierActive) {
@@ -54,7 +54,9 @@ public class GraphViewer extends JPanel{
         graphView.setYIndent(Y_INDENT_DEFAULT);
         setLayout(new BorderLayout());
         add(graphView, BorderLayout.CENTER);
-        graphView.requestFocusInWindow();
+        if(isRequestfocus) {
+            graphView.requestFocusInWindow();
+        }
     }
 
     public void setXIndent(int xIndent) {

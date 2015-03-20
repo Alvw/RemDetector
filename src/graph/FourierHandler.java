@@ -39,9 +39,6 @@ public class FourierHandler implements FourierListener, GraphControllerListener 
 
     private DataSet calculateFourier(DataSet graph) {
         int time = 10; // sec
-        if(graph.getFrequency() >= 500) {
-            time = 36;
-        }
         DataSet fourier =  Fourie.fft(graph, graphModel.getStartIndex(), time);
         DataSet fourierPapa = new FilterFourier(fourier);
         FrequencyConverter result = new FrequencyConverterRuntime(fourierPapa, CompressionType.SUM);
