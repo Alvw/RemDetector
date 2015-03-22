@@ -96,7 +96,6 @@ public class Ads implements BdfProvider {
     private DeviceBdfConfig createBdfConfig() {
         AdsConfiguration adsConfiguration = adsConfigurator.getAdsConfiguration();
         List<SignalConfig> signalConfigList = new ArrayList<SignalConfig>();
-        int n = 0;
         for (int i = 0; i < adsConfiguration.getNumberOfAdsChannels(); i++) {
             if (adsConfiguration.isChannelEnabled(i)) {
                 int physicalMax = 2400000 / adsConfiguration.getChannelGain(i).getValue();
@@ -108,7 +107,7 @@ public class Ads implements BdfProvider {
                 dataDimension.setPhysicalMin(-physicalMax);
                 dataDimension.setPhysicalDimension("uV");
                 SignalConfig signalConfig = new SignalConfig(numberOfSamplesInEachDataRecord, dataDimension);
-                signalConfig.setLabel("Channel " + n++);
+                signalConfig.setLabel("Channel " + (i + 1));
                 signalConfig.setTransducerType("Unknown");
                 signalConfig.setPrefiltering("None");
                 signalConfigList.add(signalConfig);
@@ -124,7 +123,7 @@ public class Ads implements BdfProvider {
                 dataDimension.setPhysicalMin(-2);
                 dataDimension.setPhysicalDimension("g");
                 SignalConfig signalConfig = new SignalConfig(numberOfSamplesInEachDataRecord, dataDimension);
-                signalConfig.setLabel("Accelerometer " + i + 1);
+                signalConfig.setLabel("Accelerometer " + (i + 1));
                 signalConfig.setTransducerType("Unknown");
                 signalConfig.setPrefiltering("None");
                 signalConfigList.add(signalConfig);

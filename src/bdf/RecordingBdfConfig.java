@@ -65,11 +65,13 @@ public class RecordingBdfConfig extends BdfConfigWrapper {
     }
 
     public void setSignalsLabels(String[] signalsLabels) {
-        SignalConfig[] signalsConfigList = getSignalConfigs();
-        int length = Math.min(signalsConfigList.length, signalsLabels.length);
-        for (int i = 0; i < length; i++) {
-            if (signalsLabels[i] != null) {
-                signalsConfigList[i].setLabel(signalsLabels[i]);
+        if(signalsLabels != null) {
+            SignalConfig[] signalsConfigList = getSignalConfigs();
+            int length = Math.min(signalsConfigList.length, signalsLabels.length);
+            for (int i = 0; i < length; i++) {
+                if (signalsLabels[i] != null) {
+                    signalsConfigList[i].setLabel(signalsLabels[i]);
+                }
             }
         }
     }
