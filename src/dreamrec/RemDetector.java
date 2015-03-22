@@ -37,7 +37,7 @@ public class RemDetector {
             controller.setDeviceSignalsLabels(deviceSignalsLabels);
             controller.setRemConfigurator(remConfigurator);
             controller.setFrequencyAutoAdjustment(isFrequencyAutoAdjustment);
-            controller.setRemMode(true);
+            controller.setRemMode(false);
 
             MainWindow mainWindow = new MainWindow(controller, guiConfig);
 

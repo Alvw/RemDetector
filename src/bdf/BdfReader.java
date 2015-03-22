@@ -27,7 +27,7 @@ public class BdfReader implements BdfProvider {
         try {
             recordingBdfConfig = BdfHeaderReader.readBdfHeader(file);
             totalNumberOfSamplesInEachDataRecord = getTotalNumberOfBytesInDataRecord();
-             fileInputStream = new BufferedInputStream(new FileInputStream(file), BUFFER_SIZE);
+            fileInputStream = new BufferedInputStream(new FileInputStream(file), BUFFER_SIZE);
             int numberOfBytesInHeader = 256 + 256 * recordingBdfConfig.getNumberOfSignals();
             if(fileInputStream.skip(numberOfBytesInHeader) == numberOfBytesInHeader) {
                 isFileOpen = true;

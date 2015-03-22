@@ -13,36 +13,42 @@ public class AdsConfiguration {
 
     private static final Log log = LogFactory.getLog(AdsConfiguration.class);
 
-    public static final String COM_PORT_NAME = "comPort";
-    public static final String SPS = "sps";
-    public static final String CHANNEL_DIVIDER = "dividerChannel";
-    public static final String CHANNEL_GAIN = "gainChannel";
-    public static final String CHANNEL_COMMUTATOR_STATE = "commutatorStateChannel";
-    public static final String CHANNEL_IS_ENABLED = "isEnabledChannel";
-    public static final String CHANNEL_IS_LOFF_ENABLED = "isLoffEnabledChannel";
-    public static final String CHANNEL_IS_RLD_SENSE_ENABLED = "isRldSenseEnabledChannel";
-    public static final String ACCELEROMETER_IS_ENABLED = "isEnabledAccelerometer";
+    private static final String COM_PORT_NAME = "comPort";
+    private static final String SPS = "sps";
+    private static final String CHANNEL_DIVIDER = "dividerChannel";
+    private static final String CHANNEL_GAIN = "gainChannel";
+    private static final String CHANNEL_COMMUTATOR_STATE = "commutatorStateChannel";
+    private static final String CHANNEL_IS_ENABLED = "isEnabledChannel";
+    private static final String CHANNEL_IS_LOFF_ENABLED = "isLoffEnabledChannel";
+    private static final String CHANNEL_IS_RLD_SENSE_ENABLED = "isRldSenseEnabledChannel";
+    private static final String ACCELEROMETER_IS_ENABLED = "isEnabledAccelerometer";
+    private static final String ACCELEROMETER_DIVIDER = "dividerAccelerometer";
 
     private String fileName;
     private int numberOfAdsChannels;
     private boolean isHighResolutionMode = true;
-    private  Divider accelerometerDivider = Divider.D10;
+    private  Divider accelerometerDivider;
     private int comPortSpeed;
     private Divider maxDivider;
-    public static final int NUMBER_OF_BYTES_IN_DATA_FORMAT = 3;
+    private static final int NUMBER_OF_BYTES_IN_DATA_FORMAT = 3;
 
     private PropertiesConfiguration config;
 
-    public AdsConfiguration(String propertiesFileName, int numberOfAdsChannels, int comPortSpeed, Divider maxDivider) {
+    public AdsConfiguration(String propertiesFileName, int numberOfAdsChannels, int comPortSpeed, Divider maxDivider, Divider accDivider) {
         this.numberOfAdsChannels = numberOfAdsChannels;
         this.comPortSpeed = comPortSpeed;
         this.maxDivider = maxDivider;
+        this.accelerometerDivider = accDivider;
         fileName = propertiesFileName;
         try {
             config = new PropertiesConfiguration(propertiesFileName);
         } catch (ConfigurationException e) {
             log.error(e);
         }
+    }
+
+    public AdsConfiguration(String propertiesFileName, int numberOfAdsChannels, int comPortSpeed, Divider maxDivider) {
+        this(propertiesFileName, numberOfAdsChannels, comPortSpeed, maxDivider, null);
     }
 
     public int getNumberOfBytesInDataFormat() {
@@ -84,10 +90,13 @@ public class AdsConfiguration {
     }
 
     public Divider getAccelerometerDivider() {
-        try {
+        if(accelerometerDivider != null) {
             return accelerometerDivider;
+        }
+        try {
+            return Divider.valueOf(config.getInt(ACCELEROMETER_DIVIDER));
         } catch (IllegalArgumentException e) {
-            String msg = "ads_config.properties file: " + e.getMessage();
+            String msg = "ads_config.properties file: " +  "accelerometer divider " + e.getMessage();
             log.error(msg);
             throw new IllegalArgumentException(msg);
         }

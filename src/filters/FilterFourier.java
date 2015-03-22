@@ -13,7 +13,7 @@ public class FilterFourier extends Function {
     public int get(int index) {
         double frequencyStep = 1 / getFrequency();
         double frequency = index * frequencyStep;
-        if(frequency < 0.1 || frequency > 40)  {
+        if(frequency < 0.1)  {
             return 0;
         }
         double delta = frequency * 0.05;
@@ -23,5 +23,11 @@ public class FilterFourier extends Function {
             result = result + inputData.get(i);
         }
         return result;
+    }
+
+    @Override
+    public int size() {
+        int index40hz = (int)(40 * getFrequency());
+        return Math.min(inputData.size(), index40hz);
     }
 }

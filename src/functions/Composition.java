@@ -20,42 +20,36 @@ public class Composition implements DataSet {
 
     public void add(DataSet inputData) throws ApplicationException {
         if(inputDataList.size() > 0) {
-            DataDimension dataDimension1 = getDataDimension();
-            DataDimension dataDimension2 = inputData.getDataDimension();
             if(getStartTime() != inputData.getStartTime()){
                 throw new ApplicationException(errMsg);
             }
             if(getFrequency() != inputData.getFrequency()){
                 throw new ApplicationException(errMsg);
             }
-            if(!dataDimension1.getPhysicalDimension().equals(dataDimension2.getPhysicalDimension())){
+
+            DataDimension dataDimension1 = getDataDimension();
+            DataDimension dataDimension2 = inputData.getDataDimension();
+            if(dataDimension1 == null && dataDimension2 != null) {
                 throw new ApplicationException(errMsg);
             }
-            if(dataDimension1.getGain() != dataDimension2.getGain()){
+            if(dataDimension2 == null && dataDimension1 != null) {
                 throw new ApplicationException(errMsg);
             }
+            if(dataDimension1 != null && dataDimension2 != null) {
+                if(!dataDimension1.getPhysicalDimension().equals(dataDimension2.getPhysicalDimension())){
+                    throw new ApplicationException(errMsg);
+                }
+                if(dataDimension1.getGain() != dataDimension2.getGain()){
+                    throw new ApplicationException(errMsg);
+                }
+            }
+
         }
         inputDataList.add(inputData);
     }
 
     public void subtract(DataSet inputData) throws ApplicationException{
-        if(inputDataList.size() > 0) {
-            DataDimension dataDimension1 = getDataDimension();
-            DataDimension dataDimension2 = inputData.getDataDimension();
-            if(getStartTime() != inputData.getStartTime()){
-                throw new ApplicationException(errMsg);
-            }
-            if(getFrequency() != inputData.getFrequency()){
-                throw new ApplicationException(errMsg);
-            }
-            if(!dataDimension1.getPhysicalDimension().equals(dataDimension2.getPhysicalDimension())){
-                throw new ApplicationException(errMsg);
-            }
-            if(dataDimension1.getGain() != dataDimension2.getGain()){
-                throw new ApplicationException(errMsg);
-            }
-        }
-         inputDataList.add(new Inverter(inputData));
+        add(new Inverter(inputData));
     }
 
 
@@ -74,10 +68,11 @@ public class Composition implements DataSet {
 
     @Override
     public int size() {
-        if (inputDataList.size() > 0) {
-            return inputDataList.get(0).size();
+        int size = 0;
+        for(DataSet dataSet : inputDataList) {
+            size = Math.max(size, dataSet.size());
         }
-        return 0;
+        return size;
     }
 
     @Override

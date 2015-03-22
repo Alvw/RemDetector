@@ -21,6 +21,9 @@ public class YAxisPainter {
             gain = dataDimension.getGain();
         }
 
+        if(gain <= 0) {
+           return;
+        }
         Rectangle r = g.getClipBounds();
         int xIndent = - r.x;
         int height = r.height + r.y;
@@ -34,12 +37,12 @@ public class YAxisPainter {
         int exponent = (int) Math.log10(minValueStep);
         int[] steps = {1, 2, 5, 10};
 
-
         String stringFormat = "%.0f";
         if(Math.log10(minValueStep) < 0) {
             exponent = exponent - 1;
             stringFormat = "%."+Math.abs(exponent)+"f";
         }
+
         double valueStep = 0;
         int j=0;
         while(valueStep == 0 && j < steps.length) {
