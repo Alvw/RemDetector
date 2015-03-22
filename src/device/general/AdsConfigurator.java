@@ -1,4 +1,4 @@
-package device;
+package device.general;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package device;
+package device.general;
 
 import bdf.*;
 import comport.ComPort;

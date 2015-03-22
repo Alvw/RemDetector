@@ -3,8 +3,8 @@ package device.ads2ch_v1;
 
 import bdf.BdfParser;
 import comport.ComPortListener;
-import device.AdsConfiguration;
-import device.FrameDecoder;
+import device.general.AdsConfiguration;
+import device.general.FrameDecoder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

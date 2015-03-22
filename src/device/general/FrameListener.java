@@ -1,4 +1,4 @@
-package device;
+package device.general;
 
 /**
  * Created by mac on 04/03/15.

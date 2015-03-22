@@ -1,4 +1,4 @@
-package device;
+package device.general;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;

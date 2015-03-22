@@ -1,6 +1,6 @@
 package device.ads2ch_v1;
 
-import device.*;
+import device.general.*;
 
 import java.util.ArrayList;
 import java.util.List;

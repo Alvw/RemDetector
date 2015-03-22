@@ -1,13 +1,15 @@
 package device.ads2ch_v0;
 
-import device.*;
+import device.general.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  *
  */
-public class AdsConfiguratorCh2V0 implements AdsConfigurator{
+public class AdsConfiguratorCh2V0 implements AdsConfigurator {
+
     private static final int BYTE_0_MARKER = 0x00;
     private static final int BYTE_1_MARKER = 0x10;
     private static final int BYTE_2_MARKER = 0x20;
