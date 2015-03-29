@@ -21,8 +21,8 @@ public class FilterDerivativeRem extends Function {
         if (index < distance_point) {
             return 0;
         }
-        return Math.abs(inputData.get(index)) - Math.abs(inputData.get(index - distance_point));
-        //return Math.abs(inputData.get(index) - inputData.get(index - distance_point));
+        return inputData.get(index) - inputData.get(index - distance_point);
+        //return Math.abs(inputData.get(index)) - Math.abs(inputData.get(index - distance_point));
     }
 }
 

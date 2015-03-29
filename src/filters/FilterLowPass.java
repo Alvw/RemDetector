@@ -16,6 +16,11 @@ public class FilterLowPass extends FilterBuffered {
         this.bufferSize = bufferSize;
     }
 
+    public FilterLowPass(DataSet inputData, double cutOffFrequency) {
+        super(inputData);
+        bufferSize = (int) (inputData.getFrequency() / cutOffFrequency);
+    }
+
     @Override
     public int get(int index) {
         if (index < bufferSize) {

@@ -51,7 +51,8 @@ public class Presenter implements  ControllerListener {
     }
 
     private void configureRemGraphViewer(RemDataStore remDataStore) {
-       workRem(remDataStore);
+       //workRem(remDataStore);
+        galaRem(remDataStore);
     }
 
     private void configureGraphViewer(DataStore dataStore) {
@@ -76,12 +77,13 @@ public class Presenter implements  ControllerListener {
         double accMovementLimit = remDataStore.getAccMovementLimit();
         double eogDerivativeLimit = remDataStore.getEogRemDerivativeMax();
 
-        DataSet eogDerivativeRem =  new FilterAbs(new FilterDerivativeRem(eog));
+        DataSet eogDerivativeRem =  new FilterDerivativeRem(eog);
+        DataSet eogDerivativeRemAbs =  new FilterAbs(eogDerivativeRem);
 
         graphViewer.addGraphPanel(2, true);
         graphViewer.addGraph(eog);
         graphViewer.addGraphPanel(2, false);
-        graphViewer.addGraph(eogDerivativeRem);
+        graphViewer.addGraph(eogDerivativeRemAbs);
         graphViewer.addGraph(new FilterConstant(eog, eogDerivativeLimit));
         graphViewer.addGraphPanel(2, false);
         graphViewer.addGraph(accMovement);
@@ -90,11 +92,55 @@ public class Presenter implements  ControllerListener {
         graphViewer.addGraph(new FilterHiPass(new FilterBandPass_Alfa(eog), 2));
 
         graphViewer.addPreviewPanel(2, false);
-        graphViewer.addPreview(eogDerivativeRem, CompressionType.MAX);
+        graphViewer.addPreview(eogDerivativeRemAbs, CompressionType.MAX);
         graphViewer.addPreview(isSleep, GraphType.BOOLEAN, CompressionType.BOOLEAN);
 
         graphViewer.addPreviewPanel(2, true);
         graphViewer.addPreview(eogFull, CompressionType.AVERAGE);
 
+    }
+
+    private void galaRem(RemDataStore remDataStore) {
+        DataSet eog = remDataStore.getEogData();
+        DataSet eogFull = remDataStore.getEogFullData();
+        DataSet accMovement = remDataStore.getAccMovementData();
+        DataSet isSleep = remDataStore.isSleep();
+
+        double accMovementLimit = remDataStore.getAccMovementLimit();
+        double eogDerivativeLimit = remDataStore.getEogRemDerivativeMax();
+
+       // DataSet eogDerivativeRem =  new FilterDerivativeRem(eogFull);
+        DataSet eogDerivativeRem =  new FilterLowPass(new FilterDerivativeRem(eogFull), 25.0);
+        DataSet eogDerivativeRemAbs =  new FilterAbs(eogDerivativeRem);
+
+        SaccadeDetector saccadesRem = new SaccadeDetector(eogDerivativeRem);
+
+        graphViewer.addGraphPanel(2, true);
+        graphViewer.addGraph(eog);
+        graphViewer.addGraphPanel(2, true);
+        graphViewer.addGraph(new FilterDerivative(eogFull));
+        //graphViewer.addGraph(saccades);
+       // graphViewer.addGraphPanel(2, true);
+        //graphViewer.addGraph(new FilterDerivative_N(eogFull, 2));
+
+        graphViewer.addGraphPanel(1, false);
+        graphViewer.addGraph(saccadesRem);
+
+        graphViewer.addGraphPanel(2, false);
+        graphViewer.addGraph(eogDerivativeRemAbs);
+        graphViewer.addGraph(saccadesRem.getThresholds());
+        //graphViewer.addGraph(new FilterConstant(eog, eogDerivativeLimit));
+        //graphViewer.addGraphPanel(2, true);
+        //graphViewer.addGraph(new FilterDerivative(eogDerivativeRem));
+       // graphViewer.addGraph(new FilterDerivativeRem(eogDerivativeRem));
+
+
+
+        graphViewer.addPreviewPanel(2, false);
+        graphViewer.addPreview(eogDerivativeRemAbs, CompressionType.MAX);
+        graphViewer.addPreview(isSleep, GraphType.BOOLEAN, CompressionType.BOOLEAN);
+
+        graphViewer.addPreviewPanel(2, false);
+        graphViewer.addPreview(saccadesRem, CompressionType.MAX);
     }
 }

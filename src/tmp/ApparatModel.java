@@ -26,7 +26,7 @@ public class ApparatModel {
 
     private DataList sleep_patterns = new DataList();
     private DataList spindle_data = new DataList();
-    private SaccadeDetector saccadeDetector = new SaccadeDetector(chanel_1_data);
+    private SaccadeDetectorOld saccadeDetector = new SaccadeDetectorOld(chanel_1_data);
     private SpindleDetector spindleDetector = new SpindleDetector(chanel_1_data);
 
 
@@ -546,7 +546,7 @@ public class ApparatModel {
      * 3) saccade duration > 40 msec (SACCADE_WIDTH_MIN_MSEC)
      * 4) before and after saccade eyes are in rest (when abs(derivation) < NOISE_LEVEL) > 100 msec (LATENCY_PERIOD_MSEC)
      */
-    class SaccadeDetector {
+    class SaccadeDetectorOld {
         private int THRESHOLD_PERIOD_MSEC = 200;
         private int N = 8; // Threshold to noise ratio
         private int MAX_RATIO = 5; // ratio to calculate max saccade amplitude on the base of velocityThreshold
@@ -575,7 +575,7 @@ public class ApparatModel {
 
         private boolean isUnderDetection = false;
 
-        SaccadeDetector(DataSet inputData) {
+        SaccadeDetectorOld(DataSet inputData) {
             this.inputData = inputData;
             velocityData = new FilterDerivative(inputData);
             accelerationData =  new FilterDerivative_N(inputData, 1);
