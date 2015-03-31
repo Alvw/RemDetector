@@ -8,12 +8,15 @@ import functions.Function;
  */
 
 public class FilterDerivativeRem extends Function {
-    private int DISTANCE_MSEC = 80;
+    private int DISTANCE_MSEC = 60;
     private int distance_point;
     
     public FilterDerivativeRem(DataSet inputData) {
         super(inputData);
-        distance_point = (int)(DISTANCE_MSEC * inputData.getFrequency() / 1000);
+        distance_point = Math.round((float)(DISTANCE_MSEC * inputData.getFrequency() / 1000));
+        if(distance_point == 0) {
+            distance_point = 1;
+        }
     }
 
     @Override

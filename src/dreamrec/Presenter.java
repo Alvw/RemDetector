@@ -109,7 +109,7 @@ public class Presenter implements  ControllerListener {
         double accMovementLimit = remDataStore.getAccMovementLimit();
         double eogDerivativeLimit = remDataStore.getEogRemDerivativeMax();
 
-       // DataSet eogDerivativeRem =  new FilterDerivativeRem(eogFull);
+        //DataSet eogDerivativeRem =  new FilterDerivativeRem(eogFull);
         DataSet eogDerivativeRem =  new FilterLowPass(new FilterDerivativeRem(eogFull), 25.0);
         DataSet eogDerivativeRemAbs =  new FilterAbs(eogDerivativeRem);
 
