@@ -40,7 +40,7 @@ import java.util.concurrent.Future;
  * for SMP systems. <br>
  * <br>
  * This code is derived from General Purpose Fourie Package written by Takuya Ooura
- * (http://www.kurims.kyoto-u.ac.jp/~ooura/fft.html) and from JFFTPack written
+ * (http://www.kurims.kyoto-u.ac.jp/~ooura/fftForward.html) and from JFFTPack written
  * by Baoshe Zhang (http://jfftpack.sourceforge.net/)
  * 
  * @author Piotr Wendykier (piotr.wendykier@gmail.com)

@@ -1,10 +1,20 @@
 package dreamrec;
 
-public class Saccade {
+public class Peak {
     private int beginIndex;
-    private int peakIndex;
     private int endIndex;
+    private int peakIndex;
     private int peakValue;
+    private double peakRatio;
+
+
+    public double getPeakRatio() {
+        return peakRatio;
+    }
+
+    public void setPeakRatio(double peakRatio) {
+        this.peakRatio = peakRatio;
+    }
 
     public int getPeakValue() {
         return peakValue;

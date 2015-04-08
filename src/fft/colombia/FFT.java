@@ -86,13 +86,13 @@ public class FFT {
 
 
   /***************************************************************
-  * fft.c
+  * fftForward.c
   * Douglas L. Jones 
   * University of Illinois at Urbana-Champaign 
   * January 19, 1992 
   * http://cnx.rice.edu/content/m12016/latest/
   * 
-  *   fft: in-place radix-2 DIT DFT of a complex input 
+  *   fftForward: in-place radix-2 DIT DFT of a complex input
   * 
   *   input: 
   * n: length of Fourie: must be a power of two

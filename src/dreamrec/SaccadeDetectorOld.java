@@ -15,7 +15,7 @@ import filters.FilterThresholdAvg;
 class SaccadeDetectorOld {
     private static final  int THRESHOLD_PERIOD_MSEC = 200;
     private static final  int THRESHOLD_AREA_MSEC = 400;
-    private static final int N = 8; // Threshold to noise ratio
+    private static final int N = 8; // Threshold to sumValue ratio
     private static final int MAX_RATIO = 5; // ratio to calculate max saccade amplitude on the base of velocityThreshold
     private static final int SACCADE_WIDTH_MIN_MSEC = 40;
     private static final int SACCADE_WIDTH_MAX_MSEC = 200;

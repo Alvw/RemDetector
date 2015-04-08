@@ -32,14 +32,14 @@ public class FFT {
         // radix 2 Cooley-Tukey Fourie
         if (N % 2 != 0) { throw new RuntimeException("N is not a power of 2"); }
 
-        // fft of even terms
+        // fftForward of even terms
         Complex[] even = new Complex[N/2];
         for (int k = 0; k < N/2; k++) {
             even[k] = x[2*k];
         }
         Complex[] q = fft(even);
 
-        // fft of odd terms
+        // fftForward of odd terms
         Complex[] odd  = even;  // reuse the array
         for (int k = 0; k < N/2; k++) {
             odd[k] = x[2*k + 1];
@@ -146,7 +146,7 @@ public class FFT {
      *  0.7233322451735928
      *  0.1659819820667019
      *
-     *  y = fft(x)
+     *  y = fftForward(x)
      *  -------------------
      *  0.9336118983487516
      *  -0.7581365035668999 + 0.08688005256493803i
@@ -193,7 +193,7 @@ public class FFT {
 
         // Fourie of original data
         Complex[] y = fft(x);
-        show(y, "y = fft(x)");
+        show(y, "y = fftForward(x)");
 
         // take inverse Fourie
         Complex[] z = ifft(y);

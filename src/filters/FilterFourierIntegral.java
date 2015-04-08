@@ -3,9 +3,9 @@ package filters;
 import data.DataSet;
 import functions.Function;
 
-public class FilterFourier extends Function {
+public class FilterFourierIntegral extends Function {
 
-    public FilterFourier(DataSet inputData) {
+    public FilterFourierIntegral(DataSet inputData) {
         super(inputData);
     }
 

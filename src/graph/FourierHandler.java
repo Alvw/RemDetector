@@ -4,9 +4,10 @@ import data.CompressionType;
 import data.FrequencyConverter;
 import data.FrequencyConverterRuntime;
 import data.DataSet;
+import dreamrec.FourierAnalizer;
 import fft.Fourie;
 import fft.FourierViewer;
-import filters.FilterFourier;
+import filters.FilterFourierIntegral;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,11 +39,21 @@ public class FourierHandler implements FourierListener, GraphControllerListener 
     }
 
     private DataSet calculateFourier(DataSet graph) {
-        int time = 10; // sec
-        DataSet fourier =  Fourie.fft(graph, graphModel.getStartIndex(), time);
-        DataSet fourierPapa = new FilterFourier(fourier);
-        FrequencyConverter result = new FrequencyConverterRuntime(fourierPapa, CompressionType.SUM);
+        int time = 6; // sec
+        DataSet fourier =  Fourie.fftBackward(graph, graphModel.getStartIndex(), time);
+        DataSet fourierIntegral = new FilterFourierIntegral(fourier);
+
+
+        System.out.println("has Alpha " +FourierAnalizer.hasAlfa(fourier));
+        System.out.println("high " +FourierAnalizer.getHighFrequenciesSum(fourier));
+        System.out.println("" );
+
+
+        FrequencyConverter result = new FrequencyConverterRuntime(fourierIntegral, CompressionType.SUM);
         result.setCompression(0.25);
+
+
+
         return result;
     }
 }

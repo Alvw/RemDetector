@@ -113,7 +113,7 @@ public class Presenter implements  ControllerListener {
         DataSet eogDerivativeRem =  new FilterLowPass(new FilterDerivativeRem(eogFull), 25.0);
         DataSet eogDerivativeRemAbs =  new FilterAbs(eogDerivativeRem);
 
-        SaccadeDetector saccadesRem = new SaccadeDetector(eogDerivativeRem);
+        SaccadeDetector saccadesRem = new SaccadeDetector(eogFull);
 
         graphViewer.addGraphPanel(2, true);
         graphViewer.addGraph(eog);
@@ -123,12 +123,23 @@ public class Presenter implements  ControllerListener {
        // graphViewer.addGraphPanel(2, true);
         //graphViewer.addGraph(new FilterDerivative_N(eogFull, 2));
 
-        graphViewer.addGraphPanel(1, false);
+        graphViewer.addGraphPanel(2, false);
         graphViewer.addGraph(saccadesRem);
 
         graphViewer.addGraphPanel(2, false);
         graphViewer.addGraph(eogDerivativeRemAbs);
         graphViewer.addGraph(saccadesRem.getThresholds());
+
+        graphViewer.addGraphPanel(2, true);
+        graphViewer.addGraph(new FilterDerivativeRem(new FilterDerivativeRem(eogFull)));
+        graphViewer.addGraph(saccadesRem.getThresholds());
+
+
+
+       // graphViewer.addGraphPanel(2, true);
+       // graphViewer.addGraph(new FilterDerivativeRem(eogDerivativeRem));
+
+
         //graphViewer.addGraph(new FilterConstant(eog, eogDerivativeLimit));
         //graphViewer.addGraphPanel(2, true);
         //graphViewer.addGraph(new FilterDerivative(eogDerivativeRem));
@@ -140,7 +151,8 @@ public class Presenter implements  ControllerListener {
         graphViewer.addPreview(eogDerivativeRemAbs, CompressionType.MAX);
         graphViewer.addPreview(isSleep, GraphType.BOOLEAN, CompressionType.BOOLEAN);
 
-        graphViewer.addPreviewPanel(2, false);
-        graphViewer.addPreview(saccadesRem, CompressionType.MAX);
+
+       graphViewer.addPreviewPanel(2, false);
+       graphViewer.addPreview(saccadesRem, CompressionType.MAX);
     }
 }

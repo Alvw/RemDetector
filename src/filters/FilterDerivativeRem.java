@@ -14,7 +14,7 @@ public class FilterDerivativeRem extends Function {
     public FilterDerivativeRem(DataSet inputData) {
         super(inputData);
         distance_point = Math.round((float)(DISTANCE_MSEC * inputData.getFrequency() / 1000));
-        if(distance_point == 0) {
+        if(distance_point== 0) {
             distance_point = 1;
         }
     }
