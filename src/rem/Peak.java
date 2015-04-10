@@ -1,4 +1,4 @@
-package dreamrec;
+package rem;
 
 public class Peak {
     private int beginIndex;

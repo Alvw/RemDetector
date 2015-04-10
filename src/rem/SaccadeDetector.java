@@ -1,19 +1,18 @@
-package dreamrec;
+package rem;
 
 import data.DataDimension;
-import data.DataList;
 import data.DataSet;
+import dreamrec.FourierAnalizer;
 import fft.Fourie;
 import filters.FilterDerivative;
 import filters.FilterDerivativeRem;
-import filters.FilterLowPass;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 
-class SaccadeDetector implements DataSet{
+public class SaccadeDetector implements DataSet{
 
     private static final int SACCADE_DISTANCE_MAX = 12; // sec
 
@@ -30,11 +29,12 @@ class SaccadeDetector implements DataSet{
     private PeakDetector peakDetector;
 
 
-    SaccadeDetector(DataSet inputData) {
+    public SaccadeDetector(DataSet inputData) {
         this.inputData = inputData;
         DataSet derivativeRem = new FilterDerivativeRem(inputData);
+       // derivativeRem = new FilterLowPass(new FilterDerivativeRem(inputData), 25.0);
         DataSet derivative = new FilterDerivativeRem(new FilterDerivativeRem(inputData));
-        peakDetector = new PeakDetector(derivative);
+        peakDetector = new PeakDetector(derivativeRem);
         saccadeMaxDistancePoints = (int)(SACCADE_DISTANCE_MAX * derivativeRem.getFrequency());
     }
 
@@ -43,9 +43,10 @@ class SaccadeDetector implements DataSet{
         currentIndex = index;
         Peak peak = peakDetector.detect(index);
         if(peak != null) {
-            if(isSaccadePossible(peak)) {
+            addSaccade(peak);
+           /* if(isSaccadePossible(peak)) {
                 addSaccade(peak);
-            }
+            } */
         }
     }
 

@@ -1,4 +1,4 @@
-package dreamrec;
+package rem;
 
 import data.DataDimension;
 import data.DataList;

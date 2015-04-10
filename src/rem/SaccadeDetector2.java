@@ -1,8 +1,9 @@
-package dreamrec;
+package rem;
 
 import data.DataDimension;
 import data.DataList;
 import data.DataSet;
+import dreamrec.FourierAnalizer;
 import fft.Fourie;
 import filters.FilterDerivative;
 import filters.FilterDerivativeRem;

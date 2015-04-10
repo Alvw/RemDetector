@@ -39,8 +39,8 @@ public class FourierHandler implements FourierListener, GraphControllerListener 
     }
 
     private DataSet calculateFourier(DataSet graph) {
-        int time = 6; // sec
-        DataSet fourier =  Fourie.fftBackward(graph, graphModel.getStartIndex(), time);
+        double time = 6; // sec
+        DataSet fourier =  Fourie.fftForward(graph, graphModel.getStartIndex(), time);
         DataSet fourierIntegral = new FilterFourierIntegral(fourier);
 
 
@@ -50,6 +50,7 @@ public class FourierHandler implements FourierListener, GraphControllerListener 
 
 
         FrequencyConverter result = new FrequencyConverterRuntime(fourierIntegral, CompressionType.SUM);
+        //result = new FrequencyConverterRuntime(fourier, CompressionType.SUM);
         result.setCompression(0.25);
 
 

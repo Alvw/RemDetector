@@ -8,7 +8,7 @@ import functions.Function;
  */
 
 public class FilterDerivativeRem extends Function {
-    private int DISTANCE_MSEC = 60;
+    private int DISTANCE_MSEC = 40;
     private int distance_point;
     
     public FilterDerivativeRem(DataSet inputData) {

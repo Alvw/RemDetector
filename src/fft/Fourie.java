@@ -9,9 +9,9 @@ public class Fourie {
     /*
      * from [index] to [index + time]
      */
-    public static DataSet fftForward(DataSet inputData, int index, int time) {
+    public static DataSet fftForward(DataSet inputData, int index, double time) {
         double frequency = inputData.getFrequency();
-        int N = (int) frequency * time;
+        int N = (int) (frequency * time);
         N = Math.min(N, inputData.size() - index);
         N = toPower2(N);  // length of input data for Fourie: must be a power of two
 

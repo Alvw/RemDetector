@@ -29,7 +29,7 @@ public class GraphPanel extends JPanel {
 
     private static final Color DEFAULT_BG_COLOR = Color.black;
 
-    private Color graphColors[] = {Color.YELLOW, new Color(0,150, 250), Color.RED, Color.CYAN};
+    private Color graphColors[] = {Color.YELLOW, new Color(0,150, 250), Color.RED, Color.GREEN, Color.MAGENTA, Color.ORANGE};
     private Color slotColor = new Color(255, 0, 100);
     private java.util.List<SlotListener> slotListeners = new ArrayList<SlotListener>();
     private java.util.List<FourierListener> fourierListeners = new ArrayList<FourierListener>();

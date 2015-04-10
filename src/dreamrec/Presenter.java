@@ -1,12 +1,13 @@
 package dreamrec;
 
+import data.CompressionType;
 import data.DataSet;
 import filters.*;
-import data.CompressionType;
 import graph.GraphType;
 import graph.GraphViewer;
-
 import gui.MainWindow;
+import rem.NoiseDetector;
+import rem.SaccadeDetector;
 
 /**
  * Created by mac on 19/02/15.
@@ -109,8 +110,8 @@ public class Presenter implements  ControllerListener {
         double accMovementLimit = remDataStore.getAccMovementLimit();
         double eogDerivativeLimit = remDataStore.getEogRemDerivativeMax();
 
-        //DataSet eogDerivativeRem =  new FilterDerivativeRem(eogFull);
-        DataSet eogDerivativeRem =  new FilterLowPass(new FilterDerivativeRem(eogFull), 25.0);
+        DataSet eogDerivativeRem =  new FilterDerivativeRem(eogFull);
+        //DataSet eogDerivativeRem =  new FilterLowPass(new FilterDerivativeRem(eogFull), 25.0);
         DataSet eogDerivativeRemAbs =  new FilterAbs(eogDerivativeRem);
 
         SaccadeDetector saccadesRem = new SaccadeDetector(eogFull);
@@ -124,20 +125,22 @@ public class Presenter implements  ControllerListener {
         //graphViewer.addGraph(new FilterDerivative_N(eogFull, 2));
 
         graphViewer.addGraphPanel(2, false);
+        graphViewer.addGraph(accMovement);
+        graphViewer.addGraph(new FilterConstant(accMovement, accMovementLimit));
+
+        graphViewer.addGraphPanel(2, false);
         graphViewer.addGraph(saccadesRem);
 
         graphViewer.addGraphPanel(2, false);
         graphViewer.addGraph(eogDerivativeRemAbs);
+       // graphViewer.addGraph(saccadesRem.getThresholds());
+        graphViewer.addGraph(new NoiseDetector(eogDerivativeRem, 20000));
+        graphViewer.addGraph(new NoiseDetector(new FilterDerivativeRem(eogDerivativeRem), 20000));
         graphViewer.addGraph(saccadesRem.getThresholds());
 
-        graphViewer.addGraphPanel(2, true);
-        graphViewer.addGraph(new FilterDerivativeRem(new FilterDerivativeRem(eogFull)));
-        graphViewer.addGraph(saccadesRem.getThresholds());
-
-
-
-       // graphViewer.addGraphPanel(2, true);
-       // graphViewer.addGraph(new FilterDerivativeRem(eogDerivativeRem));
+     //   graphViewer.addGraphPanel(2, true);
+     //   graphViewer.addGraph(new FilterDerivativeRem(new FilterDerivativeRem(eogFull)));
+     //   graphViewer.addGraph(saccadesRem.getThresholds());
 
 
         //graphViewer.addGraph(new FilterConstant(eog, eogDerivativeLimit));
