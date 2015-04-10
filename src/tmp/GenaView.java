@@ -71,16 +71,16 @@ public class GenaView extends JFrame {
         graphsViewer.addPreviewPanel(4, false);
         graphsViewer.addPreviewPanel(2, true);
 
-        DataSet channel_1 = model.getCh1DataStream();
+        DataSeries channel_1 = model.getCh1DataStream();
 //        DataStream channel_2 = model.getCh2DataStream();
         graphsViewer.addGraph(0, new FilterHiPass(channel_1, 100));
 //        graphsViewer.addGraph(0, new FilterOffset_1(channel_2, graphsViewer));
 
-        DataSet filteredData1 = new FilterDerivative_N(channel_1, 1);
+        DataSeries filteredData1 = new FilterDerivative_N(channel_1, 1);
 
-        DataSet filteredData2 = new FilterDerivative_N(channel_1, 2);
-        DataSet filteredDataAlfa_2 = new FilterBandPass_Alfa_2(channel_1);
-        DataSet filteredTest_3 = new FilterTest_3(filteredData2);
+        DataSeries filteredData2 = new FilterDerivative_N(channel_1, 2);
+        DataSeries filteredDataAlfa_2 = new FilterBandPass_Alfa_2(channel_1);
+        DataSeries filteredTest_3 = new FilterTest_3(filteredData2);
 
         graphsViewer.addGraph(1, filteredData1);
         graphsViewer.addGraph(2, filteredData2);
@@ -91,11 +91,11 @@ public class GenaView extends JFrame {
         graphsViewer.addPreview(0, new CompressorAveragingAbs(filteredData1, graphsViewer.getCompression()));
         graphsViewer.addPreview(1, new CompressorAveragingAbs(filteredData2, graphsViewer.getCompression()));
 
-        DataSet rem =  model.getSleepStream();
-        DataSet compressedRem =  new CompressorMaximizing(new FilterAbs(rem), graphsViewer.getCompression());
+        DataSeries rem =  model.getSleepStream();
+        DataSeries compressedRem =  new CompressorMaximizing(new FilterAbs(rem), graphsViewer.getCompression());
         graphsViewer.addPreview(2, compressedRem);
 
-        DataSet compressedPositionGraph = new CompressorAveraging(model.getAccPositionStream(), graphsViewer.getCompression());
+        DataSeries compressedPositionGraph = new CompressorAveraging(model.getAccPositionStream(), graphsViewer.getCompression());
         graphsViewer.addPreview(3, compressedPositionGraph);
 
     }
@@ -112,11 +112,11 @@ public class GenaView extends JFrame {
        // graphsViewer.addPreviewPanel(4, false);
       //  graphsViewer.addPreviewPanel(4, false);
 
-        DataSet channel_1 = model.getCh1DataStream();
-        DataSet accelerationRem =  new FilterDerivativeRem(new FilterDerivativeRem(channel_1));
-        DataSet alfa_orig_1 = new FilterHiPass(new FilterBandPass_Alfa(channel_1), 2);
-        DataSet alfa_1 = new FilterAlfa(channel_1);
-        DataSet spindle = model.getSpindleStream();
+        DataSeries channel_1 = model.getCh1DataStream();
+        DataSeries accelerationRem =  new FilterDerivativeRem(new FilterDerivativeRem(channel_1));
+        DataSeries alfa_orig_1 = new FilterHiPass(new FilterBandPass_Alfa(channel_1), 2);
+        DataSeries alfa_1 = new FilterAlfa(channel_1);
+        DataSeries spindle = model.getSpindleStream();
         graphsViewer.addGraph(4,alfa_orig_1);
 
         graphsViewer.addGraph(0, new FilterOffset_1(channel_1, graphsViewer));
@@ -126,12 +126,12 @@ public class GenaView extends JFrame {
 
 
 
-        DataSet compressedAccelerationRem =  new CompressorMaximizing(accelerationRem, graphsViewer.getCompression());
+        DataSeries compressedAccelerationRem =  new CompressorMaximizing(accelerationRem, graphsViewer.getCompression());
         graphsViewer.addPreview(0, compressedAccelerationRem);
-        DataSet compressedAlfa_1 =  new CompressorMaximizing(alfa_1, graphsViewer.getCompression());
+        DataSeries compressedAlfa_1 =  new CompressorMaximizing(alfa_1, graphsViewer.getCompression());
         graphsViewer.addPreview(1, compressedAlfa_1);
 
-        DataSet compressedSpindle =  new CompressorMaximizing(spindle, graphsViewer.getCompression());
+        DataSeries compressedSpindle =  new CompressorMaximizing(spindle, graphsViewer.getCompression());
         graphsViewer.addPreview(2, compressedSpindle);
     }
 
@@ -147,26 +147,26 @@ public class GenaView extends JFrame {
         graphsViewer.addPreviewPanel(4, false);
         graphsViewer.addPreviewPanel(4, false);
 
-        DataSet channel_1 = model.getCh1DataStream();
-        DataSet channel_2 = model.getCh2DataStream();
+        DataSeries channel_1 = model.getCh1DataStream();
+        DataSeries channel_2 = model.getCh2DataStream();
         graphsViewer.addGraph(0, new FilterOffset_1(channel_1, graphsViewer));
         graphsViewer.addGraph(0, new FilterOffset_1(channel_2, graphsViewer));
 
-        DataSet alfa_orig_1 = new FilterHiPass(new FilterBandPass_Alfa(channel_1), 2);
-        DataSet alfa_1 = new FilterAlfa(channel_1);
-        DataSet spindle = model.getSpindleStream();
+        DataSeries alfa_orig_1 = new FilterHiPass(new FilterBandPass_Alfa(channel_1), 2);
+        DataSeries alfa_1 = new FilterAlfa(channel_1);
+        DataSeries spindle = model.getSpindleStream();
         graphsViewer.addGraph(1, alfa_1);
         graphsViewer.addGraph(1, new FilterThreshold(alfa_1, 25, 25));
         graphsViewer.addGraph(2,spindle);
         graphsViewer.addGraph(3,alfa_orig_1);
 
-        DataSet accelerationRem =  new FilterDerivativeRem(new FilterDerivativeRem(channel_1));
-        DataSet compressedAccelerationRem =  new CompressorMaximizing(accelerationRem, graphsViewer.getCompression());
+        DataSeries accelerationRem =  new FilterDerivativeRem(new FilterDerivativeRem(channel_1));
+        DataSeries compressedAccelerationRem =  new CompressorMaximizing(accelerationRem, graphsViewer.getCompression());
         graphsViewer.addPreview(0, compressedAccelerationRem);
-        DataSet compressedAlfa_1 =  new CompressorMaximizing(alfa_1, graphsViewer.getCompression());
+        DataSeries compressedAlfa_1 =  new CompressorMaximizing(alfa_1, graphsViewer.getCompression());
         graphsViewer.addPreview(1, compressedAlfa_1);
 
-        DataSet compressedSpindle =  new CompressorMaximizing(spindle, graphsViewer.getCompression());
+        DataSeries compressedSpindle =  new CompressorMaximizing(spindle, graphsViewer.getCompression());
         graphsViewer.addPreview(2, compressedSpindle);
 
     }
@@ -183,17 +183,17 @@ public class GenaView extends JFrame {
         graphsViewer.addPreviewPanel(2, false);
         graphsViewer.addPreviewPanel(2, false);
 
-        DataSet channel_1 = model.getCh2DataStream();
-        DataSet rem = model.getSleepStream();
-        DataSet velocity =  new FilterAbs(new FilterDerivative(channel_1));
-        DataSet acceleration =  new FilterDerivative(velocity);
+        DataSeries channel_1 = model.getCh2DataStream();
+        DataSeries rem = model.getSleepStream();
+        DataSeries velocity =  new FilterAbs(new FilterDerivative(channel_1));
+        DataSeries acceleration =  new FilterDerivative(velocity);
 
-        DataSet velocityRem =  new FilterAbs(new FilterDerivativeRem(channel_1));
-        DataSet velocityThreshold =  new FilterThreshold(velocity, 10);
-        DataSet velocityRemThreshold =  new FilterThreshold(velocityRem, 10);
+        DataSeries velocityRem =  new FilterAbs(new FilterDerivativeRem(channel_1));
+        DataSeries velocityThreshold =  new FilterThreshold(velocity, 10);
+        DataSeries velocityRemThreshold =  new FilterThreshold(velocityRem, 10);
 
-        DataSet accelerationRem =  new FilterDerivativeRem(new FilterDerivativeRem(channel_1));
-        DataSet accelerationThreshold =  new FilterThreshold(acceleration, 10);
+        DataSeries accelerationRem =  new FilterDerivativeRem(new FilterDerivativeRem(channel_1));
+        DataSeries accelerationThreshold =  new FilterThreshold(acceleration, 10);
 
         graphsViewer.addGraph(0, new FilterOffset_1(channel_1, graphsViewer));
 
@@ -206,14 +206,14 @@ public class GenaView extends JFrame {
       //  graphsViewer.addGraph(3, velocityThreshold);
 
 
-        DataSet compressedDreamGraph = new CompressorAveraging(new FilterDerivativeAbs(channel_1), graphsViewer.getCompression());
+        DataSeries compressedDreamGraph = new CompressorAveraging(new FilterDerivativeAbs(channel_1), graphsViewer.getCompression());
        // graphsViewer.addPreview(0, compressedDreamGraph);
-        DataSet compressedRem =  new CompressorMaximizing(new FilterAbs(rem), graphsViewer.getCompression());
-        DataSet compressedVelocityRem =  new CompressorMaximizing(velocityRem, graphsViewer.getCompression());
+        DataSeries compressedRem =  new CompressorMaximizing(new FilterAbs(rem), graphsViewer.getCompression());
+        DataSeries compressedVelocityRem =  new CompressorMaximizing(velocityRem, graphsViewer.getCompression());
        // graphsViewer.addPreview(1, compressedVelocityRem);
-        DataSet compressedVelocityThresholdRem =  new CompressorMaximizing(new FilterThreshold_mod(velocityRem), graphsViewer.getCompression());
-        DataSet compressedAccelerationRem =  new CompressorMaximizing(accelerationRem, graphsViewer.getCompression());
-        DataSet compressedAcceleration =  new CompressorMaximizing(acceleration, graphsViewer.getCompression());
+        DataSeries compressedVelocityThresholdRem =  new CompressorMaximizing(new FilterThreshold_mod(velocityRem), graphsViewer.getCompression());
+        DataSeries compressedAccelerationRem =  new CompressorMaximizing(accelerationRem, graphsViewer.getCompression());
+        DataSeries compressedAcceleration =  new CompressorMaximizing(acceleration, graphsViewer.getCompression());
 
         graphsViewer.addPreview(2, compressedDreamGraph);
         graphsViewer.addPreview(0, compressedAccelerationRem);

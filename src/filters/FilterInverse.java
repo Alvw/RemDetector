@@ -1,6 +1,6 @@
 package filters;
 
-import data.DataSet;
+import data.DataSeries;
 import functions.Function;
 
 /**
@@ -11,7 +11,7 @@ public class FilterInverse extends Function {
 
     private int derivative = 0;
 
-    public FilterInverse(DataSet inputData) {
+    public FilterInverse(DataSeries inputData) {
         super(inputData);
     }
 

@@ -1,13 +1,13 @@
 package functions;
 
 import data.DataDimension;
-import data.DataSet;
+import data.DataSeries;
 
 public class Trigger extends Function{
     int digitalLimit;
 
 
-    public Trigger(DataSet inputData, double physLimit) {
+    public Trigger(DataSeries inputData, double physLimit) {
         super(inputData);
         digitalLimit = (int)(physLimit / inputData.getDataDimension().getGain());
     }

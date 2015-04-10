@@ -1,6 +1,6 @@
 package tmp;
 
-import data.DataSet;
+import data.DataSeries;
 import filters.*;
 import graph.GraphViewer;
 
@@ -31,12 +31,12 @@ public class TestView extends JFrame {
      //   graphViewer.setCompression(COMPRESSION);
 
         TestData data = new TestData();
-        DataSet testData = data.getCosStream();
+        DataSeries testData = data.getCosStream();
 
-        DataSet filteredData = new FilterBandPass_Alfa(testData);
+        DataSeries filteredData = new FilterBandPass_Alfa(testData);
 //        DataStream filteredData = new FilterBandPass_Delta_1(testData);
 
-     //   DataSet compressedFilteredData = new CompressorMaximizing(filteredData, graphViewer.getCompression());
+     //   DataSeries compressedFilteredData = new CompressorMaximizing(filteredData, graphViewer.getCompression());
 
 /*        graphsViewer.addGraph(0, testData);
         graphsViewer.addGraph(0, data.getPeriodStream());

@@ -1,7 +1,7 @@
 package filters;
 
 import data.DataList;
-import data.DataSet;
+import data.DataSeries;
 import functions.Function;
 
 /**
@@ -11,7 +11,7 @@ public abstract class FilterBuffered extends Function {
     DataList filteredList = new DataList();
 
 
-    public FilterBuffered(DataSet inputData) {
+    public FilterBuffered(DataSeries inputData) {
         super(inputData);
     }
 

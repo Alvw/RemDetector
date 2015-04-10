@@ -2,7 +2,7 @@ package rem;
 
 import data.DataDimension;
 import data.DataList;
-import data.DataSet;
+import data.DataSeries;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +14,7 @@ import java.util.List;
  * 3) saccade duration > 40 msec (SACCADE_WIDTH_MIN_MSEC)
  * 4) before and after saccade eyes are in rest (when abs(derivation) < NOISE_LEVEL) > 100 msec (LATENCY_PERIOD_MSEC)
  */
-class SaccadeDetector1 implements DataSet{
+class SaccadeDetector1 implements DataSeries {
     private static final int THRESHOLD_PERIOD_MSEC = 120;
     private static final int THRESHOLD_AREA_MSEC = 200;
     private static final double N = 5; // Threshold to sumValue ratio
@@ -22,7 +22,7 @@ class SaccadeDetector1 implements DataSet{
     private static final int SACCADE_WIDTH_MAX_MSEC = 200;
 
     private List<Peak> peakList = new ArrayList<Peak>();
-    private DataSet inputData;
+    private DataSeries inputData;
     private Peak detectingPeak;
     private boolean isUnderDetection = false;
     private int thresholdPeriodPoints;
@@ -31,7 +31,7 @@ class SaccadeDetector1 implements DataSet{
     private int currentIndex = -1;
     private DataList thresholdList = new DataList();
 
-    SaccadeDetector1(DataSet inputData) {
+    SaccadeDetector1(DataSeries inputData) {
         this.inputData = inputData;
         thresholdPeriodPoints = (int) (THRESHOLD_PERIOD_MSEC * inputData.getFrequency() / 1000);
         thresholdAreaPoints = (int) (THRESHOLD_AREA_MSEC * inputData.getFrequency() / 1000);
@@ -111,7 +111,7 @@ class SaccadeDetector1 implements DataSet{
         return 0;
     }
 
-    public DataSet getThresholds() {
+    public DataSeries getThresholds() {
         return thresholdList;
     }
 

@@ -1,9 +1,9 @@
 package functions;
 
-import data.DataSet;
+import data.DataSeries;
 
 public class Inverter extends Function {
-    public Inverter(DataSet inputData) {
+    public Inverter(DataSeries inputData) {
         super(inputData);
     }
 

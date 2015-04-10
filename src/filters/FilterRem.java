@@ -1,6 +1,6 @@
 package filters;
 
-import data.DataSet;
+import data.DataSeries;
 import functions.Function;
 
 /**
@@ -15,7 +15,7 @@ public class FilterRem extends Function {
 
     int stopPoints =  (stopTimeMscec * frequency) / 1000;
 
-    public FilterRem (DataSet inputData) {
+    public FilterRem (DataSeries inputData) {
         super(inputData);
     }
 

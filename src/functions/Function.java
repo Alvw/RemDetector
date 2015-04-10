@@ -1,16 +1,16 @@
 package functions;
 
 import data.DataDimension;
-import data.DataSet;
+import data.DataSeries;
 
 /**
  *
  */
-public abstract class Function implements DataSet {
-    protected DataSet inputData;
+public abstract class Function implements DataSeries {
+    protected DataSeries inputData;
 
 
-    protected Function(DataSet inputData) {
+    protected Function(DataSeries inputData) {
         this.inputData = inputData;
     }
 

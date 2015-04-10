@@ -1,6 +1,6 @@
 package data;
 
-public class BufferedData implements DataSet {
+public class BufferedData implements DataSeries {
     protected DataStream inputData;
     protected DataList outputData = new DataList();
 
@@ -8,7 +8,7 @@ public class BufferedData implements DataSet {
         this.inputData = inputData;
     }
 
-    public BufferedData(DataSet inputData) {
+    public BufferedData(DataSeries inputData) {
         this.inputData = new DataStreamAdapter(inputData);
     }
 

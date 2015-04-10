@@ -1,6 +1,6 @@
 package filters;
 
-import data.DataSet;
+import data.DataSeries;
 import functions.Function;
 import tmp.Functions;
 
@@ -15,7 +15,7 @@ public class FilterBandPass_Delta extends Function {
     private int bufferHalf =  16;
     private int period = bufferHalf * 2;
 
-    public FilterBandPass_Delta(DataSet inputData) {
+    public FilterBandPass_Delta(DataSeries inputData) {
         super(inputData);
     }
 

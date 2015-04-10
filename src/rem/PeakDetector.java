@@ -1,7 +1,7 @@
 package rem;
 
 import data.DataList;
-import data.DataSet;
+import data.DataSeries;
 import filters.FilterDerivativeRem;
 
 /**
@@ -12,7 +12,7 @@ public class PeakDetector {
     private static final int THRESHOLD_PERIOD_SHORT_MSEC = 200;
 
     private static final int N = 1; // Threshold to noise ratio
-    private DataSet inputData;
+    private DataSeries inputData;
 
     private Peak detectingPeak;
     private Peak previousPeak;
@@ -23,17 +23,17 @@ public class PeakDetector {
     private int thresholdShort;
     private int thresholdLong;
     private DataList thresholdList = new DataList();
-    private NoiseSet noiseDetector;
-    private NoiseSet noiseDetectorShort;
-    private NoiseSet noiseDetectorShort1;
+    private NoiseSeries noiseDetector;
+    private NoiseSeries noiseDetectorShort;
+    private NoiseSeries noiseDetectorShort1;
 
-   PeakDetector(DataSet inputData) {
+   PeakDetector(DataSeries inputData) {
        this.inputData = inputData;
-       noiseDetector = new NoiseSet(new FilterDerivativeRem(inputData), THRESHOLD_PERIOD_MSEC);
+       noiseDetector = new NoiseSeries(new FilterDerivativeRem(inputData), THRESHOLD_PERIOD_MSEC);
        thresholdPeriodPoints = (int) (THRESHOLD_PERIOD_MSEC * this.inputData.getFrequency() / 1000);
 
-       noiseDetectorShort = new NoiseSet(new FilterDerivativeRem(inputData), THRESHOLD_PERIOD_SHORT_MSEC);
-       noiseDetectorShort1 = new NoiseSet(inputData, THRESHOLD_PERIOD_SHORT_MSEC);
+       noiseDetectorShort = new NoiseSeries(new FilterDerivativeRem(inputData), THRESHOLD_PERIOD_SHORT_MSEC);
+       noiseDetectorShort1 = new NoiseSeries(inputData, THRESHOLD_PERIOD_SHORT_MSEC);
        thresholdPeriodShortPoints = (int) (THRESHOLD_PERIOD_SHORT_MSEC * this.inputData.getFrequency() / 1000);
     }
 
@@ -144,7 +144,7 @@ public class PeakDetector {
         return resultPeak;
     }
 
-    public DataSet getThresholds() {
+    public DataSeries getThresholds() {
         return thresholdList;
     }
 

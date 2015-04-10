@@ -1,6 +1,6 @@
 package filters;
 
-import data.DataSet;
+import data.DataSeries;
 import functions.Function;
 
 /**
@@ -9,7 +9,7 @@ import functions.Function;
 public class FilterHiPass extends Function {
     int bufferSize;
 
-    public FilterHiPass(DataSet inputData, int bufferSize) {
+    public FilterHiPass(DataSeries inputData, int bufferSize) {
         super(inputData);
         this.bufferSize = bufferSize;
     }

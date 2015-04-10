@@ -1,6 +1,6 @@
 package fft;
 
-import data.DataSet;
+import data.DataSeries;
 import graph.GraphViewer;
 
 import javax.swing.*;
@@ -19,7 +19,7 @@ public class View extends JFrame {
         setVisible(true);
     }
 
-    public void addGraph(DataSet graph) {
+    public void addGraph(DataSeries graph) {
         graphViewer.addGraphPanel(1, true);
         graphViewer.addGraph(graph);
     }

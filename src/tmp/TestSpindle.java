@@ -2,7 +2,7 @@ package tmp;
 
 
 import data.DataList;
-import data.DataSet;
+import data.DataSeries;
 
 public class TestSpindle {
 
@@ -69,7 +69,7 @@ public class TestSpindle {
     }
 
 
-    public DataSet getDataStream() {
+    public DataSeries getDataStream() {
         return dataList;
     }
 }

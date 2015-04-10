@@ -2,12 +2,12 @@ package rem;
 
 import data.BufferedData;
 import data.DataDimension;
-import data.DataSet;
+import data.DataSeries;
 
-public class NoiseSet implements DataSet {
-    private DataSet noiseList;
+public class NoiseSeries implements DataSeries {
+    private DataSeries noiseList;
 
-    public NoiseSet(DataSet inputData, int periodMsec) {
+    public NoiseSeries(DataSeries inputData, int periodMsec) {
        NoiseDetector noiseDetector = new NoiseDetector(inputData, periodMsec);
        noiseList = new BufferedData(noiseDetector);
     }

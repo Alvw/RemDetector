@@ -1,6 +1,6 @@
 package filters;
 
-import data.DataSet;
+import data.DataSeries;
 import functions.Function;
 
 /**
@@ -11,7 +11,7 @@ public class FilterDerivativeRem extends Function {
     private int DISTANCE_MSEC = 40;
     private int distance_point;
     
-    public FilterDerivativeRem(DataSet inputData) {
+    public FilterDerivativeRem(DataSeries inputData) {
         super(inputData);
         distance_point = Math.round((float)(DISTANCE_MSEC * inputData.getFrequency() / 1000));
         if(distance_point== 0) {

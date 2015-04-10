@@ -1,9 +1,9 @@
 package functions;
 
-import data.DataSet;
+import data.DataSeries;
 
 public class BooleanNOT extends Function {
-    public BooleanNOT(DataSet inputData) {
+    public BooleanNOT(DataSeries inputData) {
         super(inputData);
     }
 

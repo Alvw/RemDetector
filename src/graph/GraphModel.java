@@ -89,7 +89,7 @@ class GraphModel {
         previewClusterList.add(new ArrayList<Graph>());
     }
 
-    public void addGraph(DataSet graphData, GraphType graphType, CompressionType compressionType, int graphClusterNumber) {
+    public void addGraph(DataSeries graphData, GraphType graphType, CompressionType compressionType, int graphClusterNumber) {
         if (graphClusterNumber < graphClusterList.size()) {
             FrequencyConverter resultingGraphData = new FrequencyConverterRuntime(graphData, compressionType);
             if(graphData.getFrequency() != 0) {
@@ -112,7 +112,7 @@ class GraphModel {
     }
 
 
-    public void addPreview(DataSet previewData, GraphType graphType, CompressionType compressionType, int previewClusterNumber) {
+    public void addPreview(DataSeries previewData, GraphType graphType, CompressionType compressionType, int previewClusterNumber) {
         if (previewClusterNumber < previewClusterList.size()) {
             FrequencyConverter resultingPreviewData = new FrequencyConverterBuffered(new FrequencyConverterRuntime(previewData, compressionType));
             if (previewData.getFrequency() == 0) {

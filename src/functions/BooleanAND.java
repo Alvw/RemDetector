@@ -1,20 +1,20 @@
 package functions;
 
 import data.DataDimension;
-import data.DataSet;
+import data.DataSeries;
 import dreamrec.ApplicationException;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class BooleanAND implements DataSet {
-        private List<DataSet> inputDataList = new ArrayList<DataSet>();
+public class BooleanAND implements DataSeries {
+        private List<DataSeries> inputDataList = new ArrayList<DataSeries>();
         private String errMsg = "It is only possible to make conjunction with signals which: \n" +
                 "- have the same startTime \n"+
                 "- have the same samplerate \n";
 
 
-    public void add(DataSet inputData) throws ApplicationException {
+    public void add(DataSeries inputData) throws ApplicationException {
         if(inputDataList.size() > 0) {
             if(getStartTime() != inputData.getStartTime()){
                 throw new ApplicationException(errMsg);

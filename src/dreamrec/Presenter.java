@@ -1,12 +1,12 @@
 package dreamrec;
 
 import data.CompressionType;
-import data.DataSet;
+import data.DataSeries;
 import filters.*;
 import graph.GraphType;
 import graph.GraphViewer;
 import gui.MainWindow;
-import rem.NoiseSet;
+import rem.NoiseSeries;
 import rem.SaccadeDetector;
 
 /**
@@ -58,28 +58,28 @@ public class Presenter implements  ControllerListener {
 
     private void configureGraphViewer(DataStore dataStore) {
         if(dataStore.getNumberOfChannels() > 0) {
-            DataSet channel_1 = dataStore.getChannelData(0);
+            DataSeries channel_1 = dataStore.getChannelData(0);
             graphViewer.addGraphPanel(1, true);
             graphViewer.addGraph(channel_1);
 
             graphViewer.addPreviewPanel(1, false);
-            DataSet velocityRem =  new FilterAbs(new FilterDerivativeRem(channel_1));
+            DataSeries velocityRem =  new FilterAbs(new FilterDerivativeRem(channel_1));
             graphViewer.addPreview(velocityRem, CompressionType.MAX);
         }
 
     }
 
     private void workRem(RemDataStore remDataStore) {
-        DataSet eog = remDataStore.getEogData();
-        DataSet eogFull = remDataStore.getEogFullData();
-        DataSet accMovement = remDataStore.getAccMovementData();
-        DataSet isSleep = remDataStore.isSleep();
+        DataSeries eog = remDataStore.getEogData();
+        DataSeries eogFull = remDataStore.getEogFullData();
+        DataSeries accMovement = remDataStore.getAccMovementData();
+        DataSeries isSleep = remDataStore.isSleep();
 
         double accMovementLimit = remDataStore.getAccMovementLimit();
         double eogDerivativeLimit = remDataStore.getEogRemDerivativeMax();
 
-        DataSet eogDerivativeRem =  new FilterDerivativeRem(eog);
-        DataSet eogDerivativeRemAbs =  new FilterAbs(eogDerivativeRem);
+        DataSeries eogDerivativeRem =  new FilterDerivativeRem(eog);
+        DataSeries eogDerivativeRemAbs =  new FilterAbs(eogDerivativeRem);
 
         graphViewer.addGraphPanel(2, true);
         graphViewer.addGraph(eog);
@@ -102,17 +102,17 @@ public class Presenter implements  ControllerListener {
     }
 
     private void galaRem(RemDataStore remDataStore) {
-        DataSet eog = remDataStore.getEogData();
-        DataSet eogFull = remDataStore.getEogFullData();
-        DataSet accMovement = remDataStore.getAccMovementData();
-        DataSet isSleep = remDataStore.isSleep();
+        DataSeries eog = remDataStore.getEogData();
+        DataSeries eogFull = remDataStore.getEogFullData();
+        DataSeries accMovement = remDataStore.getAccMovementData();
+        DataSeries isSleep = remDataStore.isSleep();
 
         double accMovementLimit = remDataStore.getAccMovementLimit();
         double eogDerivativeLimit = remDataStore.getEogRemDerivativeMax();
 
-        DataSet eogDerivativeRem =  new FilterDerivativeRem(eogFull);
-        //DataSet eogDerivativeRem =  new FilterLowPass(new FilterDerivativeRem(eogFull), 25.0);
-        DataSet eogDerivativeRemAbs =  new FilterAbs(eogDerivativeRem);
+        DataSeries eogDerivativeRem =  new FilterDerivativeRem(eogFull);
+        //DataSeries eogDerivativeRem =  new FilterLowPass(new FilterDerivativeRem(eogFull), 25.0);
+        DataSeries eogDerivativeRemAbs =  new FilterAbs(eogDerivativeRem);
 
         SaccadeDetector saccadesRem = new SaccadeDetector(eogFull);
 
@@ -133,8 +133,8 @@ public class Presenter implements  ControllerListener {
 
         graphViewer.addGraphPanel(2, false);
         graphViewer.addGraph(eogDerivativeRemAbs);
-        graphViewer.addGraph(new NoiseSet(eogDerivativeRem, 20000));
-        graphViewer.addGraph(new NoiseSet(new FilterDerivativeRem(eogDerivativeRem), 20000));
+        graphViewer.addGraph(new NoiseSeries(eogDerivativeRem, 20000));
+        graphViewer.addGraph(new NoiseSeries(new FilterDerivativeRem(eogDerivativeRem), 20000));
         graphViewer.addGraph(saccadesRem.getThresholds());
 
 

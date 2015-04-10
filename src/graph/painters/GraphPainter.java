@@ -1,6 +1,6 @@
 package graph.painters;
 
-import data.DataSet;
+import data.DataSeries;
 import graph.Graph;
 import graph.GraphType;
 
@@ -15,7 +15,7 @@ public class GraphPainter {
 
     public void paint(Graphics g, double zoom, int startIndex, Graph graph) {
         g.setColor(graphColor);
-        DataSet graphData = graph.getGraphData();
+        DataSeries graphData = graph.getGraphData();
         GraphType graphType = graph.getGraphType();
         if (graphData != null && startIndex >= 0 && startIndex < graphData.size()) {
             int width = g.getClipBounds().width;

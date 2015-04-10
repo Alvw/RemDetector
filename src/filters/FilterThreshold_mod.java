@@ -1,6 +1,6 @@
 package filters;
 
-import data.DataSet;
+import data.DataSeries;
 import functions.Function;
 
 /**
@@ -10,7 +10,7 @@ public class FilterThreshold_mod extends Function {
     private int bufferSize = 4;
     private int shift = 0; // points
   
-    public FilterThreshold_mod(DataSet inputData) {
+    public FilterThreshold_mod(DataSeries inputData) {
         super(inputData);
     }
 

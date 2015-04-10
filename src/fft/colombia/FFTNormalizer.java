@@ -1,10 +1,10 @@
 package fft.colombia;
 
 import data.DataDimension;
-import data.DataSet;
+import data.DataSeries;
 
 
-public class FFTNormalizer implements DataSet {
+public class FFTNormalizer implements DataSeries {
 
     double[] re;
     double[] im;

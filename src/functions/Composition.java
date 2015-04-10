@@ -1,7 +1,7 @@
 package functions;
 
 import data.DataDimension;
-import data.DataSet;
+import data.DataSeries;
 import dreamrec.ApplicationException;
 
 import java.util.ArrayList;
@@ -10,15 +10,15 @@ import java.util.List;
 /**
  * Композиция (сумма или вычитание) входных данных
  */
-public class Composition implements DataSet {
-    private List<DataSet> inputDataList = new ArrayList<DataSet>();
+public class Composition implements DataSeries {
+    private List<DataSeries> inputDataList = new ArrayList<DataSeries>();
     private String errMsg = "It is only possible to make combinations with signals which: \n" +
             "- have the same startTime \n"+
             "- have the same samplerate \n"+
             "- have the same physical dimension (e.g uV) \n" +
             "- have the same sensitivity";
 
-    public void add(DataSet inputData) throws ApplicationException {
+    public void add(DataSeries inputData) throws ApplicationException {
         if(inputDataList.size() > 0) {
             if(getStartTime() != inputData.getStartTime()){
                 throw new ApplicationException(errMsg);
@@ -48,7 +48,7 @@ public class Composition implements DataSet {
         inputDataList.add(inputData);
     }
 
-    public void subtract(DataSet inputData) throws ApplicationException{
+    public void subtract(DataSeries inputData) throws ApplicationException{
         add(new Inverter(inputData));
     }
 
@@ -69,8 +69,8 @@ public class Composition implements DataSet {
     @Override
     public int size() {
         int size = 0;
-        for(DataSet dataSet : inputDataList) {
-            size = Math.max(size, dataSet.size());
+        for(DataSeries dataSeries : inputDataList) {
+            size = Math.max(size, dataSeries.size());
         }
         return size;
     }

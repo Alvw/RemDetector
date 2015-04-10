@@ -1,6 +1,6 @@
 package filters;
 
-import data.DataSet;
+import data.DataSeries;
 import functions.Function;
 
 /**
@@ -11,7 +11,7 @@ public class FilterHiPassSymmetric extends Function {
     private long sumBefore = 0;
     int bufferSize;
 
-    public FilterHiPassSymmetric(DataSet inputData, int bufferSize) {
+    public FilterHiPassSymmetric(DataSeries inputData, int bufferSize) {
         super(inputData);
         this.bufferSize = bufferSize;
     }

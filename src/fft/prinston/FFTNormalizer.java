@@ -1,9 +1,9 @@
 package fft.prinston;
 
 import data.DataDimension;
-import data.DataSet;
+import data.DataSeries;
 
-public class FFTNormalizer implements DataSet{
+public class FFTNormalizer implements DataSeries {
 
     Complex[] fftResult;
     double frequency;

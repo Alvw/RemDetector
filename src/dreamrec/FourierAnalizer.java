@@ -1,7 +1,6 @@
 package dreamrec;
 
-import data.DataSet;
-import fft.Fourie;
+import data.DataSeries;
 import filters.FilterFourierIntegral;
 
 /**
@@ -9,8 +8,8 @@ import filters.FilterFourierIntegral;
  */
 public class FourierAnalizer {
 
-    public static boolean hasAlfa(DataSet fourier) {
-        DataSet fourierIntegral = new FilterFourierIntegral(fourier);
+    public static boolean hasAlfa(DataSeries fourier) {
+        DataSeries fourierIntegral = new FilterFourierIntegral(fourier);
 
         double frequencyStep = 1 / fourierIntegral.getFrequency();
 
@@ -45,7 +44,7 @@ public class FourierAnalizer {
         return false;
     }
 
-    public static int getHighFrequenciesSum(DataSet fourier) {
+    public static int getHighFrequenciesSum(DataSeries fourier) {
 
         double frequencyStep = 1 / fourier.getFrequency();
         double highFrequencyBegin = 14; // Hz

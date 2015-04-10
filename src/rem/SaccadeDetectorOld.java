@@ -1,6 +1,6 @@
 package rem;
 
-import data.DataSet;
+import data.DataSeries;
 import filters.FilterDerivative;
 import filters.FilterDerivative_N;
 import filters.FilterThresholdAvg;
@@ -20,11 +20,11 @@ class SaccadeDetectorOld {
     private static final int SACCADE_WIDTH_MIN_MSEC = 40;
     private static final int SACCADE_WIDTH_MAX_MSEC = 200;
 
-    private DataSet inputData;
-    private DataSet velocityData;
-    private DataSet accelerationData;
-    private DataSet velocityThresholdData;
-    private DataSet accelerationThresholdData;
+    private DataSeries inputData;
+    private DataSeries velocityData;
+    private DataSeries accelerationData;
+    private DataSeries velocityThresholdData;
+    private DataSeries accelerationThresholdData;
 
     private int saccadeBeginIndex = 0;
     private int saccadePeakIndex = 0;
@@ -39,7 +39,7 @@ class SaccadeDetectorOld {
     private int thresholdPeriodPoints;
     private int lastThresholdIndex = - 2* thresholdPeriodPoints;
 
-    SaccadeDetectorOld(DataSet inputData) {
+    SaccadeDetectorOld(DataSeries inputData) {
         this.inputData = inputData;
         thresholdPeriodPoints = (int)(THRESHOLD_PERIOD_MSEC * inputData.getFrequency() / 1000);
         velocityData = new FilterDerivative(inputData);

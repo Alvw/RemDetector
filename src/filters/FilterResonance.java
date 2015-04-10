@@ -1,6 +1,6 @@
 package filters;
 
-import data.DataSet;
+import data.DataSeries;
 import functions.Function;
 import tmp.Functions;
 
@@ -11,7 +11,7 @@ public class FilterResonance extends Function {
     private int period = 5;
     private int bufferHalf = period * 2;
 
-    public FilterResonance(DataSet inputData) {
+    public FilterResonance(DataSeries inputData) {
         super(inputData);
     }
 

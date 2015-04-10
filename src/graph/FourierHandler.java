@@ -1,9 +1,9 @@
 package graph;
 
 import data.CompressionType;
+import data.DataSeries;
 import data.FrequencyConverter;
 import data.FrequencyConverterRuntime;
-import data.DataSet;
 import dreamrec.FourierAnalizer;
 import fft.Fourie;
 import fft.FourierViewer;
@@ -17,7 +17,7 @@ import java.util.List;
  */
 public class FourierHandler implements FourierListener, GraphControllerListener {
     private GraphModel graphModel;
-    private List<DataSet> graphList = new ArrayList<DataSet>();
+    private List<DataSeries> graphList = new ArrayList<DataSeries>();
     private List<FourierViewer> fourierViewerList = new ArrayList<FourierViewer>();
 
 
@@ -26,7 +26,7 @@ public class FourierHandler implements FourierListener, GraphControllerListener 
     }
 
     @Override
-    public void doFourier(DataSet graph, int startIndex) {
+    public void doFourier(DataSeries graph, int startIndex) {
         graphList.add(graph);
         fourierViewerList.add(new FourierViewer(calculateFourier(graph)));
     }
@@ -38,10 +38,10 @@ public class FourierHandler implements FourierListener, GraphControllerListener 
          }
     }
 
-    private DataSet calculateFourier(DataSet graph) {
+    private DataSeries calculateFourier(DataSeries graph) {
         double time = 6; // sec
-        DataSet fourier =  Fourie.fftForward(graph, graphModel.getStartIndex(), time);
-        DataSet fourierIntegral = new FilterFourierIntegral(fourier);
+        DataSeries fourier =  Fourie.fftForward(graph, graphModel.getStartIndex(), time);
+        DataSeries fourierIntegral = new FilterFourierIntegral(fourier);
 
 
         System.out.println("has Alpha " +FourierAnalizer.hasAlfa(fourier));

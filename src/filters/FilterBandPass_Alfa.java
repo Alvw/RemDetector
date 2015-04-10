@@ -1,6 +1,6 @@
 package filters;
 
-import data.DataSet;
+import data.DataSeries;
 
 /**
  *
@@ -8,7 +8,7 @@ import data.DataSet;
 public class FilterBandPass_Alfa extends FilterBuffered {
     private int period = 4;
     private int bufferHalf = period * 4;
-    public FilterBandPass_Alfa(DataSet inputData) {
+    public FilterBandPass_Alfa(DataSeries inputData) {
         super(inputData);
     }
 

@@ -2,7 +2,7 @@ package rem;
 
 import data.DataDimension;
 import data.DataList;
-import data.DataSet;
+import data.DataSeries;
 import dreamrec.FourierAnalizer;
 import fft.Fourie;
 import filters.FilterDerivative;
@@ -20,7 +20,7 @@ import java.util.List;
  * 3) saccade duration > 40 msec (SACCADE_WIDTH_MIN_MSEC)
  * 4) before and after saccade eyes are in rest (when abs(derivation) < NOISE_LEVEL) > 100 msec (LATENCY_PERIOD_MSEC)
  */
-class SaccadeDetector2 implements DataSet{
+class SaccadeDetector2 implements DataSeries {
     private static final int THRESHOLD_PERIOD_MSEC = 20000;
 
     private static final int N = 7; // Threshold to sumValue ratio
@@ -33,8 +33,8 @@ class SaccadeDetector2 implements DataSet{
     private List<Peak> peakList = new ArrayList<Peak>();
     private List<Peak> peakPackageList = new ArrayList<Peak>();
     private HashMap<Integer, Integer> output = new HashMap<Integer, Integer>();
-    private DataSet derivativeRem;
-    private DataSet derivative;
+    private DataSeries derivativeRem;
+    private DataSeries derivative;
     private Peak detectingPeak;
     private boolean isSaccadeUnderDetection = false;
     private boolean isPackageApproved = false;
@@ -46,7 +46,7 @@ class SaccadeDetector2 implements DataSet{
     private DataList thresholdList = new DataList();
     int sumValue = 0;
 
-    SaccadeDetector2(DataSet inputData) {
+    SaccadeDetector2(DataSeries inputData) {
         derivativeRem = new FilterLowPass(new FilterDerivativeRem(inputData), 25.0);
         derivative = new FilterDerivative(inputData);
         thresholdPeriodPoints = (int) (THRESHOLD_PERIOD_MSEC * derivativeRem.getFrequency() / 1000);
@@ -117,7 +117,7 @@ class SaccadeDetector2 implements DataSet{
     }
 
     private boolean isSaccadePossible(Peak peak) {
-        DataSet fourier =  Fourie.fftBackward(derivative, peak.getEndIndex(), FOURIER_TIME);
+        DataSeries fourier =  Fourie.fftBackward(derivative, peak.getEndIndex(), FOURIER_TIME);
         if(FourierAnalizer.hasAlfa(fourier)) {
             return false;
         }
@@ -179,7 +179,7 @@ class SaccadeDetector2 implements DataSet{
        return 0;
     }
 
-    public DataSet getThresholds() {
+    public DataSeries getThresholds() {
         return thresholdList;
     }
 

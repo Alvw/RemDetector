@@ -1,6 +1,6 @@
 package filters;
 
-import data.DataSet;
+import data.DataSeries;
 import functions.Function;
 
 /**
@@ -9,7 +9,7 @@ import functions.Function;
 
 public class FilterDerivative_N extends Function {
     private int n = 1;
-    public FilterDerivative_N(DataSet inputData, int n) {
+    public FilterDerivative_N(DataSeries inputData, int n) {
         super(inputData);
         this.n = n;
     }

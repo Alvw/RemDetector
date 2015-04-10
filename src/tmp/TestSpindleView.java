@@ -24,8 +24,8 @@ public class TestSpindleView extends JFrame {
         graphViewer.addPreviewPanel(1, true);
 
 
-/*        DataSet testData = new TestSpindle().getDataStream();
-        DataSet filteredData = new FilterBandPass_Alfa(testData);
+/*        DataSeries testData = new TestSpindle().getDataStream();
+        DataSeries filteredData = new FilterBandPass_Alfa(testData);
         graphsViewer.addGraph(0, testData);
         graphsViewer.addGraph(1, filteredData);
 

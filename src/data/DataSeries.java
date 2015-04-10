@@ -8,7 +8,7 @@ package data;
  * To change this template use File | Settings | File Templates.
  */
 
-public interface DataSet {
+public interface DataSeries {
     public int size();
     public int get(int index);
 

@@ -1,9 +1,9 @@
 package fft.jtransform;
 
 import data.DataDimension;
-import data.DataSet;
+import data.DataSeries;
 
-public class FFTNormalizer implements DataSet{
+public class FFTNormalizer implements DataSeries {
     double[] fftResult;
     double frequency;
 

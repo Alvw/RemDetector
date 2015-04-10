@@ -1,13 +1,13 @@
 package filters;
 
-import data.DataSet;
+import data.DataSeries;
 
 /**
  *
  */
 public class FilterResonance_25Gz extends FilterBuffered {
 
-    public FilterResonance_25Gz(DataSet inputData) {
+    public FilterResonance_25Gz(DataSeries inputData) {
         super(inputData);
     }
 

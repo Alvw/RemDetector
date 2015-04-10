@@ -3,10 +3,10 @@ package data;
 /**
  * Created by mac on 27/02/15.
  */
-class DataSetIntArrayAdapter implements  DataSet{
-    private int[] dataArray;
+class DataSeriesDoubleArrayAdapter implements DataSeries {
+    private double[] dataArray;
 
-    public DataSetIntArrayAdapter(int[] dataArray) {
+    public DataSeriesDoubleArrayAdapter(double[] dataArray) {
         this.dataArray = dataArray;
     }
 
@@ -17,7 +17,7 @@ class DataSetIntArrayAdapter implements  DataSet{
 
     @Override
     public int get(int index) {
-        return dataArray[index];
+        return (int)dataArray[index];
     }
 
     @Override

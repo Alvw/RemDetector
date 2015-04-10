@@ -1,6 +1,6 @@
 package filters;
 
-import data.DataSet;
+import data.DataSeries;
 import functions.Function;
 
 /**
@@ -11,7 +11,7 @@ public class FilterPower extends Function {
 
     private int  distance = 1;
 
-    public FilterPower(DataSet inputData, int distance) {
+    public FilterPower(DataSeries inputData, int distance) {
         super(inputData);
         this.distance = distance;
     }

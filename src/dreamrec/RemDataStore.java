@@ -152,26 +152,26 @@ public class RemDataStore  implements DataStoreListener {
         fireDataUpdated();
     }
 
-    public DataSet getEogFullData() {
+    public DataSeries getEogFullData() {
         return dataStore.getSignalData(remChannels.getEog());
     }
 
-    public DataSet getEogData() {
+    public DataSeries getEogData() {
         if(eogFilteredData != null) {
             return eogFilteredData;
         }
         return getEogFullData();
     }
 
-    public DataSet getAccXData() {
+    public DataSeries getAccXData() {
         return dataStore.getSignalData(remChannels.getAccelerometerX());
     }
 
-    public DataSet getAccYData() {
+    public DataSeries getAccYData() {
         return dataStore.getSignalData(remChannels.getAccelerometerY());
     }
 
-    public DataSet getAccZData() {
+    public DataSeries getAccZData() {
         return dataStore.getSignalData(remChannels.getAccelerometerZ());
     }
 
@@ -181,7 +181,7 @@ public class RemDataStore  implements DataStoreListener {
      * Суммируем амплитуды движений по трем осям.
      * За ноль принят шумовой уровень.
      */
-    public DataSet getAccMovementData() {
+    public DataSeries getAccMovementData() {
         Composition accMovement = new Composition();
         try {
             accMovement.add(new Rising(getAccXData()));
@@ -194,15 +194,15 @@ public class RemDataStore  implements DataStoreListener {
         return accMovement;
     }
 
-    private DataSet isNotMove() {
+    private DataSeries isNotMove() {
         return new Trigger(getAccMovementData(), accMovementLimit);
     }
 
-    private DataSet isEogOk() {
+    private DataSeries isEogOk() {
         return new Trigger(new FilterDerivativeRem(getEogData()), eogRemDerivativeMax);
     }
 
-public DataSet isSleep() {
+public DataSeries isSleep() {
         BooleanAND isSleep = new BooleanAND();
         try {
             FrequencyConverter isNotMove = new FrequencyConverterRuntime(isNotMove(), CompressionType.BOOLEAN);

@@ -1,7 +1,7 @@
 package graph;
 
 import data.CompressionType;
-import data.DataSet;
+import data.DataSeries;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -105,7 +105,7 @@ public class GraphViewer extends JPanel{
     }
 
 
-    public void addGraph(final DataSet graph, final GraphType graphType, final CompressionType compressionType, final int panelNumber) {
+    public void addGraph(final DataSeries graph, final GraphType graphType, final CompressionType compressionType, final int panelNumber) {
         if(SwingUtilities.isEventDispatchThread()) {
             graphController.addGraph(graph, graphType, compressionType, panelNumber);
         }
@@ -131,7 +131,7 @@ public class GraphViewer extends JPanel{
         }
     }
 
-    public void addPreview(final DataSet preview, final GraphType graphType, final CompressionType compressionType, final int panelNumber) {
+    public void addPreview(final DataSeries preview, final GraphType graphType, final CompressionType compressionType, final int panelNumber) {
         if(SwingUtilities.isEventDispatchThread()) {
             graphController.addPreview(preview, graphType, compressionType, panelNumber);
         }
@@ -147,7 +147,7 @@ public class GraphViewer extends JPanel{
 /*
 * Add Graph to the last graph panel. If there is no graph panel create one
 */
-    public void addGraph(final DataSet graph, final GraphType graphType, final CompressionType compressionType) {
+    public void addGraph(final DataSeries graph, final GraphType graphType, final CompressionType compressionType) {
         int panelNumber = graphView.getNumberOfGraphPanels() - 1;
         if(panelNumber < 0) {
             addGraphPanel(DEFAULT_GRAPH_PANEL_WEIGHT, IS_GRAPH_X_CENTERED_DEFAULT);
@@ -159,7 +159,7 @@ public class GraphViewer extends JPanel{
 /*
 * Add Preview to the last preview panel. If there is no preview panel create one
 */
-    public void addPreview(final DataSet preview, final GraphType graphType, final CompressionType compressionType) {
+    public void addPreview(final DataSeries preview, final GraphType graphType, final CompressionType compressionType) {
         int panelNumber = graphView.getNumberOfPreviewPanels() - 1;
         if(panelNumber < 0) {
             addPreviewPanel(DEFAULT_PREVIEW_PANEL_WEIGHT, IS_PREVIEW_X_CENTERED_DEFAULT);
@@ -169,11 +169,11 @@ public class GraphViewer extends JPanel{
     }
 
 
-    public void addGraph(final DataSet graph) {
+    public void addGraph(final DataSeries graph) {
         addGraph(graph, GraphType.PAPA, CompressionType.AVERAGE);
     }
 
-    public void addPreview(final DataSet preview,  final CompressionType compressionType) {
+    public void addPreview(final DataSeries preview,  final CompressionType compressionType) {
         addPreview(preview, GraphType.PAPA, compressionType);
     }
 

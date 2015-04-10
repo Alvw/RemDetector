@@ -1,16 +1,16 @@
 package rem;
 
 import data.DataDimension;
-import data.DataSet;
+import data.DataSeries;
 import data.DataStream;
 
 public class NoiseDetector implements DataStream {
-    private DataSet inputData;
+    private DataSeries inputData;
     private int numberOfPoints;
     private long sumValue;
     private int numberOfTakenElements = 0;
 
-    public NoiseDetector(DataSet inputData, int periodMsec) {
+    public NoiseDetector(DataSeries inputData, int periodMsec) {
         this.inputData = inputData;
         numberOfPoints = Math.round((float)(periodMsec * inputData.getFrequency() / 1000));
     }

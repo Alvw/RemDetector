@@ -1,7 +1,7 @@
 package rem;
 
 import data.DataDimension;
-import data.DataSet;
+import data.DataSeries;
 import dreamrec.FourierAnalizer;
 import fft.Fourie;
 import filters.FilterDerivative;
@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 
 
-public class SaccadeDetector implements DataSet{
+public class SaccadeDetector implements DataSeries {
 
     private static final int SACCADE_DISTANCE_MAX = 12; // sec
 
@@ -25,15 +25,15 @@ public class SaccadeDetector implements DataSet{
     private boolean hasPackageBigSaccade = false;
     private int saccadeMaxDistancePoints;
     private int currentIndex = -1;
-    private DataSet inputData;
+    private DataSeries inputData;
     private PeakDetector peakDetector;
 
 
-    public SaccadeDetector(DataSet inputData) {
+    public SaccadeDetector(DataSeries inputData) {
         this.inputData = inputData;
-        DataSet derivativeRem = new FilterDerivativeRem(inputData);
+        DataSeries derivativeRem = new FilterDerivativeRem(inputData);
        // derivativeRem = new FilterLowPass(new FilterDerivativeRem(inputData), 25.0);
-        DataSet derivative = new FilterDerivativeRem(new FilterDerivativeRem(inputData));
+        DataSeries derivative = new FilterDerivativeRem(new FilterDerivativeRem(inputData));
         peakDetector = new PeakDetector(derivativeRem);
         saccadeMaxDistancePoints = (int)(SACCADE_DISTANCE_MAX * derivativeRem.getFrequency());
     }
@@ -52,7 +52,7 @@ public class SaccadeDetector implements DataSet{
 
 
     private boolean isSaccadePossible(Peak peak) {
-        DataSet fourier =  Fourie.fftBackward( new FilterDerivative(inputData), peak.getEndIndex(), FOURIER_TIME);
+        DataSeries fourier =  Fourie.fftBackward( new FilterDerivative(inputData), peak.getEndIndex(), FOURIER_TIME);
         if(FourierAnalizer.hasAlfa(fourier)) {
             return false;
         }
@@ -114,7 +114,7 @@ public class SaccadeDetector implements DataSet{
         return 0;
     }
 
-    public DataSet getThresholds() {
+    public DataSeries getThresholds() {
         return peakDetector.getThresholds();
     }
 

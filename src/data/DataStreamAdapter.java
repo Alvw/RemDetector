@@ -1,35 +1,35 @@
 package data;
 
 public class DataStreamAdapter implements DataStream {
-    private DataSet dataSet;
+    private DataSeries dataSeries;
     private int numberOfTakenElements = 0;
 
-    public DataStreamAdapter(DataSet dataSet) {
-        this.dataSet = dataSet;
+    public DataStreamAdapter(DataSeries dataSeries) {
+        this.dataSeries = dataSeries;
     }
 
     @Override
     public int available() {
-        return dataSet.size() - numberOfTakenElements;
+        return dataSeries.size() - numberOfTakenElements;
     }
 
     @Override
     public int getNext() {
-        return dataSet.get(numberOfTakenElements++);
+        return dataSeries.get(numberOfTakenElements++);
     }
 
     @Override
     public double getFrequency() {
-        return dataSet.getFrequency();
+        return dataSeries.getFrequency();
     }
 
     @Override
     public long getStartTime() {
-        return dataSet.getStartTime();
+        return dataSeries.getStartTime();
     }
 
     @Override
     public DataDimension getDataDimension() {
-        return dataSet.getDataDimension();
+        return dataSeries.getDataDimension();
     }
 }

@@ -1,6 +1,6 @@
 package filters;
 
-import data.DataSet;
+import data.DataSeries;
 import functions.Function;
 
 /**
@@ -9,9 +9,9 @@ import functions.Function;
 public class FilterAlfa extends Function {
     private int period = 4;
     private int bufferHalf = period * 4;
-    private DataSet alfaData;
+    private DataSeries alfaData;
 
-    public FilterAlfa(DataSet inputData) {
+    public FilterAlfa(DataSeries inputData) {
         super(inputData);
         alfaData = new FilterHiPassSymmetric(new FilterBandPass_Alfa(inputData), 2);
     }

@@ -1,6 +1,6 @@
 package fft;
 
-import data.DataSet;
+import data.DataSeries;
 import graph.GraphViewer;
 
 import javax.swing.*;
@@ -13,7 +13,7 @@ import java.awt.*;
 public class FourierViewer extends JDialog {
     private GraphViewer graphViewer;
 
-    public FourierViewer(DataSet graph)  {
+    public FourierViewer(DataSeries graph)  {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setPreferredSize(getDimension());
         graphViewer = new GraphViewer(false, false, false, false);
@@ -26,7 +26,7 @@ public class FourierViewer extends JDialog {
         setVisible(true);
     }
 
-    public void showGraph(DataSet graph) {
+    public void showGraph(DataSeries graph) {
         graphViewer.removeGraphs(0);
         graphViewer.addGraph(graph);
     }

@@ -5,12 +5,12 @@ package data;
  */
 public class DataSetAdapter {
 
-    public static DataSet wrap(int[] dataArray) {
-        return new DataSetIntArrayAdapter(dataArray);
+    public static DataSeries wrap(int[] dataArray) {
+        return new DataSeriesIntArrayAdapter(dataArray);
     }
 
-    public static DataSet wrap(double[] dataArray) {
-        return new DataSetDoubleArrayAdapter(dataArray);
+    public static DataSeries wrap(double[] dataArray) {
+        return new DataSeriesDoubleArrayAdapter(dataArray);
     }
 
 }

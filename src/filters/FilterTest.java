@@ -1,7 +1,7 @@
 // public class FilterTest {
 package filters;
 
-import data.DataSet;
+import data.DataSeries;
 import functions.Function;
 
 /**
@@ -12,7 +12,7 @@ public class FilterTest extends Function {
     private int period = 4;
     private int bufferHalf = period * 2;
 
-    public FilterTest(DataSet inputData) {
+    public FilterTest(DataSeries inputData) {
         super(inputData);
     }
 

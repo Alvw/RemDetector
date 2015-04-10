@@ -1,18 +1,18 @@
 package data;
 
 public class FrequencyConverterRuntime implements FrequencyConverter {
-    private DataSet inputData;
+    private DataSeries inputData;
     private CompressionType compressionType;
     private double compression = 1;
 
-    public FrequencyConverterRuntime(DataSet inputData, CompressionType compressionType, double compression) {
+    public FrequencyConverterRuntime(DataSeries inputData, CompressionType compressionType, double compression) {
         this.inputData = inputData;
         this.compressionType = compressionType;
         this.compression = compression;
     }
 
 
-    public FrequencyConverterRuntime(DataSet inputData, CompressionType compressionType) {
+    public FrequencyConverterRuntime(DataSeries inputData, CompressionType compressionType) {
        this(inputData, compressionType, 1);
     }
 

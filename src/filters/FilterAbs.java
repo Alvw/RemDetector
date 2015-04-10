@@ -1,6 +1,6 @@
 package filters;
 
-import data.DataSet;
+import data.DataSeries;
 import functions.Function;
 
 /**
@@ -11,7 +11,7 @@ public class FilterAbs extends Function {
 
     private int derivative = 0;
 
-    public FilterAbs(DataSet inputData) {
+    public FilterAbs(DataSeries inputData) {
         super(inputData);
     }
 

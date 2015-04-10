@@ -1,11 +1,7 @@
 package fft;
 
-import data.DataList;
-import data.DataSet;
 import data.DataSetAdapter;
 import fft.colombia.FFT;
-import fft.jtransform.DoubleFFT_1D;
-import fft.prinston.Complex;
 
 public class Test {
     public static void main(String[] args) {

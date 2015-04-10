@@ -1,6 +1,6 @@
 package filters;
 
-import data.DataSet;
+import data.DataSeries;
 import functions.Function;
 
 public class FilterOffset_2 extends Function {
@@ -10,7 +10,7 @@ public class FilterOffset_2 extends Function {
     private int noiseLevelMin = 100;
 
 
-    public FilterOffset_2(DataSet inputData) {
+    public FilterOffset_2(DataSeries inputData) {
         super(inputData);
     }
 

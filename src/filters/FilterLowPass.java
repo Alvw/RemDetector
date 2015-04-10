@@ -1,6 +1,6 @@
 package filters;
 
-import data.DataSet;
+import data.DataSeries;
 
 /**
  *
@@ -11,12 +11,12 @@ public class FilterLowPass extends FilterBuffered {
     private int indexBefore = -10;
     private long sumBefore = 0;
 
-    public FilterLowPass(DataSet inputData, int bufferSize) {
+    public FilterLowPass(DataSeries inputData, int bufferSize) {
         super(inputData);
         this.bufferSize = bufferSize;
     }
 
-    public FilterLowPass(DataSet inputData, double cutOffFrequency) {
+    public FilterLowPass(DataSeries inputData, double cutOffFrequency) {
         super(inputData);
         bufferSize = (int) (inputData.getFrequency() / cutOffFrequency);
     }

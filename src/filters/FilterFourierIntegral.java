@@ -1,11 +1,11 @@
 package filters;
 
-import data.DataSet;
+import data.DataSeries;
 import functions.Function;
 
 public class FilterFourierIntegral extends Function {
 
-    public FilterFourierIntegral(DataSet inputData) {
+    public FilterFourierIntegral(DataSeries inputData) {
         super(inputData);
     }
 

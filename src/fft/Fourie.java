@@ -1,6 +1,6 @@
 package fft;
 
-import data.DataSet;
+import data.DataSeries;
 import fft.colombia.FFT;
 import fft.colombia.FFTNormalizer;
 
@@ -9,7 +9,7 @@ public class Fourie {
     /*
      * from [index] to [index + time]
      */
-    public static DataSet fftForward(DataSet inputData, int index, double time) {
+    public static DataSeries fftForward(DataSeries inputData, int index, double time) {
         double frequency = inputData.getFrequency();
         int N = (int) (frequency * time);
         N = Math.min(N, inputData.size() - index);
@@ -29,7 +29,7 @@ public class Fourie {
  /*
  * from [index - time] to [index]
  */
-    public static DataSet fftBackward(DataSet inputData, int index, int time) {
+    public static DataSeries fftBackward(DataSeries inputData, int index, int time) {
         double frequency = inputData.getFrequency();
         int N = (int) frequency * time;
         N = Math.min(N, index);

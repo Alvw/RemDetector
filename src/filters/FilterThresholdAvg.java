@@ -1,6 +1,6 @@
 package filters;
 
-import data.DataSet;
+import data.DataSeries;
 import functions.Function;
 
 /**
@@ -13,18 +13,18 @@ public class FilterThresholdAvg extends Function {
     private int sumBefore = 0;
 
 
-    public FilterThresholdAvg(DataSet inputData, int bufferSize, int shift) {
+    public FilterThresholdAvg(DataSeries inputData, int bufferSize, int shift) {
         super(inputData);
         this.bufferSize = bufferSize;
         this.shift = shift;
     }
 
-    public FilterThresholdAvg(DataSet inputData, int bufferSize) {
+    public FilterThresholdAvg(DataSeries inputData, int bufferSize) {
         super(inputData);
         this.bufferSize = bufferSize;
     }
 
-    public FilterThresholdAvg(DataSet inputData) {
+    public FilterThresholdAvg(DataSeries inputData) {
         super(inputData);
     }
 

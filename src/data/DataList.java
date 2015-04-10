@@ -1,17 +1,13 @@
 package data;
 
 
-import fft.prinston.Complex;
 import gnu.trove.list.array.TIntArrayList;
-import prefilters.AbstractPreFilter;
-
-import java.util.ArrayList;
 
 
 /**
 
  */
-public class DataList  implements DataSet {
+public class DataList  implements DataSeries {
     private TIntArrayList intArrayList;
     private double frequency = 0;
     private long startTime = 0;

@@ -1,6 +1,6 @@
 package filters;
 
-import data.DataSet;
+import data.DataSeries;
 import functions.Function;
 import graph.GraphViewer;
 
@@ -15,7 +15,7 @@ public class FilterOffset_1 extends Function {
     private GraphViewer graphViewer;
     private int offset = 640;
 
-    public FilterOffset_1(DataSet inputData, GraphViewer graphViewer) {
+    public FilterOffset_1(DataSeries inputData, GraphViewer graphViewer) {
         super(inputData);
         this.graphViewer = graphViewer;
     }

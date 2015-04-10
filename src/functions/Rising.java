@@ -1,6 +1,6 @@
 package functions;
 
-import data.DataSet;
+import data.DataSeries;
 
 /**
  * Определяем разницу между макс и мин значениями на заданном колличестве точек
@@ -8,11 +8,11 @@ import data.DataSet;
 public class Rising extends Function {
     int step;
 
-    public Rising(DataSet inputData) {
+    public Rising(DataSeries inputData) {
         this(inputData, 2);
     }
 
-    public Rising(DataSet inputData, int step) {
+    public Rising(DataSeries inputData, int step) {
         super(inputData);
         this.step = step;
     }

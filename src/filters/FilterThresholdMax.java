@@ -1,6 +1,6 @@
 package filters;
 
-import data.DataSet;
+import data.DataSeries;
 import functions.Function;
 
 /**
@@ -9,7 +9,7 @@ import functions.Function;
 public class FilterThresholdMax extends Function {
     int bufferSize;
  
-    public FilterThresholdMax(DataSet inputData) {
+    public FilterThresholdMax(DataSeries inputData) {
         super(inputData);
         bufferSize = 10;
     }

@@ -1,7 +1,7 @@
 package graph;
 
 import data.DataDimension;
-import data.DataSet;
+import data.DataSeries;
 import graph.painters.GraphPainter;
 import graph.painters.XAxisPainter;
 import graph.painters.YAxisPainter;
@@ -130,7 +130,7 @@ public class GraphPanel extends JPanel {
         fourierListeners.add(fourierListener);
     }
 
-    private void notifyFourierListeners(DataSet graph, int startIndex) {
+    private void notifyFourierListeners(DataSeries graph, int startIndex) {
         for (FourierListener listener : fourierListeners) {
             listener.doFourier(graph, startIndex);
         }

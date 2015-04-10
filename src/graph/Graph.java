@@ -1,17 +1,17 @@
 package graph;
 
-import data.DataSet;
+import data.DataSeries;
 
 public class Graph {
-    private DataSet graphData;
+    private DataSeries graphData;
     private GraphType graphType;
 
-    public Graph(DataSet graphData, GraphType graphType) {
+    public Graph(DataSeries graphData, GraphType graphType) {
         this.graphData = graphData;
         this.graphType = graphType;
     }
 
-    public DataSet getGraphData() {
+    public DataSeries getGraphData() {
         return graphData;
     }
 

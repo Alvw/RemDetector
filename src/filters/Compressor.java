@@ -1,6 +1,6 @@
 package filters;
 
-import data.DataSet;
+import data.DataSeries;
 import functions.Function;
 
 /**
@@ -12,7 +12,7 @@ import functions.Function;
  */
 public class Compressor extends Function {
     protected int compression;
-    public Compressor(DataSet inputData, int compression) {
+    public Compressor(DataSeries inputData, int compression) {
         super(inputData);
         this.compression = compression;
     }
