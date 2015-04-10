@@ -23,17 +23,17 @@ public class PeakDetector {
     private int thresholdShort;
     private int thresholdLong;
     private DataList thresholdList = new DataList();
-    private NoiseDetector noiseDetector;
-    private NoiseDetector noiseDetectorShort;
-    private NoiseDetector noiseDetectorShort1;
+    private NoiseSet noiseDetector;
+    private NoiseSet noiseDetectorShort;
+    private NoiseSet noiseDetectorShort1;
 
    PeakDetector(DataSet inputData) {
        this.inputData = inputData;
-       noiseDetector = new NoiseDetector(new FilterDerivativeRem(inputData), THRESHOLD_PERIOD_MSEC);
+       noiseDetector = new NoiseSet(new FilterDerivativeRem(inputData), THRESHOLD_PERIOD_MSEC);
        thresholdPeriodPoints = (int) (THRESHOLD_PERIOD_MSEC * this.inputData.getFrequency() / 1000);
 
-       noiseDetectorShort = new NoiseDetector(new FilterDerivativeRem(inputData), THRESHOLD_PERIOD_SHORT_MSEC);
-       noiseDetectorShort1 = new NoiseDetector(inputData, THRESHOLD_PERIOD_SHORT_MSEC);
+       noiseDetectorShort = new NoiseSet(new FilterDerivativeRem(inputData), THRESHOLD_PERIOD_SHORT_MSEC);
+       noiseDetectorShort1 = new NoiseSet(inputData, THRESHOLD_PERIOD_SHORT_MSEC);
        thresholdPeriodShortPoints = (int) (THRESHOLD_PERIOD_SHORT_MSEC * this.inputData.getFrequency() / 1000);
     }
 

@@ -6,7 +6,7 @@ import filters.*;
 import graph.GraphType;
 import graph.GraphViewer;
 import gui.MainWindow;
-import rem.NoiseDetector;
+import rem.NoiseSet;
 import rem.SaccadeDetector;
 
 /**
@@ -133,21 +133,9 @@ public class Presenter implements  ControllerListener {
 
         graphViewer.addGraphPanel(2, false);
         graphViewer.addGraph(eogDerivativeRemAbs);
-       // graphViewer.addGraph(saccadesRem.getThresholds());
-        graphViewer.addGraph(new NoiseDetector(eogDerivativeRem, 20000));
-        graphViewer.addGraph(new NoiseDetector(new FilterDerivativeRem(eogDerivativeRem), 20000));
+        graphViewer.addGraph(new NoiseSet(eogDerivativeRem, 20000));
+        graphViewer.addGraph(new NoiseSet(new FilterDerivativeRem(eogDerivativeRem), 20000));
         graphViewer.addGraph(saccadesRem.getThresholds());
-
-     //   graphViewer.addGraphPanel(2, true);
-     //   graphViewer.addGraph(new FilterDerivativeRem(new FilterDerivativeRem(eogFull)));
-     //   graphViewer.addGraph(saccadesRem.getThresholds());
-
-
-        //graphViewer.addGraph(new FilterConstant(eog, eogDerivativeLimit));
-        //graphViewer.addGraphPanel(2, true);
-        //graphViewer.addGraph(new FilterDerivative(eogDerivativeRem));
-       // graphViewer.addGraph(new FilterDerivativeRem(eogDerivativeRem));
-
 
 
         graphViewer.addPreviewPanel(2, false);

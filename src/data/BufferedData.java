@@ -1,22 +1,23 @@
 package data;
 
 public class BufferedData implements DataSet {
-    protected DataSet inputData;
+    protected DataStream inputData;
     protected DataList outputData = new DataList();
 
-    public BufferedData(DataSet inputData) {
+    public BufferedData(DataStream inputData) {
         this.inputData = inputData;
+    }
+
+    public BufferedData(DataSet inputData) {
+        this.inputData = new DataStreamAdapter(inputData);
     }
 
 
     @Override
     public int get(int index) {
-        if(outputData.size() > size()) {
-            outputData = new DataList();
-        }
         if (outputData.size()  <= index) {
             for (int i = outputData.size(); i <= index; i++) {
-                outputData.add(inputData.get(i));
+                outputData.add(inputData.getNext());
             }
         }
         return outputData.get(index);
@@ -25,7 +26,7 @@ public class BufferedData implements DataSet {
 
     @Override
     public int size() {
-        return inputData.size();
+        return outputData.size() + inputData.available();
     }
 
 
