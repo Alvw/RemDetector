@@ -30,12 +30,12 @@ class SaccadeDetector2 implements DataSeries {
 
     private static final int FOURIER_TIME = 6; // sec
 
-    private List<Peak> peakList = new ArrayList<Peak>();
-    private List<Peak> peakPackageList = new ArrayList<Peak>();
+    private List<Saccade> saccadeList = new ArrayList<Saccade>();
+    private List<Saccade> saccadePackageList = new ArrayList<Saccade>();
     private HashMap<Integer, Integer> output = new HashMap<Integer, Integer>();
     private DataSeries derivativeRem;
     private DataSeries derivative;
-    private Peak detectingPeak;
+    private Saccade detectingSaccade;
     private boolean isSaccadeUnderDetection = false;
     private boolean isPackageApproved = false;
     private boolean hasPackageBigSaccade = false;
@@ -79,9 +79,9 @@ class SaccadeDetector2 implements DataSeries {
         int noise = getNoise(index);
         if (!isSaccadeUnderDetection) {
             int lastSaccadeEnd = - thresholdPeriodPoints-1;
-            if(peakPackageList.size() > 0) {
-                Peak lastPeak = peakPackageList.get(peakPackageList.size() - 1);
-                lastSaccadeEnd = lastPeak.getEndIndex();
+            if(saccadePackageList.size() > 0) {
+                Saccade lastSaccade = saccadePackageList.get(saccadePackageList.size() - 1);
+                lastSaccadeEnd = lastSaccade.getEndIndex();
             }
             if(index - lastSaccadeEnd > thresholdPeriodPoints) {
                 threshold = noise * N;
@@ -92,76 +92,76 @@ class SaccadeDetector2 implements DataSeries {
 
             if (Math.abs(derivativeRem.get(index)) > threshold) {    // saccade begins
                 isSaccadeUnderDetection = true;
-                detectingPeak = new Peak();
-                detectingPeak.setBeginIndex(index);
-                detectingPeak.setPeakValue(derivativeRem.get(index));
-                detectingPeak.setPeakIndex(index);
+                detectingSaccade = new Saccade();
+                detectingSaccade.setBeginIndex(index);
+                detectingSaccade.setPeakValue(derivativeRem.get(index));
+                detectingSaccade.setPeakIndex(index);
             }
         } else {
-            if (Math.abs(derivativeRem.get(index)) > threshold && isEqualSign(derivativeRem.get(index), detectingPeak.getPeakValue())) {   // saccade  continues
-                if (Math.abs(derivativeRem.get(index)) > Math.abs(detectingPeak.getPeakValue())) {
-                    detectingPeak.setPeakValue(derivativeRem.get(index));
-                    detectingPeak.setPeakIndex(index);
+            if (Math.abs(derivativeRem.get(index)) > threshold && isEqualSign(derivativeRem.get(index), detectingSaccade.getPeakValue())) {   // saccade  continues
+                if (Math.abs(derivativeRem.get(index)) > Math.abs(detectingSaccade.getPeakValue())) {
+                    detectingSaccade.setPeakValue(derivativeRem.get(index));
+                    detectingSaccade.setPeakIndex(index);
                 }
             } else {   // saccade  ends
                 isSaccadeUnderDetection = false;
-                detectingPeak.setEndIndex(index);
-                if(isSaccadePossible(detectingPeak)) {
-                    addSaccadeToPackage(detectingPeak);
+                detectingSaccade.setEndIndex(index);
+                if(isSaccadePossible(detectingSaccade)) {
+                    addSaccadeToPackage(detectingSaccade);
                 }
-                detectingPeak = null;
+                detectingSaccade = null;
             }
         }
 
         thresholdList.add(threshold);
     }
 
-    private boolean isSaccadePossible(Peak peak) {
-        DataSeries fourier =  Fourie.fftBackward(derivative, peak.getEndIndex(), FOURIER_TIME);
+    private boolean isSaccadePossible(Saccade saccade) {
+        DataSeries fourier =  Fourie.fftBackward(derivative, saccade.getEndIndex(), FOURIER_TIME);
         if(FourierAnalizer.hasAlfa(fourier)) {
             return false;
         }
         return true;
     }
 
-    private void addSaccadeToPackage(Peak peak) {
+    private void addSaccadeToPackage(Saccade saccade) {
         int saccadesDistance = 0;
-        if(peakPackageList.size() > 0) {
-            Peak peakPreviose = peakPackageList.get(peakPackageList.size() - 1);
-            saccadesDistance = peak.getBeginIndex() - peakPreviose.getEndIndex();
+        if(saccadePackageList.size() > 0) {
+            Saccade saccadePreviose = saccadePackageList.get(saccadePackageList.size() - 1);
+            saccadesDistance = saccade.getBeginIndex() - saccadePreviose.getEndIndex();
         }
 
         if(saccadesDistance > saccadeMaxDistancePoints) {  // create new package
-            peakPackageList = new ArrayList<Peak>();
+            saccadePackageList = new ArrayList<Saccade>();
             isPackageApproved = false;
             hasPackageBigSaccade = false;
         }
 
-        peakPackageList.add(peak);
+        saccadePackageList.add(saccade);
 
         if(!isPackageApproved) { // we are not sure that package has saccades and not sumValue
-            if(Math.abs(peak.getPeakValue()) >= threshold * 2) {
+            if(Math.abs(saccade.getPeakValue()) >= threshold * 2) {
                 hasPackageBigSaccade = true;
             }
 
-            if(hasPackageBigSaccade && peakPackageList.size() > 1) { // approve package as saccades package
+            if(hasPackageBigSaccade && saccadePackageList.size() > 1) { // approve package as saccades package
                 isPackageApproved = true;
-                for(Peak peakPackage : peakPackageList) { // copy saccades from approved Package
-                    addSaccade(peakPackage);
+                for(Saccade saccadePackage : saccadePackageList) { // copy saccades from approved Package
+                    addSaccade(saccadePackage);
                 }
 
             }
         }
         else { // we are  sure that package has saccades and not sumValue
-            addSaccade(peak);
+            addSaccade(saccade);
         }
 
     }
 
-    private void addSaccade(Peak peak) {
-        peakList.add(peak);
-        for(int i = peak.getBeginIndex(); i <= peak.getEndIndex(); i++ ) {
-           output.put(i, Math.abs(peak.getPeakValue()));
+    private void addSaccade(Saccade saccade) {
+        saccadeList.add(saccade);
+        for(int i = saccade.getBeginIndex(); i <= saccade.getEndIndex(); i++ ) {
+           output.put(i, Math.abs(saccade.getPeakValue()));
         }
     }
 

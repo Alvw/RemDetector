@@ -21,9 +21,9 @@ class SaccadeDetector1 implements DataSeries {
     private static final int SACCADE_WIDTH_MIN_MSEC = 40;
     private static final int SACCADE_WIDTH_MAX_MSEC = 200;
 
-    private List<Peak> peakList = new ArrayList<Peak>();
+    private List<Saccade> saccadeList = new ArrayList<Saccade>();
     private DataSeries inputData;
-    private Peak detectingPeak;
+    private Saccade detectingSaccade;
     private boolean isUnderDetection = false;
     private int thresholdPeriodPoints;
     private int thresholdAreaPoints;
@@ -75,22 +75,22 @@ class SaccadeDetector1 implements DataSeries {
 
             if (Math.abs(inputData.get(index)) > threshold) {    // saccade begins
                 isUnderDetection = true;
-                detectingPeak = new Peak();
-                detectingPeak.setBeginIndex(index);
-                detectingPeak.setPeakValue(inputData.get(index));
-                detectingPeak.setPeakIndex(index);
+                detectingSaccade = new Saccade();
+                detectingSaccade.setBeginIndex(index);
+                detectingSaccade.setPeakValue(inputData.get(index));
+                detectingSaccade.setPeakIndex(index);
             }
         } else {
-            if (Math.abs(inputData.get(index)) > threshold && isEqualSign(inputData.get(index), detectingPeak.getPeakValue())) {   // saccade  continues
-                if (Math.abs(inputData.get(index)) > detectingPeak.getPeakValue()) {
-                    detectingPeak.setPeakValue(inputData.get(index));
-                    detectingPeak.setPeakIndex(index);
+            if (Math.abs(inputData.get(index)) > threshold && isEqualSign(inputData.get(index), detectingSaccade.getPeakValue())) {   // saccade  continues
+                if (Math.abs(inputData.get(index)) > detectingSaccade.getPeakValue()) {
+                    detectingSaccade.setPeakValue(inputData.get(index));
+                    detectingSaccade.setPeakIndex(index);
                 }
             } else {   // saccade  ends
                 isUnderDetection = false;
-                detectingPeak.setEndIndex(index);
-                peakList.add(detectingPeak);
-                detectingPeak = null;
+                detectingSaccade.setEndIndex(index);
+                saccadeList.add(detectingSaccade);
+                detectingSaccade = null;
             }
         }
         thresholdList.add(threshold);
@@ -103,9 +103,9 @@ class SaccadeDetector1 implements DataSeries {
                 detect(i);
             }
         }
-        for(Peak peak : peakList) {
-            if(peak.getBeginIndex() <= index && index <= peak.getEndIndex()) {
-                return Math.abs(peak.getPeakValue());
+        for(Saccade saccade : saccadeList) {
+            if(saccade.getBeginIndex() <= index && index <= saccade.getEndIndex()) {
+                return Math.abs(saccade.getPeakValue());
             }
         }
         return 0;

@@ -7,7 +7,7 @@ import graph.GraphType;
 import graph.GraphViewer;
 import gui.MainWindow;
 import rem.NoiseSeries;
-import rem.SaccadeDetector;
+import rem.SaccadeGroupDetector;
 
 /**
  * Created by mac on 19/02/15.
@@ -114,7 +114,7 @@ public class Presenter implements  ControllerListener {
         //DataSeries eogDerivativeRem =  new FilterLowPass(new FilterDerivativeRem(eogFull), 25.0);
         DataSeries eogDerivativeRemAbs =  new FilterAbs(eogDerivativeRem);
 
-        SaccadeDetector saccadesRem = new SaccadeDetector(eogFull);
+        SaccadeGroupDetector saccadesRem = new SaccadeGroupDetector(eogFull);
 
         graphViewer.addGraphPanel(2, true);
         graphViewer.addGraph(eog);
@@ -133,7 +133,7 @@ public class Presenter implements  ControllerListener {
 
         graphViewer.addGraphPanel(2, false);
         graphViewer.addGraph(eogDerivativeRemAbs);
-        graphViewer.addGraph(new NoiseSeries(eogDerivativeRem, 20000));
+        graphViewer.addGraph(new NoiseSeries(eogDerivativeRem, 200));
         graphViewer.addGraph(new NoiseSeries(new FilterDerivativeRem(eogDerivativeRem), 20000));
         graphViewer.addGraph(saccadesRem.getThresholds());
 

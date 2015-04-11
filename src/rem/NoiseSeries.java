@@ -13,7 +13,7 @@ public class NoiseSeries implements DataSeries {
     }
 
     public int get(int index) {
-        return noiseList.get(index) * 4;
+        return (int)(noiseList.get(index) * 3.5);
     }
 
 

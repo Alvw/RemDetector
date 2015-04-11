@@ -1,6 +1,6 @@
 package rem;
 
-public class Peak {
+public class Saccade {
     private int beginIndex;
     private int endIndex;
     private int peakIndex;
