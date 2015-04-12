@@ -7,7 +7,7 @@ import properties.GuiProperties;
 
 import javax.swing.*;
 
-public class BdfBroser {
+public class BdfBrowser {
     public static void main(String[] args) {
         try {
             String lookAndFeelClassName = UIManager.getCrossPlatformLookAndFeelClassName();
