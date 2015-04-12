@@ -10,6 +10,9 @@ public class RemChannels {
     private static final String ACCELEROMETER_X = "Accelerometer X";
     private static final String ACCELEROMETER_Y = "Accelerometer Y";
     private static final String ACCELEROMETER_Z = "Accelerometer Z";
+    private static final String ACCELEROMETER_1 = "Accelerometer 1";
+    private static final String ACCELEROMETER_2 = "Accelerometer 2";
+    private static final String ACCELEROMETER_3 = "Accelerometer 3";
 
     public RemChannels(int eog, int accelerometerX, int accelerometerY, int accelerometerZ) throws ApplicationException{
         init(eog, accelerometerX, accelerometerY, accelerometerZ);
@@ -24,13 +27,13 @@ public class RemChannels {
             if (signalsLabels[i].equals(EOG)) {
                 eogNumber = i;
             }
-            if (signalsLabels[i].equals(ACCELEROMETER_X)) {
+            if (signalsLabels[i].equals(ACCELEROMETER_X) || signalsLabels[i].equals(ACCELEROMETER_1)) {
                 accelerometerXNumber = i;
             }
-            if (signalsLabels[i].equals(ACCELEROMETER_Y)) {
+            if (signalsLabels[i].equals(ACCELEROMETER_Y) || signalsLabels[i].equals(ACCELEROMETER_2)) {
                 accelerometerYNumber = i;
             }
-            if (signalsLabels[i].equals(ACCELEROMETER_Z)) {
+            if (signalsLabels[i].equals(ACCELEROMETER_Z) || signalsLabels[i].equals(ACCELEROMETER_3)) {
                 accelerometerZNumber = i;
             }
         }
@@ -42,9 +45,19 @@ public class RemChannels {
         boolean[] isRemLabels = new boolean[labels.length];
         for (int i = 0; i < labels.length; i++) {
             isRemLabels[i] = false;
-            if (labels[i].equals(EOG) || labels[i].equals(ACCELEROMETER_X)  || labels[i].equals(ACCELEROMETER_Y)  || labels[i].equals(ACCELEROMETER_Z)){
+            if (labels[i].equals(EOG)) {
                 isRemLabels[i] = true;
             }
+            if (labels[i].equals(ACCELEROMETER_X) || labels[i].equals(ACCELEROMETER_1)) {
+                isRemLabels[i] = true;
+            }
+            if (labels[i].equals(ACCELEROMETER_Y) || labels[i].equals(ACCELEROMETER_2)) {
+                isRemLabels[i] = true;
+            }
+            if (labels[i].equals(ACCELEROMETER_Z) || labels[i].equals(ACCELEROMETER_3)) {
+                isRemLabels[i] = true;
+            }
+
         }
         return isRemLabels;
     }

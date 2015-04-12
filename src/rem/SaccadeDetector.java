@@ -24,7 +24,7 @@ public class SaccadeDetector {
     private int thresholdLong;
     private DataList thresholdList = new DataList();
     private NoiseDetector noiseDetector;
-    private NoiseDetector noiseDetectorShort;
+    private int noiseLag = 2; // points
 
     private int currentIndex;
 
@@ -32,15 +32,19 @@ public class SaccadeDetector {
        velocityData = new FilterDerivativeRem(eogData);
        DataSeries accelerationData =  new FilterDerivativeRem(velocityData);
        noiseDetector = new NoiseDetector(accelerationData, THRESHOLD_PERIOD_MSEC);
-       noiseDetector = new NoiseDetector(velocityData, THRESHOLD_PERIOD_MSEC);
-       noiseDetectorShort = new NoiseDetector(velocityData, THRESHOLD_PERIOD_SHORT_MSEC);
+      // noiseDetector = new NoiseDetector(velocityData, THRESHOLD_PERIOD_MSEC);
 
        thresholdPeriodShortPoints = (int) (THRESHOLD_PERIOD_SHORT_MSEC * this.velocityData.getFrequency() / 1000);
        thresholdPeriodPoints = (int) (THRESHOLD_PERIOD_MSEC * this.velocityData.getFrequency() / 1000);
    }
 
-    private int getThreshold(int noiseGlobal, int noiseLocal) {
+    private int getThreshold() {
+        if(currentIndex <= noiseLag) {
+            threshold  = Integer.MAX_VALUE;
+            return threshold;
+        }
         if(currentIndex < thresholdPeriodPoints) {
+            noiseDetector.getNext();
             threshold  = Integer.MAX_VALUE;
             return threshold;
         }
@@ -49,8 +53,12 @@ public class SaccadeDetector {
         if(previousSaccade != null) {
             lastPeakEnd = previousSaccade.getEndIndex();
         }
-        if(!isSaccadeUnderDetection && currentIndex - lastPeakEnd > thresholdPeriodPoints) {
-            threshold = (int)((noiseGlobal + noiseLocal) * N/ 2);
+        if(!isSaccadeUnderDetection &&  currentIndex - lastPeakEnd > noiseLag +2 ) {
+            int noise = noiseDetector.getNext();
+            threshold = (int)(noise * N);
+        }
+        else {
+            noiseDetector.skip();
         }
         return threshold;
     }
@@ -88,14 +96,7 @@ public class SaccadeDetector {
 
 
     public Saccade getNext() {
-        int noiseGlobal = 0;
-        int noiseLocal = 0;
-        int noiseLag = 1; // points
-        if(currentIndex >= noiseLag) {
-            noiseGlobal = noiseDetector.getNext();
-            noiseLocal = noiseDetectorShort.getNext();
-        }
-        int currentThreshold = getThreshold(noiseGlobal, noiseLocal);
+        int currentThreshold = getThreshold();
         Saccade resultSaccade = null;
         if (!isSaccadeUnderDetection) {
             if (Math.abs(velocityData.get(currentIndex)) > currentThreshold) {    // saccade begins
@@ -114,9 +115,10 @@ public class SaccadeDetector {
             } else {   // saccade  ends
                 isSaccadeUnderDetection = false;
                 detectingSaccade.setEndIndex(currentIndex);
-                detectingSaccade.setPeakRatio(Math.abs(detectingSaccade.getPeakValue()) / threshold);
-                if(detectingSaccade.getEndIndex() - detectingSaccade.getBeginIndex() > 1 && detectingSaccade.getPeakRatio() >=2) {
-
+                if(threshold > 0) {
+                    detectingSaccade.setPeakRatio(Math.abs(detectingSaccade.getPeakValue()) / threshold);
+                }
+                if(detectingSaccade.getEndIndex() - detectingSaccade.getBeginIndex() > 1 && detectingSaccade.getPeakRatio() >=1.5) {
                     previousSaccade = detectingSaccade;
                     resultSaccade = detectingSaccade;
                 }

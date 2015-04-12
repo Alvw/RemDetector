@@ -7,11 +7,7 @@ import properties.GuiProperties;
 
 import javax.swing.*;
 
-
-/**
- * Created by mac on 19/02/15.
- */
-public class RemDetector {
+public class BdfBroser {
     public static void main(String[] args) {
         try {
             String lookAndFeelClassName = UIManager.getCrossPlatformLookAndFeelClassName();
@@ -37,13 +33,12 @@ public class RemDetector {
             controller.setDeviceSignalsLabels(deviceSignalsLabels);
             controller.setRemConfigurator(remConfigurator);
             controller.setFrequencyAutoAdjustment(isFrequencyAutoAdjustment);
-            controller.setRemMode(true);
+            controller.setRemMode(false);
 
             MainWindow mainWindow = new MainWindow(controller, guiConfig);
 
             Presenter presenter = new Presenter(mainWindow);
             controller.addListener(presenter);
-
         } catch (ApplicationException e) {
             showMessage(e.getMessage());
         }

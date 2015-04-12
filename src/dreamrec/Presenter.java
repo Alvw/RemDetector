@@ -6,7 +6,6 @@ import filters.*;
 import graph.GraphType;
 import graph.GraphViewer;
 import gui.MainWindow;
-import rem.NoiseSeries;
 import rem.SaccadeGroupDetector;
 
 /**
@@ -57,14 +56,17 @@ public class Presenter implements  ControllerListener {
     }
 
     private void configureGraphViewer(DataStore dataStore) {
-        if(dataStore.getNumberOfChannels() > 0) {
-            DataSeries channel_1 = dataStore.getChannelData(0);
+        for(int i = 0; i < dataStore.getNumberOfChannels(); i++) {
+            DataSeries channel = dataStore.getChannelData(i);
             graphViewer.addGraphPanel(1, true);
-            graphViewer.addGraph(channel_1);
+            graphViewer.addGraph(channel);
+        }
 
+        if(dataStore.getNumberOfChannels() > 0) {
+            DataSeries channel = dataStore.getChannelData(0);
             graphViewer.addPreviewPanel(1, false);
-            DataSeries velocityRem =  new FilterAbs(new FilterDerivativeRem(channel_1));
-            graphViewer.addPreview(velocityRem, CompressionType.MAX);
+            DataSeries velocityRem =  new FilterAbs(new FilterDerivativeRem(channel));
+            graphViewer.addPreview(velocityRem, CompressionType.AVERAGE);
         }
 
     }
@@ -133,8 +135,8 @@ public class Presenter implements  ControllerListener {
 
         graphViewer.addGraphPanel(2, false);
         graphViewer.addGraph(eogDerivativeRemAbs);
-        graphViewer.addGraph(new NoiseSeries(eogDerivativeRem, 200));
-        graphViewer.addGraph(new NoiseSeries(new FilterDerivativeRem(eogDerivativeRem), 20000));
+       // graphViewer.addGraph(new NoiseSeries(eogDerivativeRem, 200));
+       // graphViewer.addGraph(new NoiseSeries(new FilterDerivativeRem(eogDerivativeRem), 200));
         graphViewer.addGraph(saccadesRem.getThresholds());
 
 
