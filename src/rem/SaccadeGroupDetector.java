@@ -35,6 +35,15 @@ public class SaccadeGroupDetector implements DataSeries {
         saccadeMaxDistancePoints = (int)(SACCADE_DISTANCE_MAX * inputData.getFrequency());
     }
 
+    public int getSaccadeValueMaxDigital() {
+        return saccadeDetector.getSaccadeValueMaxDigital();
+    }
+
+    public double getSaccadeMaxValuePhysical() {
+        return saccadeDetector.getSaccadeValueMaxPhysical();
+    }
+
+
 
     private void detectSaccade(int index) {
         currentIndex = index;

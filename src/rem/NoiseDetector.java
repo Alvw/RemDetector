@@ -54,6 +54,7 @@ public class NoiseDetector implements DataStream {
 
     /**
      * Skip input data if we dont want calculate it as a noise
+     * (to skip artifacts and so on)
      */
     public void skip() {
         counter++;

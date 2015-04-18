@@ -19,7 +19,6 @@ import java.util.ArrayList;
 public class RemDataStore  implements DataStoreListener {
 
     private double accMovementLimit = 0.15;
-    private double eogRemDerivativeMax = 600;
 
     private DataStore dataStore;
     private RemChannels remChannels;
@@ -106,10 +105,6 @@ public class RemDataStore  implements DataStoreListener {
     public double getAccMovementLimit() {
         // movementLimit = (int)(0.15 / getAccXData().getDataDimension().getGain());
         return accMovementLimit;
-    }
-
-    public double getEogRemDerivativeMax() {
-        return eogRemDerivativeMax;
     }
 
     public int getNumberOfChannels() {
@@ -199,7 +194,8 @@ public class RemDataStore  implements DataStoreListener {
     }
 
     private DataSeries isEogOk() {
-        return new Trigger(new FilterDerivativeRem(getEogData()), eogRemDerivativeMax);
+        FilterDerivativeRem derivativeRem = new FilterDerivativeRem(getEogData());
+        return new Trigger(derivativeRem, 400);
     }
 
 public DataSeries isSleep() {

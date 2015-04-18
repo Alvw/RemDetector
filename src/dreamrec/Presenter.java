@@ -78,16 +78,17 @@ public class Presenter implements  ControllerListener {
         DataSeries isSleep = remDataStore.isSleep();
 
         double accMovementLimit = remDataStore.getAccMovementLimit();
-        double eogDerivativeLimit = remDataStore.getEogRemDerivativeMax();
 
-        DataSeries eogDerivativeRem =  new FilterDerivativeRem(eog);
+        FilterDerivativeRem eogDerivativeRem =  new FilterDerivativeRem(eogFull);
         DataSeries eogDerivativeRemAbs =  new FilterAbs(eogDerivativeRem);
+    //    double eogDerivativeLimit = eogDerivativeRem.getPhysicalPossibleMax();
+
 
         graphViewer.addGraphPanel(2, true);
         graphViewer.addGraph(eog);
         graphViewer.addGraphPanel(2, false);
         graphViewer.addGraph(eogDerivativeRemAbs);
-        graphViewer.addGraph(new FilterConstant(eog, eogDerivativeLimit));
+     //   graphViewer.addGraph(new FilterConstant(eog, eogDerivativeLimit));
         graphViewer.addGraphPanel(2, false);
         graphViewer.addGraph(accMovement);
         graphViewer.addGraph(new FilterConstant(accMovement, accMovementLimit));
@@ -110,34 +111,27 @@ public class Presenter implements  ControllerListener {
         DataSeries isSleep = remDataStore.isSleep();
 
         double accMovementLimit = remDataStore.getAccMovementLimit();
-        double eogDerivativeLimit = remDataStore.getEogRemDerivativeMax();
 
-        DataSeries eogDerivativeRem =  new FilterDerivativeRem(eogFull);
+        FilterDerivativeRem eogDerivativeRem =  new FilterDerivativeRem(eogFull);
         //DataSeries eogDerivativeRem =  new FilterLowPass(new FilterDerivativeRem(eogFull), 25.0);
         DataSeries eogDerivativeRemAbs =  new FilterAbs(eogDerivativeRem);
 
-        SaccadeGroupDetector saccadesRem = new SaccadeGroupDetector(eogFull);
+        SaccadeGroupDetector saccades = new SaccadeGroupDetector(eogFull);
 
         graphViewer.addGraphPanel(2, true);
         graphViewer.addGraph(eog);
-        graphViewer.addGraphPanel(2, true);
-        graphViewer.addGraph(new FilterDerivative(eogFull));
-        //graphViewer.addGraph(saccades);
-       // graphViewer.addGraphPanel(2, true);
-        //graphViewer.addGraph(new FilterDerivative_N(eogFull, 2));
 
         graphViewer.addGraphPanel(2, false);
         graphViewer.addGraph(accMovement);
         graphViewer.addGraph(new FilterConstant(accMovement, accMovementLimit));
 
         graphViewer.addGraphPanel(2, false);
-        graphViewer.addGraph(saccadesRem);
+        graphViewer.addGraph(saccades);
 
         graphViewer.addGraphPanel(2, false);
         graphViewer.addGraph(eogDerivativeRemAbs);
-       // graphViewer.addGraph(new NoiseSeries(eogDerivativeRem, 200));
-       // graphViewer.addGraph(new NoiseSeries(new FilterDerivativeRem(eogDerivativeRem), 200));
-        graphViewer.addGraph(saccadesRem.getThresholds());
+        graphViewer.addGraph(new FilterConstant(eog, saccades.getSaccadeMaxValuePhysical()));
+        graphViewer.addGraph(saccades.getThresholds());
 
 
         graphViewer.addPreviewPanel(2, false);
@@ -146,6 +140,6 @@ public class Presenter implements  ControllerListener {
 
 
        graphViewer.addPreviewPanel(2, false);
-       graphViewer.addPreview(saccadesRem, CompressionType.MAX);
+       graphViewer.addPreview(saccades, CompressionType.MAX);
     }
 }
