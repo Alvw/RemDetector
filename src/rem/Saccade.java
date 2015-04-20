@@ -5,46 +5,58 @@ public class Saccade {
     private int endIndex;
     private int peakIndex;
     private int peakValue;
-    private double peakRatio;
+    private int threshold;
+    private int energy;
 
-
-    public double getPeakRatio() {
-        return peakRatio;
+    public Saccade(int index, int value, int threshold) {
+        beginIndex = index;
+        peakValue = value;
+        peakIndex = index;
+        endIndex = index;
+        energy = value * value;
+        this.threshold = threshold;
     }
 
-    public void setPeakRatio(double peakRatio) {
-        this.peakRatio = peakRatio;
+    public void addPoint(int index, int value) {
+        if(Math.abs(peakValue) < Math.abs(value)) {
+            peakValue = value;
+            peakIndex = index;
+        }
+        endIndex = index;
+        energy = energy + value * value;
     }
+
+    public int getWidth() {
+        return endIndex - beginIndex + 1;
+    }
+
+    public double getPeakToThresholdRatio() {
+        double peak = Math.abs(peakValue);
+        if(threshold != 0) {
+            return peak / threshold;
+        }
+        return 0;
+    }
+
+    public double getPeakToEnergyRatio() {
+        double peak = peakValue*peakValue;
+        return  peak / (energy/getWidth());
+    }
+
 
     public int getPeakValue() {
         return peakValue;
-    }
-
-    public void setPeakValue(int peakValue) {
-        this.peakValue = peakValue;
     }
 
     public int getBeginIndex() {
         return beginIndex;
     }
 
-    public void setBeginIndex(int beginIndex) {
-        this.beginIndex = beginIndex;
-    }
-
     public int getPeakIndex() {
         return peakIndex;
     }
 
-    public void setPeakIndex(int peakIndex) {
-        this.peakIndex = peakIndex;
-    }
-
     public int getEndIndex() {
         return endIndex;
-    }
-
-    public void setEndIndex(int endIndex) {
-        this.endIndex = endIndex;
     }
 }

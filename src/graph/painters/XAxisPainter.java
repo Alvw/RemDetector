@@ -135,12 +135,10 @@ public class XAxisPainter  {
 
     private void prepareTimeAxis(Graphics g, int startIndex,  double frequency, long startTime) {
         int width = g.getClipBounds().width;
-
         valueStamps = new HashMap<Integer, String>();
         valueIndexes = new ArrayList<Integer>();
         gridIndexes = new ArrayList<Integer>();
         interGridIndexes = new ArrayList<Integer>();
-
         int MSECOND = 1; //milliseconds
         int MSECONDS_2 = 2;
         int MSECONDS_5 = 5;
@@ -168,7 +166,7 @@ public class XAxisPainter  {
                 MSECONDS_100, MSECONDS_200, MSECONDS_500, SECOND, SECONDS_2, SECONDS_5, SECONDS_10,
                 SECONDS_30, MINUTE, MINUTES_2, MINUTES_5, MINUTES_10, MINUTES_30, HOUR, HOURS_2, HOURS_5};
 
-        int NUMBER_OF_POINTS_PER_TIME_INTERVAL_MIN = 100;
+        int NUMBER_OF_POINTS_PER_TIME_INTERVAL_MIN = 80;
         // as the ratio between nearby time intervals always <= 3
         int NUMBER_OF_POINTS_PER_TIME_INTERVAL_MAX = NUMBER_OF_POINTS_PER_TIME_INTERVAL_MIN * 3;
 

@@ -6,7 +6,7 @@ import filters.*;
 import graph.GraphType;
 import graph.GraphViewer;
 import gui.MainWindow;
-import rem.SaccadeGroupDetector;
+import rem.SaccadeBatchDetector;
 
 /**
  * Created by mac on 19/02/15.
@@ -116,23 +116,28 @@ public class Presenter implements  ControllerListener {
         //DataSeries eogDerivativeRem =  new FilterLowPass(new FilterDerivativeRem(eogFull), 25.0);
         DataSeries eogDerivativeRemAbs =  new FilterAbs(eogDerivativeRem);
 
-        SaccadeGroupDetector saccades = new SaccadeGroupDetector(eogFull);
+        SaccadeBatchDetector saccades = new SaccadeBatchDetector(eogFull);
 
         graphViewer.addGraphPanel(2, true);
         graphViewer.addGraph(eog);
 
-        graphViewer.addGraphPanel(2, false);
-        graphViewer.addGraph(accMovement);
-        graphViewer.addGraph(new FilterConstant(accMovement, accMovementLimit));
-
-        graphViewer.addGraphPanel(2, false);
-        graphViewer.addGraph(saccades);
+        graphViewer.addGraphPanel(2, true);
+        graphViewer.addGraph(new FilterDerivative(new FilterDerivative(eog)));
 
         graphViewer.addGraphPanel(2, false);
         graphViewer.addGraph(eogDerivativeRemAbs);
         graphViewer.addGraph(new FilterConstant(eog, saccades.getSaccadeMaxValuePhysical()));
         graphViewer.addGraph(saccades.getThresholds());
 
+        graphViewer.addGraphPanel(2, false);
+        graphViewer.addGraph(saccades);
+
+        graphViewer.addGraphPanel(2, true);
+        graphViewer.addGraph(new FilterHiPass(new FilterBandPass_Alfa(eog), 2));
+
+        graphViewer.addGraphPanel(1, false);
+        graphViewer.addGraph(accMovement);
+        graphViewer.addGraph(new FilterConstant(accMovement, accMovementLimit));
 
         graphViewer.addPreviewPanel(2, false);
         graphViewer.addPreview(eogDerivativeRemAbs, CompressionType.MAX);

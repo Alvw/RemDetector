@@ -4,21 +4,17 @@ import data.DataList;
 import data.DataSeries;
 import filters.FilterDerivativeRem;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 /**
  * Humans and many animals do not look at a scene in fixed steadiness and
  * eye moves not with a smooth, steady movements, but instead, in a series of little rapid jumps (Saccades)
  * separated by pauses - brief periods of relative stability or slow phase movements (Fixations)
  * On average, humans make 2–3 saccades a second.
- *
+ * <p/>
  * So SACCADE is quick, simultaneous movement of both eyes between two phases of fixation
  * (from one fixation point to another)
  * The parameters commonly employed in the analysis of saccadic performance are
  * amplitude, the maximum angular velocity, duration, and latency.
- *
+ * <p/>
  * SACCADE AMPLITUDES: ranges of 1 - 30°/s.
  * The amplitude of a saccade is the angular distance the eye travels during the movement.
  * Under natural conditions most saccades (83%) are smaller than 15°,
@@ -26,10 +22,10 @@ import java.util.Date;
  * In  the  EOG  technique  it is  difficult to measure  saccades  less then  1-2  degree
  * since  the  noise inherent.
  * (See "Characteristics  of  saccades  and  vergence  in  two  kinds  of  sequential looking  tasks"
- *  http://www.cis.rit.edu/pelz/lab/papers/malinov_epelboim_et_al_saccades_vergence_look-tap.pdf)
- *
- *  !! Saccades larger than about 20° is accompanied by a head movement !!
- *
+ * http://www.cis.rit.edu/pelz/lab/papers/malinov_epelboim_et_al_saccades_vergence_look-tap.pdf)
+ * <p/>
+ * !! Saccades larger than about 20° is accompanied by a head movement !!
+ * <p/>
  * SACCADE PEAK VELOCITY (the highest velocity reached during the saccade): 400 - 600 degrees/s
  * For amplitudes up to 15 or 20°, the velocity of a saccade linearly depends on the amplitude
  * (saccadic main sequence). For amplitudes larger than 20°, the peak velocity starts to plateau
@@ -42,71 +38,67 @@ import java.util.Date;
  * AVERAGING_TIME = 40 ms
  * And average velocity peak is at least 20-30 percent less then the instantaneous velocity peak.
  * MAX_PEAK_VELOCITY  = 700 °/s
- *
+ * <p/>
  * SACCADE DURATION:  20-200ms. Most of them 30-80ms
  * For example:  2.5° - 37ms, 5° - 45ms,  10° - 55ms... (±10ms)
  * As was said with EOG we can measure only saccades bigger then 1-2 degree
  * it is logical to assume that
  * SACCADE_DURATION_MIN = 37-40 ms
- *
+ * <p/>
  * It is frequently found that a big main saccade is followed by a second smaller corrective saccade
  * that brings the eye closer to the target o Glissades.
  * (Glissades - slow drifting eye movements occasionally seen at the end of saccadic eye movements)
  * So it can take another 40-120ms to complete such saccade and
  * SACCADE_DURATION_MAX = 200ms (main saccade) + 120ms (small correcting saccade or glissade) = 320 ms
- *
+ * <p/>
  * SACCADE LATENCY: 100-200 ms
  * Saccades to an unexpected stimulus normally take about 200 milliseconds (ms) to initiate.
  * When the target moves suddenly, there is a delay of about 200 ms before the eye begins
  * to move to the new target position.
- *
+ * <p/>
  * Humans (and other animals with a fovea) typically alternate Saccades and visual fFixations.
  * (The notable exception is Smooth Pursuit -  eye movements that allow the eyes to closely follow a moving object)
  * Fixations differ in their length but tend to be for about 200-600ms, although much longer fixations can occur
  * Fixation short(50ms), overlong(4900 ms) and major normal (150-900ms). So
  * SACCADE_DISTANCE_NORMAL = 600 - 1000 ms
  * SACCADE_DISTANCE_MAX = 5-6 sec
- *
+ * <p/>
  * And almost always before and after every saccade should be a short period of relative tranquility:
  * REST_TIME = 100-200 ms
- *
  */
 public class SaccadeDetector {
     private static final int SACCADE_DURATION_MIN = 40; // [ms]  (milliseconds)
     private static final int SACCADE_DURATION_MAX = 320; // [ms]
-    private static final int SACCADE_PEAK_VELOCITY_MAX  = 700; // [°/s]
+    private static final int SACCADE_PEAK_VELOCITY_MAX = 700; // [°/s]
     private static final int REST_TIME = 100; // [ms]
     private static final int AVERAGING_TIME = 40; // [ms]
     private static final int SACCADE_DISTANCE_NORMAL = 600; // [ms]
-    private static final int SACCADE_DISTANCE_MAX = 6000; // [ms]
     /**
-     *
-     *  The eye maintains a voltage of 0.40 to 1.0 millivolts with respect to the retinal.
-     *  This corneo-retinal dipole is roughly aligned with the optic axis and rotates correspondingly with the eye.
-     *  The corneoretinal potential can be measured by surface electrodes on the skin around eyes
-     *  and ranges:  of 15 to 200 microvolts, according to other sources to 400µV, to 1000µV and even from 50 to 3500µV.
-     *  !!! So this information has no no credibility and we need test how the potential on the skin around eyes
-     *  varies from person to person, different skin condition (dry, wet, with gel), illumination and so on !!!
-     *
-     *  The calibration data obtained with our device:
-     *  eyes movement from max right to max left gives potential change:
-     *  about +400 to -400 µV
-     *  (when electrodes located in the corners of the eyes)
-     *  about +300 to -300 µV
-     *  (when electrodes located on the forehead above the eyes)
-     *  Maximum eye rotation is  ±70°.
-     *  For horizontal eye movements within the range of ±30 degrees,
-     *  the potential measured is assumed to be linear to the actual movement of the eye in the orbit.
-     *  But linearity becomes progressively worse for angles beyond 30°.
-     *  So max nonlinear ±70° eye rotation could be approximated by linear ±40(50)° rotation
-     *  And it gives us our signal magnitudes about  10 µV/° (microvolts per degree)
-     *  SENSITIVITY = 10 µV/°
-     *
-     *  That coincides with the values for typical EOG-sensitivity ranges:  5-20 µV/°
-     *  and that in practice, 1° of eye movement evokes an average potential of 10–20 microvolts
-     *  (this value is more or less the same for all sources)
-     *  TYPICAL_SENSITIVITY = 10-20 µV/°
-     *
+     * The eye maintains a voltage of 0.40 to 1.0 millivolts with respect to the retinal.
+     * This corneo-retinal dipole is roughly aligned with the optic axis and rotates correspondingly with the eye.
+     * The corneoretinal potential can be measured by surface electrodes on the skin around eyes
+     * and ranges:  of 15 to 200 microvolts, according to other sources to 400µV, to 1000µV and even from 50 to 3500µV.
+     * !!! So this information has no no credibility and we need test how the potential on the skin around eyes
+     * varies from person to person, different skin condition (dry, wet, with gel), illumination and so on !!!
+     * <p/>
+     * The calibration data obtained with our device:
+     * eyes movement from max right to max left gives potential change:
+     * about +400 to -400 µV
+     * (when electrodes located in the corners of the eyes)
+     * about +300 to -300 µV
+     * (when electrodes located on the forehead above the eyes)
+     * Maximum eye rotation is  ±70°.
+     * For horizontal eye movements within the range of ±30 degrees,
+     * the potential measured is assumed to be linear to the actual movement of the eye in the orbit.
+     * But linearity becomes progressively worse for angles beyond 30°.
+     * So max nonlinear ±70° eye rotation could be approximated by linear ±40(50)° rotation
+     * And it gives us our signal magnitudes about  10 µV/° (microvolts per degree)
+     * SENSITIVITY = 10 µV/°
+     * <p/>
+     * That coincides with the values for typical EOG-sensitivity ranges:  5-20 µV/°
+     * and that in practice, 1° of eye movement evokes an average potential of 10–20 microvolts
+     * (this value is more or less the same for all sources)
+     * TYPICAL_SENSITIVITY = 10-20 µV/°
      */
     private static final int SENSITIVITY = 14; // [µV/°]
     private static final double SACCADE_VALUE_MAX_PHYSICAL =
@@ -139,13 +131,13 @@ public class SaccadeDetector {
     private int saccadeValueMaxDigital;
 
 
-   SaccadeDetector(DataSeries eogData) {
-       velocityData = new FilterDerivativeRem(eogData, AVERAGING_TIME);
-       DataSeries accelerationData =  new FilterDerivativeRem(velocityData, AVERAGING_TIME);
-       noiseDetectorGlobal = new NoiseDetector(accelerationData, THRESHOLD_PERIOD_GLOBAL);
-       noiseDetectorLocal = new NoiseDetector(accelerationData, THRESHOLD_PERIOD_LOCAL);
-       saccadeValueMaxDigital = (int)(SACCADE_VALUE_MAX_PHYSICAL / eogData.getDataDimension().getGain());
-   }
+    SaccadeDetector(DataSeries eogData) {
+        velocityData = new FilterDerivativeRem(eogData, AVERAGING_TIME);
+        DataSeries accelerationData = new FilterDerivativeRem(velocityData, AVERAGING_TIME);
+        noiseDetectorGlobal = new NoiseDetector(accelerationData, THRESHOLD_PERIOD_GLOBAL);
+        noiseDetectorLocal = new NoiseDetector(accelerationData, THRESHOLD_PERIOD_LOCAL);
+        saccadeValueMaxDigital = (int) (SACCADE_VALUE_MAX_PHYSICAL / eogData.getDataDimension().getGain());
+    }
 
     public int getSaccadeValueMaxDigital() {
         return saccadeValueMaxDigital;
@@ -158,31 +150,30 @@ public class SaccadeDetector {
     private int getThreshold() {
         int thresholdGlobalPeriodPoints = (int) (THRESHOLD_PERIOD_GLOBAL * getFrequency() / 1000);
 
-        if(currentIndex <= THRESHOLD_SHIFT_POINTS) {
-            threshold  = Integer.MAX_VALUE;
+        if (currentIndex <= THRESHOLD_SHIFT_POINTS) {
+            threshold = Integer.MAX_VALUE;
             return threshold;
         }
-        if(currentIndex < thresholdGlobalPeriodPoints) {
+        if (currentIndex < thresholdGlobalPeriodPoints) {
             noiseDetectorGlobal.getNext();
-            threshold  = Integer.MAX_VALUE;
+            threshold = Integer.MAX_VALUE;
             return threshold;
         }
 
-        if(noiseDetectorLocal.getNext() == 0) {   // means connection problems and  signal failure
+        if (noiseDetectorLocal.getNext() == 0) {   // means connection problems and  signal failure
             noiseDetectorGlobal.skip();
-            threshold  = Integer.MAX_VALUE;
+            threshold = Integer.MAX_VALUE;
             return Integer.MAX_VALUE;
         }
 
-        int lastPeakEnd = - thresholdGlobalPeriodPoints;
-        if(previousSaccade != null) {
+        int lastPeakEnd = -thresholdGlobalPeriodPoints;
+        if (previousSaccade != null) {
             lastPeakEnd = previousSaccade.getEndIndex();
         }
-        if(!isSaccadeUnderDetection &&  currentIndex - lastPeakEnd > THRESHOLD_SHIFT_POINTS +2 ) {
+        if (!isSaccadeUnderDetection && currentIndex - lastPeakEnd > THRESHOLD_SHIFT_POINTS + 2) {
             int noise = noiseDetectorGlobal.getNext();
-            threshold = (int)(noise * N);
-        }
-        else {
+            threshold = (int) (noise * N);
+        } else {
             noiseDetectorGlobal.skip();
         }
         return threshold;
@@ -196,22 +187,21 @@ public class SaccadeDetector {
      * movements show essentially two distributions of velocities:
      * low velocities for fixations (i.e., <100 deg/sec), and high
      * velocities (i.e., >300 deg/sec) for saccades
-     *
+     * <p/>
      * Our algorithm:
      * 1) instead of fixed threshold use adaptive threshold calculated from the signal data itself during some period
      * 2) combine acceleration and velocity data: the threshold we calculated from the acceleration data
-     *    and then use it to detect velocity peaks.
-     *    (As acceleration actually involves data from more points: velocity = x2 - x1 and
-     *    acceleration = x3 + x1 - 2*x2, acceleration threshold is more sensitive to noise and
-     *    permits cut it off more effective, while in REM where "noise" decrease
-     *    Acceleration and Velocity thresholds are almost equal)
+     * and then use it to detect velocity peaks.
+     * (As acceleration actually involves data from more points: velocity = x2 - x1 and
+     * acceleration = x3 + x1 - 2*x2, acceleration threshold is more sensitive to noise and
+     * permits cut it off more effective, while in REM where "noise" decrease
+     * Acceleration and Velocity thresholds are almost equal)
      * 3) instead of  instantaneous velocity and acceleration we use the averaged (for 40ms) ones.
-     *    That also reduce random noise and emphasize saccades
+     * That also reduce random noise and emphasize saccades
      * 4) Threshold is calculated on the base of energy, summarizing the squares of the values (instead of absolute values)
-     *    (Parseval's theorem:  the sum (or integral) of the square of a function is equal to the sum (or integral)
-     *    of the square of its Fourier transform. So from a physical point of view, more adequately work
-     *    with squares values (energy) )
-     *
+     * (Parseval's theorem:  the sum (or integral) of the square of a function is equal to the sum (or integral)
+     * of the square of its Fourier transform. So from a physical point of view, more adequately work
+     * with squares values (energy) )
      */
     public Saccade getNext() {
         int currentThreshold = getThreshold();
@@ -219,38 +209,21 @@ public class SaccadeDetector {
         if (!isSaccadeUnderDetection) {
             if (Math.abs(velocityData.get(currentIndex)) > currentThreshold) {    // saccade begins
                 isSaccadeUnderDetection = true;
-                detectingSaccade = new Saccade();
-                detectingSaccade.setBeginIndex(currentIndex);
-                detectingSaccade.setPeakValue(velocityData.get(currentIndex));
-                detectingSaccade.setPeakIndex(currentIndex);
+                detectingSaccade = new Saccade(currentIndex, velocityData.get(currentIndex), threshold);
             }
         } else {
             if (Math.abs(velocityData.get(currentIndex)) > currentThreshold && isEqualSign(velocityData.get(currentIndex), detectingSaccade.getPeakValue())) {   // saccade  continues
-                if (Math.abs(velocityData.get(currentIndex)) > Math.abs(detectingSaccade.getPeakValue())) {
-                    detectingSaccade.setPeakValue(velocityData.get(currentIndex));
-                    detectingSaccade.setPeakIndex(currentIndex);
-                }
+                detectingSaccade.addPoint(currentIndex, velocityData.get(currentIndex));
             } else {   // saccade  ends
                 isSaccadeUnderDetection = false;
-                detectingSaccade.setEndIndex(currentIndex);
-
-                int saccadeDurationMinPoints = Math.round((float)(SACCADE_DURATION_MIN * getFrequency() / 1000));
-                int saccadeDurationMaxPoints = Math.round((float)(SACCADE_DURATION_MAX * getFrequency() / 1000));
-
-                if(threshold > 0) {
-                    detectingSaccade.setPeakRatio(Math.abs(detectingSaccade.getPeakValue()) / threshold);
-                }
-                if(detectingSaccade.getEndIndex() - detectingSaccade.getBeginIndex() >= saccadeDurationMinPoints
-                        && detectingSaccade.getEndIndex() - detectingSaccade.getBeginIndex() <= saccadeDurationMaxPoints
+                int saccadeDurationMinPoints = Math.round((float) (SACCADE_DURATION_MIN * getFrequency() / 1000));
+                int saccadeDurationMaxPoints = Math.round((float) (SACCADE_DURATION_MAX * getFrequency() / 1000));
+                if (detectingSaccade.getWidth() >= saccadeDurationMinPoints
+                        && detectingSaccade.getWidth() <= saccadeDurationMaxPoints
                         && Math.abs(detectingSaccade.getPeakValue()) < saccadeValueMaxDigital
-                        && detectingSaccade.getPeakRatio() >= SACCADE_THRESHOLD_RATIO_MIN) {
+                        && detectingSaccade.getPeakToThresholdRatio() >= SACCADE_THRESHOLD_RATIO_MIN) {
                     previousSaccade = detectingSaccade;
                     resultSaccade = detectingSaccade;
-
-                    DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-                    long time = velocityData.getStartTime() + (long) (currentIndex * 1000 / getFrequency());
-                    String timeStamp = dateFormat.format(new Date(time));
-                 //   System.out.println(timeStamp +" width "+(detectingSaccade.getEndIndex() - detectingSaccade.getBeginIndex()));
                 }
 
                 detectingSaccade = null;

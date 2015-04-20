@@ -4,7 +4,6 @@ import data.CompressionType;
 import data.DataSeries;
 import data.FrequencyConverter;
 import data.FrequencyConverterRuntime;
-import dreamrec.FourierAnalizer;
 import fft.Fourie;
 import fft.FourierViewer;
 import filters.FilterFourierIntegral;
@@ -44,9 +43,9 @@ public class FourierHandler implements FourierListener, GraphControllerListener 
         DataSeries fourierIntegral = new FilterFourierIntegral(fourier);
 
 
-        System.out.println("has Alpha " +FourierAnalizer.hasAlfa(fourier));
+/*        System.out.println("has Alpha " +FourierAnalizer.hasAlfa(fourier));
         System.out.println("high " +FourierAnalizer.getHighFrequenciesSum(fourier));
-        System.out.println("" );
+        System.out.println("" );  */
 
 
         FrequencyConverter result = new FrequencyConverterRuntime(fourierIntegral, CompressionType.SUM);

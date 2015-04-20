@@ -23,7 +23,7 @@ public class NoiseDetector implements DataStream {
     }
 
 /**
- * Calculate average energy of inputData for given period.
+ * Calculate noise as an average energy of inputData for given period.
  * That's why we summarizing squared values (instead of absolute values) of inputData
  * and then finally get the square root of the result sum
  *
