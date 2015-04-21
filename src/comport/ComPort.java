@@ -1,182 +1,100 @@
 package comport;
 
-import gnu.io.CommPort;
-import gnu.io.CommPortIdentifier;
-import gnu.io.SerialPort;
+import dreamrec.ApplicationException;
+import jssc.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.List;
 
-public class ComPort {
+/**
+ * Library jSSC is used.
+ * jSSC (Java Simple Serial Connector) - library for working with serial ports from Java.
+ * jSSC support Win32(Win98-Win8), Win64, Linux(x86, x86-64, ARM), Solaris(x86, x86-64),
+ * Mac OS X 10.5 and higher(x86, x86-64, PPC, PPC64)
+ * https://code.google.com/p/java-simple-serial-connector/
+ * http://www.quizful.net/post/java-serial-ports
+ *
+ */
+public class ComPort implements SerialPortEventListener {
 
     private static Log log = LogFactory.getLog(ComPort.class);
-    private InputStream inputStream;
-    private OutputStream outputStream;
-    private boolean isConnected;
-    CommPort commPort;
-    SerialReader serialReader;
-    Thread serialReaderThread;
-    SerialWriter serialWriter;
-    Thread serialWriterThread;
+    SerialPort comPort;
+    private ComPortListener comPortListener;
 
-    public ComPort(String comPortName, int speed) throws Exception {
-        if (isConnected) {
-            return;
+    public ComPort(String comPortName, int speed) throws ApplicationException, SerialPortException {
+        boolean isComPortExist = false;
+        comPortName.trim();
+        String[] portNames = SerialPortList.getPortNames();
+        for(int i = 0; i < portNames.length; i++){
+            if(comPortName != null && comPortName.equalsIgnoreCase(portNames[i])) {
+                isComPortExist = true;
+            }
         }
-        CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(comPortName);
-        if (portIdentifier.isCurrentlyOwned()) {
-            log.error("Error: Port is currently in use");
-        } else {
-            commPort = portIdentifier.open(this.getClass().getName(), 2000);
-            if (commPort instanceof SerialPort) {
-                SerialPort serialPort = (SerialPort) commPort;
-                serialPort.setSerialPortParams(speed, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
-                inputStream = serialPort.getInputStream();
-                outputStream = serialPort.getOutputStream();
-                isConnected = true;
-                serialReader = new SerialReader(inputStream);
-                serialReaderThread = new Thread(serialReader);
-                serialReaderThread.start();
-                serialWriter = new SerialWriter(outputStream);
-                serialWriterThread = new Thread(serialWriter);
-                serialWriterThread.start();
-            } else {
-                log.error("Error: Not a serial ports.");
+
+        if(!isComPortExist) {
+           String msg = "No port with the name " + comPortName;
+           throw new ApplicationException(msg);
+        }
+        comPort = new SerialPort(comPortName);
+        if(!comPort.isOpened()) {
+            comPort.openPort();//Open serial port
+            comPort.setParams(speed,
+                    SerialPort.DATABITS_8,
+                    SerialPort.STOPBITS_1,
+                    SerialPort.PARITY_NONE);
+            // Строка serialPort.setEventsMask(SerialPort.MASK_RXCHAR) устанавливает маску ивентов для com порта,
+            // фактически это список событий, на которые мы хотим реагировать.
+            // В данном случае MASK_RXCHAR будет извещать слушателей о приходе данных во входной буфер порта.
+            comPort.setEventsMask(SerialPort.MASK_RXCHAR);
+            comPort.addEventListener(this);
+        }
+    }
+
+    public void disconnect() {
+        if (comPort.isOpened()) {
+            try {
+                comPort.closePort();
+
+            } catch (SerialPortException e) {
+                log.error(e);
             }
         }
     }
 
-
-    public void disconnect() {
-        if (!isConnected)
-            return;
-        try {
-            isConnected = false;
-            serialReader.disconnect();
-            serialWriter.disconnect();
-            inputStream.close();
-            outputStream.close();
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    commPort.close();
-                }
-            }).start();
-        } catch (IOException e) {
-            log.error(e);
-        }
-    }
-
     public void writeToPort(List<Byte> bytes) {
-        if(isConnected){
-            serialWriter.write(bytes);
+        if (comPort.isOpened()) {
+            try {
+                byte[] bytesArray = new byte[bytes.size()];
+                for (int i = 0; i < bytes.size(); i++) {
+                    bytesArray[i] = bytes.get(i);
+                }
+                comPort.writeBytes(bytesArray);
+            } catch (SerialPortException ex) {
+                log.error(ex);
+            }
+
         } else {
             log.warn("Com port disconnected. Can't write to port.");
         }
     }
 
     public void setComPortListener(ComPortListener comPortListener) {
-        serialReader.setComPortListener(comPortListener);
+        this.comPortListener = comPortListener;
     }
 
-    public static class SerialReader implements Runnable {
-        private boolean isConnected = true;
-        private InputStream in;
-        private ComPortListener comPortListener;
-
-        public SerialReader(InputStream in) {
-            this.in = in;
-        }
-
-        public void disconnect() {
-            isConnected = false;
-        }
-
-
-        public void setComPortListener(ComPortListener comPortListener) {
-            this.comPortListener = comPortListener;
-        }
-
-        public void run() {
-            int len = -1;
-            byte[] buf = new byte[8];
+    @Override
+    public void serialEvent(SerialPortEvent event) {
+        if (event.isRXCHAR() && event.getEventValue() > 0) {
             try {
-                while (isConnected) {
-                    len = this.in.read(buf);
-                    while (isConnected && (len = this.in.read(buf)) > -1) {
-                        for (int i = 0; i < len; i++) {
-                            if (comPortListener != null) {
-                                comPortListener.onByteReceived((buf[i]));
-                            }
-                        }
-                    }
-                    Thread.sleep(100);
-                }
-            } catch (IOException e) {
-                log.error(e);
-            } catch (InterruptedException e){
-                log.error(e);
-            }
-        }
-    }
-
-
-    public static class SerialWriter implements Runnable {
-        private OutputStream out;
-        List<Byte> data = new ArrayList<Byte>();
-        boolean isConnected = true;
-        boolean isDataReady = false;
-
-        public SerialWriter(OutputStream out) {
-            this.out = out;
-        }
-
-        public void write(List<Byte> dataList) {
-            synchronized (data) {
-                data.clear();
-                data.addAll(dataList);
-                isDataReady = true;
-                data.notifyAll();
-            }
-        }
-
-        public void run() {
-            synchronized (data) {
-                while (isConnected) {
-                    while (!isDataReady) {
-                        try {
-                            data.wait(1000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    byte[] outData = new byte[data.size()];
-                    for (int i = 0; i < outData.length; i++) {
-                        outData[i] = data.get(i);
-                    }
-                    try {
-                        if (isConnected) {
-                            out.write(outData);
-                            isDataReady = false;
-                        }
-                    } catch (IOException e) {
-                        log.error(e);
+                byte[] buffer = comPort.readBytes();
+                for (int i = 0; i < buffer.length; i++) {
+                    if (comPortListener != null) {
+                        comPortListener.onByteReceived((buffer[i]));
                     }
                 }
+            } catch (SerialPortException ex) {
+                log.error(ex);
             }
-        }
-
-        public void disconnect() {
-            isConnected = false;
-            isDataReady = true;
-           /* synchronized (data) {
-                data.notifyAll();    //todo lock
-            }*/
         }
     }
 }

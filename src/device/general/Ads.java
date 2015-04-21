@@ -4,8 +4,7 @@ import bdf.*;
 import comport.ComPort;
 import data.DataDimension;
 import dreamrec.ApplicationException;
-import gnu.io.NoSuchPortException;
-import gnu.io.PortInUseException;
+import jssc.SerialPortException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -40,14 +39,7 @@ public class Ads implements BdfProvider {
             comPort.setComPortListener(frameDecoder);
             comPort.writeToPort(adsConfigurator.writeAdsConfiguration());
             isRecording = true;
-        } catch (NoSuchPortException e) {
-            String msg = "No port with the name " + adsConfiguration.getComPortName() + "\n" + failConnectMessage;
-            log.error(msg, e);
-            throw new ApplicationException(msg, e);
-        } catch (PortInUseException e) {
-            log.error(failConnectMessage, e);
-            throw new ApplicationException(failConnectMessage, e);
-        } catch (Throwable e) {
+        } catch (SerialPortException  e) {
             log.error(failConnectMessage, e);
             throw new ApplicationException(failConnectMessage, e);
         }

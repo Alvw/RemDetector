@@ -3,7 +3,7 @@ package dreamrec;
 /**
  *
  */
-public class ApplicationException extends Throwable{
+public class ApplicationException extends Exception {
 
     public ApplicationException(String message) {
         super(message);
