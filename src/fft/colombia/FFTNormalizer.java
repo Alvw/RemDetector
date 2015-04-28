@@ -30,10 +30,6 @@ public class FFTNormalizer implements DataSeries {
         return getN()/2;
     }
 
-    public double getFrequency(int i) {
-        return i * getFrequencyStep();
-    }
-
     public double getAmplitude(int i) {
         double amplitude =  Math.sqrt(re[i] * re[i] + im[i] * im[i])/ getN();
         if(i > 0) {

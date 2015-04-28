@@ -2,9 +2,7 @@ package dreamrec;
 
 import bdf.BdfConfig;
 import bdf.BdfNormalizer;
-import bdf.RecordingBdfConfig;
 import prefilters.FrequencyDividingPreFilter;
-import prefilters.HiPassPreFilter;
 import prefilters.PreFilter;
 
 /**
@@ -13,24 +11,14 @@ import prefilters.PreFilter;
 public class RemConfigurator {
     private int eogRemFrequency;
     private int accelerometerRemFrequency;
-    private int eogRemCutoffPeriod;
     // real max sps (Samples per seconds) is about 2000...
     // rps(records per seconds) <= sps
     private final int RPS_MAX = 20000;
 
 
-    public RemConfigurator(int eogRemFrequency, int accelerometerRemFrequency, int eogRemCutoffPeriod) {
+    public RemConfigurator(int eogRemFrequency, int accelerometerRemFrequency) {
         this.eogRemFrequency = eogRemFrequency;
         this.accelerometerRemFrequency = accelerometerRemFrequency;
-        this.eogRemCutoffPeriod = eogRemCutoffPeriod;
-    }
-
-    public int getEogRemCutoffPeriod() {
-        return eogRemCutoffPeriod;
-    }
-
-    public int getEogRemFrequency() {
-        return eogRemFrequency;
     }
 
     /*
@@ -75,12 +63,7 @@ public class RemConfigurator {
                     int divider = frequencies[i] / eogRemFrequency;
                     if(divider > 1) {
                        preFilters[i] = new FrequencyDividingPreFilter(divider);
-                      // preFilters[i] = new FrequencyDividingPreFilter(new HiPassPreFilter(bufferSize), divider);
 
-
-                    }
-                    if(divider == 1) {
-                       // preFilters[i] = new HiPassPreFilter(bufferSize);
                     }
                 } else {
                     String errorMsg = "Eog Frequency= " + frequencies[i] + " is not divisible by EogRemFrequency=" + eogRemFrequency;

@@ -27,7 +27,7 @@ public class BdfBrowser {
             String[] deviceSignalsLabels = applicationProperties.getDeviceChannelsLabels();
             boolean isFrequencyAutoAdjustment = applicationProperties.isFrequencyAutoAdjustment();
             RemConfigurator remConfigurator = new RemConfigurator(applicationProperties.getEogRemFrequency(),
-                    applicationProperties.getAccelerometerRemFrequency(), applicationProperties.getEogRemCutoffPeriod());
+                    applicationProperties.getAccelerometerRemFrequency());
 
             Controller controller = new Controller(deviceFabric);
             controller.setDeviceSignalsLabels(deviceSignalsLabels);

@@ -64,38 +64,40 @@ public class XAxisPainter  {
 
     private void prepareSimpleAxis(Graphics g, int startIndex, Scaling scaling) {
         double pointDistance = 1;
+        double start = 0;
         if(scaling != null) {
             pointDistance = scaling.getSamplingInterval();
+            start = scaling.getStart();
         }
         int width = g.getClipBounds().width;
 
-        int minPointsNumber = 50;
-        double minStep = minPointsNumber * pointDistance;
+        int minPointsNumber = 60;
+        double stepMin = minPointsNumber * pointDistance;
 
-        int exponent = (int) Math.log10(minStep);
-        if(Math.log10(minStep) < 0) {
+        int exponent = (int) Math.log10(stepMin);
+        if(Math.log10(stepMin) < 0) {
             exponent = exponent - 1;
         }
 
 
-        double minStepNormalized = minStep / Math.pow(10, exponent);
-        int firstFigure = (int) (minStep / Math.pow(10, exponent));
+        double stepMinNormalized = stepMin / Math.pow(10, exponent);
+        int firstFigure = (int) (stepMin / Math.pow(10, exponent));
 
-        int[] steps = {2, 5, 10};
-        double step = 0;
+        int[] possibleSteps = {2, 5, 10};
+        double valueStampsStep = 0;
         int j=0;
-        while(step == 0 && j < steps.length) {
-            if (minStepNormalized == steps[j] || firstFigure < steps[j]) {
-                step = steps[j];
+        while(valueStampsStep == 0 && j < possibleSteps.length) {
+            if (stepMinNormalized == possibleSteps[j] || firstFigure < possibleSteps[j]) {
+                valueStampsStep = possibleSteps[j];
             }
-            if(step == 10){
-                step = 1;
+            if(valueStampsStep == 10){
+                valueStampsStep = 1;
                 exponent = exponent + 1;
             }
             j++;
         }
 
-        step = step * Math.pow(10, exponent);
+        valueStampsStep = valueStampsStep * Math.pow(10, exponent);
         String stringFormat = "%.0f";
         if(exponent < 0) {
             stringFormat = "%."+Math.abs(exponent)+"f";
@@ -106,27 +108,32 @@ public class XAxisPainter  {
         gridIndexes = new ArrayList<Integer>();
         interGridIndexes = new ArrayList<Integer>();
 
-        double stepPointsNumber = step/pointDistance;
-        for(int i = 0; i <= width; i++) {
-            int index = startIndex + i;
-            int divider = (int)(index / stepPointsNumber);
-            double value = step * divider;
-            if(index - divider * stepPointsNumber < 1) {
+        for(int index = startIndex; index <= startIndex + width; index++) {
+            double indexValue = start + index * pointDistance;
+            double nextValue = start + (index + 1) * pointDistance;
+            long n_index = (long)(indexValue / valueStampsStep);
+            long n_next = (long)(nextValue / valueStampsStep);
+            if(n_index != n_next) {
                 valueIndexes.add(index);
-                valueStamps.put(index, String.format(stringFormat, value));
+                valueStamps.put(index, String.format(stringFormat, n_next * valueStampsStep));
             }
-            double fifthStepPointsNumber = stepPointsNumber / 5;
-            divider =  (int)(index / fifthStepPointsNumber);
-            if(index - divider * fifthStepPointsNumber < 1) {
+
+            double gridStep = valueStampsStep / 5;
+            n_index = (long)(indexValue / gridStep);
+            n_next = (long)(nextValue / gridStep);
+            if(n_index != n_next) {
                 gridIndexes.add(index);
             }
-            double tenthStepPointsNumber = stepPointsNumber / 10;
-            divider =  (int)(index / tenthStepPointsNumber);
-            if(index - divider * tenthStepPointsNumber < 1) {
+
+            double interGridStep = gridStep / 2;
+            n_index = (long)(indexValue / interGridStep);
+            n_next = (long)(nextValue / interGridStep);
+            if(n_index != n_next) {
                 interGridIndexes.add(index);
             }
         }
     }
+
 
     private void prepareTimeAxis(Graphics g, int startIndex,  Scaling scaling) {
         int width = g.getClipBounds().width;
@@ -167,16 +174,16 @@ public class XAxisPainter  {
         // as the ratio between nearby time intervals always <= 3
         int NUMBER_OF_POINTS_PER_TIME_INTERVAL_MAX = NUMBER_OF_POINTS_PER_TIME_INTERVAL_MIN * 3;
 
-        int TIME_INTERVAL_DIVIDER_MAX = 5;
-        int TIME_INTERVAL_DIVIDER_MIN = 3;
+        int GRIDS_DIVIDER_MAX = 5;
+        int GRIDS_DIVIDER_MIN = 3;
 
         String DATE_FORMAT_FULL = "HH:mm:ss-SSS";
         String DATE_FORMAT_SEC = "HH:mm:ss";
         String DATE_FORMAT_MIN = "HH:mm";
         String DATE_FORMAT_HOUR = "HH";
 
-        int timeInterval = MSECOND;
-        int timeIntervalDivider = TIME_INTERVAL_DIVIDER_MAX;
+        int timeStampsInterval = MSECOND;
+        int gridsDivider = GRIDS_DIVIDER_MAX;
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT_FULL);
 
         int timeIntervalMin = (int) (NUMBER_OF_POINTS_PER_TIME_INTERVAL_MIN * samplingInterval * 1000);
@@ -185,63 +192,51 @@ public class XAxisPainter  {
         for (int i = TIME_INTERVALS.length - 1; i >= 0; i--) {
             int interval = TIME_INTERVALS[i];
             if (timeIntervalMin <= interval && interval <= timeIntervalMax) {
-                timeInterval = interval;
+                timeStampsInterval = interval;
             }
         }
 
-        if (timeInterval >= SECOND) {
+        if (timeStampsInterval >= SECOND) {
             dateFormat = new SimpleDateFormat(DATE_FORMAT_SEC);
         }
-        if (timeInterval >= MINUTE) {
+        if (timeStampsInterval >= MINUTE) {
             dateFormat = new SimpleDateFormat(DATE_FORMAT_MIN);
         }
-        if (timeInterval >= HOUR) {
+        if (timeStampsInterval >= HOUR) {
             dateFormat = new SimpleDateFormat(DATE_FORMAT_HOUR);
         }
-        if (timeInterval == MINUTE || timeInterval == HOUR || timeInterval == SECONDS_30
-                || timeInterval == MINUTES_30) {
-            timeIntervalDivider = TIME_INTERVAL_DIVIDER_MIN;
+        if (timeStampsInterval == MINUTE || timeStampsInterval == HOUR || timeStampsInterval == SECONDS_30
+                || timeStampsInterval == MINUTES_30) {
+            gridsDivider = GRIDS_DIVIDER_MIN;
         }
 
+        for (int index = startIndex; index <= startIndex + width; index++) {
+            long indexTime = startTime + (long) (index * samplingInterval * 1000);
+            long nextTime = startTime + (long) ((index + 1) * samplingInterval * 1000 );
+            long n_index = indexTime / timeStampsInterval;
+            long n_next = nextTime / timeStampsInterval;
+            if (n_next != n_index) { // means that time mark is located between points i and i+1
+                String timeStamp = dateFormat.format(new Date(n_next * timeStampsInterval));
+                valueIndexes.add(index);
+                valueStamps.put(index, timeStamp);
+            }
 
-        int timeIntervalPoints = (int) (timeInterval / (samplingInterval * 1000));
-        int indexFrom = startIndex - timeIntervalPoints;
-        int indexTill = startIndex + width + timeIntervalPoints;
+            double gridsInterval = timeStampsInterval / gridsDivider;
+            n_index = (long)(indexTime / gridsInterval);
+            n_next = (long)(nextTime / gridsInterval);
+            if (n_next != n_index) {
+                gridIndexes.add(index);
+            }
 
-        for (int i = indexFrom; i <= indexTill; i++) {
-            long iTime = startTime + (long) (i * samplingInterval * 1000);
-            long nextTime = startTime + (long) ((i + 1) * samplingInterval * 1000 );
-            if (iTime < 0) {
-                iTime = 0;
-                if (valueIndexes.size() == 0)
-                    valueIndexes.add(0);
-            }
-            if (nextTime < 0) {
-                nextTime = 0;
-            }
-            long n = iTime / timeInterval;
-            long n_next = nextTime / timeInterval;
-            if (n_next != n) { // means that time mark is located between points i and i+1
-                String timeStamp = dateFormat.format(new Date((n + 1) * timeInterval));
-                valueIndexes.add(i);
-                valueStamps.put(i, timeStamp);
-            }
-        }
-        for (int i = 0; i < valueIndexes.size() - 1; i++) {
-            int delta = valueIndexes.get(i + 1) - valueIndexes.get(i);
-            for (int j = 0; j < timeIntervalDivider; j++) {
-                int markIndex = valueIndexes.get(i) + delta * j / timeIntervalDivider;
-                gridIndexes.add(markIndex);
+            double interGridsInterval = gridsInterval / 2;
+            n_index = (long)(indexTime / interGridsInterval);
+            n_next = (long)(nextTime / interGridsInterval);
+            if (n_next != n_index) {
+                interGridIndexes.add(index);
             }
         }
-
-        for (int i = 0; i < gridIndexes.size() - 1; i++) {
-            int delta = gridIndexes.get(i + 1) - gridIndexes.get(i);
-            int markIndex = gridIndexes.get(i) + delta / 2;
-            interGridIndexes.add(markIndex);
-        }
-
     }
+
 
     private void paint(Graphics g, int startIndex) {
         Graphics2D g2d = (Graphics2D) g;

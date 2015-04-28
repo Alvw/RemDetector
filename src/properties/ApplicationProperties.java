@@ -12,7 +12,6 @@ public class ApplicationProperties extends FileProperties {
 
     private static final String ACCELEROMETER_REM_FREQUENCY = "rem.accelerometer_frequency";
     private static final String EOG_REM_FREQUENCY = "rem.eog_frequency";
-    private static final String EOG_REM_CUTOFF_PERIOD = "rem.eog_cutoff_period";
 
     public ApplicationProperties(String file) throws ApplicationException {
         super(file);
@@ -65,11 +64,5 @@ public class ApplicationProperties extends FileProperties {
     public int getEogRemFrequency() {
         int defaultValue = -1;
         return config.getInt(EOG_REM_FREQUENCY, defaultValue);
-    }
-
-
-    public int getEogRemCutoffPeriod() {
-        int defaultValue = 0;
-        return config.getInt(EOG_REM_CUTOFF_PERIOD, defaultValue);
     }
 }

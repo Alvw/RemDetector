@@ -72,8 +72,9 @@ public class Presenter implements  ControllerListener {
 
 
     private void rem(RemDataStore remDataStore) {
+        int eogCutOffPeriod = 10; //sec. to remove steady component (cutoff_frequency = 1/cutoff_period )
         DataSeries eogFull = remDataStore.getEogData();
-        DataSeries eog = new HiPassCollectingFilter(eogFull, 10);
+        DataSeries eog = new HiPassCollectingFilter(eogFull, eogCutOffPeriod);
         DataSeries accMovement = remDataStore.getAccMovementData();
         DataSeries isSleep = remDataStore.isSleep();
 
