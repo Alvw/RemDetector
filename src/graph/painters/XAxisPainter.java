@@ -63,12 +63,11 @@ public class XAxisPainter  {
     }
 
     private void prepareSimpleAxis(Graphics g, int startIndex, Scaling scaling) {
-        double samplingRate = 1 / scaling.getSamplingInterval();
-        int width = g.getClipBounds().width;
         double pointDistance = 1;
-        if(samplingRate > 0) {
-            pointDistance = 1 / samplingRate;
+        if(scaling != null) {
+            pointDistance = scaling.getSamplingInterval();
         }
+        int width = g.getClipBounds().width;
 
         int minPointsNumber = 50;
         double minStep = minPointsNumber * pointDistance;
@@ -131,7 +130,7 @@ public class XAxisPainter  {
 
     private void prepareTimeAxis(Graphics g, int startIndex,  Scaling scaling) {
         int width = g.getClipBounds().width;
-        double samplingRate = 1 / scaling.getSamplingInterval();
+        double samplingInterval = scaling.getSamplingInterval();
         long startTime = (long)scaling.getStart();
         valueStamps = new HashMap<Integer, String>();
         valueIndexes = new ArrayList<Integer>();
@@ -180,8 +179,8 @@ public class XAxisPainter  {
         int timeIntervalDivider = TIME_INTERVAL_DIVIDER_MAX;
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT_FULL);
 
-        int timeIntervalMin = (int) (NUMBER_OF_POINTS_PER_TIME_INTERVAL_MIN * 1000 / samplingRate);
-        int timeIntervalMax = (int) (NUMBER_OF_POINTS_PER_TIME_INTERVAL_MAX * 1000 / samplingRate);
+        int timeIntervalMin = (int) (NUMBER_OF_POINTS_PER_TIME_INTERVAL_MIN * samplingInterval * 1000);
+        int timeIntervalMax = (int) (NUMBER_OF_POINTS_PER_TIME_INTERVAL_MAX * samplingInterval * 1000);
 
         for (int i = TIME_INTERVALS.length - 1; i >= 0; i--) {
             int interval = TIME_INTERVALS[i];
@@ -205,13 +204,13 @@ public class XAxisPainter  {
         }
 
 
-        int timeIntervalPoints = (int) (timeInterval * samplingRate / 1000);
+        int timeIntervalPoints = (int) (timeInterval / (samplingInterval * 1000));
         int indexFrom = startIndex - timeIntervalPoints;
         int indexTill = startIndex + width + timeIntervalPoints;
 
         for (int i = indexFrom; i <= indexTill; i++) {
-            long iTime = startTime + (long) (i * 1000 / samplingRate);
-            long nextTime = startTime + (long) ((i + 1) * 1000 / samplingRate);
+            long iTime = startTime + (long) (i * samplingInterval * 1000);
+            long nextTime = startTime + (long) ((i + 1) * samplingInterval * 1000 );
             if (iTime < 0) {
                 iTime = 0;
                 if (valueIndexes.size() == 0)
