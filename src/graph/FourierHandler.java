@@ -2,8 +2,7 @@ package graph;
 
 import data.CompressionType;
 import data.DataSeries;
-import data.FrequencyConverter;
-import data.FrequencyConverterRuntime;
+import data.DataCompressor;
 import fft.Fourie;
 import fft.FourierViewer;
 import filters.FilterFourierIntegral;
@@ -42,17 +41,14 @@ public class FourierHandler implements FourierListener, GraphControllerListener 
         DataSeries fourier =  Fourie.fftForward(graph, graphModel.getStartIndex(), time);
         DataSeries fourierIntegral = new FilterFourierIntegral(fourier);
 
-
 /*        System.out.println("has Alpha " +FourierAnalizer.hasAlfa(fourier));
         System.out.println("high " +FourierAnalizer.getHighFrequenciesSum(fourier));
         System.out.println("" );  */
 
 
-        FrequencyConverter result = new FrequencyConverterRuntime(fourierIntegral, CompressionType.SUM);
-        //result = new FrequencyConverterRuntime(fourier, CompressionType.SUM);
+        DataCompressor result = new DataCompressor(fourierIntegral, CompressionType.SUM);
+        //result = new DataCompressor(fourier, CompressionType.SUM);
         result.setCompression(0.25);
-
-
 
         return result;
     }

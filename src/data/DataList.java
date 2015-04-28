@@ -9,9 +9,7 @@ import gnu.trove.list.array.TIntArrayList;
  */
 public class DataList  implements DataSeries {
     private TIntArrayList intArrayList;
-    private double frequency = 0;
-    private long startTime = 0;
-    private DataDimension dataDimension = new DataDimension();
+    private Scaling scaling;
 
 
     public DataList() {
@@ -29,27 +27,8 @@ public class DataList  implements DataSeries {
         intArrayList.set(index, value);
     }
 
-    public void setFrequency(double frequency) {
-        this.frequency = frequency;
-    }
-
-    public void setDataDimension(DataDimension dataDimension) {
-        this.dataDimension = dataDimension;
-    }
-
-
-    public void setStartTime(long startTime) {
-        this.startTime = startTime;
-    }
-
-    @Override
-    public long getStartTime() {
-        return startTime;
-    }
-
-    @Override
-    public DataDimension getDataDimension() {
-        return dataDimension;
+    public void setScaling(Scaling scaling) {
+        this.scaling = scaling;
     }
 
     @Override
@@ -63,7 +42,7 @@ public class DataList  implements DataSeries {
     }
 
     @Override
-    public double getFrequency() {
-        return frequency;
+    public Scaling getScaling() {
+        return scaling;
     }
 }

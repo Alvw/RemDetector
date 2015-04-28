@@ -1,6 +1,6 @@
 package graph.painters;
 
-import data.DataDimension;
+import data.Scaling;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -10,15 +10,15 @@ public class YAxisPainter {
     private Color gridColor = new Color(0, 40, 0);
 
 
-    public void paint(Graphics g, double zoom, DataDimension dataDimension) {
+    public void paint(Graphics g, double zoom, Scaling scaling) {
         FontMetrics fm = g.getFontMetrics(g.getFont());
         int fontHeight = fm.getHeight();
         int minPointStep = fontHeight + 4; // distance between two labels in pixels
         double gain = 1;
         String physicalDimension = "";
-        if (dataDimension != null) {
-            physicalDimension = dataDimension.getPhysicalDimension();
-            gain = dataDimension.getGain();
+        if (scaling != null) {
+            physicalDimension = scaling.getDataDimension();
+            gain = scaling.getDataGain();
         }
 
         if(gain <= 0) {

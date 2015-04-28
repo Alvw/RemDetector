@@ -1,24 +1,41 @@
 package data;
 
-public class FrequencyConverterRuntime implements FrequencyConverter {
+public class DataCompressor implements DataSeries {
     private DataSeries inputData;
     private CompressionType compressionType;
     private double compression = 1;
 
-    public FrequencyConverterRuntime(DataSeries inputData, CompressionType compressionType, double compression) {
+    public DataCompressor(DataSeries inputData, CompressionType compressionType, double compression) {
         this.inputData = inputData;
         this.compressionType = compressionType;
         this.compression = compression;
     }
 
 
-    public FrequencyConverterRuntime(DataSeries inputData, CompressionType compressionType) {
+    public DataCompressor(DataSeries inputData, CompressionType compressionType) {
        this(inputData, compressionType, 1);
     }
 
+
+    public void setCompression(double compression) {
+        this.compression = compression;
+    }
+
+    public void setSamplingRate(double samplingRate) {
+          if(inputData.getScaling() != null) {
+              compression = 1 / (samplingRate * inputData.getScaling().getSamplingInterval());
+          }
+    }
+
+    public void setSamplingInterval(double samplingInterval) {
+        if(inputData.getScaling() != null) {
+            compression = samplingInterval / inputData.getScaling().getSamplingInterval();
+        }
+    }
+
+
     @Override
     public int get(int index) {
-
         if(compression == 1) {
             return inputData.get(index);
         }
@@ -52,36 +69,19 @@ public class FrequencyConverterRuntime implements FrequencyConverter {
         return (int)result;
     }
 
-
-    @Override
-    public void setFrequency(double frequency) {
-        if(inputData.getFrequency() > 0) {
-            compression = inputData.getFrequency() /frequency;
-        }
-    }
-
-    @Override
-    public void setCompression(double compression) {
-        this.compression = compression;
-    }
-
     @Override
     public int size() {
         return (int)(inputData.size() / compression);
     }
 
     @Override
-    public double getFrequency() {
-        return inputData.getFrequency() / compression;
-    }
-
-    @Override
-    public long getStartTime() {
-        return inputData.getStartTime();
-    }
-
-    @Override
-    public DataDimension getDataDimension() {
-        return inputData.getDataDimension();
+    public Scaling getScaling() {
+        Scaling scalingInput = inputData.getScaling();
+        if(scalingInput != null) {
+            ScalingImpl scalingOutput = new ScalingImpl(scalingInput);
+            scalingOutput.setSamplingInterval(scalingInput.getSamplingInterval() * compression);
+            return scalingOutput;
+        }
+        return null;
     }
 }

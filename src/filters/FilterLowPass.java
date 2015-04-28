@@ -18,7 +18,11 @@ public class FilterLowPass extends FilterBuffered {
 
     public FilterLowPass(DataSeries inputData, double cutOffFrequency) {
         super(inputData);
-        bufferSize = (int) (inputData.getFrequency() / cutOffFrequency);
+        double frequency = 1;
+        if(inputData.getScaling() != null) {
+            frequency = inputData.getScaling().getSamplingInterval();
+        }
+        bufferSize = (int) (frequency / cutOffFrequency);
     }
 
     @Override

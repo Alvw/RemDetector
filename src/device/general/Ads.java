@@ -2,7 +2,7 @@ package device.general;
 
 import bdf.*;
 import comport.ComPort;
-import data.DataDimension;
+import bdf.Calibration;
 import dreamrec.ApplicationException;
 import jssc.SerialPortException;
 import org.apache.commons.logging.Log;
@@ -92,13 +92,13 @@ public class Ads implements BdfProvider {
             if (adsConfiguration.isChannelEnabled(i)) {
                 int physicalMax = 2400000 / adsConfiguration.getChannelGain(i).getValue();
                 int numberOfSamplesInEachDataRecord = adsConfiguration.getMaxDivider().getValue() / adsConfiguration.getChannelDivider(i).getValue();
-                DataDimension dataDimension = new DataDimension();
-                dataDimension.setDigitalMax(8388607);
-                dataDimension.setDigitalMin(-8388608);
-                dataDimension.setPhysicalMax(physicalMax);
-                dataDimension.setPhysicalMin(-physicalMax);
-                dataDimension.setPhysicalDimension("uV");
-                SignalConfig signalConfig = new SignalConfig(numberOfSamplesInEachDataRecord, dataDimension);
+                Calibration calibration = new Calibration();
+                calibration.setDigitalMax(8388607);
+                calibration.setDigitalMin(-8388608);
+                calibration.setPhysicalMax(physicalMax);
+                calibration.setPhysicalMin(-physicalMax);
+                calibration.setPhysicalDimension("uV");
+                SignalConfig signalConfig = new SignalConfig(numberOfSamplesInEachDataRecord, calibration);
                 signalConfig.setLabel("Channel " + (i + 1));
                 signalConfig.setTransducerType("Unknown");
                 signalConfig.setPrefiltering("None");
@@ -108,13 +108,13 @@ public class Ads implements BdfProvider {
         for (int i = 0; i < 3; i++) {
             int numberOfSamplesInEachDataRecord = adsConfiguration.getMaxDivider().getValue()  / adsConfiguration.getAccelerometerDivider().getValue();
             if (adsConfiguration.isAccelerometerEnabled()) {
-                DataDimension dataDimension = new DataDimension();
-                dataDimension.setDigitalMax(30800);
-                dataDimension.setDigitalMin(-30800);
-                dataDimension.setPhysicalMax(2);
-                dataDimension.setPhysicalMin(-2);
-                dataDimension.setPhysicalDimension("g");
-                SignalConfig signalConfig = new SignalConfig(numberOfSamplesInEachDataRecord, dataDimension);
+                Calibration calibration = new Calibration();
+                calibration.setDigitalMax(30800);
+                calibration.setDigitalMin(-30800);
+                calibration.setPhysicalMax(2);
+                calibration.setPhysicalMin(-2);
+                calibration.setPhysicalDimension("g");
+                SignalConfig signalConfig = new SignalConfig(numberOfSamplesInEachDataRecord, calibration);
                 signalConfig.setLabel("Accelerometer " + (i + 1));
                 signalConfig.setTransducerType("Unknown");
                 signalConfig.setPrefiltering("None");
@@ -124,13 +124,13 @@ public class Ads implements BdfProvider {
 
         // channel for device specific information (loff status and so on);
         int numberOfSamplesInEachDataRecord = 1;
-        DataDimension dataDimension = new DataDimension();
-        dataDimension.setDigitalMax(8388607);
-        dataDimension.setDigitalMin(-8388608);
-        dataDimension.setPhysicalMax(8388607);
-        dataDimension.setPhysicalMin(-8388607);
-        dataDimension.setPhysicalDimension("");
-        SignalConfig signalConfig = new SignalConfig(numberOfSamplesInEachDataRecord, dataDimension);
+        Calibration calibration = new Calibration();
+        calibration.setDigitalMax(8388607);
+        calibration.setDigitalMin(-8388608);
+        calibration.setPhysicalMax(8388607);
+        calibration.setPhysicalMin(-8388607);
+        calibration.setPhysicalDimension("");
+        SignalConfig signalConfig = new SignalConfig(numberOfSamplesInEachDataRecord, calibration);
         signalConfig.setLabel("System events");
         signalConfig.setTransducerType("Unknown");
         signalConfig.setPrefiltering("None");

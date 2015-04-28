@@ -1,12 +1,10 @@
 package rem;
 
-import data.DataDimension;
 import data.DataSeries;
-import data.DataStream;
 
 import java.util.LinkedList;
 
-public class NoiseDetector implements DataStream {
+public class NoiseDetector {
     private DataSeries inputData;
     private int counter = 0;
     private LinkedList<Integer> bufferedValues;
@@ -15,7 +13,11 @@ public class NoiseDetector implements DataStream {
 
     public NoiseDetector(DataSeries inputData, int periodMsec) {
         this.inputData = inputData;
-        numberOfPoints = Math.round((float)(periodMsec * inputData.getFrequency() / 1000));
+        double frequency = 1;
+        if(inputData.getScaling() != null) {
+            frequency = 1 / inputData.getScaling().getSamplingInterval();
+        }
+        numberOfPoints = Math.round((float)(periodMsec * frequency / 1000));
         if(numberOfPoints < 1) {
             numberOfPoints = 1;
         }
@@ -32,7 +34,6 @@ public class NoiseDetector implements DataStream {
  * So from a physical point of view, more adequately work with squares values (energy)
  */
 
-    @Override
     public int getNext() {
         int value =  inputData.get(counter++);
         bufferedValues.add(value);
@@ -60,23 +61,5 @@ public class NoiseDetector implements DataStream {
         counter++;
     }
 
-    @Override
-    public int available() {
-        return inputData.size() - counter;
-    }
 
-    @Override
-    public double getFrequency() {
-        return inputData.getFrequency();
-    }
-
-    @Override
-    public long getStartTime() {
-        return inputData.getStartTime();
-    }
-
-    @Override
-    public DataDimension getDataDimension() {
-        return inputData.getDataDimension();
-    }
 }

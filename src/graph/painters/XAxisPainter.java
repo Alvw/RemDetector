@@ -1,6 +1,9 @@
 package graph.painters;
 
 
+import data.Scaling;
+import data.ScalingImpl;
+
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.text.DateFormat;
@@ -10,8 +13,6 @@ import java.util.Date;
 import java.util.HashMap;
 
 public class XAxisPainter  {
-
-
 
     private XAxisBasePainter painter = new XAxisBasePainter();
     private boolean  isGridPaint = true;
@@ -23,12 +24,6 @@ public class XAxisPainter  {
     private ArrayList<Integer> gridIndexes;
     private ArrayList<Integer> interGridIndexes;
 
-    private boolean isTimeAxis = true;
-
-
-    public XAxisPainter(boolean isTimeAxis) {
-        this.isTimeAxis = isTimeAxis;
-    }
 
     public void isGridPaint(boolean isGridPaint) {
         this.isGridPaint = isGridPaint;
@@ -44,7 +39,7 @@ public class XAxisPainter  {
     }
 
 
-    private void prepareSimpleAxis_(Graphics g, int startIndex, double frequency) {
+    private void prepareSimpleAxis_(Graphics g, int startIndex, double samplingRate) {
         int width = g.getClipBounds().width;
 
         valueStamps = new HashMap<Integer, String>();
@@ -67,11 +62,12 @@ public class XAxisPainter  {
         }
     }
 
-    private void prepareSimpleAxis(Graphics g, int startIndex, double frequency) {
+    private void prepareSimpleAxis(Graphics g, int startIndex, Scaling scaling) {
+        double samplingRate = 1 / scaling.getSamplingInterval();
         int width = g.getClipBounds().width;
         double pointDistance = 1;
-        if(frequency > 0) {
-            pointDistance = 1 / frequency;
+        if(samplingRate > 0) {
+            pointDistance = 1 / samplingRate;
         }
 
         int minPointsNumber = 50;
@@ -133,8 +129,10 @@ public class XAxisPainter  {
         }
     }
 
-    private void prepareTimeAxis(Graphics g, int startIndex,  double frequency, long startTime) {
+    private void prepareTimeAxis(Graphics g, int startIndex,  Scaling scaling) {
         int width = g.getClipBounds().width;
+        double samplingRate = 1 / scaling.getSamplingInterval();
+        long startTime = (long)scaling.getStart();
         valueStamps = new HashMap<Integer, String>();
         valueIndexes = new ArrayList<Integer>();
         gridIndexes = new ArrayList<Integer>();
@@ -182,8 +180,8 @@ public class XAxisPainter  {
         int timeIntervalDivider = TIME_INTERVAL_DIVIDER_MAX;
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT_FULL);
 
-        int timeIntervalMin = (int) (NUMBER_OF_POINTS_PER_TIME_INTERVAL_MIN * 1000 / frequency);
-        int timeIntervalMax = (int) (NUMBER_OF_POINTS_PER_TIME_INTERVAL_MAX * 1000 / frequency);
+        int timeIntervalMin = (int) (NUMBER_OF_POINTS_PER_TIME_INTERVAL_MIN * 1000 / samplingRate);
+        int timeIntervalMax = (int) (NUMBER_OF_POINTS_PER_TIME_INTERVAL_MAX * 1000 / samplingRate);
 
         for (int i = TIME_INTERVALS.length - 1; i >= 0; i--) {
             int interval = TIME_INTERVALS[i];
@@ -207,13 +205,13 @@ public class XAxisPainter  {
         }
 
 
-        int timeIntervalPoints = (int) (timeInterval * frequency / 1000);
+        int timeIntervalPoints = (int) (timeInterval * samplingRate / 1000);
         int indexFrom = startIndex - timeIntervalPoints;
         int indexTill = startIndex + width + timeIntervalPoints;
 
         for (int i = indexFrom; i <= indexTill; i++) {
-            long iTime = startTime + (long) (i * 1000 / frequency);
-            long nextTime = startTime + (long) ((i + 1) * 1000 / frequency);
+            long iTime = startTime + (long) (i * 1000 / samplingRate);
+            long nextTime = startTime + (long) ((i + 1) * 1000 / samplingRate);
             if (iTime < 0) {
                 iTime = 0;
                 if (valueIndexes.size() == 0)
@@ -265,12 +263,15 @@ public class XAxisPainter  {
     }
 
 
-    public void paint(Graphics g, int startIndex,  double frequency, long startTime) {
-        if(isTimeAxis && frequency != 0) {
-            prepareTimeAxis(g, startIndex, frequency, startTime);
+    public void paint(Graphics g, int startIndex, Scaling scaling) {
+        if(scaling == null) {
+            scaling = new ScalingImpl();
+        }
+        if(scaling.isTimeSeries()) {
+            prepareTimeAxis(g, startIndex, scaling);
         }
         else {
-            prepareSimpleAxis(g, startIndex, frequency);
+            prepareSimpleAxis(g, startIndex, scaling);
         }
         paint(g, startIndex);
     }

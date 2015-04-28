@@ -100,12 +100,12 @@ public class GraphController implements GraphEventHandler {
 
 
     public void setGraphFrequency(double graphFrequency) {
-        graphModel.setGraphFrequency(graphFrequency);
+        graphModel.setGraphsSamplingRate(graphFrequency);
         fireDataUpdated();
     }
 
     public void setPreviewFrequency(double previewFrequency) {
-        graphModel.setPreviewFrequency(previewFrequency);
+        graphModel.setPreviewsSamplingRate(previewFrequency);
         fireDataUpdated();
     }
 

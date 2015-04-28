@@ -1,7 +1,7 @@
 package functions;
 
-import data.DataDimension;
 import data.DataSeries;
+import data.Scaling;
 
 /**
  *
@@ -20,18 +20,8 @@ public abstract class Function implements DataSeries {
     }
 
     @Override
-    public double getFrequency() {
-        return inputData.getFrequency();
-    }
-
-    @Override
-    public DataDimension getDataDimension() {
-        return inputData.getDataDimension();
-    }
-
-    @Override
-    public long getStartTime() {
-        return inputData.getStartTime();
+    public Scaling getScaling() {
+        return inputData.getScaling();
     }
 }
 

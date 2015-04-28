@@ -9,6 +9,14 @@ public class FilterFourierIntegral extends Function {
         super(inputData);
     }
 
+    private double getFrequency() {
+        double frequency = 1;
+        if(inputData.getScaling() != null){
+            frequency = 1 / inputData.getScaling().getSamplingInterval();
+        }
+        return frequency;
+    }
+
     @Override
     public int get(int index) {
         double frequencyStep = 1 / getFrequency();

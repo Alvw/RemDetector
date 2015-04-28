@@ -1,7 +1,8 @@
 package functions;
 
-import data.DataDimension;
 import data.DataSeries;
+import data.Scaling;
+import data.ScalingImpl;
 import dreamrec.ApplicationException;
 
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import java.util.List;
  */
 public class Composition implements DataSeries {
     private List<DataSeries> inputDataList = new ArrayList<DataSeries>();
+    private Scaling scaling;
     private String errMsg = "It is only possible to make combinations with signals which: \n" +
             "- have the same startTime \n"+
             "- have the same samplerate \n"+
@@ -19,31 +21,12 @@ public class Composition implements DataSeries {
             "- have the same sensitivity";
 
     public void add(DataSeries inputData) throws ApplicationException {
-        if(inputDataList.size() > 0) {
-            if(getStartTime() != inputData.getStartTime()){
-                throw new ApplicationException(errMsg);
-            }
-            if(getFrequency() != inputData.getFrequency()){
-                throw new ApplicationException(errMsg);
-            }
+        if(inputDataList.size() == 0 && inputData.getScaling() != null) {
+            scaling = new ScalingImpl(inputData.getScaling());
 
-            DataDimension dataDimension1 = getDataDimension();
-            DataDimension dataDimension2 = inputData.getDataDimension();
-            if(dataDimension1 == null && dataDimension2 != null) {
-                throw new ApplicationException(errMsg);
-            }
-            if(dataDimension2 == null && dataDimension1 != null) {
-                throw new ApplicationException(errMsg);
-            }
-            if(dataDimension1 != null && dataDimension2 != null) {
-                if(!dataDimension1.getPhysicalDimension().equals(dataDimension2.getPhysicalDimension())){
-                    throw new ApplicationException(errMsg);
-                }
-                if(dataDimension1.getGain() != dataDimension2.getGain()){
-                    throw new ApplicationException(errMsg);
-                }
-            }
-
+        }
+        if(! ScalingImpl.isCompatible(getScaling(), inputData.getScaling())){
+            throw new ApplicationException(errMsg);
         }
         inputDataList.add(inputData);
     }
@@ -76,26 +59,7 @@ public class Composition implements DataSeries {
     }
 
     @Override
-    public double getFrequency() {
-        if (inputDataList.size() > 0) {
-            return inputDataList.get(0).getFrequency();
-        }
-        return 0;
-    }
-
-    @Override
-    public long getStartTime() {
-        if (inputDataList.size() > 0) {
-            return inputDataList.get(0).getStartTime();
-        }
-        return 0;
-    }
-
-    @Override
-    public DataDimension getDataDimension() {
-        if (inputDataList.size() > 0) {
-            return inputDataList.get(0).getDataDimension();
-        }
-        return null;
+    public Scaling getScaling() {
+        return scaling;
     }
 }

@@ -13,7 +13,11 @@ public class FilterDerivativeRem extends Function {
 
     public FilterDerivativeRem(DataSeries inputData, int timeMs) {
         super(inputData);
-        distance_point = Math.round((float)(timeMs * inputData.getFrequency() / 1000));
+        double samplingRate = 1;
+        if(inputData.getScaling() != null) {
+            samplingRate = 1 / inputData.getScaling().getSamplingInterval();
+        }
+        distance_point = Math.round((float)(timeMs * samplingRate / 1000));
         if(distance_point== 0) {
             distance_point = 1;
         }

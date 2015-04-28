@@ -1,28 +1,26 @@
 package bdf;
 
-import data.DataDimension;
-
 /**
  *
  */
 public class SignalConfig {
     private final int numberOfSamplesInEachDataRecord;
-    private final DataDimension dataDimension;
+    private final Calibration calibration;
     private String prefiltering = "None";
     private String transducerType = "Unknown";
     private String label = "";
 
-    public SignalConfig(int numberOfSamplesInEachDataRecord, DataDimension dataDimension) {
+    public SignalConfig(int numberOfSamplesInEachDataRecord, Calibration calibration) {
         this.numberOfSamplesInEachDataRecord = numberOfSamplesInEachDataRecord;
-        this.dataDimension = dataDimension;
+        this.calibration = calibration;
     }
 
     public int getNumberOfSamplesInEachDataRecord() {
         return numberOfSamplesInEachDataRecord;
     }
 
-    public DataDimension getDataDimension() {
-        return dataDimension;
+    public Calibration getCalibration() {
+        return calibration;
     }
 
     public String getPrefiltering() {

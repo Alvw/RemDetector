@@ -1,5 +1,6 @@
 package graph;
 
+import data.Scaling;
 import graph.painters.XAxisPainter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -17,9 +18,6 @@ import java.util.ArrayList;
 
 public class GraphView extends JPanel {
     private static final Log log = LogFactory.getLog(GraphView.class);
-
-
-    private boolean isTimeAxis;
 
     private int xIndent;
     private int yIndent;
@@ -42,14 +40,13 @@ public class GraphView extends JPanel {
     private GraphEventHandler eventHandler;
     private FourierListener fourierHandler;
 
-    public GraphView(GraphEventHandler eventHandler, boolean isTimeAxis, boolean showScalesSeparate) {
-        this(eventHandler, null, isTimeAxis, showScalesSeparate);
+    public GraphView(GraphEventHandler eventHandler,  boolean showScalesSeparate) {
+        this(eventHandler, null, showScalesSeparate);
     }
 
-    public GraphView(GraphEventHandler eventHandler, FourierListener fourierHandler, boolean isTimeAxis, boolean showScalesSeparate) {
+    public GraphView(GraphEventHandler eventHandler, FourierListener fourierHandler,  boolean showScalesSeparate) {
         this.eventHandler = eventHandler;
         this.fourierHandler = fourierHandler;
-        this.isTimeAxis = isTimeAxis;
         this.showScalesSeparate = showScalesSeparate;
         setLayout(new BorderLayout());
         add(mainPanel, BorderLayout.CENTER);
@@ -202,17 +199,12 @@ public class GraphView extends JPanel {
         }
     }
 
-    public void setStartTime(long startTime) {
-        graphScalePanel.setStartTime(startTime);
-        previewScalePanel.setStartTime(startTime);
+    public void setGraphScaling(Scaling scaling) {
+        graphScalePanel.setScaling(scaling);
     }
 
-    public void setGraphTimeFrequency(double graphTimeFrequency) {
-        graphScalePanel.setFrequency(graphTimeFrequency);
-    }
-
-    public void setPreviewTimeFrequency(double previewTimeFrequency) {
-        previewScalePanel.setFrequency(previewTimeFrequency);
+    public void setPreviewScaling(Scaling scaling) {
+        previewScalePanel.setScaling(scaling);
     }
 
     public void addGraphPanel(int weight, boolean isXCentered) {
@@ -223,7 +215,7 @@ public class GraphView extends JPanel {
         if(fourierHandler != null) {
             panel.addFourierListener(fourierHandler);
         }
-        XAxisPainter xAxisPainter = new XAxisPainter(isTimeAxis);
+        XAxisPainter xAxisPainter = new XAxisPainter();
         xAxisPainter.isValuesPaint(!showScalesSeparate);
         panel.setxAxisPainter(xAxisPainter);
         if (graphPanelList.size() == 0) {
@@ -241,7 +233,7 @@ public class GraphView extends JPanel {
         panel.setIndentY(yIndent);
         panel.setBackground(previewBgColor);
         panel.addSlotListener(eventHandler);
-        XAxisPainter xAxisPainter = new XAxisPainter(isTimeAxis);
+        XAxisPainter xAxisPainter = new XAxisPainter();
         xAxisPainter.isValuesPaint(!showScalesSeparate);
         panel.setxAxisPainter(xAxisPainter);
         if (previewPanelList.size() == 0) {
@@ -293,7 +285,7 @@ public class GraphView extends JPanel {
     }
 
     private void createGraphScalePanel() {
-        XAxisPainter scalePainter= new XAxisPainter(isTimeAxis);
+        XAxisPainter scalePainter= new XAxisPainter();
         scalePainter.isAxisPaint(false);
         scalePainter.isGridPaint(false);
         graphScalePanel = new ScalePanel(scalePainter);
@@ -302,26 +294,22 @@ public class GraphView extends JPanel {
         graphScalePanel.addMinusButtonListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                double frequencyNew = graphScalePanel.getFrequency() / 2;
+                double frequencyNew = graphScalePanel.getSamplingRate() / 2;
                 eventHandler.setGraphFrequency(frequencyNew);
             }
         });
         graphScalePanel.addPlusButtonListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                double frequencyNew = graphScalePanel.getFrequency() * 2;
+                double frequencyNew = graphScalePanel.getSamplingRate() * 2;
                 eventHandler.setGraphFrequency(frequencyNew);
             }
         });
-
-        if( ! isTimeAxis) {
-            graphScalePanel.setButtonsVisible(false);
-        }
         graphScalePanel.setVisible(showScalesSeparate);
     }
 
     private void createPreviewScalePanel() {
-        XAxisPainter scalePainter= new XAxisPainter(isTimeAxis);
+        XAxisPainter scalePainter= new XAxisPainter();
         scalePainter.isAxisPaint(false);
         scalePainter.isGridPaint(false);
         previewScalePanel = new ScalePanel(scalePainter);
@@ -330,21 +318,17 @@ public class GraphView extends JPanel {
         previewScalePanel.addMinusButtonListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                double frequencyNew = previewScalePanel.getFrequency() / 2;
+                double frequencyNew = previewScalePanel.getSamplingRate() / 2;
                 eventHandler.setPreviewFrequency(frequencyNew);
             }
         });
         previewScalePanel.addPlusButtonListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                double frequencyNew = previewScalePanel.getFrequency() * 2;
+                double frequencyNew = previewScalePanel.getSamplingRate() * 2;
                 eventHandler.setPreviewFrequency(frequencyNew);
             }
         });
-
-        if( ! isTimeAxis) {
-            previewScalePanel.setButtonsVisible(false);
-        }
         previewScalePanel.setVisible(showScalesSeparate);
     }
 }

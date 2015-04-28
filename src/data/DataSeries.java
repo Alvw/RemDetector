@@ -1,18 +1,23 @@
 package data;
 
 /**
- * Created with IntelliJ IDEA.
- * User: GENA
- * Date: 16.05.14
- * Time: 3:24
- * To change this template use File | Settings | File Templates.
+ *  Scaling gives us actual dependency dataValue(indexValue)
+ *  based on the given  dependency of integers: data(index)
+ *
+ *  indexValue = index * stepInterval + startOffset
+ *  where:
+ *  stepInterval = getScaling().getSamplingInterval();
+ *  startOffset = getScaling().getStart();
+ *
+ *  dataValue(indexValue) = get(index) * gain + offset
+ *  where:
+ *  gain = getScaling().getGain();
+ *  offset = getScaling().getOffset();
  */
+
 
 public interface DataSeries {
     public int size();
     public int get(int index);
-
-    public double getFrequency();
-    public long getStartTime();
-    public DataDimension getDataDimension();
+    public Scaling getScaling();
 }

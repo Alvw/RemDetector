@@ -2,6 +2,7 @@ package dreamrec;
 
 import bdf.*;
 import data.DataList;
+import data.ScalingImpl;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import prefilters.PreFilter;
@@ -60,8 +61,13 @@ public class DataStore implements BdfListener {
         for (int i = 0; i < numberOfSignals; i++) {
             double frequency = numberOfSamplesInEachDataRecords[i] / bdfConfig.getDurationOfDataRecord();
             channelsList[i] = new DataList();
-            channelsList[i].setFrequency(frequency);
-            channelsList[i].setDataDimension(signalConfigs[i].getDataDimension());
+            ScalingImpl scaling = new ScalingImpl();
+            scaling.setSamplingInterval(1 / frequency);
+            scaling.setTimeSeries(true);
+            scaling.setDataGain(signalConfigs[i].getCalibration().getGain());
+            scaling.setDataOffset(signalConfigs[i].getCalibration().getOffset());
+            scaling.setDataDimension(signalConfigs[i].getCalibration().getPhysicalDimension());
+            channelsList[i].setScaling(scaling);
         }
 
         updateTimer = new Timer(UPDATE_DELAY, new ActionListener() {
@@ -92,7 +98,8 @@ public class DataStore implements BdfListener {
             if (preFilters[i] != null) {
                 if (signalConfigs[i].getNumberOfSamplesInEachDataRecord() % preFilters[i].getDivider() == 0) {
                     preFiltersList[i] = preFilters[i];
-                    channelsList[i].setFrequency(channelsList[i].getFrequency() / preFilters[i].getDivider());
+                    ScalingImpl scaling =  (ScalingImpl)channelsList[i].getScaling();
+                    scaling.setSamplingInterval(scaling.getSamplingInterval() * preFilters[i].getDivider());
                     preFiltersList[i].addListener(new PreFilterAdapter(channelsList[i]));
                 } else {
                     String errorMsg = "Prefilters frequency dividers are not compatible with BdfProvider in DataStore";
@@ -125,7 +132,8 @@ public class DataStore implements BdfListener {
 
     public void setStartTime(long startTime) {
         for (int i = 0; i < channelsList.length; i++) {
-            channelsList[i].setStartTime(startTime);
+            ScalingImpl scaling = (ScalingImpl) channelsList[i].getScaling();
+            scaling.setStart(startTime);
         }
     }
 
@@ -152,7 +160,7 @@ public class DataStore implements BdfListener {
     private long getStartTime() {
         long startTime = 0;
         if(channelsList.length > 0 && channelsList[0] != null) {
-            startTime = channelsList[0].getStartTime();
+            startTime = (long)channelsList[0].getScaling().getStart();
         }
         return startTime;
     }

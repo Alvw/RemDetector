@@ -11,7 +11,7 @@ public class FourierAnalizer {
     public static boolean hasAlfa(DataSeries fourier) {
         DataSeries fourierIntegral = new FilterFourierIntegral(fourier);
 
-        double frequencyStep = 1 / fourierIntegral.getFrequency();
+        double frequencyStep = fourierIntegral.getScaling().getSamplingInterval();
 
         int maxBefore = 0;
         int maxAlpha = 0;
@@ -46,7 +46,7 @@ public class FourierAnalizer {
 
     public static int getHighFrequenciesSum(DataSeries fourier) {
 
-        double frequencyStep = 1 / fourier.getFrequency();
+        double frequencyStep = fourier.getScaling().getSamplingInterval();
         double highFrequencyBegin = 14; // Hz
 
         int sum = 0;

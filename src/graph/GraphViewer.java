@@ -31,19 +31,20 @@ public class GraphViewer extends JPanel{
     private GraphPresenter graphPresenter;
 
     public GraphViewer() {
-        this(true, true, true, true);
+        this(true, true);
     }
 
-    public GraphViewer(boolean isTimeAxis, boolean showScalesSeparate, boolean isFourierActive, boolean isRequestfocus) {
+    public GraphViewer(boolean showScalesSeparate, boolean isFourierActive) {
         graphModel = new GraphModel();
         graphController = new GraphController(graphModel);
         if(isFourierActive) {
             FourierHandler fourierHandler = new FourierHandler(graphModel);
             graphController.addListener(fourierHandler);
-            graphView = new GraphView(graphController,fourierHandler, isTimeAxis, showScalesSeparate);
+            graphView = new GraphView(graphController,fourierHandler, showScalesSeparate);
+            graphView.requestFocusInWindow();
         }
         else {
-            graphView = new GraphView(graphController, isTimeAxis, showScalesSeparate);
+            graphView = new GraphView(graphController, showScalesSeparate);
         }
 
         graphPresenter = new GraphPresenter(graphModel, graphView);
@@ -54,9 +55,6 @@ public class GraphViewer extends JPanel{
         graphView.setYIndent(Y_INDENT_DEFAULT);
         setLayout(new BorderLayout());
         add(graphView, BorderLayout.CENTER);
-        if(isRequestfocus) {
-            graphView.requestFocusInWindow();
-        }
     }
 
     public void setXIndent(int xIndent) {
@@ -177,27 +175,27 @@ public class GraphViewer extends JPanel{
         addPreview(preview, GraphType.PAPA, compressionType);
     }
 
-    public void setGraphFrequency(final double graphFrequency) {
+    public void setGraphSamplingRate(final double samplingRate) {
         if(SwingUtilities.isEventDispatchThread()) {
-            graphController.setGraphFrequency(graphFrequency);
+            graphController.setGraphFrequency(samplingRate);
         }
         else {
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
-                    graphController.setGraphFrequency(graphFrequency);
+                    graphController.setGraphFrequency(samplingRate);
                 }
             });
         }
     }
 
-    public void setPreviewFrequency(final double previewFrequency) {
+    public void setPreviewFrequency(final double samplingRate) {
         if(SwingUtilities.isEventDispatchThread()) {
-            graphController.setPreviewFrequency(previewFrequency);
+            graphController.setPreviewFrequency(samplingRate);
         }
         else {
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
-                    graphController.setPreviewFrequency(previewFrequency);
+                    graphController.setPreviewFrequency(samplingRate);
                 }
             });
         }

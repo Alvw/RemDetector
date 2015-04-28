@@ -1,6 +1,5 @@
 package bdf;
 
-import data.DataDimension;
 import dreamrec.ApplicationException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -133,9 +132,9 @@ public class BdfHeaderReader {
             String[] signalPrefiltering = new String[numberOfSignals];
             String[] signalTransducerType = new String[numberOfSignals];
             int[]  signalNumberOfSamplesInEachDataRecord = new int[numberOfSignals];
-            DataDimension[] signalDataDimension = new DataDimension[numberOfSignals];
+            Calibration[] signalCalibration = new Calibration[numberOfSignals];
             for(int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
-                signalDataDimension[signalNumber] = new DataDimension();
+                signalCalibration[signalNumber] = new Calibration();
             }
 
             for(int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
@@ -151,31 +150,31 @@ public class BdfHeaderReader {
             for(int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
                 buffer = new char[SIGNAL_PHYSICAL_DIMENSION_LENGTH];
                 reader.read(buffer, 0, SIGNAL_PHYSICAL_DIMENSION_LENGTH);
-                signalDataDimension[signalNumber].setPhysicalDimension(new String(buffer).trim());
+                signalCalibration[signalNumber].setPhysicalDimension(new String(buffer).trim());
             }
             for(int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
                 buffer = new char[SIGNAL_PHYSICAL_MIN_LENGTH];
                 reader.read(buffer, 0, SIGNAL_PHYSICAL_MIN_LENGTH);
                 double physicalMin =  stringToDouble(new String(buffer));
-                signalDataDimension[signalNumber].setPhysicalMin(physicalMin);
+                signalCalibration[signalNumber].setPhysicalMin(physicalMin);
             }
             for(int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
                 buffer = new char[SIGNAL_PHYSICAL_MAX_LENGTH];
                 reader.read(buffer, 0, SIGNAL_PHYSICAL_MAX_LENGTH);
                 double physicalMax =  stringToDouble(new String(buffer));
-                signalDataDimension[signalNumber].setPhysicalMax(physicalMax);
+                signalCalibration[signalNumber].setPhysicalMax(physicalMax);
             }
             for(int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
                 buffer = new char[SIGNAL_DIGITAL_MIN_LENGTH];
                 reader.read(buffer, 0, SIGNAL_DIGITAL_MIN_LENGTH);
                 int digitalMin =  stringToInt(new String(buffer));
-                signalDataDimension[signalNumber].setDigitalMin(digitalMin);
+                signalCalibration[signalNumber].setDigitalMin(digitalMin);
             }
             for(int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
                 buffer = new char[SIGNAL_DIGITAL_MAX_LENGTH];
                 reader.read(buffer, 0, SIGNAL_DIGITAL_MAX_LENGTH);
                 int digitalMax =  stringToInt(new String(buffer));
-                signalDataDimension[signalNumber].setDigitalMax(digitalMax);
+                signalCalibration[signalNumber].setDigitalMax(digitalMax);
             }
             for(int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
                 buffer = new char[SIGNAL_PREFILTERING_LENGTH];
@@ -196,7 +195,7 @@ public class BdfHeaderReader {
             SignalConfig[] signalConfigArray = new SignalConfig[numberOfSignals];
             for(int signalNumber = 0; signalNumber < numberOfSignals; signalNumber++) {
                 signalConfigArray[signalNumber] = new SignalConfig(signalNumberOfSamplesInEachDataRecord[signalNumber],
-                        signalDataDimension[signalNumber]);
+                        signalCalibration[signalNumber]);
                 signalConfigArray[signalNumber].setLabel(signalLabel[signalNumber]);
                 signalConfigArray[signalNumber].setPrefiltering(signalPrefiltering[signalNumber]);
                 signalConfigArray[signalNumber].setTransducerType(signalTransducerType[signalNumber]);

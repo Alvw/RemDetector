@@ -24,9 +24,6 @@ public class RemDataStore  implements DataStoreListener {
     private RemChannels remChannels;
     private BdfProvider bdfProvider;
 
-    private DataList eogFilteredData;
-    private EogFilter eogFilter;
-
     private ArrayList<DataStoreListener> updateListeners = new ArrayList<DataStoreListener>();
 
     public RemDataStore(BdfProvider bdfProvider, RemChannels remChannels) throws ApplicationException {
@@ -87,23 +84,11 @@ public class RemDataStore  implements DataStoreListener {
             dataStore = new DataStore(bdfProviderNew);
             dataStore.setPreFilters(prefilters);
             dataStore.addListener(this);
-
-            int bufferSize = (int)(getEogFullData().getFrequency() * remConfigurator.getEogRemCutoffPeriod());
-            if(remConfigurator.getEogRemFrequency() > 0) {
-                bufferSize = remConfigurator.getEogRemFrequency() * remConfigurator.getEogRemCutoffPeriod();
-            }
-
-            if(bufferSize > 0) {
-                eogFilteredData = new DataList();
-                eogFilteredData.setFrequency(getEogFullData().getFrequency());
-                eogFilteredData.setDataDimension(getEogFullData().getDataDimension());
-                eogFilter = new EogFilter(bufferSize);
-            }
         }
     }
 
     public double getAccMovementLimit() {
-        // movementLimit = (int)(0.15 / getAccXData().getDataDimension().getGain());
+        // movementLimit = (int)(0.15 / getAccXData().getDataCalibration().getGain());
         return accMovementLimit;
     }
 
@@ -128,35 +113,18 @@ public class RemDataStore  implements DataStoreListener {
 
     public void setStartTime(long startTime) {
         dataStore.setStartTime(startTime);
-        eogFilteredData.setStartTime(startTime);
-    }
-
-    private void updateEogFilteredData() {
-        if( eogFilter != null) {
-            while(eogFilteredData.size() < getEogFullData().size()) {
-                eogFilteredData.add(eogFilter.getNext());
-            }
-            eogFilteredData.setStartTime(getEogFullData().getStartTime());
-        }
     }
 
 
     @Override
     public void onDataUpdate() {
-        updateEogFilteredData();
         fireDataUpdated();
     }
 
-    public DataSeries getEogFullData() {
+    public DataSeries getEogData() {
         return dataStore.getSignalData(remChannels.getEog());
     }
 
-    public DataSeries getEogData() {
-        if(eogFilteredData != null) {
-            return eogFilteredData;
-        }
-        return getEogFullData();
-    }
 
     public DataSeries getAccXData() {
         return dataStore.getSignalData(remChannels.getAccelerometerX());
@@ -201,38 +169,17 @@ public class RemDataStore  implements DataStoreListener {
 public DataSeries isSleep() {
         BooleanAND isSleep = new BooleanAND();
         try {
-            FrequencyConverter isNotMove = new FrequencyConverterRuntime(isNotMove(), CompressionType.BOOLEAN);
-            isNotMove.setFrequency(isEogOk().getFrequency());
+            DataCompressor isNotMove = new DataCompressor(isNotMove(), CompressionType.BOOLEAN);
+            double samplingInterval = 1;
+            if(isEogOk().getScaling() != null) {
+                samplingInterval = isEogOk().getScaling().getSamplingInterval();
+            }
+            isNotMove.setSamplingInterval(samplingInterval);
             isSleep.add(isEogOk());
             isSleep.add(isNotMove);
             return isSleep;
         } catch (ApplicationException e) {
             throw new IllegalArgumentException(e.getMessage());
-        }
-    }
-
-    private class EogFilter  {
-        private int index;
-        private long sum;
-        int bufferSize;
-
-        public EogFilter(int bufferSize) {
-            this.bufferSize = bufferSize;
-        }
-
-        public int getNext() {
-            if(bufferSize == 0) {
-                return getEogFullData().get(index++);
-            }
-            if (index <= bufferSize) {
-                sum += getEogFullData().get(index);
-                return getEogFullData().get(index++) - (int) (sum / (index));
-            }
-            else {
-                sum += getEogFullData().get(index) - getEogFullData().get(index - bufferSize - 1);
-            }
-
-            return getEogFullData().get(index++) - (int) (sum / (bufferSize+1));
         }
     }
 }

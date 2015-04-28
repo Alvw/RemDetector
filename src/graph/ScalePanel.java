@@ -1,5 +1,6 @@
 package graph;
 
+import data.Scaling;
 import graph.painters.XAxisPainter;
 
 import javax.swing.*;
@@ -13,8 +14,7 @@ import java.awt.geom.AffineTransform;
 public class ScalePanel extends JPanel {
     private int indentX;
     private int startIndex;
-    private long startTime;
-    private double frequency;
+    Scaling scaling;
     private XAxisPainter scalePainter;
 
     JButton plusButton = new SmallButton("+");
@@ -28,7 +28,7 @@ public class ScalePanel extends JPanel {
         add(plusButton);
     }
 
-    public void setButtonsVisible(boolean isVisible) {
+    private void setButtonsVisible(boolean isVisible) {
         minusButton.setVisible(isVisible);
         plusButton.setVisible(isVisible);
     }
@@ -50,22 +50,28 @@ public class ScalePanel extends JPanel {
         this.startIndex = startIndex;
     }
 
-    public void setStartTime(long startTime) {
-        this.startTime = startTime;
+    public void setScaling(Scaling scaling) {
+        this.scaling = scaling;
+        if (scaling != null) {
+            setButtonsVisible(true);
+        }
+        else {
+            setButtonsVisible(false);
+        }
     }
 
-    public void setFrequency(double frequency) {
-        this.frequency = frequency;
-    }
-
-    public double getFrequency() {
-        return frequency;
+    public double getSamplingRate() {
+        double samplingRate = 1;
+        if (scaling != null) {
+            samplingRate = 1 / scaling.getSamplingInterval();
+        }
+        return samplingRate;
     }
 
     public void transformCoordinate(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
         g2d.translate(indentX, 0);
-       // g2d.translate(indentX, g.getClipBounds().getHeight()); // move XY origin to the left bottom point
+        // g2d.translate(indentX, g.getClipBounds().getHeight()); // move XY origin to the left bottom point
         g2d.transform(AffineTransform.getScaleInstance(1, -1)); // flip Y-axis
     }
 
@@ -80,7 +86,7 @@ public class ScalePanel extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         transformCoordinate(g);
-        scalePainter.paint(g, startIndex, frequency, startTime);
+        scalePainter.paint(g, startIndex, scaling);
         restoreCoordinate(g);
     }
 
@@ -98,6 +104,7 @@ public class ScalePanel extends JPanel {
     private class SmallButton extends JButton {
         Color baseBg = new Color(220, 220, 240);
         Color highlightBg = new Color(180, 200, 250);
+
         public SmallButton(String s) {
             super(s);
             setFocusable(false);

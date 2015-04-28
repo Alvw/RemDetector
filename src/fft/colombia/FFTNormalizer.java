@@ -1,7 +1,8 @@
 package fft.colombia;
 
-import data.DataDimension;
 import data.DataSeries;
+import data.Scaling;
+import data.ScalingImpl;
 
 
 public class FFTNormalizer implements DataSeries {
@@ -46,18 +47,12 @@ public class FFTNormalizer implements DataSeries {
     public int get(int index) {
         return (int) getAmplitude(index);
     }
-    @Override
-    public double getFrequency() {
-        return 1/getFrequencyStep();
-    }
-    @Override
-    public long getStartTime() {
-        return 0;
-    }
-    @Override
-    public DataDimension getDataDimension() {
-        return new DataDimension();
-    }
 
+    @Override
+    public Scaling getScaling() {
+        ScalingImpl scaling = new ScalingImpl();
+        scaling.setSamplingInterval(getFrequencyStep());
+        return scaling;
+    }
 }
 

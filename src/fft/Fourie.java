@@ -10,7 +10,10 @@ public class Fourie {
      * from [index] to [index + time]
      */
     public static DataSeries fftForward(DataSeries inputData, int index, double time) {
-        double frequency = inputData.getFrequency();
+        double frequency = 1;
+        if(inputData.getScaling() != null) {
+            frequency = 1 / inputData.getScaling().getSamplingInterval();
+        }
         int N = (int) (frequency * time);
         N = Math.min(N, inputData.size() - index);
         N = toPower2(N);  // length of input data for Fourie: must be a power of two
@@ -23,14 +26,17 @@ public class Fourie {
 
         FFT fft = new FFT(N);
         fft.fft(dataRe, dataIm);
-        return new FFTNormalizer(dataRe, dataIm, inputData.getFrequency());
+        return new FFTNormalizer(dataRe, dataIm, frequency);
     }
 
  /*
  * from [index - time] to [index]
  */
     public static DataSeries fftBackward(DataSeries inputData, int index, int time) {
-        double frequency = inputData.getFrequency();
+        double frequency = 1;
+        if(inputData.getScaling() != null) {
+            frequency = inputData.getScaling().getSamplingInterval();
+        }
         int N = (int) frequency * time;
         N = Math.min(N, index);
         N = toPower2(N);  // length of input data for Fourie: must be a power of two
@@ -43,7 +49,7 @@ public class Fourie {
 
         FFT fft = new FFT(N);
         fft.fft(dataRe, dataIm);
-        return new FFTNormalizer(dataRe, dataIm, inputData.getFrequency());
+        return new FFTNormalizer(dataRe, dataIm, frequency);
     }
 
     /*

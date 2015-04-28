@@ -1,6 +1,5 @@
 package functions;
 
-import data.DataDimension;
 import data.DataSeries;
 
 public class Trigger extends Function{
@@ -9,7 +8,11 @@ public class Trigger extends Function{
 
     public Trigger(DataSeries inputData, double physLimit) {
         super(inputData);
-        digitalLimit = (int)(physLimit / inputData.getDataDimension().getGain());
+        double gain = 1;
+        if(inputData.getScaling() != null) {
+            gain = inputData.getScaling().getDataGain();
+        }
+        digitalLimit = (int)(physLimit / gain);
     }
 
     @Override
@@ -20,8 +23,4 @@ public class Trigger extends Function{
         return 0;
     }
 
-    @Override
-    public DataDimension getDataDimension() {
-        return null;
-    }
 }

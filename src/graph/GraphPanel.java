@@ -1,7 +1,7 @@
 package graph;
 
-import data.DataDimension;
 import data.DataSeries;
+import data.Scaling;
 import graph.painters.GraphPainter;
 import graph.painters.XAxisPainter;
 import graph.painters.YAxisPainter;
@@ -45,7 +45,7 @@ public class GraphPanel extends JPanel {
     private int indentY;
 
     private GraphPainter graphPainter = new GraphPainter();
-    private XAxisPainter xAxisPainter = new XAxisPainter(true);
+    private XAxisPainter xAxisPainter = new XAxisPainter();
     private YAxisPainter yAxisPainter = new YAxisPainter();
 
 
@@ -188,15 +188,10 @@ public class GraphPanel extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         transformCoordinate(g);
-        double frequency = 0;
-        DataDimension dataDimension = new DataDimension();
-        long startTime = 0;
         if (graphList.size() > 0 && graphList.get(0) != null) {
-            frequency = graphList.get(0).getGraphData().getFrequency();
-            startTime = graphList.get(0).getGraphData().getStartTime();
-            dataDimension = graphList.get(0).getGraphData().getDataDimension();
-            xAxisPainter.paint(g, startIndex, frequency, startTime);
-            yAxisPainter.paint(g, zoom, dataDimension);
+            Scaling scaling = graphList.get(0).getGraphData().getScaling();
+            xAxisPainter.paint(g, startIndex, scaling);
+            yAxisPainter.paint(g, zoom, scaling);
         }
 
         int graph_number = 0;

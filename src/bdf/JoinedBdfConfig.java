@@ -1,7 +1,5 @@
 package bdf;
 
-import data.DataDimension;
-
 /**
  * Created by mac on 01/12/14.
  */
@@ -25,8 +23,8 @@ public class JoinedBdfConfig extends BdfConfigWrapper {
         SignalConfig[] resultingSignalsConfigs = new SignalConfig[length];
         for(int i = 0; i < length; i++) {
             int resultingNumberOfSamples = numberOfRecordsToJoin * originalSignalConfigs[i].getNumberOfSamplesInEachDataRecord();
-            DataDimension resultingDataDimension = originalSignalConfigs[i].getDataDimension();
-            resultingSignalsConfigs[i]  = new SignalConfig(resultingNumberOfSamples, resultingDataDimension);
+            Calibration resultingCalibration = originalSignalConfigs[i].getCalibration();
+            resultingSignalsConfigs[i]  = new SignalConfig(resultingNumberOfSamples, resultingCalibration);
         }
         return resultingSignalsConfigs;
     }

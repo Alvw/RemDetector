@@ -38,10 +38,9 @@ public class GraphPresenter implements GraphControllerListener{
         graphView.setPreviewStartIndex(graphModel.getScrollPosition());
         graphView.setSlotPosition(graphModel.getSlotPosition());
         graphView.setSlotWidth(graphModel.getSlotWidth());
-        graphView.setStartTime(graphModel.getStartTime());
 
-        graphView.setGraphTimeFrequency(graphModel.getGraphFrequency());
-        graphView.setPreviewTimeFrequency(graphModel.getPreviewFrequency());
+        graphView.setGraphScaling(graphModel.getGraphsScaling());
+        graphView.setPreviewScaling(graphModel.getPreviewsScaling());
 
         for (int i = 0; i < graphView.getNumberOfGraphPanels(); i++) {
             graphView.setPanelGraphs(graphModel.getGraphCluster(i), i);

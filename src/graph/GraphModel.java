@@ -14,7 +14,7 @@ class GraphModel {
     private static final int AUTO_SCROLL_GAP = 2;
 
     private double compression = 1;
-    private double timeFrequency;
+    private double graphsSamplingRate;
     private int startIndex;
     private int scrollPosition;
     private int drawingAreaWidth;
@@ -24,39 +24,6 @@ class GraphModel {
     // preview clusters correspond to preview panels
     private List<List<Graph>> previewClusterList = new ArrayList<List<Graph>>();
 
-
-    public long getStartTime() {
-        long startTime = 0;
-        for (List<Graph> graphList : graphClusterList) {
-            for (Graph graph : graphList) {
-                startTime = graph.getGraphData().getStartTime();
-            }
-        }
-        for (List<Graph> previewList : previewClusterList) {
-            for (Graph preview : previewList) {
-                startTime = preview.getGraphData().getStartTime();
-            }
-        }
-        return startTime;
-    }
-
-    private void setGraphsFrequency(double frequency) {
-        for (List<Graph> graphsList : graphClusterList) {
-            for (Graph graph : graphsList) {
-                FrequencyConverter frequencyConverter = (FrequencyConverter) graph.getGraphData();
-                frequencyConverter.setFrequency(frequency);
-            }
-        }
-    }
-
-    private void setPreviewsFrequency(double frequency) {
-        for (List<Graph> previewList : previewClusterList) {
-            for (Graph preview : previewList) {
-                FrequencyConverter frequencyConverter = (FrequencyConverter) preview.getGraphData();
-                frequencyConverter.setFrequency(frequency);
-            }
-        }
-    }
 
     private int getNumberOfGraphs() {
         int graphsNumber = 0;
@@ -91,14 +58,15 @@ class GraphModel {
 
     public void addGraph(DataSeries graphData, GraphType graphType, CompressionType compressionType, int graphClusterNumber) {
         if (graphClusterNumber < graphClusterList.size()) {
-            FrequencyConverter resultingGraphData = new FrequencyConverterRuntime(graphData, compressionType);
-            if(graphData.getFrequency() != 0) {
-                double previewFrequency = timeFrequency / compression;
-                timeFrequency = Math.max(timeFrequency, graphData.getFrequency());
-                setGraphsFrequency(timeFrequency);
-                resultingGraphData.setFrequency(timeFrequency);
+            DataCompressor resultingGraphData = new DataCompressor(graphData, compressionType);
+            if(graphData.getScaling() != null) {
+                double previewFrequency = graphsSamplingRate / compression;
+                double graphFrequency = 1 / graphData.getScaling().getSamplingInterval();
+                graphsSamplingRate = Math.max(graphsSamplingRate, graphFrequency);
+                updateGraphsSamplingRate(graphsSamplingRate);
+                resultingGraphData.setSamplingRate(graphsSamplingRate);
                 if(previewFrequency != 0) {
-                    compression = timeFrequency / previewFrequency;
+                    compression = graphsSamplingRate / previewFrequency;
                 }
             }
             graphClusterList.get(graphClusterNumber).add(new Graph(resultingGraphData, graphType));
@@ -114,16 +82,17 @@ class GraphModel {
 
     public void addPreview(DataSeries previewData, GraphType graphType, CompressionType compressionType, int previewClusterNumber) {
         if (previewClusterNumber < previewClusterList.size()) {
-            FrequencyConverter resultingPreviewData = new FrequencyConverterBuffered(new FrequencyConverterRuntime(previewData, compressionType));
-            if (previewData.getFrequency() == 0) {
+            DataCompressorCollecting resultingPreviewData = new DataCompressorCollecting(previewData, compressionType);
+            if (previewData.getScaling() != null) {
                 resultingPreviewData.setCompression(compression);
             } else {
-                if(timeFrequency == 0) {
-                    timeFrequency = previewData.getFrequency();
+                if(graphsSamplingRate == 0) {
+                    double previewFrequency = 1 / previewData.getScaling().getSamplingInterval();
+                    graphsSamplingRate = previewFrequency;
                 }
-                double previewFrequency = timeFrequency / compression;
-                resultingPreviewData.setFrequency(previewFrequency);
-                setPreviewsFrequency(previewFrequency);
+                double previewFrequency = graphsSamplingRate / compression;
+                resultingPreviewData.setSamplingRate(previewFrequency);
+                updatePreviewsSamplingRate(previewFrequency);
             }
             previewClusterList.get(previewClusterNumber).add(new Graph(resultingPreviewData, graphType));
         }
@@ -136,25 +105,44 @@ class GraphModel {
         this.compression = compression;
     }
 
-    public void setGraphFrequency(double graphFrequency) {
-        int slotPosition = getSlotPosition();
-        if(timeFrequency != 0) {
-            compression = graphFrequency * compression / timeFrequency;
+
+    private void updateGraphsSamplingRate(double samplingRate) {
+        for (List<Graph> graphsList : graphClusterList) {
+            for (Graph graph : graphsList) {
+                DataCompressor dataCompressor = (DataCompressor) graph.getGraphData();
+                dataCompressor.setSamplingRate(samplingRate);
+            }
         }
-        timeFrequency = graphFrequency;
-        setGraphsFrequency(graphFrequency);
+    }
+
+    private void updatePreviewsSamplingRate(double samplingRate) {
+        for (List<Graph> previewList : previewClusterList) {
+            for (Graph preview : previewList) {
+                DataCompressorCollecting dataCompressor = (DataCompressorCollecting) preview.getGraphData();
+                dataCompressor.setSamplingRate(samplingRate);
+            }
+        }
+    }
+    
+    public void setGraphsSamplingRate(double samplingRate) {
+        int slotPosition = getSlotPosition();
+        if(graphsSamplingRate != 0) {
+            compression = samplingRate * compression / graphsSamplingRate;
+        }
+        graphsSamplingRate = samplingRate;
+        updateGraphsSamplingRate(samplingRate);
         moveSlot(slotPosition);
     }
 
-    public void setPreviewFrequency(double previewFrequency) {
+    public void setPreviewsSamplingRate(double samplingRate) {
         int startIndex = getStartIndex();
-        if(timeFrequency != 0) {
-            compression = timeFrequency / previewFrequency;
+        if(graphsSamplingRate != 0) {
+            compression = graphsSamplingRate / samplingRate;
         }
         else {
-            timeFrequency = previewFrequency * compression;
+            graphsSamplingRate = samplingRate * compression;
         }
-        setPreviewsFrequency(previewFrequency);
+        updatePreviewsSamplingRate(samplingRate);
         scrollPosition = 0;
         setStartIndex(startIndex);
     }
@@ -337,11 +325,24 @@ class GraphModel {
         return startIndex;
     }
 
-    public double getGraphFrequency() {
-        return timeFrequency;
+    public Scaling getGraphsScaling() {
+        Scaling scaling = null;
+        for (List<Graph> graphList : graphClusterList) {
+            for (Graph graph : graphList) {
+                scaling = graph.getGraphData().getScaling();
+            }
+        }
+        return scaling;
     }
 
-    public double getPreviewFrequency() {
-        return timeFrequency / compression;
+    public Scaling getPreviewsScaling() {
+        Scaling scaling = null;
+        for (List<Graph> previewList : previewClusterList) {
+            for (Graph preview : previewList) {
+                scaling = preview.getGraphData().getScaling();
+            }
+        }
+
+        return scaling;
     }
 }

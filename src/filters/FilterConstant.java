@@ -7,7 +7,7 @@ public class FilterConstant extends Function {
     int digitalConstant;
     public FilterConstant(DataSeries inputData, double physConstant) {
         super(inputData);
-        digitalConstant = (int)(physConstant / inputData.getDataDimension().getGain());
+        digitalConstant = (int)(physConstant / inputData.getScaling().getDataGain());
     }
 
     @Override

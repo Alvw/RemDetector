@@ -1,7 +1,6 @@
 package bdf;
 
 
-import data.DataDimension;
 import dreamrec.ApplicationException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -104,12 +103,12 @@ public class BdfHeaderWriter {
             SignalConfig signalConfig = signalConfigList[i];
             labels.append(adjustLength(signalConfig.getLabel(), 16));
             transducerTypes.append(adjustLength(signalConfig.getTransducerType(), 80));
-            DataDimension dataDimension = signalConfig.getDataDimension();
-            physicalDimensions.append(adjustLength(dataDimension.getPhysicalDimension(), 8));
-            double physicalMaximum = dataDimension.getPhysicalMax();
-            double physicalMinimum = dataDimension.getPhysicalMin();
-            int digitalMax = dataDimension.getDigitalMax();
-            int digitalMin = dataDimension.getDigitalMin();
+            Calibration calibration = signalConfig.getCalibration();
+            physicalDimensions.append(adjustLength(calibration.getPhysicalDimension(), 8));
+            double physicalMaximum = calibration.getPhysicalMax();
+            double physicalMinimum = calibration.getPhysicalMin();
+            int digitalMax = calibration.getDigitalMax();
+            int digitalMin = calibration.getDigitalMin();
 
             physicalMinimums.append(adjustLength(double2String(physicalMinimum), 8));
             physicalMaximums.append(adjustLength(double2String(physicalMaximum), 8));

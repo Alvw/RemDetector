@@ -10,7 +10,7 @@ public class View extends JFrame {
     protected GraphViewer graphViewer;
 
     public View()  {
-        graphViewer = new GraphViewer(false, false, false, false);
+        graphViewer = new GraphViewer(false, false);
         add(graphViewer, BorderLayout.CENTER);
         graphViewer.requestFocusInWindow();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

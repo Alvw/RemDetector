@@ -51,8 +51,7 @@ public class Presenter implements  ControllerListener {
     }
 
     private void configureRemGraphViewer(RemDataStore remDataStore) {
-       //workRem(remDataStore);
-        galaRem(remDataStore);
+        rem(remDataStore);
     }
 
     private void configureGraphViewer(DataStore dataStore) {
@@ -71,42 +70,10 @@ public class Presenter implements  ControllerListener {
 
     }
 
-    private void workRem(RemDataStore remDataStore) {
-        DataSeries eog = remDataStore.getEogData();
-        DataSeries eogFull = remDataStore.getEogFullData();
-        DataSeries accMovement = remDataStore.getAccMovementData();
-        DataSeries isSleep = remDataStore.isSleep();
 
-        double accMovementLimit = remDataStore.getAccMovementLimit();
-
-        FilterDerivativeRem eogDerivativeRem =  new FilterDerivativeRem(eogFull);
-        DataSeries eogDerivativeRemAbs =  new FilterAbs(eogDerivativeRem);
-    //    double eogDerivativeLimit = eogDerivativeRem.getPhysicalPossibleMax();
-
-
-        graphViewer.addGraphPanel(2, true);
-        graphViewer.addGraph(eog);
-        graphViewer.addGraphPanel(2, false);
-        graphViewer.addGraph(eogDerivativeRemAbs);
-     //   graphViewer.addGraph(new FilterConstant(eog, eogDerivativeLimit));
-        graphViewer.addGraphPanel(2, false);
-        graphViewer.addGraph(accMovement);
-        graphViewer.addGraph(new FilterConstant(accMovement, accMovementLimit));
-        graphViewer.addGraphPanel(2, true);
-        graphViewer.addGraph(new FilterHiPass(new FilterBandPass_Alfa(eog), 2));
-
-        graphViewer.addPreviewPanel(2, false);
-        graphViewer.addPreview(eogDerivativeRemAbs, CompressionType.MAX);
-        graphViewer.addPreview(isSleep, GraphType.BOOLEAN, CompressionType.BOOLEAN);
-
-        graphViewer.addPreviewPanel(2, true);
-        graphViewer.addPreview(eogFull, CompressionType.AVERAGE);
-
-    }
-
-    private void galaRem(RemDataStore remDataStore) {
-        DataSeries eog = remDataStore.getEogData();
-        DataSeries eogFull = remDataStore.getEogFullData();
+    private void rem(RemDataStore remDataStore) {
+        DataSeries eogFull = remDataStore.getEogData();
+        DataSeries eog = new HiPassCollectingFilter(eogFull, 10);
         DataSeries accMovement = remDataStore.getAccMovementData();
         DataSeries isSleep = remDataStore.isSleep();
 
@@ -120,9 +87,6 @@ public class Presenter implements  ControllerListener {
 
         graphViewer.addGraphPanel(2, true);
         graphViewer.addGraph(eog);
-
-        graphViewer.addGraphPanel(2, true);
-        graphViewer.addGraph(new FilterDerivative(new FilterDerivative(eog)));
 
         graphViewer.addGraphPanel(2, false);
         graphViewer.addGraph(eogDerivativeRemAbs);

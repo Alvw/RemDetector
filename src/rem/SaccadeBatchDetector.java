@@ -1,7 +1,7 @@
 package rem;
 
-import data.DataDimension;
 import data.DataSeries;
+import data.Scaling;
 import fft.Fourie;
 import filters.FilterDerivative;
 
@@ -28,9 +28,13 @@ public class SaccadeBatchDetector implements DataSeries {
     private SaccadeDetector saccadeDetector;
 
     public SaccadeBatchDetector(DataSeries inputData) {
+        double samplingRate = 1;
+        if(inputData.getScaling() != null) {
+            samplingRate = 1 / inputData.getScaling().getSamplingInterval();
+        }
         this.inputData = inputData;
         saccadeDetector = new SaccadeDetector(inputData);
-        saccadeMaxDistancePoints = (int)(SACCADE_DISTANCE_MAX * inputData.getFrequency() );
+        saccadeMaxDistancePoints = (int)(SACCADE_DISTANCE_MAX * samplingRate );
     }
 
     public int getSaccadeValueMaxDigital() {
@@ -77,7 +81,7 @@ public class SaccadeBatchDetector implements DataSeries {
             resultHash.put(i, Math.abs(saccade.getPeakValue()));
         }
      /*   DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-        long time = inputData.getStartTime() + (long) (saccade.getPeakIndex() * 1000 / getFrequency());
+        long time = inputData.getStart() + (long) (saccade.getPeakIndex() * 1000 / getSamplingRate());
         String timeStamp = dateFormat.format(new Date(time));
         System.out.println(timeStamp + ": |" + saccade.getWidth() + "| "  + saccade.getPeakToEnergyRatio());   */
 
@@ -126,19 +130,10 @@ public class SaccadeBatchDetector implements DataSeries {
         return 0;
     }
 
-    @Override
-    public double getFrequency() {
-        return inputData.getFrequency();
-    }
 
     @Override
-    public long getStartTime() {
-        return inputData.getStartTime();
-    }
-
-    @Override
-    public DataDimension getDataDimension() {
-        return inputData.getDataDimension();
+    public Scaling getScaling() {
+        return inputData.getScaling();
     }
 }
 

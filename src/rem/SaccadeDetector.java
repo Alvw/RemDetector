@@ -112,11 +112,11 @@ public class SaccadeDetector {
     /**
      * we calculate  global threshold on the base of noise
      * not at the currentIndex (where we take the Value to compare with the threshold)
-     * but "THRESHOLD_SHIFT_POINTS"  before
+     * but "THRESHOLD_LAG_POINTS"  before
      * Value almost never grows at once/immediately (it took 1-4 points as a rule)
      * so we need a shift/gap between the  threshold and the currentIndex
      */
-    private static final int THRESHOLD_SHIFT_POINTS = 2;
+    private static final int THRESHOLD_LAG_POINTS = 2;
 
     private DataSeries velocityData;
     private Saccade detectingSaccade;
@@ -136,7 +136,11 @@ public class SaccadeDetector {
         DataSeries accelerationData = new FilterDerivativeRem(velocityData, AVERAGING_TIME);
         noiseDetectorGlobal = new NoiseDetector(accelerationData, THRESHOLD_PERIOD_GLOBAL);
         noiseDetectorLocal = new NoiseDetector(accelerationData, THRESHOLD_PERIOD_LOCAL);
-        saccadeValueMaxDigital = (int) (SACCADE_VALUE_MAX_PHYSICAL / eogData.getDataDimension().getGain());
+        double gain = 1;
+        if(eogData.getScaling() != null) {
+            gain = eogData.getScaling().getDataGain();
+        }
+        saccadeValueMaxDigital = (int) (SACCADE_VALUE_MAX_PHYSICAL / gain);
     }
 
     public int getSaccadeValueMaxDigital() {
@@ -150,7 +154,7 @@ public class SaccadeDetector {
     private int getThreshold() {
         int thresholdGlobalPeriodPoints = (int) (THRESHOLD_PERIOD_GLOBAL * getFrequency() / 1000);
 
-        if (currentIndex <= THRESHOLD_SHIFT_POINTS) {
+        if (currentIndex <= THRESHOLD_LAG_POINTS) {
             threshold = Integer.MAX_VALUE;
             return threshold;
         }
@@ -170,7 +174,7 @@ public class SaccadeDetector {
         if (previousSaccade != null) {
             lastPeakEnd = previousSaccade.getEndIndex();
         }
-        if (!isSaccadeUnderDetection && currentIndex - lastPeakEnd > THRESHOLD_SHIFT_POINTS + 2) {
+        if (!isSaccadeUnderDetection && currentIndex - lastPeakEnd > THRESHOLD_LAG_POINTS + 2) {
             int noise = noiseDetectorGlobal.getNext();
             threshold = (int) (noise * N);
         } else {
@@ -240,7 +244,11 @@ public class SaccadeDetector {
     }
 
     private double getFrequency() {
-        return velocityData.getFrequency();
+        double frequency = 1;
+        if(velocityData.getScaling() != null) {
+            frequency = 1 / velocityData.getScaling().getSamplingInterval();
+        }
+        return frequency;
     }
 
     private boolean isEqualSign(int a, int b) {
