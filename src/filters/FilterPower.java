@@ -4,6 +4,8 @@ import data.DataSeries;
 import functions.Function;
 
 /**
+ * Based on Teager Kaiser Energy operator :
+ * E_TKE =  x(n)*x(n) - x(n-1) * x(n+1)
  *
  */
 
@@ -16,6 +18,10 @@ public class FilterPower extends Function {
         this.distance = distance;
     }
 
+    public FilterPower(DataSeries inputData) {
+        this(inputData, 1);
+    }
+
     @Override
     public int get(int index) {
         if(index < distance || index >= (size()-distance)) {
@@ -25,9 +31,12 @@ public class FilterPower extends Function {
         int y_before = inputData.get(index - distance);
         int y_after = inputData.get(index + distance);
 
+        return (int)Math.sqrt(Math.abs(y*y - y_before * y_after));
+    }
 
-       // return (int) Math.sqrt(y*y - y_before * y_after) ;
-        return y*y - y_before * y_after;
+    @Override
+    public int size() {
+        return inputData.size() - distance;
     }
 }
 

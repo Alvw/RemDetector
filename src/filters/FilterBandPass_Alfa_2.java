@@ -1,12 +1,13 @@
 package filters;
 
 import data.DataSeries;
+import functions.Function;
 
 /**
  *
  */
 // 2-я производная + FilterBandPass_Alfa
-public class FilterBandPass_Alfa_2 extends FilterBuffered {
+public class FilterBandPass_Alfa_2 extends Function {
     private int period = 4;
     private int bufferHalf = period * 4;
 

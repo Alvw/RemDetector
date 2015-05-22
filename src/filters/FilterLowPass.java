@@ -1,12 +1,13 @@
 package filters;
 
 import data.DataSeries;
+import functions.Function;
 
 /**
  *
  */
 
-public class FilterLowPass extends FilterBuffered {
+public class FilterLowPass extends Function {
     private int bufferSize;
     private int indexBefore = -10;
     private long sumBefore = 0;

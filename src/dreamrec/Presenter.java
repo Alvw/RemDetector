@@ -3,6 +3,8 @@ package dreamrec;
 import data.CompressionType;
 import data.DataSeries;
 import filters.*;
+import functions.Abs;
+import functions.Constant;
 import graph.GraphType;
 import graph.GraphViewer;
 import gui.MainWindow;
@@ -64,7 +66,7 @@ public class Presenter implements  ControllerListener {
         if(dataStore.getNumberOfChannels() > 0) {
             DataSeries channel = dataStore.getChannelData(0);
             graphViewer.addPreviewPanel(1, false);
-            DataSeries velocityRem =  new FilterAbs(new FilterDerivativeRem(channel));
+            DataSeries velocityRem =  new Abs(new FilterDerivativeRem(channel));
             graphViewer.addPreview(velocityRem, CompressionType.AVERAGE);
         }
 
@@ -82,16 +84,16 @@ public class Presenter implements  ControllerListener {
 
         FilterDerivativeRem eogDerivativeRem =  new FilterDerivativeRem(eogFull);
         //DataSeries eogDerivativeRem =  new FilterLowPass(new FilterDerivativeRem(eogFull), 25.0);
-        DataSeries eogDerivativeRemAbs =  new FilterAbs(eogDerivativeRem);
+        DataSeries eogDerivativeRemAbs =  new Abs(eogDerivativeRem);
 
         SaccadeBatchDetector saccades = new SaccadeBatchDetector(eogFull);
 
         graphViewer.addGraphPanel(2, true);
         graphViewer.addGraph(eog);
 
-        graphViewer.addGraphPanel(2, false);
+        graphViewer.addGraphPanel(1, false);
         graphViewer.addGraph(eogDerivativeRemAbs);
-        graphViewer.addGraph(new FilterConstant(eog, saccades.getSaccadeMaxValuePhysical()));
+        graphViewer.addGraph(new Constant(eog, saccades.getSaccadeMaxValuePhysical()));
         graphViewer.addGraph(saccades.getThresholds());
 
         graphViewer.addGraphPanel(2, false);
@@ -100,16 +102,20 @@ public class Presenter implements  ControllerListener {
         graphViewer.addGraphPanel(2, true);
         graphViewer.addGraph(new FilterHiPass(new FilterBandPass_Alfa(eog), 2));
 
+        graphViewer.addGraphPanel(2, true);
+        graphViewer.addGraph(new FilterAlfa(eog));
+
+
         graphViewer.addGraphPanel(1, false);
         graphViewer.addGraph(accMovement);
-        graphViewer.addGraph(new FilterConstant(accMovement, accMovementLimit));
+        graphViewer.addGraph(new Constant(accMovement, accMovementLimit));
 
         graphViewer.addPreviewPanel(2, false);
         graphViewer.addPreview(eogDerivativeRemAbs, CompressionType.MAX);
         graphViewer.addPreview(isSleep, GraphType.BOOLEAN, CompressionType.BOOLEAN);
 
 
-       graphViewer.addPreviewPanel(2, false);
-       graphViewer.addPreview(saccades, CompressionType.MAX);
+      graphViewer.addPreviewPanel(2, false);
+      graphViewer.addPreview(saccades, CompressionType.MAX);
     }
 }

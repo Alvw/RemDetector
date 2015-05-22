@@ -1,11 +1,10 @@
-package filters;
+package functions;
 
 import data.DataSeries;
-import functions.Function;
 
-public class FilterConstant extends Function {
+public class Constant extends Function {
     int digitalConstant;
-    public FilterConstant(DataSeries inputData, double physConstant) {
+    public Constant(DataSeries inputData, double physConstant) {
         super(inputData);
         digitalConstant = (int)(physConstant / inputData.getScaling().getDataGain());
     }

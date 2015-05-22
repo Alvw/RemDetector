@@ -1,23 +1,18 @@
-package filters;
+package functions;
 
 import data.DataSeries;
-import functions.Function;
 
 /**
  *
  */
 
-public class FilterAbs extends Function {
-
-    private int derivative = 0;
-
-    public FilterAbs(DataSeries inputData) {
+public class Abs extends Function {
+    public Abs(DataSeries inputData) {
         super(inputData);
     }
 
     @Override
     public int get(int index) {
-
         return Math.abs(inputData.get(index));
     }
 }
