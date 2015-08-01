@@ -1,45 +1,30 @@
 package comport;
 
-import dreamrec.ApplicationException;
-import jssc.SerialPortException;
-import jssc.SerialPortList;
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class Terminal {
-    int bufferSize = 100;
-    byte[]  symbols = new byte[bufferSize];
-    int counter = 0;
-    ComPort  comPort;
-
-
-    public Terminal() {
-        String[] portNames = SerialPortList.getPortNames();
-        for (int i = 0; i < portNames.length; i++) {
-            System.out.println(portNames[i]);
-        }
-        try {
-            comPort = new ComPort("COM14", 9600);
-            comPort.setComPortListener(new ComPortListener() {
-                @Override
-                public void onByteReceived(byte inByte) {
-                   if(counter < bufferSize) {
-                       symbols[counter] = inByte;
-                   }
-                   if(counter == bufferSize){
-                       for(int i = 0; i < bufferSize; i++) {
-                           //char c =  (char) (symbols[i] & 0xFF);
-                           System.out.print(symbols[i]);
-                           comPort.disconnect();
-                       }
-                   }
-                    counter++;
-                }
-            });
-        }
-        catch(ApplicationException e) {
-            System.out.println(e.getMessage());
-        }
-        catch (SerialPortException e) {
-            System.out.println(e.getMessage());
-        }
+    public static void main(String[] args) {
+        final TerminalInt t = new TerminalInt();
+        JFrame frame = new JFrame("ComPort");
+        JButton disconnectButton = new JButton("Disconnect com port");
+        disconnectButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                t.disconnect();
+            }
+        });
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                t.disconnect();
+            }
+        });
+        frame.add(disconnectButton);
+        frame.pack();
+        frame.setVisible(true);
     }
 }

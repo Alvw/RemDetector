@@ -96,14 +96,14 @@ public class Presenter implements  ControllerListener {
         graphViewer.addGraph(new Constant(eog, saccades.getSaccadeMaxValuePhysical()));
         graphViewer.addGraph(saccades.getThresholds());
 
-        graphViewer.addGraphPanel(2, false);
-        graphViewer.addGraph(saccades);
+     //   graphViewer.addGraphPanel(2, false);
+     //   graphViewer.addGraph(saccades);
 
         graphViewer.addGraphPanel(2, true);
         graphViewer.addGraph(new FilterHiPass(new FilterBandPass_Alfa(eog), 2));
 
-        graphViewer.addGraphPanel(2, true);
-        graphViewer.addGraph(new FilterAlfa(eog));
+      //  graphViewer.addGraphPanel(2, true);
+       // graphViewer.addGraph(new FilterAlfa(eog));
 
 
         graphViewer.addGraphPanel(1, false);
@@ -115,7 +115,7 @@ public class Presenter implements  ControllerListener {
         graphViewer.addPreview(isSleep, GraphType.BOOLEAN, CompressionType.BOOLEAN);
 
 
-      graphViewer.addPreviewPanel(2, false);
-      graphViewer.addPreview(saccades, CompressionType.MAX);
+     // graphViewer.addPreviewPanel(2, false);
+     // graphViewer.addPreview(saccades, CompressionType.MAX);
     }
 }
