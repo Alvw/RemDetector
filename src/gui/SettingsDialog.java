@@ -211,7 +211,7 @@ class SettingsDialog extends JDialog {
 
     private void arrangeForm() {
         int hgap = 10;
-        int vgap = 0;
+        int vgap = 5;
 
         JPanel patientPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, hgap, vgap));
         patientPanel.add(new JLabel(PATIENT_IDENTIFICATION_LABEL));
@@ -224,7 +224,7 @@ class SettingsDialog extends JDialog {
         recordIdentificationField.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
 
         hgap = 5;
-        vgap = 5;
+        vgap = 0;
         JPanel identificationPanel = new JPanel(new BorderLayout(hgap, vgap));
         identificationPanel.add(patientPanel, BorderLayout.CENTER);
         identificationPanel.add(recordingPanel, BorderLayout.SOUTH);
