@@ -82,8 +82,8 @@ public class GraphController implements GraphEventHandler {
     }
 
 
-    public void addGraph(DataSeries graphData, GraphType graphType, CompressionType compressionType,  int graphClusterNumber) {
-        graphModel.addGraph(graphData, graphType, compressionType, graphClusterNumber);
+    public void addGraph(Graph graph, CompressionType compressionType,  int graphClusterNumber) {
+        graphModel.addGraph(graph, compressionType, graphClusterNumber);
         fireDataUpdated();
     }
 

@@ -68,7 +68,7 @@ import filters.FilterDerivative_N;
  * And almost always before and after every saccade should be a short period of relative tranquility:
  * REST_TIME = 100-200 ms
  */
-public class SaccadeDetector {
+public class SaccadeDetector1 {
     private static final int SACCADE_DURATION_MIN = 40; // [ms]  (milliseconds)
     private static final int SACCADE_DURATION_MAX = 320; // [ms]
     private static final int SACCADE_PEAK_VELOCITY_MAX = 700; // [°/s]
@@ -107,7 +107,7 @@ public class SaccadeDetector {
             SACCADE_PEAK_VELOCITY_MAX * SENSITIVITY * AVERAGING_TIME / 1000; // [ µV ]
 
     private static final int THRESHOLD_PERIOD_GLOBAL = 20000; // [ms]
-    private static final int THRESHOLD_PERIOD_LOCAL = 200; // [ms]
+    private static final int THRESHOLD_PERIOD_LOCAL = 100; // [ms]
     private static final double SACCADE_THRESHOLD_RATIO_MIN = 1.3;
     private static final double N = 3; // Threshold to noise ratio
 
@@ -136,9 +136,9 @@ public class SaccadeDetector {
     private DataList thresholdLocalList = new DataList();
 
 
-    SaccadeDetector(DataSeries eogData) {
-        velocityData = new FilterDerivativeRem(eogData);
-        DataSeries accelerationData = new FilterDerivativeRem(velocityData);
+    SaccadeDetector1(DataSeries eogData) {
+        velocityData = new SaccadeFunction(new FilterDerivativeRem(eogData));
+        DataSeries accelerationData = new FilterDerivativeRem(new FilterDerivativeRem(eogData));
         noiseDetectorGlobal = new NoiseDetector(accelerationData, THRESHOLD_PERIOD_GLOBAL);
         noiseDetectorLocal = new NoiseDetector(velocityData, THRESHOLD_PERIOD_LOCAL);
         double gain = 1;

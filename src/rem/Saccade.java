@@ -5,16 +5,15 @@ public class Saccade {
     private int endIndex;
     private int peakIndex;
     private int peakValue;
-    private int threshold;
-    private int energy;
+    private int sumValue;
 
-    public Saccade(int index, int value, int threshold) {
+
+    public Saccade(int index, int value) {
         beginIndex = index;
-        peakValue = value;
         peakIndex = index;
         endIndex = index;
-        energy = value * value;
-        this.threshold = threshold;
+        sumValue = value;
+        peakValue = value;
     }
 
     public void addPoint(int index, int value) {
@@ -23,26 +22,16 @@ public class Saccade {
             peakIndex = index;
         }
         endIndex = index;
-        energy = energy + value * value;
+        sumValue += value;
     }
 
     public int getWidth() {
         return endIndex - beginIndex + 1;
     }
 
-    public double getPeakToThresholdRatio() {
-        double peak = Math.abs(peakValue);
-        if(threshold != 0) {
-            return peak / threshold;
-        }
-        return 0;
+    public int getAverageValue() {
+        return sumValue / getWidth();
     }
-
-    public double getPeakToEnergyRatio() {
-        double peak = peakValue*peakValue;
-        return  peak / (energy/getWidth());
-    }
-
 
     public int getPeakValue() {
         return peakValue;

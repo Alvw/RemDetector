@@ -1,6 +1,7 @@
 package rem;
 
 import data.DataSeries;
+import data.Scaling;
 
 import java.util.LinkedList;
 
@@ -22,6 +23,13 @@ public class NoiseDetector {
             numberOfPoints = 1;
         }
         bufferedValues = new LinkedList<Integer>();
+    }
+
+    public boolean isAvailable() {
+        if(counter < inputData.size() - 1) {
+            return true;
+        }
+        return false;
     }
 
 /**
@@ -59,6 +67,10 @@ public class NoiseDetector {
      */
     public void skip() {
         counter++;
+    }
+
+    public Scaling getScaling() {
+        return inputData.getScaling();
     }
 
 

@@ -1,5 +1,8 @@
 package graph;
 
 public enum GraphType {
-    PAPA, LINE, BAR, BOOLEAN
+    VERTICAL_LINE, // papa algorithm
+    LINE,
+    BAR,
+    BOOLEAN
 }

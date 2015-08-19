@@ -16,7 +16,7 @@ public class SaccadeBatchDetector implements DataSeries {
      * overlong fixations: 4900 ms
      * SACCADE_DISTANCE_MAX = 5-6 sec
      */
-    static final int SACCADE_DISTANCE_MAX = 6; // [sec]
+    static final int SACCADE_DISTANCE_MAX = 16; // [sec]
     private static final int FOURIER_TIME = 11; // [sec]
     private SaccadesBatch tmpBatch;
     private List<SaccadesBatch> saccadesBatchList = new ArrayList<SaccadesBatch>();
@@ -117,6 +117,10 @@ public class SaccadeBatchDetector implements DataSeries {
 
     public DataSeries getThresholds() {
         return saccadeDetector.getThresholds();
+    }
+
+    public DataSeries getLocalThresholds() {
+        return saccadeDetector.getLocalThresholds();
     }
 
     @Override

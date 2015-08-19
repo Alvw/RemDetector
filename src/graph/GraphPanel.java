@@ -198,7 +198,7 @@ public class GraphPanel extends JPanel {
         for (Graph graph : graphList) {
             Color graphColor = graphColors[graph_number % graphColors.length];
             graph_number++;
-            graphPainter.setColor(graphColor);
+            graphPainter.setDefaultColor(graphColor);
             graphPainter.paint(g, zoom, startIndex, graph);
         }
         paintSlot(g);

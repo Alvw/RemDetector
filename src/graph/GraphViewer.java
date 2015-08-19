@@ -103,14 +103,27 @@ public class GraphViewer extends JPanel{
     }
 
 
-    public void addGraph(final DataSeries graph, final GraphType graphType, final CompressionType compressionType, final int panelNumber) {
+    public void addGraph(final Graph graph,  final CompressionType compressionType, final int panelNumber) {
         if(SwingUtilities.isEventDispatchThread()) {
-            graphController.addGraph(graph, graphType, compressionType, panelNumber);
+            graphController.addGraph(graph, compressionType, panelNumber);
         }
         else {
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
-                    graphController.addGraph(graph, graphType, compressionType, panelNumber);
+                    graphController.addGraph(graph, compressionType, panelNumber);
+                }
+            });
+        }
+    }
+
+    public void addGraph(final DataSeries graphData, final GraphType graphType, final CompressionType compressionType, final int panelNumber) {
+        if(SwingUtilities.isEventDispatchThread()) {
+            graphController.addGraph(new Graph(graphData, graphType), compressionType, panelNumber);
+        }
+        else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    graphController.addGraph(new Graph(graphData, graphType), compressionType, panelNumber);
                 }
             });
         }
@@ -168,11 +181,11 @@ public class GraphViewer extends JPanel{
 
 
     public void addGraph(final DataSeries graph) {
-        addGraph(graph, GraphType.PAPA, CompressionType.AVERAGE);
+        addGraph(graph, GraphType.VERTICAL_LINE, CompressionType.AVERAGE);
     }
 
     public void addPreview(final DataSeries preview,  final CompressionType compressionType) {
-        addPreview(preview, GraphType.PAPA, compressionType);
+        addPreview(preview, GraphType.VERTICAL_LINE, compressionType);
     }
 
     public void setGraphSamplingRate(final double samplingRate) {

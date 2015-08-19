@@ -3,20 +3,23 @@ package graph.painters;
 import data.DataSeries;
 import graph.Graph;
 import graph.GraphType;
+import graph.colors.ColorSelector;
 
 import java.awt.*;
+import java.util.ArrayList;
 
 public class GraphPainter {
-    private Color graphColor = Color.YELLOW;
+    private Color defaultGraphColor = Color.YELLOW;
 
-    public void setColor(Color graphColor) {
-        this.graphColor = graphColor;
+    public void setDefaultColor(Color graphColor) {
+        defaultGraphColor = graphColor;
     }
 
     public void paint(Graphics g, double zoom, int startIndex, Graph graph) {
-        g.setColor(graphColor);
+        g.setColor(defaultGraphColor);
         DataSeries graphData = graph.getGraphData();
         GraphType graphType = graph.getGraphType();
+        ColorSelector colorSelector = graph.getColorSelector();
         if (graphData != null && startIndex >= 0 && startIndex < graphData.size()) {
             int width = g.getClipBounds().width;
             int height = g.getClipBounds().height;
@@ -27,7 +30,13 @@ public class GraphPainter {
             for (int x = 0; x < endPoint; x++) {
                 value = graphData.get(x + startIndex);
                 y = (int) Math.round(zoom * value);
-                if(graphType == GraphType.PAPA) {
+                if(colorSelector != null && colorSelector.getColor(x + startIndex) != null) {
+                    g.setColor(colorSelector.getColor(x + startIndex));
+                }
+                else{
+                    g.setColor(defaultGraphColor);
+                }
+                if(graphType == GraphType.VERTICAL_LINE) {
                     drawVerticalLine(g, x, y, vLine);
                 }
                 if(graphType == GraphType.LINE) {
@@ -44,7 +53,7 @@ public class GraphPainter {
                 }
                 if(graphType == GraphType.BOOLEAN) {
                     if(value == 0)  {
-                        g.drawLine(x, 0, x, height);
+                        g.drawLine(x, -height, x, height);
                     }
                 }
             }

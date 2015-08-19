@@ -25,7 +25,9 @@ public class ComPort implements SerialPortEventListener {
         boolean isComPortExist = false;
         comPortName.trim();
         String[] portNames = SerialPortList.getPortNames();
+
         for(int i = 0; i < portNames.length; i++){
+           // System.out.println("ComPortNames:  "+portNames[i]);
             if(comPortName != null && comPortName.equalsIgnoreCase(portNames[i])) {
                 isComPortExist = true;
             }

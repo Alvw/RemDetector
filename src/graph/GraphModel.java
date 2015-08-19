@@ -56,8 +56,9 @@ class GraphModel {
         previewClusterList.add(new ArrayList<Graph>());
     }
 
-    public void addGraph(DataSeries graphData, GraphType graphType, CompressionType compressionType, int graphClusterNumber) {
+    public void addGraph(Graph graph, CompressionType compressionType, int graphClusterNumber) {
         if (graphClusterNumber < graphClusterList.size()) {
+            DataSeries graphData = graph.getGraphData();
             DataCompressor resultingGraphData = new DataCompressor(graphData, compressionType);
             if(graphData.getScaling() != null) {
                 double previewFrequency = graphsSamplingRate / compression;
@@ -69,7 +70,8 @@ class GraphModel {
                     compression = graphsSamplingRate / previewFrequency;
                 }
             }
-            graphClusterList.get(graphClusterNumber).add(new Graph(resultingGraphData, graphType));
+            graph.setGraphData(resultingGraphData);
+            graphClusterList.get(graphClusterNumber).add(graph);
         }
     }
 
