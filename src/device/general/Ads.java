@@ -15,7 +15,7 @@ public class Ads implements BdfProvider {
     private static final Log log = LogFactory.getLog(Ads.class);
     private List<BdfListener> bdfListeners = new ArrayList<BdfListener>();
     protected ComPort comPort;
-    private boolean isRecording;
+    protected boolean isRecording;
     private AdsConfigurator adsConfigurator;
 
 

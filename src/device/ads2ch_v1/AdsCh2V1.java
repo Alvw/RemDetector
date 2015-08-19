@@ -37,6 +37,7 @@ public class AdsCh2V1  extends Ads {
 
     public void stopReading() {
         super.stopReading();
+        if (!isRecording) return;
         pingTimer.cancel();
     }
 }
