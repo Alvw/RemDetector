@@ -14,7 +14,7 @@ import java.util.List;
 public class Ads implements BdfProvider {
     private static final Log log = LogFactory.getLog(Ads.class);
     private List<BdfListener> bdfListeners = new ArrayList<BdfListener>();
-    private ComPort comPort;
+    protected ComPort comPort;
     private boolean isRecording;
     private AdsConfigurator adsConfigurator;
 
@@ -109,11 +109,11 @@ public class Ads implements BdfProvider {
             int numberOfSamplesInEachDataRecord = adsConfiguration.getMaxDivider().getValue()  / adsConfiguration.getAccelerometerDivider().getValue();
             if (adsConfiguration.isAccelerometerEnabled()) {
                 Calibration calibration = new Calibration();
-                calibration.setDigitalMax(30800);
-                calibration.setDigitalMin(-30800);
-                calibration.setPhysicalMax(2);
-                calibration.setPhysicalMin(-2);
-                calibration.setPhysicalDimension("g");
+                calibration.setDigitalMax(9610);
+                calibration.setDigitalMin(-4190);
+                calibration.setPhysicalMax(1000);
+                calibration.setPhysicalMin(-1000);
+                calibration.setPhysicalDimension("mg");
                 SignalConfig signalConfig = new SignalConfig(numberOfSamplesInEachDataRecord, calibration);
                 signalConfig.setLabel("Accelerometer " + (i + 1));
                 signalConfig.setTransducerType("Unknown");

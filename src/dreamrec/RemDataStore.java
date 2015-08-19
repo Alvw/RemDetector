@@ -18,7 +18,7 @@ import java.util.ArrayList;
  */
 public class RemDataStore  implements DataStoreListener {
 
-    private double accMovementLimit =  0.15;
+    private double accMovementLimit =  150;
 
     private DataStore dataStore;
     private RemChannels remChannels;

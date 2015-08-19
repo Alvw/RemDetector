@@ -33,8 +33,7 @@ public class AdsConfiguratorCh2V1 implements AdsConfigurator {
     @Override
     public List<Byte> writeAdsConfiguration() {
         List<Byte> result = new ArrayList<Byte>();
-        result.add((byte)29);       //длина пакета
-        result.add((byte)0xFF);     //stop recording
+        result.add((byte)32);       //длина пакета
 
         result.add((byte)0xF0);     //ads1292 command
         result.add((byte)0x11);     //ads1292 stop continuous
@@ -82,9 +81,15 @@ public class AdsConfiguratorCh2V1 implements AdsConfigurator {
         int accelerometerMode = adsConfiguration.isAccelerometerEnabled() ? 1 : 0;
         result.add((byte)accelerometerMode);
 
-        result.add((byte)0xF4);     //передача данных loff статуса: 0 - disabled, 1 - enabled
+        result.add((byte)0xF4);     //send battery voltage data: 0 - disabled, 1 - enabled
+        result.add((byte)0);
+
+        result.add((byte)0xF5);     //передача данных loff статуса: 0 - disabled, 1 - enabled
         int loffEnabled = adsConfiguration.isLoffEnabled() ? 1 : 0;
         result.add((byte)loffEnabled);
+
+        result.add((byte)0xF6);     //reset timeout. In seconds
+        result.add((byte)20);
 
         result.add((byte)0xF0);     //ads1292 command
         result.add((byte)0x10);     //ads1292 start continuous
