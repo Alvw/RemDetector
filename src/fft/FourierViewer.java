@@ -1,6 +1,8 @@
 package fft;
 
+import data.CompressionType;
 import data.DataSeries;
+import graph.GraphType;
 import graph.GraphViewer;
 
 import javax.swing.*;
@@ -28,7 +30,7 @@ public class FourierViewer extends JDialog {
 
     public void showGraph(DataSeries graph) {
         graphViewer.removeGraphs(0);
-        graphViewer.addGraph(graph);
+        graphViewer.addGraph(graph, GraphType.LINE, CompressionType.AVERAGE);
     }
 
     private Dimension getDimension() {

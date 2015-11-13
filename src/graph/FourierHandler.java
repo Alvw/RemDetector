@@ -36,7 +36,7 @@ public class FourierHandler implements FourierListener, GraphControllerListener 
          }
     }
 
-    private DataSeries calculateFourier(DataSeries graph) {
+    private DataSeries calculateFourierIntegral(DataSeries graph) {
         double time = 6; // sec
         DataSeries fourier =  Fourie.fftForward(graph, graphModel.getStartIndex(), time);
         DataSeries fourierIntegral = new FilterFourierIntegral(fourier);
@@ -51,5 +51,22 @@ public class FourierHandler implements FourierListener, GraphControllerListener 
         result.setCompression(0.25);
 
         return result;
+    }
+
+    private DataSeries calculateFourier(DataSeries graph) {
+        double time = 6; // sec
+        DataSeries fourier =  Fourie.fftForward(graph, graphModel.getStartIndex(), time);
+
+
+/*        System.out.println("has Alpha " +FourierAnalizer.hasAlfa(fourier));
+        System.out.println("high " +FourierAnalizer.getHighFrequenciesSum(fourier));
+        System.out.println("" );  */
+
+
+        DataCompressor result = new DataCompressor(fourier, CompressionType.SUM);
+        //result = new DataCompressor(fourier, CompressionType.SUM);
+        result.setCompression(0.25);
+
+        return fourier;
     }
 }
