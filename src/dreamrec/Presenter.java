@@ -98,7 +98,6 @@ public class Presenter implements  ControllerListener {
         graphViewer.addGraphPanel(1, false);
         graphViewer.addGraph(accMovement);
         graphViewer.addGraph(new Constant(accMovement, accMovementLimit));
-        System.out.println("Limit " + accMovementLimit);
 
         graphViewer.addPreviewPanel(1, false);
         graphViewer.addPreview(eogDerivativeRemAbs, CompressionType.MAX);
