@@ -8,8 +8,8 @@ import device.general.FrameDecoder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-class FrameDecoderCh2V1 extends FrameDecoder {
-    private static final Log log = LogFactory.getLog(ComPortListener.class);
+public class FrameDecoderCh2V1 extends FrameDecoder {
+    private static final Log log = LogFactory.getLog(FrameDecoderCh2V1.class);
 
     public static final byte START_FRAME_MARKER = (byte) (0xAA & 0xFF);
     public static final byte STOP_FRAME_MARKER = (byte) (0x55 & 0xFF);

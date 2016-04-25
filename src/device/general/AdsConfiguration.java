@@ -23,6 +23,7 @@ public class AdsConfiguration {
     private static final String CHANNEL_IS_RLD_SENSE_ENABLED = "isRldSenseEnabledChannel";
     private static final String ACCELEROMETER_IS_ENABLED = "isEnabledAccelerometer";
     private static final String ACCELEROMETER_DIVIDER = "dividerAccelerometer";
+    private static final String IS_BATTERY_VOLTAGE_ENABLED = "isBatteryVoltageMeasureEnabled";
 
     private String fileName;
     private int numberOfAdsChannels;
@@ -49,6 +50,10 @@ public class AdsConfiguration {
 
     public AdsConfiguration(String propertiesFileName, int numberOfAdsChannels, int comPortSpeed, Divider maxDivider) {
         this(propertiesFileName, numberOfAdsChannels, comPortSpeed, maxDivider, null);
+    }
+
+    public boolean isBatteryVoltageMeasureEnabled() {
+        return config.getBoolean(IS_BATTERY_VOLTAGE_ENABLED);
     }
 
     public int getNumberOfBytesInDataFormat() {
