@@ -89,7 +89,7 @@ public class RemDataStore  implements DataStoreListener {
 
     public double getAccMovementLimit() {
         // movementLimit = (int)(0.15 / getAccXData().getDataCalibration().getGain());
-        return accMovementLimit;
+        return accMovementLimit / 1000;
     }
 
     public int getNumberOfChannels() {

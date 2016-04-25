@@ -92,37 +92,18 @@ public class Presenter implements  ControllerListener {
         //DataSeries eogDerivativeRem =  new FilterLowPass(new FilterDerivativeRem(eogFull), 25.0);
         DataSeries eogDerivativeRemAbs =  new Abs(eogDerivativeRem);
 
-        SaccadeBatchDetector saccades = new SaccadeBatchDetector(eogFull);
-
         graphViewer.addGraphPanel(2, true);
         graphViewer.addGraph(eog);
 
         graphViewer.addGraphPanel(1, false);
-        graphViewer.addGraph(eogDerivativeRemAbs);
-        graphViewer.addGraph(new Constant(eog, saccades.getSaccadeMaxValuePhysical()));
-        graphViewer.addGraph(saccades.getThresholds());
-
-     //   graphViewer.addGraphPanel(2, false);
-     //   graphViewer.addGraph(saccades);
-
-        graphViewer.addGraphPanel(2, true);
-        graphViewer.addGraph(new FilterHiPass(new FilterBandPass_Alfa(eog), 2));
-
-      //  graphViewer.addGraphPanel(2, true);
-       // graphViewer.addGraph(new FilterAlfa(eog));
-
-
-        graphViewer.addGraphPanel(1, false);
         graphViewer.addGraph(accMovement);
         graphViewer.addGraph(new Constant(accMovement, accMovementLimit));
+        System.out.println("Limit " + accMovementLimit);
 
-        graphViewer.addPreviewPanel(2, false);
+        graphViewer.addPreviewPanel(1, false);
         graphViewer.addPreview(eogDerivativeRemAbs, CompressionType.MAX);
         graphViewer.addPreview(isSleep, GraphType.BOOLEAN, CompressionType.BOOLEAN);
 
-
-     // graphViewer.addPreviewPanel(2, false);
-     // graphViewer.addPreview(saccades, CompressionType.MAX);
     }
 
     private void gala(RemDataStore remDataStore) {
